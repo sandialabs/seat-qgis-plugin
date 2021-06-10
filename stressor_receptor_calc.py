@@ -24,7 +24,8 @@
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QTableWidgetItem, QGridLayout
-from qgis.core import QgsProject, Qgis, QgsApplication, QgsVectorLayer
+from qgis.core import QgsProject, Qgis, QgsApplication, QgsVectorLayer, QgsMessageLog, QgsRasterLayer
+from qgis.analysis import QgsRasterCalculator, QgsRasterCalculatorEntry
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -181,6 +182,7 @@ class StressorReceptorCalc:
             self.iface.removeToolBarIcon(action)
     
     def select_calc_type(self, fields):
+        '''This loads in any inputs into a drop down selector '''
         calcname=self.dlg.comboBox.currentIndex()
         # set up table
         path = os.path.join(QgsApplication.qgisSettingsDirPath(),
@@ -211,24 +213,49 @@ class StressorReceptorCalc:
                    
     def select_stressor_file(self):
         filename, _filter = QFileDialog.getOpenFileName(
-        self.dlg, "Select Stressor Layer ","", '*.shp')
+        self.dlg, "Select Stressor Layer ","", '*.tif')
         self.dlg.lineEdit.setText(filename)
     
     def select_receptor1_file(self):
         filename, _filter = QFileDialog.getOpenFileName(
-        self.dlg, "Select Receptor Layer 1","", '*.shp')
+        self.dlg, "Select Receptor Layer 1","", '*.tif')
         self.dlg.lineEdit_2.setText(filename)
         
     def select_receptor2_file(self):
         filename, _filter = QFileDialog.getOpenFileName(
-        self.dlg, "Select Receptor Layer 2","", '*.shp')
+        self.dlg, "Select Receptor Layer 2","", '*.tif')
         self.dlg.lineEdit_3.setText(filename)
     
     def select_output_file(self):
         filename, _filter = QFileDialog.getSaveFileName(
-        self.dlg, "Select output file ","", '*.shp')
+        self.dlg, "Select output file ","", '*.tif')
         self.dlg.lineEdit_4.setText(filename)
+        
+    def raster_multi(self, r1, r2, opath):
+        ''' Raster multiplication '''
+        r1Layer  = QgsRasterLayer(r1, "r1")
+        r2Layer  = QgsRasterLayer(r2, "r2")
+        
+        entries = []
+        
+        # Define band1
+        rl = QgsRasterCalculatorEntry()
+        rl.ref = 'r1@1'
+        rl.raster = r1Layer
+        rl.bandNumber = 1
+        entries.append( rl )
+        
+        # Define band1
+        r2l = QgsRasterCalculatorEntry()
+        r2l.ref = 'r2@1'
+        r2l.raster = r2Layer
+        r2l.bandNumber = 1
+        entries.append( r2l )
+        
+        calc = QgsRasterCalculator( 'r1@1 * r2@1', opath, 'GTiff', r1Layer.extent(), r1Layer.width(), r1Layer.height(), entries )
+        calc.processCalculation()
 
+        
     def run(self):
         """Run method that performs all the real work"""
 
@@ -253,7 +280,8 @@ class StressorReceptorCalc:
             # This connects the function to the layer combobox when changed
             self.dlg.comboBox.currentIndexChanged.connect(lambda: self.select_calc_type(fields))
 
-                       
+            # this connecta selecting the files. Since each element has a unique label seperate functions are used.
+            
             self.dlg.pushButton.clicked.connect(self.select_stressor_file)
             self.dlg.pushButton_2.clicked.connect(self.select_receptor1_file)
             self.dlg.pushButton_3.clicked.connect(self.select_receptor2_file)
@@ -269,14 +297,25 @@ class StressorReceptorCalc:
         result = self.dlg.exec_()
         # See if OK was pressed
         if result:
-            # Do something useful here - delete the line containing pass and
-            # substitute with your code.
+            # Do something useful here
+            # this grabs the files for input and output
             sfilename = self.dlg.lineEdit.text()
             r1filename = self.dlg.lineEdit_2.text()
             r2filename = self.dlg.lineEdit_3.text()
             ofilename = self.dlg.lineEdit_4.text()
             
+            # this grabs the current Table Widget values
+            calc_index=self.dlg.comboBox.currentIndex()
+            min_rc = self.dlg.tableWidget.item(calc_index, 1).text()
+            max_rc = self.dlg.tableWidget.item(calc_index, 2).text()
+             
+            #QgsMessageLog.logMessage(min_rc + " , " + max_rc, level =Qgis.MessageLevel.Info)
+            
+            #self.dlg.tableWidget.findItems(i,j, QTableWidgetItem(item))
+            
+            self.raster_multi(sfilename, r1filename, ofilename)
+            
             # add a layer to map
-            basename = os.path.splitext(os.path.basename(QgsVectorLayer(sfilename).source()))[0]
-            layer = QgsProject.instance().addMapLayer(QgsVectorLayer(sfilename, basename))
+            basename = os.path.splitext(os.path.basename(QgsVectorLayer(ofilename).source()))[0]
+            layer = QgsProject.instance().addMapLayer(QgsVectorLayer(ofilename, basename))
     
