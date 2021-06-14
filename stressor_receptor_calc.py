@@ -251,8 +251,9 @@ class StressorReceptorCalc:
         r2l.raster = r2Layer
         r2l.bandNumber = 1
         entries.append( r2l )
-        
-        calc = QgsRasterCalculator( 'r1@1 * r2@1', opath, 'GTiff', r1Layer.extent(), r1Layer.width(), r1Layer.height(), entries )
+        # grab the current transform to avoid deprecation warnings
+        coordinateTransformContext=QgsProject.instance().transformContext()
+        calc = QgsRasterCalculator( 'r1@1 * r2@1', opath, 'GTiff', r1Layer.extent(), r1Layer.width(), r1Layer.height(), entries, coordinateTransformContext )
         calc.processCalculation()
 
         
@@ -316,6 +317,6 @@ class StressorReceptorCalc:
             self.raster_multi(sfilename, r1filename, ofilename)
             
             # add a layer to map
-            basename = os.path.splitext(os.path.basename(QgsVectorLayer(ofilename).source()))[0]
-            layer = QgsProject.instance().addMapLayer(QgsVectorLayer(ofilename, basename))
+            basename = os.path.splitext(os.path.basename(ofilename))[0]
+            layer = QgsProject.instance().addMapLayer(QgsRasterLayer(ofilename, basename))
     
