@@ -26,6 +26,7 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QTableWidgetItem, QGridLayout
 from qgis.core import QgsProject, Qgis, QgsApplication, QgsVectorLayer, QgsMessageLog, QgsRasterLayer
 from qgis.analysis import QgsRasterCalculator, QgsRasterCalculatorEntry
+from qgis.gui import QgsLayerTreeView
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -211,17 +212,17 @@ class StressorReceptorCalc:
             
             self.dlg.tableWidget.resizeColumnsToContents()
                    
-    def select_stressor_file(self):
+    def select_receptor_file(self):
         filename, _filter = QFileDialog.getOpenFileName(
         self.dlg, "Select Stressor Layer ","", '*.tif')
         self.dlg.lineEdit.setText(filename)
     
-    def select_receptor1_file(self):
+    def select_threshold_file(self):
         filename, _filter = QFileDialog.getOpenFileName(
         self.dlg, "Select Receptor Layer 1","", '*.tif')
         self.dlg.lineEdit_2.setText(filename)
         
-    def select_receptor2_file(self):
+    def select_secondary_constraint_file(self):
         filename, _filter = QFileDialog.getOpenFileName(
         self.dlg, "Select Receptor Layer 2","", '*.tif')
         self.dlg.lineEdit_3.setText(filename)
@@ -231,31 +232,73 @@ class StressorReceptorCalc:
         self.dlg, "Select output file ","", '*.tif')
         self.dlg.lineEdit_4.setText(filename)
         
-    def raster_multi(self, r1, r2, opath):
+    def raster_multi(self, r, t, sc, opath):
         ''' Raster multiplication '''
-        r1Layer  = QgsRasterLayer(r1, "r1")
-        r2Layer  = QgsRasterLayer(r2, "r2")
+        rLayer  = QgsRasterLayer(r, "r")
+        tLayer  = QgsRasterLayer(t, "t")
         
         entries = []
         
-        # Define band1
+        # Define receptor
         rl = QgsRasterCalculatorEntry()
-        rl.ref = 'r1@1'
-        rl.raster = r1Layer
+        rl.ref = 'r@1'
+        rl.raster = rLayer
         rl.bandNumber = 1
         entries.append( rl )
         
-        # Define band1
-        r2l = QgsRasterCalculatorEntry()
-        r2l.ref = 'r2@1'
-        r2l.raster = r2Layer
-        r2l.bandNumber = 1
-        entries.append( r2l )
+        # Define threshold
+        tl = QgsRasterCalculatorEntry()
+        tl.ref = 't@1'
+        tl.raster = tLayer
+        tl.bandNumber = 1
+        entries.append( tl )
+        
+        # Define constraint
+        if not sc == "":
+            scLayer  = QgsRasterLayer(sc, "sc")
+            scl = QgsRasterCalculatorEntry()
+            scl.ref = 'sc@1'
+            scl.raster = scLayer
+            scl.bandNumber = 1
+            entries.append(scl)
+        
         # grab the current transform to avoid deprecation warnings
         coordinateTransformContext=QgsProject.instance().transformContext()
-        calc = QgsRasterCalculator( 'r1@1 * r2@1', opath, 'GTiff', r1Layer.extent(), r1Layer.width(), r1Layer.height(), entries, coordinateTransformContext )
+        
+        if sc == "":
+            calc = QgsRasterCalculator( 'r@1 * t@1', opath, 'GTiff', rLayer.extent(), rLayer.width(), rLayer.height(), entries, coordinateTransformContext )
+        else:
+            calc = QgsRasterCalculator( 'r@1 * t@1 *sc@1', opath, 'GTiff', rLayer.extent(), rLayer.width(), rLayer.height(), entries, coordinateTransformContext )
+        
         calc.processCalculation()
+        
+    def style_layer(self, fpath, stylepath, checked = True):
+        # add the result layer to map
+        basename = os.path.splitext(os.path.basename(fpath))[0]
+        layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))
+        
+        # apply layer style
+        layer.loadNamedStyle(stylepath)
 
+        # reload to see layer classification
+        layer.reload()
+        
+        # refresh legend entries
+        self.iface.layerTreeView().refreshLayerSymbology(layer.id())
+        
+        if not checked:
+            root = QgsProject.instance().layerTreeRoot()
+            root.findLayer(layer.id()).setItemVisibilityChecked(checked)
+    
+    def edit_text_changed(self, text):
+        # not active.   
+        # https://gis.stackexchange.com/questions/338853/ok-button-disabled-until-every-input-has-been-filled
+        # don't know how to get the OK/cancel box. Seems like its 1 element
+        if self.edits[0].text() == '' or self.edits[1].text() == '' or self.edits[2].text() == '':
+            self.pushButton.setEnabled(False)
+        else:
+            self.pushButton.setEnabled(True)
+    
         
     def run(self):
         """Run method that performs all the real work"""
@@ -277,15 +320,14 @@ class StressorReceptorCalc:
             # set to the first field
             self.select_calc_type(fields)
             
-            
             # This connects the function to the layer combobox when changed
             self.dlg.comboBox.currentIndexChanged.connect(lambda: self.select_calc_type(fields))
 
             # this connecta selecting the files. Since each element has a unique label seperate functions are used.
             
-            self.dlg.pushButton.clicked.connect(self.select_stressor_file)
-            self.dlg.pushButton_2.clicked.connect(self.select_receptor1_file)
-            self.dlg.pushButton_3.clicked.connect(self.select_receptor2_file)
+            self.dlg.pushButton.clicked.connect(self.select_receptor_file)
+            self.dlg.pushButton_2.clicked.connect(self.select_threshold_file)
+            self.dlg.pushButton_3.clicked.connect(self.select_secondary_constraint_file)
             self.dlg.pushButton_4.clicked.connect(self.select_output_file)
         
         self.dlg.lineEdit.clear()
@@ -300,23 +342,61 @@ class StressorReceptorCalc:
         if result:
             # Do something useful here
             # this grabs the files for input and output
-            sfilename = self.dlg.lineEdit.text()
-            r1filename = self.dlg.lineEdit_2.text()
-            r2filename = self.dlg.lineEdit_3.text()
+            rfilename = self.dlg.lineEdit.text()
+            tfilename = self.dlg.lineEdit_2.text()
+            scfilename = self.dlg.lineEdit_3.text()
             ofilename = self.dlg.lineEdit_4.text()
             
             # this grabs the current Table Widget values
-            calc_index=self.dlg.comboBox.currentIndex()
-            min_rc = self.dlg.tableWidget.item(calc_index, 1).text()
-            max_rc = self.dlg.tableWidget.item(calc_index, 2).text()
+            # calc_index=self.dlg.comboBox.currentIndex()
+            # min_rc = self.dlg.tableWidget.item(calc_index, 1).text()
+            # max_rc = self.dlg.tableWidget.item(calc_index, 2).text()
+            
+            # get the current style file paths
+            profilepath = QgsApplication.qgisSettingsDirPath()
+            profilepath = os.path.join(profilepath, "python", "plugins", "stressor_receptor_calc", "inputs", "Layer Style")
+            rstylefile = os.path.join(profilepath, self.dlg.tableWidget.item(0, 1).text()).replace("\\", "/")
+            tstylefile = os.path.join(profilepath, self.dlg.tableWidget.item(1, 1).text()).replace("\\", "/")
+            scstylefile = os.path.join(profilepath, self.dlg.tableWidget.item(2, 1).text()).replace("\\", "/")
+            ostylefile = os.path.join(profilepath, self.dlg.tableWidget.item(3, 1).text()).replace("\\", "/")
+            
              
             #QgsMessageLog.logMessage(min_rc + " , " + max_rc, level =Qgis.MessageLevel.Info)
+            # if the output file path is empty display a warning
+            if ofilename == "":
+                QgsMessageLog.logMessage("Output file path not given.", level =Qgis.MessageLevel.Warning)
             
             #self.dlg.tableWidget.findItems(i,j, QTableWidgetItem(item))
             
-            self.raster_multi(sfilename, r1filename, ofilename)
+            self.raster_multi(rfilename, tfilename, scfilename, ofilename)
             
-            # add a layer to map
-            basename = os.path.splitext(os.path.basename(ofilename))[0]
-            layer = QgsProject.instance().addMapLayer(QgsRasterLayer(ofilename, basename))
+            # add the result layer to map
+            #basename = os.path.splitext(os.path.basename(ofilename))[0]
+            #layer = QgsProject.instance().addMapLayer(QgsRasterLayer(ofilename, basename))
+            
+            # apply layer style
+            #layer.loadNamedStyle(r"C:\Users\ependleton52\Desktop\temp (local)\QGIS\Layer Style\receptor_rc.qml")
+            # stylefile = r"C:\Users\ependleton52\Desktop\temp (local)\QGIS\Layer Style\receptor_rc.qml"
+            # tstylefile = r"C:\Users\ependleton52\Desktop\temp (local)\QGIS\Layer Style\threshold_rc.qml"
+            # scstylefile = r"C:\Users\ependleton52\Desktop\temp (local)\QGIS\Layer Style\constriant_rc.qml"
+            
+            # add and style the receptor
+            self.style_layer(rfilename, rstylefile, checked = False)
+            
+            # add and style the threshold
+            self.style_layer(tfilename, tstylefile, checked = False)
+            
+            if not scfilename == "":
+                # add and style the threshold
+                self.style_layer(scfilename, scstylefile, checked = False)
+            
+            # add and style the outfile
+            self.style_layer(ofilename, ostylefile)
+
+            # reload to see layer classification
+            #layer.reload()
+            
+            # refresh legend entries
+            # self.iface.layerTreeView().refreshLayerSymbology(layer.id())
+            #QgsLayerTreeView().refreshLayerSymbology(layer.id())
     

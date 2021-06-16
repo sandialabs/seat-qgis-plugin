@@ -42,7 +42,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Stressor layer</string>
+    <string>Receptor</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="lineEdit">
@@ -78,7 +78,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Receptor layer 1</string>
+    <string>Threshold</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="lineEdit_2">
@@ -114,7 +114,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Receptor layer 2</string>
+    <string>Secondary Constraint</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_3">
@@ -173,7 +173,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Output layer name</string>
+    <string>Output</string>
    </property>
   </widget>
   <widget class="QComboBox" name="comboBox">
