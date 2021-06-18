@@ -32,6 +32,8 @@ from qgis.gui import QgsLayerTreeView
 from .resources import *
 # Import the code for the dialog
 from .stressor_receptor_calc_dialog import StressorReceptorCalcDialog
+# import QGIS processing
+import processing
 import os.path
 import csv, glob
 
@@ -214,17 +216,17 @@ class StressorReceptorCalc:
                    
     def select_receptor_file(self):
         filename, _filter = QFileDialog.getOpenFileName(
-        self.dlg, "Select Stressor Layer ","", '*.tif')
+        self.dlg, "Select Receptor","", '*.tif')
         self.dlg.lineEdit.setText(filename)
     
     def select_threshold_file(self):
         filename, _filter = QFileDialog.getOpenFileName(
-        self.dlg, "Select Receptor Layer 1","", '*.tif')
+        self.dlg, "Select Threshold","", '*.tif')
         self.dlg.lineEdit_2.setText(filename)
         
     def select_secondary_constraint_file(self):
         filename, _filter = QFileDialog.getOpenFileName(
-        self.dlg, "Select Receptor Layer 2","", '*.tif')
+        self.dlg, "Select Secondary Constraint","", '*.tif')
         self.dlg.lineEdit_3.setText(filename)
     
     def select_output_file(self):
@@ -234,43 +236,43 @@ class StressorReceptorCalc:
         
     def raster_multi(self, r, t, sc, opath):
         ''' Raster multiplication '''
-        rLayer  = QgsRasterLayer(r, "r")
-        tLayer  = QgsRasterLayer(t, "t")
+        #rLayer  = QgsRasterLayer(r, "r")
+        #tLayer  = QgsRasterLayer(t, "t")
         
-        entries = []
+        #entries = []
+        rbasename = os.path.splitext(os.path.basename(r))[0]
+        #Define receptor
+        # rl = QgsRasterCalculatorEntry()
+        # rl.ref = 'r@1'
+        # rl.raster = rLayer
+        # rl.bandNumber = 1
+        # entries.append( rl )
         
-        # Define receptor
-        rl = QgsRasterCalculatorEntry()
-        rl.ref = 'r@1'
-        rl.raster = rLayer
-        rl.bandNumber = 1
-        entries.append( rl )
-        
-        # Define threshold
-        tl = QgsRasterCalculatorEntry()
-        tl.ref = 't@1'
-        tl.raster = tLayer
-        tl.bandNumber = 1
-        entries.append( tl )
+        #Define threshold
+        tbasename = os.path.splitext(os.path.basename(t))[0]
         
         # Define constraint
         if not sc == "":
-            scLayer  = QgsRasterLayer(sc, "sc")
-            scl = QgsRasterCalculatorEntry()
-            scl.ref = 'sc@1'
-            scl.raster = scLayer
-            scl.bandNumber = 1
-            entries.append(scl)
+            scbasename = os.path.splitext(os.path.basename(sc))[0]
+            # scl = QgsRasterCalculatorEntry()
+            # scl.ref = 'sc@1'
+            # scl.raster = scLayer
+            # scl.bandNumber = 1
+            # entries.append(scl)
         
         # grab the current transform to avoid deprecation warnings
-        coordinateTransformContext=QgsProject.instance().transformContext()
+        #coordinateTransformContext=QgsProject.instance().transformContext()
         
         if sc == "":
-            calc = QgsRasterCalculator( 'r@1 * t@1', opath, 'GTiff', rLayer.extent(), rLayer.width(), rLayer.height(), entries, coordinateTransformContext )
+            params = { 'CELLSIZE' : None, 'CRS' : None, 'EXPRESSION' : '\"' + rbasename + '@1\" * \"' + tbasename + '@1\"', 
+            'EXTENT' : None, 'LAYERS' : [r, t], 
+            'OUTPUT' : opath}
         else:
-            calc = QgsRasterCalculator( 'r@1 * t@1 *sc@1', opath, 'GTiff', rLayer.extent(), rLayer.width(), rLayer.height(), entries, coordinateTransformContext )
-        
-        calc.processCalculation()
+            params = { 'CELLSIZE' : None, 'CRS' : None, 'EXPRESSION' : '\"' + rbasename + '@1\" * \"' + tbasename + '@1\" * \"' + scbasename + '@1\"', 
+            'EXTENT' : None, 'LAYERS' : [r, t, sc], 
+            'OUTPUT' : opath}
+
+        processing.run("qgis:rastercalculator", params)
         
     def style_layer(self, fpath, stylepath, checked = True):
         # add the result layer to map
