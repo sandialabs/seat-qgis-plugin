@@ -24,7 +24,7 @@
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QTableWidgetItem, QGridLayout
-from qgis.core import QgsProject, Qgis, QgsApplication, QgsVectorLayer, QgsMessageLog, QgsRasterLayer
+from qgis.core import QgsProject, Qgis, QgsApplication, QgsVectorLayer, QgsMessageLog, QgsRasterLayer, QgsRasterBandStats
 from qgis.analysis import QgsRasterCalculator, QgsRasterCalculatorEntry
 from qgis.gui import QgsLayerTreeView
 
@@ -36,6 +36,9 @@ from .stressor_receptor_calc_dialog import StressorReceptorCalcDialog
 import processing
 import os.path
 import csv, glob
+import numpy as np
+from osgeo import gdal
+import pandas as pd
 
 class StressorReceptorCalc:
     """QGIS Plugin Implementation."""
@@ -292,17 +295,48 @@ class StressorReceptorCalc:
             root = QgsProject.instance().layerTreeRoot()
             root.findLayer(layer.id()).setItemVisibilityChecked(checked)
         if ranges:
-            return [x[0] for x in layer.legendSymbologyItems()]
+            range = [x[0] for x in layer.legendSymbologyItems()]
+            return range
     
-    def edit_text_changed(self, text):
-        # not active.   
-        # https://gis.stackexchange.com/questions/338853/ok-button-disabled-until-every-input-has-been-filled
-        # don't know how to get the OK/cancel box. Seems like its 1 element
-        if self.edits[0].text() == '' or self.edits[1].text() == '' or self.edits[2].text() == '':
-            self.pushButton.setEnabled(False)
-        else:
-            self.pushButton.setEnabled(True)
-    
+    def export_area(self, ranges, ofilename):
+        rdata = gdal.Open(ofilename)
+        band1 = rdata.GetRasterBand(1)
+        raster1 = band1.ReadAsArray()
+
+        count = dict(zip(*np.unique(raster1, return_counts=True)))
+        keys = list(count.keys())
+        keys = [k for k in keys if k > 0]
+        
+        # make sure we have the same length keys and labels
+        assert len(keys) == len(ranges)
+        count = { ranges[i]: count[k] for i, k in enumerate(keys) }
+        df = pd.DataFrame(list(count.items()), columns = ["symbol", "count"])
+        
+        basename = os.path.splitext(os.path.basename(ofilename))[0]
+        layer = QgsRasterLayer(ofilename, basename)
+        
+        pixel_size_x = layer.rasterUnitsPerPixelX()
+        pixel_size_y = layer.rasterUnitsPerPixelY()
+        
+        units = ""
+        if layer.crs().mapUnits() ==  0:
+            units = "m"
+        
+        
+        df['area'] = df['count'] / (pixel_size_x * pixel_size_y)
+        df['percent'] = (df['area']/sum(df['area'])) * 100.
+        df2 = pd.DataFrame(index = [0])
+        df2["symbol"] = "Total Area"
+        df2["area"] = sum(df['area'])
+        df2['percent'] = 100.
+
+        df = df.append(df2, ignore_index=True)
+        
+        df['unit'] = units +'^2'
+        df = df[['symbol', 'area', 'unit', 'percent']]
+        
+        # this overwrites
+        df.to_csv(ofilename.replace(".tif", ".csv"), index = False)
         
     def run(self):
         """Run method that performs all the real work"""
@@ -396,5 +430,5 @@ class StressorReceptorCalc:
             
             # add and style the outfile returning values
             ranges = self.style_layer(ofilename, ostylefile, ranges = True)
-            QgsMessageLog.logMessage(', '.join(ranges), level =Qgis.MessageLevel.Info)
+            self.export_area(ranges, ofilename)
     
