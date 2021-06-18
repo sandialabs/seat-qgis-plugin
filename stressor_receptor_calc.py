@@ -274,7 +274,7 @@ class StressorReceptorCalc:
 
         processing.run("qgis:rastercalculator", params)
         
-    def style_layer(self, fpath, stylepath, checked = True):
+    def style_layer(self, fpath, stylepath, checked = True, ranges = True):
         # add the result layer to map
         basename = os.path.splitext(os.path.basename(fpath))[0]
         layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))
@@ -291,6 +291,8 @@ class StressorReceptorCalc:
         if not checked:
             root = QgsProject.instance().layerTreeRoot()
             root.findLayer(layer.id()).setItemVisibilityChecked(checked)
+        if ranges:
+            return [x[0] for x in layer.legendSymbologyItems()]
     
     def edit_text_changed(self, text):
         # not active.   
@@ -312,7 +314,7 @@ class StressorReceptorCalc:
             self.dlg = StressorReceptorCalcDialog()
             # This connects the function to the combobox when changed
             self.dlg.comboBox.clear()
-            # fields = ["North", "South", "East", "West", "Northwest"]
+            # look here for the inputs
             path = os.path.join(QgsApplication.qgisSettingsDirPath(), r"python\plugins\stressor_receptor_calc\inputs")
             path = os.path.join(path,'*.{}'.format('csv'))
             path = path.replace(os.sep, '/')
@@ -392,13 +394,7 @@ class StressorReceptorCalc:
                 # add and style the threshold
                 self.style_layer(scfilename, scstylefile, checked = False)
             
-            # add and style the outfile
-            self.style_layer(ofilename, ostylefile)
-
-            # reload to see layer classification
-            #layer.reload()
-            
-            # refresh legend entries
-            # self.iface.layerTreeView().refreshLayerSymbology(layer.id())
-            #QgsLayerTreeView().refreshLayerSymbology(layer.id())
+            # add and style the outfile returning values
+            ranges = self.style_layer(ofilename, ostylefile, ranges = True)
+            QgsMessageLog.logMessage(', '.join(ranges), level =Qgis.MessageLevel.Info)
     
