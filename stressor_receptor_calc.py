@@ -40,6 +40,10 @@ import numpy as np
 from osgeo import gdal
 import pandas as pd
 
+# grab the data time
+from datetime import date
+import logging
+
 class StressorReceptorCalc:
     """QGIS Plugin Implementation."""
 
@@ -218,13 +222,15 @@ class StressorReceptorCalc:
             self.dlg.tableWidget.resizeColumnsToContents()
                    
     def select_receptor_file(self):
+        """ input the receptor file """
         filename, _filter = QFileDialog.getOpenFileName(
         self.dlg, "Select Receptor","", '*.tif')
         self.dlg.lineEdit.setText(filename)
     
-    def select_threshold_file(self):
+    def select_stressor_file(self):
+        """ input the stressor file which has had a threshold appiled to it """
         filename, _filter = QFileDialog.getOpenFileName(
-        self.dlg, "Select Threshold","", '*.tif')
+        self.dlg, "Select Stressor","", '*.tif')
         self.dlg.lineEdit_2.setText(filename)
         
     def select_secondary_constraint_file(self):
@@ -234,7 +240,7 @@ class StressorReceptorCalc:
     
     def select_output_file(self):
         filename, _filter = QFileDialog.getSaveFileName(
-        self.dlg, "Select output file ","", '*.tif')
+        self.dlg, "Select Output","", '*.tif')
         self.dlg.lineEdit_4.setText(filename)
         
     def raster_multi(self, r, t, sc, opath):
@@ -372,6 +378,7 @@ class StressorReceptorCalc:
         self.dlg.lineEdit_2.clear()
         self.dlg.lineEdit_3.clear()
         self.dlg.lineEdit_4.clear()
+        
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
@@ -381,9 +388,33 @@ class StressorReceptorCalc:
             # Do something useful here
             # this grabs the files for input and output
             rfilename = self.dlg.lineEdit.text()
-            tfilename = self.dlg.lineEdit_2.text()
+            sfilename = self.dlg.lineEdit_2.text()
             scfilename = self.dlg.lineEdit_3.text()
             ofilename = self.dlg.lineEdit_4.text()
+            
+            # create logger
+            logger = logging.getLogger(__name__)
+            logger.setLevel(logging.INFO)
+
+            # create file handler and set level to info
+            fname = ofilename.replace(".tif", '_{}.log'.format(date.today().strftime('%Y%m%d')))
+            fh = logging.FileHandler(fname, mode='a', encoding='utf8')
+            fh.setLevel(logging.INFO)
+
+            # create formatter
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+            # add formatter to ch
+            fh.setFormatter(formatter)
+
+            # add ch to logger
+            logger.addHandler(fh)
+
+            # message
+            logger.info('Receptor File: {}'.format(rfilename))
+            logger.info('Stressor File: {}'.format(sfilename))
+            logger.info('Secondary Constraint File: {}'.format(rfilename))
+            logger.info('Output File: {}'.format(ofilename))
             
             # this grabs the current Table Widget values
             # calc_index=self.dlg.comboBox.currentIndex()
@@ -394,7 +425,7 @@ class StressorReceptorCalc:
             profilepath = QgsApplication.qgisSettingsDirPath()
             profilepath = os.path.join(profilepath, "python", "plugins", "stressor_receptor_calc", "inputs", "Layer Style")
             rstylefile = os.path.join(profilepath, self.dlg.tableWidget.item(0, 1).text()).replace("\\", "/")
-            tstylefile = os.path.join(profilepath, self.dlg.tableWidget.item(1, 1).text()).replace("\\", "/")
+            sstylefile = os.path.join(profilepath, self.dlg.tableWidget.item(1, 1).text()).replace("\\", "/")
             scstylefile = os.path.join(profilepath, self.dlg.tableWidget.item(2, 1).text()).replace("\\", "/")
             ostylefile = os.path.join(profilepath, self.dlg.tableWidget.item(3, 1).text()).replace("\\", "/")
             
@@ -406,7 +437,7 @@ class StressorReceptorCalc:
             
             #self.dlg.tableWidget.findItems(i,j, QTableWidgetItem(item))
             
-            self.raster_multi(rfilename, tfilename, scfilename, ofilename)
+            self.raster_multi(rfilename, sfilename, scfilename, ofilename)
             
             # add the result layer to map
             #basename = os.path.splitext(os.path.basename(ofilename))[0]
@@ -421,14 +452,19 @@ class StressorReceptorCalc:
             # add and style the receptor
             self.style_layer(rfilename, rstylefile, checked = False)
             
-            # add and style the threshold
-            self.style_layer(tfilename, tstylefile, checked = False)
+            # add and style the stressor which has a threshold applied
+            self.style_layer(sfilename, sstylefile, checked = False)
             
             if not scfilename == "":
-                # add and style the threshold
+                # add and style the secondary constraint
                 self.style_layer(scfilename, scstylefile, checked = False)
             
             # add and style the outfile returning values
             ranges = self.style_layer(ofilename, ostylefile, ranges = True)
             self.export_area(ranges, ofilename)
+            
+            # close and remove the filehandler
+            fh.close()
+            logger.removeHandler(fh)
+            
     
