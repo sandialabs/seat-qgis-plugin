@@ -26,7 +26,7 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QTableWidgetItem, QGridLayout
 from qgis.core import QgsProject, Qgis, QgsApplication, QgsVectorLayer, QgsMessageLog, QgsRasterLayer, QgsRasterBandStats
 from qgis.analysis import QgsRasterCalculator, QgsRasterCalculatorEntry
-from qgis.gui import QgsLayerTreeView
+from qgis.gui import QgsLayerTreeView, QgsProjectionSelectionDialog
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -251,11 +251,17 @@ class StressorReceptorCalc:
         filename, _filter = QFileDialog.getOpenFileName(
         self.dlg, "Select Run Order","", '*.csv')
         self.dlg.run_order.setText(filename)
+        
+    def select_crs(self):
+        """ input the crs """
+        projSelector = QgsProjectionSelectionDialog()
+        projSelector.exec_()
+        self.dlg.crs.setText(projSelector.crs)
 
-    def select_stressor_file(self):
-        """ input the stressor file which has had a threshold appiled to it """
+    def select_receptor_file(self):
+        # input the receptor file
         filename, _filter = QFileDialog.getOpenFileName(
-        self.dlg, "Select Stressor","", '*.tif')
+        self.dlg, "Select Receptor","", '*.tif')
         self.dlg.lineEdit_2.setText(filename)
         
     def select_secondary_constraint_file(self):
@@ -450,6 +456,9 @@ class StressorReceptorCalc:
             # set the boundary and run order files
             self.dlg.pushButton_6.clicked.connect(self.select_bc_file)
             self.dlg.pushButton_7.clicked.connect(self.select_run_order_file)
+            
+            # set the crs file
+            self.dlg.crs_button.clicked.connect(self.select_crs)
             
             # set the secondary constraint
             self.dlg.pushButton_3.clicked.connect(self.select_secondary_constraint_file)

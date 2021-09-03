@@ -316,7 +316,7 @@
     <string>...</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="run_order_2">
+  <widget class="QLineEdit" name="crs">
    <property name="geometry">
     <rect>
      <x>140</x>
@@ -326,7 +326,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_8">
+  <widget class="QPushButton" name="crs_button">
    <property name="geometry">
     <rect>
      <x>280</x>
