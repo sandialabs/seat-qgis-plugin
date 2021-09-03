@@ -40,6 +40,9 @@ import numpy as np
 from osgeo import gdal
 import pandas as pd
 
+# import netcdf calculations
+from .readnetcdf_createraster import transform_netcdf, create_raster, numpy_array_to_raster
+
 # grab the data time
 from datetime import date
 import logging
@@ -220,13 +223,35 @@ class StressorReceptorCalc:
                     self.dlg.tableWidget.setItem(i,j, QTableWidgetItem(item))
             
             self.dlg.tableWidget.resizeColumnsToContents()
-                   
+    """
+    Deprecationed with transform NetCDF
     def select_receptor_file(self):
-        """ input the receptor file """
+        # input the receptor file
         filename, _filter = QFileDialog.getOpenFileName(
         self.dlg, "Select Receptor","", '*.tif')
         self.dlg.lineEdit.setText(filename)
+    """
+    def select_device_file(self):
+        """ input the .nc file """
+        filename, _filter = QFileDialog.getOpenFileName(
+        self.dlg, "Select NetCDF file","", '*.nc')
+        if 'nowecs' in filename:
+            self.dlg.device_not_present.setText(filename)
+        else:
+            self.dlg.device_present.setText(filename)
+
+    def select_bc_file(self):
+        """ input the bc file """
+        filename, _filter = QFileDialog.getOpenFileName(
+        self.dlg, "Select Boundary Condition","", '*.csv')
+        self.dlg.bc_prob.setText(filename)
     
+    def select_run_order_file(self):
+        """ input the bc file """
+        filename, _filter = QFileDialog.getOpenFileName(
+        self.dlg, "Select Run Order","", '*.csv')
+        self.dlg.run_order.setText(filename)
+
     def select_stressor_file(self):
         """ input the stressor file which has had a threshold appiled to it """
         filename, _filter = QFileDialog.getOpenFileName(
@@ -242,6 +267,46 @@ class StressorReceptorCalc:
         filename, _filter = QFileDialog.getSaveFileName(
         self.dlg, "Select Output","", '*.tif')
         self.dlg.lineEdit_4.setText(filename)
+    
+    def calculate_receptor(self, dev_present_file, dev_notpresent_file, bc_file, run_order_file, svar, output_path):
+        
+        # configuration for raster translate
+        GDAL_DATA_TYPE = gdal.GDT_Float32 
+        GEOTIFF_DRIVER_NAME = r'GTiff'
+        
+        # Skip the bad runs for now
+        #bcarray = np.array([0,1,2,3,4,5,6,7,9,10,11,12,13,14,15,16,17,19,20,22])
+        
+        # all runs
+        bcarray = [i for i in range(1,23)]
+        
+        #SWAN will always be in meters. Not always WGS84
+        # in the netcdf file maybe?
+        SPATIAL_REFERENCE_SYSTEM_WKID = 4326 #WGS84 meters
+        nbands = 1 #should be one always right?
+        # bottom left, x, y netcdf file
+        bounds = [-124.2843933,44.6705] #x,y or lon,lat, this is pulled from an input data source
+        # look for dx/dy
+        cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
+        
+        rows, cols, numpy_array = transform_netcdf(dev_present_file, dev_notpresent_file, bc_file, run_order_file, bcarray, svar)
+        
+        output_raster = create_raster(output_path,
+                          cols,
+                          rows,
+                          nbands,
+                          GDAL_DATA_TYPE)
+     
+        # post processing of numpy array to output raster
+        output_raster = numpy_array_to_raster(output_raster,
+                                  numpy_array,
+                                  bounds,
+                                  cell_resolution,
+                                  #no_data = NO_DATA,
+                                  GDAL_DATA_TYPE,
+                                  SPATIAL_REFERENCE_SYSTEM_WKID, output_path)
+        
+        return output_path
         
     def raster_multi(self, r, t, sc, opath):
         ''' Raster multiplication '''
@@ -354,6 +419,7 @@ class StressorReceptorCalc:
             self.dlg = StressorReceptorCalcDialog()
             # This connects the function to the combobox when changed
             self.dlg.comboBox.clear()
+            
             # look here for the inputs
             path = os.path.join(QgsApplication.qgisSettingsDirPath(), r"python\plugins\stressor_receptor_calc\inputs")
             path = os.path.join(path,'*.{}'.format('csv'))
@@ -361,21 +427,43 @@ class StressorReceptorCalc:
             result = glob.glob(path)
             fields = sorted([os.path.basename(f).split(".csv")[0] for f in result])
             self.dlg.comboBox.addItems(fields)
-            # set to the first field
+            
+            # this loads the inputs and populates the layer combobox
             self.select_calc_type(fields)
             
             # This connects the function to the layer combobox when changed
             self.dlg.comboBox.currentIndexChanged.connect(lambda: self.select_calc_type(fields))
-
+           
+            sfields = ['TAUMAX', 'VEL']
+            self.dlg.stressor_comboBox.addItems(sfields)
+            
             # this connecta selecting the files. Since each element has a unique label seperate functions are used.
             
-            self.dlg.pushButton.clicked.connect(self.select_receptor_file)
-            self.dlg.pushButton_2.clicked.connect(self.select_threshold_file)
+            # deprecated
+            # self.dlg.pushButton.clicked.connect(self.select_receptor_file)
+            #self.dlg.pushButton_2.clicked.connect(self.select_stressor_file)
+
+            # set the .nc files
+            self.dlg.pushButton.clicked.connect(self.select_device_file)
+            self.dlg.pushButton_5.clicked.connect(self.select_device_file)
+            
+            # set the boundary and run order files
+            self.dlg.pushButton_6.clicked.connect(self.select_bc_file)
+            self.dlg.pushButton_7.clicked.connect(self.select_run_order_file)
+            
+            # set the secondary constraint
             self.dlg.pushButton_3.clicked.connect(self.select_secondary_constraint_file)
+            # set the output
             self.dlg.pushButton_4.clicked.connect(self.select_output_file)
         
-        self.dlg.lineEdit.clear()
-        self.dlg.lineEdit_2.clear()
+        # deprecated
+        #self.dlg.lineEdit.clear()
+        #self.dlg.lineEdit_2.clear()
+        
+        self.dlg.device_present.clear()
+        self.dlg.device_not_present.clear()
+        self.dlg.bc_prob.clear()
+        self.dlg.run_order.clear()
         self.dlg.lineEdit_3.clear()
         self.dlg.lineEdit_4.clear()
         
@@ -387,10 +475,18 @@ class StressorReceptorCalc:
         if result:
             # Do something useful here
             # this grabs the files for input and output
-            rfilename = self.dlg.lineEdit.text()
-            sfilename = self.dlg.lineEdit_2.text()
+            #rfilename = self.dlg.lineEdit.text()
+            #sfilename = self.dlg.lineEdit_2.text()
+            
+            dpresentfname = self.dlg.device_present.text()
+            dnotpresentfname = self.dlg.device_not_present.text()
+            bcfname = self.dlg.bc_prob.text()
+            rofname = self.dlg.run_order.text()
+            
             scfilename = self.dlg.lineEdit_3.text()
             ofilename = self.dlg.lineEdit_4.text()
+            
+            svar=sfields[self.dlg.stressor_comboBox.currentIndex()]
             
             # create logger
             logger = logging.getLogger(__name__)
@@ -411,10 +507,16 @@ class StressorReceptorCalc:
             logger.addHandler(fh)
 
             # message
-            logger.info('Receptor File: {}'.format(rfilename))
-            logger.info('Stressor File: {}'.format(sfilename))
-            logger.info('Secondary Constraint File: {}'.format(rfilename))
+            #logger.info('Receptor File: {}'.format(rfilename))
+            #logger.info('Stressor File: {}'.format(sfilename))
+            logger.info('Device present File: {}'.format(dpresentfname))
+            logger.info('Device not present File: {}'.format(dnotpresentfname))
+            logger.info('Boundary Condition File: {}'.format(bcfname))
+            logger.info('Run Order File: {}'.format(rofname))
+            logger.info('Stressor: {}'.format(svar))
+            logger.info('Secondary Constraint File: {}'.format(scfilename))
             logger.info('Output File: {}'.format(ofilename))
+            
             
             # this grabs the current Table Widget values
             # calc_index=self.dlg.comboBox.currentIndex()
@@ -437,23 +539,24 @@ class StressorReceptorCalc:
             
             #self.dlg.tableWidget.findItems(i,j, QTableWidgetItem(item))
             
+            # calculate the raster from the NetCDF
+            rfilename = os.path.join(os.path.dirname(ofilename), "calculated_receptor.tif")
+            
+            rfilename = self.calculate_receptor(dpresentfname,dnotpresentfname, bcfname, rofname, svar, rfilename)
+            
+            # calculate the final raster
             self.raster_multi(rfilename, sfilename, scfilename, ofilename)
             
             # add the result layer to map
             #basename = os.path.splitext(os.path.basename(ofilename))[0]
             #layer = QgsProject.instance().addMapLayer(QgsRasterLayer(ofilename, basename))
-            
-            # apply layer style
-            #layer.loadNamedStyle(r"C:\Users\ependleton52\Desktop\temp (local)\QGIS\Layer Style\receptor_rc.qml")
-            # stylefile = r"C:\Users\ependleton52\Desktop\temp (local)\QGIS\Layer Style\receptor_rc.qml"
-            # tstylefile = r"C:\Users\ependleton52\Desktop\temp (local)\QGIS\Layer Style\threshold_rc.qml"
-            # scstylefile = r"C:\Users\ependleton52\Desktop\temp (local)\QGIS\Layer Style\constriant_rc.qml"
+                        
             
             # add and style the receptor
             self.style_layer(rfilename, rstylefile, checked = False)
             
             # add and style the stressor which has a threshold applied
-            self.style_layer(sfilename, sstylefile, checked = False)
+            # self.style_layer(sfilename, sstylefile, checked = False)
             
             if not scfilename == "":
                 # add and style the secondary constraint
