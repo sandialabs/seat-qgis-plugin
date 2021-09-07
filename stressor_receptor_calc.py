@@ -24,9 +24,11 @@
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QTableWidgetItem, QGridLayout
-from qgis.core import QgsProject, Qgis, QgsApplication, QgsVectorLayer, QgsMessageLog, QgsRasterLayer, QgsRasterBandStats
+from qgis.core import QgsProject, Qgis, QgsApplication, QgsVectorLayer, QgsMessageLog, QgsRasterLayer, QgsRasterBandStats, QgsCoordinateReferenceSystem
 from qgis.analysis import QgsRasterCalculator, QgsRasterCalculatorEntry
 from qgis.gui import QgsLayerTreeView, QgsProjectionSelectionDialog
+
+from PyQt5.QtCore import Qt
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -58,6 +60,7 @@ class StressorReceptorCalc:
             application at run time.
         :type iface: QgsInterface
         """
+        
         # Save reference to the QGIS interface
         self.iface = iface
         # initialize plugin directory
@@ -253,49 +256,59 @@ class StressorReceptorCalc:
         self.dlg.run_order.setText(filename)
         
     def select_crs(self):
-        """ input the crs """
-        projSelector = QgsProjectionSelectionDialog()
-        projSelector.exec_()
-        self.dlg.crs.setText(projSelector.crs)
+        # input the crs
+        
+        projSelector = QgsProjectionSelectionDialog(None)
+        # set up a default one
+        crs = QgsCoordinateReferenceSystem()
+        crs.createFromId(4326)
+        projSelector.setCrs( crs )
+        projSelector.exec()
+        # projSelector.exec_()
+        self.dlg.crs.setText(projSelector.crs().authid().split(":")[1])
 
     def select_receptor_file(self):
         # input the receptor file
         filename, _filter = QFileDialog.getOpenFileName(
         self.dlg, "Select Receptor","", '*.tif')
-        self.dlg.lineEdit_2.setText(filename)
+        self.dlg.receptor_file.setText(filename)
         
     def select_secondary_constraint_file(self):
         filename, _filter = QFileDialog.getOpenFileName(
         self.dlg, "Select Secondary Constraint","", '*.tif')
-        self.dlg.lineEdit_3.setText(filename)
+        self.dlg.sc_file.setText(filename)
     
     def select_output_file(self):
         filename, _filter = QFileDialog.getSaveFileName(
         self.dlg, "Select Output","", '*.tif')
-        self.dlg.lineEdit_4.setText(filename)
+        self.dlg.ofile.setText(filename)
     
-    def calculate_receptor(self, dev_present_file, dev_notpresent_file, bc_file, run_order_file, svar, output_path):
+    def calculate_stressor(self, dev_present_file, dev_notpresent_file, bc_file, run_order_file, svar, crs, output_path):
         
         # configuration for raster translate
         GDAL_DATA_TYPE = gdal.GDT_Float32 
         GEOTIFF_DRIVER_NAME = r'GTiff'
+                
+        # all runs
+        # bcarray = [i for i in range(1,23)]
         
         # Skip the bad runs for now
-        #bcarray = np.array([0,1,2,3,4,5,6,7,9,10,11,12,13,14,15,16,17,19,20,22])
-        
-        # all runs
-        bcarray = [i for i in range(1,23)]
+        bcarray = np.array([0,1,2,3,4,5,6,7,9,10,11,12,13,14,15,16,17,19,20,22])
         
         #SWAN will always be in meters. Not always WGS84
+        
         # in the netcdf file maybe?
-        SPATIAL_REFERENCE_SYSTEM_WKID = 4326 #WGS84 meters
-        nbands = 1 #should be one always right?
+        SPATIAL_REFERENCE_SYSTEM_WKID = crs #WGS84 meters
+        nbands = 1
         # bottom left, x, y netcdf file
         bounds = [-124.2843933,44.6705] #x,y or lon,lat, this is pulled from an input data source
         # look for dx/dy
         cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
-        
+        # original
         rows, cols, numpy_array = transform_netcdf(dev_present_file, dev_notpresent_file, bc_file, run_order_file, bcarray, svar)
+        
+        # flipped to check positivity
+        rows, cols, numpy_array = transform_netcdf(dev_notpresent_file, dev_present_file, bc_file, run_order_file, bcarray, svar)
         
         output_raster = create_raster(output_path,
                           cols,
@@ -314,7 +327,7 @@ class StressorReceptorCalc:
         
         return output_path
         
-    def raster_multi(self, r, t, sc, opath):
+    def raster_multi(self, r, s, sc, opath):
         ''' Raster multiplication '''
         #rLayer  = QgsRasterLayer(r, "r")
         #tLayer  = QgsRasterLayer(t, "t")
@@ -328,8 +341,8 @@ class StressorReceptorCalc:
         # rl.bandNumber = 1
         # entries.append( rl )
         
-        #Define threshold
-        tbasename = os.path.splitext(os.path.basename(t))[0]
+        #Define stressor
+        sbasename = os.path.splitext(os.path.basename(s))[0]
         
         # Define constraint
         if not sc == "":
@@ -344,12 +357,12 @@ class StressorReceptorCalc:
         #coordinateTransformContext=QgsProject.instance().transformContext()
         
         if sc == "":
-            params = { 'CELLSIZE' : None, 'CRS' : None, 'EXPRESSION' : '\"' + rbasename + '@1\" * \"' + tbasename + '@1\"', 
-            'EXTENT' : None, 'LAYERS' : [r, t], 
+            params = { 'CELLSIZE' : None, 'CRS' : None, 'EXPRESSION' : '\"' + rbasename + '@1\" * \"' + sbasename + '@1\"', 
+            'EXTENT' : None, 'LAYERS' : [r, s], 
             'OUTPUT' : opath}
         else:
-            params = { 'CELLSIZE' : None, 'CRS' : None, 'EXPRESSION' : '\"' + rbasename + '@1\" * \"' + tbasename + '@1\" * \"' + scbasename + '@1\"', 
-            'EXTENT' : None, 'LAYERS' : [r, t, sc], 
+            params = { 'CELLSIZE' : None, 'CRS' : None, 'EXPRESSION' : '\"' + rbasename + '@1\" * \"' + sbasename + '@1\" * \"' + scbasename + '@1\"', 
+            'EXTENT' : None, 'LAYERS' : [r, s, sc], 
             'OUTPUT' : opath}
 
         processing.run("qgis:rastercalculator", params)
@@ -423,6 +436,8 @@ class StressorReceptorCalc:
         if self.first_start == True:
             self.first_start = False
             self.dlg = StressorReceptorCalcDialog()
+            # this set the plugin to be the top most window
+            # self.dlg.setWindowFlags(Qt.WindowStaysOnTopHint)
             # This connects the function to the combobox when changed
             self.dlg.comboBox.clear()
             
@@ -460,6 +475,9 @@ class StressorReceptorCalc:
             # set the crs file
             self.dlg.crs_button.clicked.connect(self.select_crs)
             
+            # set the receptor file
+            self.dlg.receptor_button.clicked.connect(self.select_receptor_file)
+            
             # set the secondary constraint
             self.dlg.pushButton_3.clicked.connect(self.select_secondary_constraint_file)
             # set the output
@@ -473,8 +491,10 @@ class StressorReceptorCalc:
         self.dlg.device_not_present.clear()
         self.dlg.bc_prob.clear()
         self.dlg.run_order.clear()
-        self.dlg.lineEdit_3.clear()
-        self.dlg.lineEdit_4.clear()
+        self.dlg.crs.clear()
+        self.dlg.receptor_file.clear()
+        self.dlg.sc_file.clear()
+        self.dlg.ofile.clear()
         
         # show the dialog
         self.dlg.show()
@@ -492,10 +512,13 @@ class StressorReceptorCalc:
             bcfname = self.dlg.bc_prob.text()
             rofname = self.dlg.run_order.text()
             
-            scfilename = self.dlg.lineEdit_3.text()
-            ofilename = self.dlg.lineEdit_4.text()
+            rfilename = self.dlg.receptor_file.text()
+            scfilename = self.dlg.sc_file.text()
+            ofilename = self.dlg.ofile.text()
             
             svar=sfields[self.dlg.stressor_comboBox.currentIndex()]
+            
+            crs = int(self.dlg.crs.text())
             
             # create logger
             logger = logging.getLogger(__name__)
@@ -515,14 +538,18 @@ class StressorReceptorCalc:
             # add ch to logger
             logger.addHandler(fh)
 
+            # Set up the stressor name            
+            sfilename = os.path.join(os.path.dirname(ofilename), "calculated_stressor.tif")
+
             # message
-            #logger.info('Receptor File: {}'.format(rfilename))
-            #logger.info('Stressor File: {}'.format(sfilename))
+            logger.info('Receptor File: {}'.format(rfilename))
+            logger.info('Stressor File: {}'.format(sfilename))
             logger.info('Device present File: {}'.format(dpresentfname))
             logger.info('Device not present File: {}'.format(dnotpresentfname))
             logger.info('Boundary Condition File: {}'.format(bcfname))
             logger.info('Run Order File: {}'.format(rofname))
             logger.info('Stressor: {}'.format(svar))
+            logger.info('CRS: {}'.format(crs))
             logger.info('Secondary Constraint File: {}'.format(scfilename))
             logger.info('Output File: {}'.format(ofilename))
             
@@ -548,24 +575,17 @@ class StressorReceptorCalc:
             
             #self.dlg.tableWidget.findItems(i,j, QTableWidgetItem(item))
             
-            # calculate the raster from the NetCDF
-            rfilename = os.path.join(os.path.dirname(ofilename), "calculated_receptor.tif")
-            
-            rfilename = self.calculate_receptor(dpresentfname,dnotpresentfname, bcfname, rofname, svar, rfilename)
+            # calculate the raster from the NetCDF            
+            sfilename = self.calculate_stressor(dpresentfname,dnotpresentfname, bcfname, rofname, svar, crs, sfilename)
             
             # calculate the final raster
             self.raster_multi(rfilename, sfilename, scfilename, ofilename)
-            
-            # add the result layer to map
-            #basename = os.path.splitext(os.path.basename(ofilename))[0]
-            #layer = QgsProject.instance().addMapLayer(QgsRasterLayer(ofilename, basename))
-                        
-            
+                                               
             # add and style the receptor
             self.style_layer(rfilename, rstylefile, checked = False)
             
             # add and style the stressor which has a threshold applied
-            # self.style_layer(sfilename, sstylefile, checked = False)
+            self.style_layer(sfilename, sstylefile, checked = False)
             
             if not scfilename == "":
                 # add and style the secondary constraint
@@ -573,7 +593,7 @@ class StressorReceptorCalc:
             
             # add and style the outfile returning values
             ranges = self.style_layer(ofilename, ostylefile, ranges = True)
-            self.export_area(ranges, ofilename)
+            # self.export_area(ranges, ofilename)
             
             # close and remove the filehandler
             fh.close()

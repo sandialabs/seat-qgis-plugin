@@ -94,7 +94,7 @@
     <string>...</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit_3">
+  <widget class="QLineEdit" name="sc_file">
    <property name="geometry">
     <rect>
      <x>140</x>
@@ -117,7 +117,7 @@
     <string>...</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit_4">
+  <widget class="QLineEdit" name="ofile">
    <property name="geometry">
     <rect>
      <x>140</x>
@@ -355,7 +355,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QLineEdit" name="run_order_3">
+  <widget class="QLineEdit" name="receptor_file">
    <property name="geometry">
     <rect>
      <x>140</x>
@@ -381,7 +381,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_9">
+  <widget class="QPushButton" name="receptor_button">
    <property name="geometry">
     <rect>
      <x>280</x>
