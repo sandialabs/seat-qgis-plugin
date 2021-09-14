@@ -290,7 +290,7 @@ class StressorReceptorCalc:
         GEOTIFF_DRIVER_NAME = r'GTiff'
                 
         # all runs
-        # bcarray = [i for i in range(1,23)]
+        bcarray = [i for i in range(1,23)]
         
         # Skip the bad runs for now
         bcarray = np.array([0,1,2,3,4,5,6,7,9,10,11,12,13,14,15,16,17,19,20,22])
@@ -308,21 +308,18 @@ class StressorReceptorCalc:
         rows, cols, numpy_array = transform_netcdf(dev_present_file, dev_notpresent_file, bc_file, run_order_file, bcarray, svar)
         
         # flipped to check positivity
-        rows, cols, numpy_array = transform_netcdf(dev_notpresent_file, dev_present_file, bc_file, run_order_file, bcarray, svar)
+        # rows, cols, numpy_array = transform_netcdf(dev_notpresent_file, dev_present_file, bc_file, run_order_file, bcarray, svar)
         
         output_raster = create_raster(output_path,
                           cols,
                           rows,
-                          nbands,
-                          GDAL_DATA_TYPE)
+                          nbands)
      
         # post processing of numpy array to output raster
         output_raster = numpy_array_to_raster(output_raster,
                                   numpy_array,
                                   bounds,
                                   cell_resolution,
-                                  #no_data = NO_DATA,
-                                  GDAL_DATA_TYPE,
                                   SPATIAL_REFERENCE_SYSTEM_WKID, output_path)
         
         return output_path
@@ -516,7 +513,7 @@ class StressorReceptorCalc:
             scfilename = self.dlg.sc_file.text()
             ofilename = self.dlg.ofile.text()
             
-            svar=sfields[self.dlg.stressor_comboBox.currentIndex()]
+            svar = self.dlg.stressor_comboBox.currentText()
             
             crs = int(self.dlg.crs.text())
             
