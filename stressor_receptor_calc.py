@@ -41,14 +41,25 @@ import csv, glob
 import numpy as np
 from osgeo import gdal
 import pandas as pd
+import shutil
+import tempfile
 
 # import netcdf calculations
-from .readnetcdf_createraster import transform_netcdf, create_raster, numpy_array_to_raster
+from .readnetcdf_createraster import transform_netcdf, create_raster, numpy_array_to_raster, read_raster_calculate_diff
 
 # grab the data time
 from datetime import date
 import logging
 
+# unused :(
+"""
+def check_file_type(dir, file_type):
+    ''' Checks for file type in a folder '''
+    if len(glob.glob("*.{}".format(file_type))) == 0:
+        return False
+    else:
+        return True
+"""
 class StressorReceptorCalc:
     """QGIS Plugin Implementation."""
 
@@ -234,11 +245,11 @@ class StressorReceptorCalc:
         self.dlg, "Select Receptor","", '*.tif')
         self.dlg.lineEdit.setText(filename)
     """
-    def select_device_file(self):
+    def select_device_file(self, presence):
         """ input the .nc file """
         filename, _filter = QFileDialog.getOpenFileName(
-        self.dlg, "Select NetCDF file","", '*.nc')
-        if 'nowecs' in filename:
+        self.dlg, "Select NetCDF file","", "*.tif; *.nc")
+        if presence  == 'not present':
             self.dlg.device_not_present.setText(filename)
         else:
             self.dlg.device_present.setText(filename)
@@ -290,7 +301,7 @@ class StressorReceptorCalc:
         GEOTIFF_DRIVER_NAME = r'GTiff'
                 
         # all runs
-        bcarray = [i for i in range(1,23)]
+        # bcarray = [i for i in range(1,23)]
         
         # Skip the bad runs for now
         bcarray = np.array([0,1,2,3,4,5,6,7,9,10,11,12,13,14,15,16,17,19,20,22])
@@ -305,11 +316,13 @@ class StressorReceptorCalc:
         # look for dx/dy
         cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
         # original
+        # if not a Geotiff
+        #if '.tif' not in dev_present_file:
         rows, cols, numpy_array = transform_netcdf(dev_present_file, dev_notpresent_file, bc_file, run_order_file, bcarray, svar)
+        #if '.tif' in dev_present_file:
+        #    rows, cols, numpy_array = read_raster_calculate_diff(dev_present_file, dev_notpresent_file)
         
-        # flipped to check positivity
-        # rows, cols, numpy_array = transform_netcdf(dev_notpresent_file, dev_present_file, bc_file, run_order_file, bcarray, svar)
-        
+       
         output_raster = create_raster(output_path,
                           cols,
                           rows,
@@ -364,16 +377,57 @@ class StressorReceptorCalc:
 
         processing.run("qgis:rastercalculator", params)
         
+    def raster_add(self, rfiles, opath):
+    
+        ''' Raster addition '''
+
+        nbase = [os.path.splitext(os.path.basename(rfile))[0] for rfile in rfiles]
+
+        params = { 'CELLSIZE' : None, 'CRS' : None, 'EXPRESSION' : '@1 + '.join(nbase) +'@1', 
+        'EXTENT' : None, 'LAYERS' : rfiles, 
+        'OUTPUT' : opath}
+
+        processing.run("qgis:rastercalculator", params)
+        
+        return opath    
+    
+    def raster_subtract(self, cec, no_cec, opath, prob = 1):
+    
+        ''' Raster subtraction '''
+        layers = [cec, no_cec]
+        cecbasename = os.path.splitext(os.path.basename(cec))[0]
+        
+        #Define stressor
+        no_cecbasename = os.path.splitext(os.path.basename(no_cec))[0]
+        """
+        params = { 'CELLSIZE' : None, 'CRS' : None, 'EXPRESSION' : '\"' + cecbasename + '@1\" - "' + no_cecbasename + '@1\"', 
+            'EXTENT' : None, 'LAYERS' : [cec, no_cec], 
+            'OUTPUT' : opath}
+
+        processing.run("qgis:rastercalculator", params)
+        """
+        # "@1 + ".join(colors) + '@1'
+        params = { 'CELLSIZE' : None, 'CRS' : None, 'EXPRESSION' : '({0}@1 - {1}@1) * {2}'.format(cecbasename, no_cecbasename, prob), 
+        'EXTENT' : None, 'LAYERS' : layers, 
+        'OUTPUT' : opath}
+
+        processing.run("qgis:rastercalculator", params)
+        
+        return opath
+    
+    
+        
     def style_layer(self, fpath, stylepath, checked = True, ranges = True):
         # add the result layer to map
         basename = os.path.splitext(os.path.basename(fpath))[0]
         layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))
         
-        # apply layer style
-        layer.loadNamedStyle(stylepath)
+        if stylepath != "":
+            # apply layer style
+            layer.loadNamedStyle(stylepath)
 
-        # reload to see layer classification
-        layer.reload()
+            # reload to see layer classification
+            layer.reload()
         
         # refresh legend entries
         self.iface.layerTreeView().refreshLayerSymbology(layer.id())
@@ -461,9 +515,9 @@ class StressorReceptorCalc:
             # self.dlg.pushButton.clicked.connect(self.select_receptor_file)
             #self.dlg.pushButton_2.clicked.connect(self.select_stressor_file)
 
-            # set the .nc files
-            self.dlg.pushButton.clicked.connect(self.select_device_file)
-            self.dlg.pushButton_5.clicked.connect(self.select_device_file)
+            # set the present and not present files. Either .nc files or .tif folders
+            self.dlg.pushButton.clicked.connect(lambda: self.select_device_file("present"))
+            self.dlg.pushButton_5.clicked.connect(lambda: self.select_device_file("not present"))
             
             # set the boundary and run order files
             self.dlg.pushButton_6.clicked.connect(self.select_bc_file)
@@ -562,7 +616,10 @@ class StressorReceptorCalc:
             rstylefile = os.path.join(profilepath, self.dlg.tableWidget.item(0, 1).text()).replace("\\", "/")
             sstylefile = os.path.join(profilepath, self.dlg.tableWidget.item(1, 1).text()).replace("\\", "/")
             scstylefile = os.path.join(profilepath, self.dlg.tableWidget.item(2, 1).text()).replace("\\", "/")
-            ostylefile = os.path.join(profilepath, self.dlg.tableWidget.item(3, 1).text()).replace("\\", "/")
+            if self.dlg.tableWidget.item(3, 1).text() != "":
+                ostylefile = os.path.join(profilepath, self.dlg.tableWidget.item(3, 1).text()).replace("\\", "/")
+            else:
+                ostylefile = ""
             
              
             #QgsMessageLog.logMessage(min_rc + " , " + max_rc, level =Qgis.MessageLevel.Info)
@@ -573,27 +630,74 @@ class StressorReceptorCalc:
             #self.dlg.tableWidget.findItems(i,j, QTableWidgetItem(item))
             
             # calculate the raster from the NetCDF            
-            sfilename = self.calculate_stressor(dpresentfname,dnotpresentfname, bcfname, rofname, svar, crs, sfilename)
+            if '.nc' in dpresentfname:
+                sfilename = self.calculate_stressor(dpresentfname,dnotpresentfname, bcfname, rofname, svar, crs, sfilename)
             
-            # calculate the final raster
-            self.raster_multi(rfilename, sfilename, scfilename, ofilename)
-                                               
-            # add and style the receptor
-            self.style_layer(rfilename, rstylefile, checked = False)
+            # if there's .tif in the device present file than loop through the
+            # tif files to build the stressor raster-
+            if '.tif' in dpresentfname:
+                # get the folder base names
+                dpresntdir = os.path.dirname(dpresentfname)
+                dnotpresntdir = os.path.dirname(dnotpresentfname)
+                
+                # read in the boundary conditions
+                df_bc = pd.read_csv(bcfname)
+                
+                # set up a file list to append to
+                tmpfiles = []
+                
+                
+                for pfile, notpfile in zip(glob.glob(os.path.join(dpresntdir, '*.tif')), glob.glob(os.path.join(dnotpresntdir, '*.tif'))):
+                    # loop through the files in the folder and apply the probability for subtraction
+                    # get the base name for filtering 
+                    pbase = os.path.basename(pfile)
+                    notpbase = os.path.basename(notpfile)
+                    prob = df_bc.loc[((df_bc.loc[:, 'cec filename'] == pbase) & (df_bc.loc[:, 'no cec filename'] == notpbase)), 'prob'].values[0] 
+                    
+                    # create a temp file to write to.
+                    tpath = tempfile.NamedTemporaryFile(suffix='.tif').name
+                    
+                    tpath = self.raster_subtract(pfile, notpfile, tpath, prob = prob)
+                    tmpfiles.append(tpath)
+                # if we only have 1 file then set it to the output name and remove the temporary file
+                # this sets the resulting addition to the output name
+                if len(tmpfiles) == 1:
+                    shutil.copy2(ofilename, tmpfiles[0])
+                    os.remove(tmpfiles[0])
+                else:
+                    # if there's a receptor set this as the recptor layer
+                    if rfilename != "":
+                        sfilename = self.raster_add(tmpfiles, sfilename)
+                    # if not use it as an output file
+                    else:
+                        ofilename = self.raster_add(tmpfiles, ofilename)
+                    # remove the tmp files
+                    [os.remove(tmpfile) for tmpfile in tmpfiles]
             
-            # add and style the stressor which has a threshold applied
-            self.style_layer(sfilename, sstylefile, checked = False)
             
+            
+            # if the receptor is set then perform calculations
+            if rfilename != "":
+            
+                # add and style the stressor. This is the output if no receptor or stressor are provided
+                self.style_layer(sfilename, sstylefile, checked = False)
+                
+                # calculate the final raster
+                self.raster_multi(rfilename, sfilename, scfilename, ofilename)
+                                                   
+                # add and style the receptor
+                self.style_layer(rfilename, rstylefile, checked = False)
+                        
             if not scfilename == "":
                 # add and style the secondary constraint
                 self.style_layer(scfilename, scstylefile, checked = False)
             
             # add and style the outfile returning values
             ranges = self.style_layer(ofilename, ostylefile, ranges = True)
+                
             # self.export_area(ranges, ofilename)
             
             # close and remove the filehandler
             fh.close()
             logger.removeHandler(fh)
             
-    
