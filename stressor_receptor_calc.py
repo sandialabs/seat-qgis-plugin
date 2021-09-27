@@ -439,45 +439,21 @@ class StressorReceptorCalc:
             range = [x[0] for x in layer.legendSymbologyItems()]
             return range
     
-    def export_area(self, ranges, ofilename):
-        rdata = gdal.Open(ofilename)
-        band1 = rdata.GetRasterBand(1)
-        raster1 = band1.ReadAsArray()
-
-        count = dict(zip(*np.unique(raster1, return_counts=True)))
-        keys = list(count.keys())
-        keys = [k for k in keys if k > 0]
+    def export_area(self, ofilename):
+        cfile = ofilename.replace('.tif', '.csv')
+        if os.path.isfile(cfile):
+            os.remove(cfile)
         
-        # make sure we have the same length keys and labels
-        assert len(keys) == len(ranges)
-        count = { ranges[i]: count[k] for i, k in enumerate(keys) }
-        df = pd.DataFrame(list(count.items()), columns = ["symbol", "count"])
+        params = { 'BAND' : 1, 
+        'INPUT' : ofilename, 
+        'OUTPUT_TABLE' : cfile }
         
-        basename = os.path.splitext(os.path.basename(ofilename))[0]
-        layer = QgsRasterLayer(ofilename, basename)
+        processing.run("native:rasterlayeruniquevaluesreport", params)
         
-        pixel_size_x = layer.rasterUnitsPerPixelX()
-        pixel_size_y = layer.rasterUnitsPerPixelY()
-        
-        units = ""
-        if layer.crs().mapUnits() ==  0:
-            units = "m"
-        
-        
-        df['area'] = df['count'] / (pixel_size_x * pixel_size_y)
-        df['percent'] = (df['area']/sum(df['area'])) * 100.
-        df2 = pd.DataFrame(index = [0])
-        df2["symbol"] = "Total Area"
-        df2["area"] = sum(df['area'])
-        df2['percent'] = 100.
-
-        df = df.append(df2, ignore_index=True)
-        
-        df['unit'] = units +'^2'
-        df = df[['symbol', 'area', 'unit', 'percent']]
-        
-        # this overwrites
-        df.to_csv(ofilename.replace(".tif", ".csv"), index = False)
+        df = pd.read_csv(cfile, encoding = 'cp1252')
+        df.rename(columns = {'m²':'m2'}, inplace = True)
+        df['percentage'] = (df['m2'] / df['m2'].sum()) * 100.
+        df.to_csv(cfile, index = False)
         
     def run(self):
         """Run method that performs all the real work"""
@@ -693,9 +669,9 @@ class StressorReceptorCalc:
                 self.style_layer(scfilename, scstylefile, checked = False)
             
             # add and style the outfile returning values
-            ranges = self.style_layer(ofilename, ostylefile, ranges = True)
+            self.style_layer(ofilename, ostylefile, ranges = True)
                 
-            # self.export_area(ranges, ofilename)
+            self.export_area(ofilename)
             
             # close and remove the filehandler
             fh.close()
