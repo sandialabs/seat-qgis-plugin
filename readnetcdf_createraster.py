@@ -26,6 +26,7 @@
 import glob, os, osr
 
 import numpy as np
+import pandas as pd
 
 from netCDF4 import Dataset
 import re
@@ -74,7 +75,13 @@ def transform_netcdf(dev_present_file, dev_notpresent_file, bc_file, run_order_f
         #    layer_d50 = layer_d50 + np.squeeze(sed_fracs[ised,:,:])*sed_d50[ised]
         #    
         #taucrit = 1.65*980*((layer_d50*10**6)/10000)*0.0419
+        
+        # E & E case
+        # soil density * gravity * grain size * 10^6 / unit converter *
         taucrit = 1.65*980*((1.9e-4*10**6)/10000)*0.0419
+        
+        # 350 micron sad size converted to meters
+        taucrit = 1.65*980*((350*10**-6)/10000)*0.0419
         
     elif plotvar == 'VEL':
         # Define critical velocity for motility as 0.05 m/s
@@ -155,8 +162,14 @@ def transform_netcdf(dev_present_file, dev_notpresent_file, bc_file, run_order_f
         wec_diff = (np.sign(wec_diff_wecs_sgn-wec_diff_bs_sgn)*wec_diff_wecs_sgn) 
         wec_diff = wec_diff.astype(int) + wec_diff_wecs-wec_diff_bs
         
+        # set to zero
         wec_diff[np.abs(wec_diff)<0.01] = 0
         
+        # set everything else  to 1. EMP 10/8/2021
+        #wec_diff[wec_diff != 0] = 1
+        
+        # normalize to 0, 1 code snip EMP 10/8/2021
+        #wec_diff = (wec_diff - np.min(wec_diff))/np.ptp(wec_diff)
 
     elif plotvar == 'DPS':
         wec_diff =  wec_diff_wecs - wec_diff_bs
@@ -178,7 +191,7 @@ def transform_netcdf(dev_present_file, dev_notpresent_file, bc_file, run_order_f
     #get number of rows and cols
     return(rows, cols, numpy_array)
     
-def transform_netcdf_run_order(dev_present_file, dev_notpresent_file, bc_file, plotvar):
+def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_order_file, plotvar):
     #===========================
     # Load With WECs NetCDF file.
     # MATT: the netcdf files here are 4 (case number, time, x, y) or 5-dimensional (case number, depth, time, x, y). 
@@ -216,6 +229,9 @@ def transform_netcdf_run_order(dev_present_file, dev_notpresent_file, bc_file, p
         #    layer_d50 = layer_d50 + np.squeeze(sed_fracs[ised,:,:])*sed_d50[ised]
         #    
         #taucrit = 1.65*980*((layer_d50*10**6)/10000)*0.0419
+        
+        # E & E case
+        # soil density * gravity * grain size * 10^6 / unit converter *
         taucrit = 1.65*980*((1.9e-4*10**6)/10000)*0.0419
         
     elif plotvar == 'VEL':
@@ -227,9 +243,12 @@ def transform_netcdf_run_order(dev_present_file, dev_notpresent_file, bc_file, p
     # stored in the first dimension of data_wecs or data_bs
     dev_present_dir = os.path.dirname(dev_present_file)
     
-    foo = np.loadtxt(bc_file,
+    foo = np.loadtxt(run_order_file,
                      delimiter=',', dtype='str')
-    run_order = foo[1::,0]
+    bc_name_wecs = foo[:,1]
+
+    # Load BC file with probabilities and find appropriate probability
+    BC_Annie = np.loadtxt(bc_file, delimiter=',', skiprows=1)
 
     #==============================
     # Load WECs NetCDF file without wecs into variable data_bs
@@ -252,17 +271,18 @@ def transform_netcdf_run_order(dev_present_file, dev_notpresent_file, bc_file, p
     # wec_diff = np.zeros(np.shape(data_wecs[0,0,:,:]))
 
     #=======================================================
+    # set up a dataframe of probabilities
+    df = pd.DataFrame({'Hs':BC_Annie[:,0].astype(float), 'Tp':BC_Annie[:,1].astype(int).astype(str), 'Dir':BC_Annie[:,2].astype(int).astype(str), 'prob':BC_Annie[:,4].astype(float)/100.})
+    # generate a primary key for merge with the run order
+    df['pk'] = ['Hs'] + df['Hs'].map('{:.2f}'.format) + ['Tp'] + df['Tp'].str.pad(2, fillchar = '0') + ['Dir'] + df['Dir']
+    # set up a run order dataframe
+    df_ro = pd.DataFrame({'bc_name': np.char.strip(bc_name_wecs), 'bcnum': foo[:,0].astype(int) - 1})
+    # merge to the run order. This trims out runs that we want dropped.
+    df_merge = pd.merge(df_ro, df, how = 'left', left_on = 'bc_name', right_on = 'pk')
+
     # Loop through all boundary conditions and create images
-    for bcnum in run_order:#range(0,len(depth)):
-        # Parse the boundary condition file for wave conditions and probabilities
-        bcs =  [float(s) for s in re.findall(r'-?\d+\.?\d*',bc_name_wecs[bcnum])]
-        bc_hs = bcs[0]
-        bc_tp = bcs[1]
-        bc_dir = bcs[2]
-        
-        indx = np.where(foo[1::, 0 ] == bcnum)
-        prob = float(foo[indx, 1])/100
-        
+    for bcnum, prob in zip(df_merge['bcnum'], df_merge['prob']):
+
         #===============================================================
         # Compute normalized difference between with WEC and without WEC
         
@@ -294,8 +314,14 @@ def transform_netcdf_run_order(dev_present_file, dev_notpresent_file, bc_file, p
         wec_diff = (np.sign(wec_diff_wecs_sgn-wec_diff_bs_sgn)*wec_diff_wecs_sgn) 
         wec_diff = wec_diff.astype(int) + wec_diff_wecs-wec_diff_bs
         
+        # set to zero
         wec_diff[np.abs(wec_diff)<0.01] = 0
         
+        # set everything else  to 1. EMP 10/8/2021
+        #wec_diff[wec_diff != 0] = 1
+        
+        # normalize to 0, 1 code snip EMP 10/8/2021
+        #wec_diff = (wec_diff - np.min(wec_diff))/np.ptp(wec_diff)
 
     elif plotvar == 'DPS':
         wec_diff =  wec_diff_wecs - wec_diff_bs
@@ -313,10 +339,10 @@ def transform_netcdf_run_order(dev_present_file, dev_notpresent_file, bc_file, p
     array2 = np.flip(newarray, axis=0) 
     numpy_array = array2 
     rows, cols = numpy_array.shape
-    
+
     #get number of rows and cols
-    return(rows, cols, numpy_array)
-    
+    return(rows, cols, numpy_array)    
+        
 def read_raster_calculate_diff(dev_present_file, dev_notpresent_file):
  
     data = gdal.Open(dev_present_file)
@@ -341,6 +367,49 @@ def read_raster_calculate_diff(dev_present_file, dev_notpresent_file):
     #get number of rows and cols
     return(rows, cols, numpy_array)
 
+
+# overall creation function merging create_raster and numpy array_to_raster
+def create_raster_from_arr(output_path,
+                  cols,
+                  rows,
+                  nbands,
+                  numpy_array,
+                  bounds,
+                  cell_resolution,
+                  spatial_reference_system_wkid):
+                  
+    # create gdal driver - doing this explicitly
+    driver = gdal.GetDriverByName(str('GTiff'))
+
+    output_raster = driver.Create(output_path,
+                                  int(cols),
+                                  int(rows),
+                                  nbands,
+                                  eType = gdal.GDT_Float32)
+                                  
+    geotransform = (bounds[0],
+                    cell_resolution[0],
+                    0,
+                    bounds[1] + cell_resolution[1],
+                    0,
+                    -1 * cell_resolution[1])
+
+    spatial_reference = osr.SpatialReference()
+    spatial_reference.ImportFromEPSG(spatial_reference_system_wkid)
+
+    output_raster.SetProjection(spatial_reference.ExportToWkt()) #exports the cords to the file
+    output_raster.SetGeoTransform(geotransform)
+    output_band = output_raster.GetRasterBand(1)
+    #output_band.SetNoDataValue(no_data) #Not an issue, may be in other cases?
+    output_band.WriteArray(numpy_array)
+
+    output_band.FlushCache()
+    output_band.ComputeStatistics(False) #you want this false, true will make computed results, but is faster, could be a setting in the UI perhaps, esp for large rasters?
+    
+    if os.path.exists(output_path) == False:
+        raise Exception('Failed to create raster: %s' % output_path)  
+        
+    return output_raster
 
 #returns gdal data source raster object
 def create_raster(output_path,
@@ -385,7 +454,8 @@ def numpy_array_to_raster(output_raster,
     output_raster.SetGeoTransform(geotransform)
     output_band = output_raster.GetRasterBand(1)
     #output_band.SetNoDataValue(no_data) #Not an issue, may be in other cases?
-    output_band.WriteArray(numpy_array)     
+    output_band.WriteArray(numpy_array)
+
     output_band.FlushCache()
     output_band.ComputeStatistics(False) #you want this false, true will make computed results, but is faster, could be a setting in the UI perhaps, esp for large rasters?
     

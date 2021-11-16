@@ -43,23 +43,30 @@ from osgeo import gdal
 import pandas as pd
 import shutil
 import tempfile
+import configparser
+import xml.etree.ElementTree as ET
 
 # import netcdf calculations
-from .readnetcdf_createraster import transform_netcdf, create_raster, numpy_array_to_raster, read_raster_calculate_diff
+from .readnetcdf_createraster import transform_netcdf, transform_netcdf_ro, create_raster, numpy_array_to_raster
 
 # grab the data time
 from datetime import date
 import logging
 
-# unused :(
-"""
-def check_file_type(dir, file_type):
-    ''' Checks for file type in a folder '''
-    if len(glob.glob("*.{}".format(file_type))) == 0:
-        return False
-    else:
-        return True
-"""
+def df_from_qml(fpath):
+    tree = ET.parse(fpath)
+    root = tree.getroot()
+
+    v = [i.get('label') for i in root[3][1][2][0].findall('item')]
+    v2 = [s.split(" - ") for s in v]
+    df = pd.DataFrame(v2, columns = ['min', 'max'])
+    if df.empty:
+        # grab the values in a unique palette
+        v1 = [i.get('value') for i in root[3][1][2].findall('paletteEntry')]
+        v2 = [i.get('label') for i in root[3][1][2].findall('paletteEntry')]
+        df = pd.DataFrame({'value':v1, 'label':v2})
+    return df
+    
 class StressorReceptorCalc:
     """QGIS Plugin Implementation."""
 
@@ -248,7 +255,7 @@ class StressorReceptorCalc:
     def select_device_file(self, presence):
         """ input the .nc file """
         filename, _filter = QFileDialog.getOpenFileName(
-        self.dlg, "Select NetCDF file","", "*.tif; *.nc")
+        self.dlg, "Select NetCDF file","", "*.tif; *.nc; *.ini")
         if presence  == 'not present':
             self.dlg.device_not_present.setText(filename)
         else:
@@ -294,7 +301,7 @@ class StressorReceptorCalc:
         self.dlg, "Select Output","", '*.tif')
         self.dlg.ofile.setText(filename)
     
-    def calculate_stressor(self, dev_present_file, dev_notpresent_file, bc_file, run_order_file, svar, crs, output_path):
+    def calculate_stressor(self, dev_present_file, dev_notpresent_file, bc_file, run_order_file, svar, crs, output_path, output_path_reclass):
         
         # configuration for raster translate
         GDAL_DATA_TYPE = gdal.GDT_Float32 
@@ -318,24 +325,51 @@ class StressorReceptorCalc:
         # original
         # if not a Geotiff
         #if '.tif' not in dev_present_file:
-        rows, cols, numpy_array = transform_netcdf(dev_present_file, dev_notpresent_file, bc_file, run_order_file, bcarray, svar)
+        # original
+        # rows, cols, numpy_array = transform_netcdf(dev_present_file, dev_notpresent_file, bc_file, run_order_file, bcarray, svar)
+        # new bc one
+        rows, cols, numpy_array = transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_order_file, svar)
         #if '.tif' in dev_present_file:
         #    rows, cols, numpy_array = read_raster_calculate_diff(dev_present_file, dev_notpresent_file)
         
-       
+        # create an ouput raster given the stressor file path
         output_raster = create_raster(output_path,
                           cols,
                           rows,
                           nbands)
      
         # post processing of numpy array to output raster
+        
         output_raster = numpy_array_to_raster(output_raster,
                                   numpy_array,
                                   bounds,
                                   cell_resolution,
                                   SPATIAL_REFERENCE_SYSTEM_WKID, output_path)
+                                  
+        # create an ouput raster given the reclassified stressor file path
+        output_raster_reclass = create_raster(output_path_reclass,
+                          cols,
+                          rows,
+                          nbands)
         
-        return output_path
+        # reclassify according to the break value
+        numpy_array_reclass = numpy_array.copy()
+        
+        # deprecated for now. Make zeros NA
+        # numpy_array_reclass[numpy_array<=reclass_breakval] = 1
+        # numpy_array_reclass[numpy_array>reclass_breakval] = 0
+        
+        # make null
+        # numpy_array_reclass[numpy_array == 0] = np.nan
+       
+        # post processing of numpy array to output raster
+        output_raster_reclass = numpy_array_to_raster(output_raster_reclass,
+                                  numpy_array_reclass,
+                                  bounds,
+                                  cell_resolution,
+                                  SPATIAL_REFERENCE_SYSTEM_WKID, output_path_reclass)                         
+        
+        return output_path, output_path_reclass
         
     def raster_multi(self, r, s, sc, opath):
         ''' Raster multiplication '''
@@ -415,6 +449,29 @@ class StressorReceptorCalc:
         
         return opath
     
+    def raster_subtract_d50(self, cec, no_cec, tcrit, opath, prob = 1):
+    
+        ''' Raster subtraction '''
+        layers = [cec, no_cec, tcrit]
+        cecbasename = os.path.splitext(os.path.basename(cec))[0]
+        
+        #Define stressor
+        no_cecbasename = os.path.splitext(os.path.basename(no_cec))[0]
+        """
+        params = { 'CELLSIZE' : None, 'CRS' : None, 'EXPRESSION' : '\"' + cecbasename + '@1\" - "' + no_cecbasename + '@1\"', 
+            'EXTENT' : None, 'LAYERS' : [cec, no_cec], 
+            'OUTPUT' : opath}
+
+        processing.run("qgis:rastercalculator", params)
+        """
+        # "@1 + ".join(colors) + '@1'
+        params = { 'CELLSIZE' : None, 'CRS' : None, 'EXPRESSION' : '(({0}@1 - {1}@1) * {2}) / {3}/ 10)'.format(cecbasename, no_cecbasename, prob, tcrit), 
+        'EXTENT' : None, 'LAYERS' : layers, 
+        'OUTPUT' : opath}
+
+        processing.run("qgis:rastercalculator", params)
+        
+        return opath
     
         
     def style_layer(self, fpath, stylepath, checked = True, ranges = True):
@@ -439,10 +496,14 @@ class StressorReceptorCalc:
             range = [x[0] for x in layer.legendSymbologyItems()]
             return range
     
-    def export_area(self, ofilename):
+    def export_area(self, ofilename, ostylefile = None):
         cfile = ofilename.replace('.tif', '.csv')
         if os.path.isfile(cfile):
             os.remove(cfile)
+                
+        if ostylefile is not None:
+            sdf = df_from_qml(ostylefile)
+        
         
         params = { 'BAND' : 1, 
         'INPUT' : ofilename, 
@@ -452,8 +513,22 @@ class StressorReceptorCalc:
         
         df = pd.read_csv(cfile, encoding = 'cp1252')
         df.rename(columns = {'m²':'m2'}, inplace = True)
+        df = df.groupby(by = ['value']).sum().reset_index()
+        
         df['percentage'] = (df['m2'] / df['m2'].sum()) * 100.
-        df.to_csv(cfile, index = False)
+   
+        df['value'] = df['value'].astype(float)
+        # recode 0 to np.nan
+        df.loc[df['value'] == 0, 'value'] = float('nan')
+        
+        df = df.sort_values(by = ['value'])
+        
+        
+        if ostylefile is not None:
+            df = pd.merge(df, sdf, how = 'left', on = 'value')
+            df.loc[:, ['value','label', 'count', 'm2', 'percentage']].to_csv(cfile, index = False)
+        else:
+            df.loc[:, ['value', 'count', 'm2', 'percentage']].to_csv(cfile, na_rep='NULL', index = False)
         
     def run(self):
         """Run method that performs all the real work"""
@@ -531,21 +606,38 @@ class StressorReceptorCalc:
         if result:
             # Do something useful here
             # this grabs the files for input and output
-            #rfilename = self.dlg.lineEdit.text()
-            #sfilename = self.dlg.lineEdit_2.text()
-            
+                        
             dpresentfname = self.dlg.device_present.text()
-            dnotpresentfname = self.dlg.device_not_present.text()
-            bcfname = self.dlg.bc_prob.text()
-            rofname = self.dlg.run_order.text()
-            
-            rfilename = self.dlg.receptor_file.text()
-            scfilename = self.dlg.sc_file.text()
-            ofilename = self.dlg.ofile.text()
-            
-            svar = self.dlg.stressor_comboBox.currentText()
-            
-            crs = int(self.dlg.crs.text())
+            # ADD in an ini file here?
+            if '.ini' not in dpresentfname:                
+                dnotpresentfname = self.dlg.device_not_present.text()
+                bcfname = self.dlg.bc_prob.text()
+                rofname = self.dlg.run_order.text()
+                
+                rfilename = self.dlg.receptor_file.text()
+                scfilename = self.dlg.sc_file.text()
+                ofilename = self.dlg.ofile.text()
+                
+                svar = self.dlg.stressor_comboBox.currentText()
+                
+                crs = int(self.dlg.crs.text())
+            else:
+                 config = configparser.ConfigParser()
+                 config.read(dpresentfname)
+                 # after reading in the ini overwrite the variable
+                 dpresentfname = config['Input']['Device Present Filepath']
+                 dnotpresentfname = config['Input']['Device Not Present Filepath']
+                 bcfname = config['Input']['Boundary Condition Filepath']
+                 rofname = config['Input']['Run Order Filepath']
+                 
+                 svar = config['Input']['Stressor variable']
+                 crs = int(config['Input']['Coordinate Reference System'])
+                 
+                 rfilename = config['Input']['Receptor Filepath']
+                 scfilename = config['Input']['Secondary Constraint Filepath']
+                 
+                 ofilename = config['Output']['Output Filepath']
+                 
             
             # create logger
             logger = logging.getLogger(__name__)
@@ -567,10 +659,12 @@ class StressorReceptorCalc:
 
             # Set up the stressor name            
             sfilename = os.path.join(os.path.dirname(ofilename), "calculated_stressor.tif")
+            srclassfilename = os.path.join(os.path.dirname(ofilename), "calculated_stressor_reclassified.tif")
 
             # message
             logger.info('Receptor File: {}'.format(rfilename))
             logger.info('Stressor File: {}'.format(sfilename))
+            logger.info('Reclassified Stressor File: {}'.format(srclassfilename))
             logger.info('Device present File: {}'.format(dpresentfname))
             logger.info('Device not present File: {}'.format(dnotpresentfname))
             logger.info('Boundary Condition File: {}'.format(bcfname))
@@ -592,10 +686,22 @@ class StressorReceptorCalc:
             rstylefile = os.path.join(profilepath, self.dlg.tableWidget.item(0, 1).text()).replace("\\", "/")
             sstylefile = os.path.join(profilepath, self.dlg.tableWidget.item(1, 1).text()).replace("\\", "/")
             scstylefile = os.path.join(profilepath, self.dlg.tableWidget.item(2, 1).text()).replace("\\", "/")
+            
             if self.dlg.tableWidget.item(3, 1).text() != "":
                 ostylefile = os.path.join(profilepath, self.dlg.tableWidget.item(3, 1).text()).replace("\\", "/")
             else:
                 ostylefile = ""
+                
+            # deprecated for now
+            #reclass_breakval = float(self.dlg.tableWidget.item(4, 1).text())
+            
+            logger.info('Receptor Style File: {}'.format(rstylefile))
+            logger.info('Stressor Style File: {}'.format(sstylefile))
+            logger.info('Secondary Constraint Style File: {}'.format(scstylefile))
+            logger.info('Output Style File: {}'.format(ostylefile))
+            #logger.info('Stressor reclassification break value: {}'.format(reclass_breakval))
+          
+            
             
              
             #QgsMessageLog.logMessage(min_rc + " , " + max_rc, level =Qgis.MessageLevel.Info)
@@ -607,7 +713,7 @@ class StressorReceptorCalc:
             
             # calculate the raster from the NetCDF            
             if '.nc' in dpresentfname:
-                sfilename = self.calculate_stressor(dpresentfname,dnotpresentfname, bcfname, rofname, svar, crs, sfilename)
+                sfilename, srclassfilename = self.calculate_stressor(dpresentfname,dnotpresentfname, bcfname, rofname, svar, crs, sfilename, srclassfilename)
             
             # if there's .tif in the device present file than loop through the
             # tif files to build the stressor raster-
@@ -641,7 +747,7 @@ class StressorReceptorCalc:
                     shutil.copy2(ofilename, tmpfiles[0])
                     os.remove(tmpfiles[0])
                 else:
-                    # if there's a receptor set this as the recptor layer
+                    # if there's a receptor set this as the receptor layer
                     if rfilename != "":
                         sfilename = self.raster_add(tmpfiles, sfilename)
                     # if not use it as an output file
@@ -656,10 +762,13 @@ class StressorReceptorCalc:
             if rfilename != "":
             
                 # add and style the stressor. This is the output if no receptor or stressor are provided
-                self.style_layer(sfilename, sstylefile, checked = False)
+                self.style_layer(sfilename, '', checked = False)
                 
-                # calculate the final raster
-                self.raster_multi(rfilename, sfilename, scfilename, ofilename)
+                # add the reclassed stressier
+                self.style_layer(srclassfilename, '', checked = False)
+                
+                # calculate the final raster using the reclassed file
+                self.raster_multi(rfilename, srclassfilename, scfilename, ofilename)
                                                    
                 # add and style the receptor
                 self.style_layer(rfilename, rstylefile, checked = False)
@@ -671,7 +780,7 @@ class StressorReceptorCalc:
             # add and style the outfile returning values
             self.style_layer(ofilename, ostylefile, ranges = True)
                 
-            self.export_area(ofilename)
+            self.export_area(ofilename, ostylefile = None)
             
             # close and remove the filehandler
             fh.close()
