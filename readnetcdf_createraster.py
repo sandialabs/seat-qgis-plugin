@@ -35,9 +35,8 @@ import gdal
 # these imports currently don't work :(
 # from qgis.core import *
 # import qgis.utils
-
-
-def transform_netcdf(dev_present_file, dev_notpresent_file, bc_file, run_order_file, bcarray, plotvar):
+    
+def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_order_file, plotvar, gsfilename):
     #===========================
     # Load With WECs NetCDF file.
     # MATT: the netcdf files here are 4 (case number, time, x, y) or 5-dimensional (case number, depth, time, x, y). 
@@ -77,162 +76,22 @@ def transform_netcdf(dev_present_file, dev_notpresent_file, bc_file, run_order_f
         #taucrit = 1.65*980*((layer_d50*10**6)/10000)*0.0419
         
         # E & E case
-        # soil density * gravity * grain size * 10^6 / unit converter *
-        taucrit = 1.65*980*((1.9e-4*10**6)/10000)*0.0419
+        # soil density * gravity * grain size(m) * 10^6 / unit converter *
+        #taucrit = 1.65*980*((1.9e-4*10**6)/10000)*0.0419
         
-        # 350 micron sad size converted to meters
-        taucrit = 1.65*980*((350*10**-6)/10000)*0.0419
+        # ADD in grainsize raster here. Will need to add option to have empty receptor
+        data = gdal.Open(gsfilename)
+        img = data.GetRasterBand(1)
+        gs_array = img.ReadAsArray()
+        # transpose to be in same orientation as NetCDF
+        gs_array = np.transpose(gs_array)
+        gs_array[gs_array<0] = 0
+        # soil density * gravity * grain size array * 10^6 / unit converter *
+        #taucrit = 1.65*980*((gs_array*10**6)/10000)*0.0419
         
-    elif plotvar == 'VEL':
-        # Define critical velocity for motility as 0.05 m/s
-        velcrit = 0.05 *np.ones(np.shape(np.squeeze(u[0,0,:,:])))    
-        
-
-    # Load and parse run order file. This csv file has the wave conditions for each case. The wave conditions are listed in the order of cases as they are 
-    # stored in the first dimension of data_wecs or data_bs
-    dev_present_dir = os.path.dirname(dev_present_file)
-    
-    foo = np.loadtxt(run_order_file,
-                     delimiter=',', dtype='str')
-    bc_name_wecs = foo[:,1]
-
-    # Load BC file with probabilities and find appropriate probability
-    BC_Annie = np.loadtxt(bc_file, delimiter=',', skiprows=1)
-
-    #==============================
-    # Load WECs NetCDF file without wecs into variable data_bs
-
-    # Find name of NetCDF device not present output file
-    # Read NetCDF file and parse contents needed for plotting
-    file = Dataset(dev_notpresent_file)
-    if plotvar != 'VEL':
-        data_bs = file.variables[plotvar][:]
-    else:
-        u = file.variables['U1'][:,:,-1,:,:]
-        v = file.variables['V1'][:,:,-1,:,:]
-        data_bs = np.sqrt(u**2 + v**2)  
-        
-        
-    file.close()
-    
-    wec_diff_bs = np.zeros(np.shape(data_bs[0,0,:,:]))
-    wec_diff_wecs = np.zeros(np.shape(data_wecs[0,0,:,:]))
-    # wec_diff = np.zeros(np.shape(data_wecs[0,0,:,:]))
-
-    #=======================================================
-    # Loop through all boundary conditions and create images
-    for bcnum in bcarray:#range(0,len(depth)):
-        # Parse the boundary condition file for wave conditions and probabilities
-        bcs =  [float(s) for s in re.findall(r'-?\d+\.?\d*',bc_name_wecs[bcnum])]
-        bc_hs = bcs[0]
-        bc_tp = bcs[1]
-        bc_dir = bcs[2]
-        
-        indx = np.where(np.logical_and(np.round(BC_Annie[:,0],2)==bc_hs, BC_Annie.astype(int)[:,1]==bc_tp,BC_Annie.astype(int)[:,2]==bc_dir))
-        prob = BC_Annie[indx][0,-1]/100
-        
-        #===============================================================
-        # Compute normalized difference between with WEC and without WEC
-        
-        #wec_diff = wec_diff + prob*(data_w_wecs[bcnum,1,:,:] - data_wo_wecs[bcnum,1,:,:])/data_wo_wecs[bcnum,1,:,:]
-        if plotvar == 'TAUMAX':
-            wec_diff_bs = wec_diff_bs + prob*data_bs[bcnum,0,:,:]/(taucrit*10)
-            wec_diff_wecs = wec_diff_wecs + prob*data_wecs[bcnum,0,:,:]/(taucrit*10)
-
-        elif plotvar == 'VEL':
-            # breakpoint()
-            # wec_diff_bs = wec_diff_bs + prob*(2*data_bs[bcnum,1,:,:] - data_bs[bcnum,1,:,:])/(velcrit*10)
-            # wec_diff_wecs = wec_diff_wecs + prob*(2*data_wecs[bcnum,1,:,:] - data_wecs[bcnum,1,:,:])/(velcrit*10)
-            # Should this be 0?
-            wec_diff_bs = wec_diff_bs + prob*(2*data_bs[bcnum,0,:,:] - data_bs[bcnum,0,:,:])/(velcrit*10)
-            wec_diff_wecs = wec_diff_wecs + prob*(2*data_wecs[bcnum,0,:,:] - data_wecs[bcnum,0,:,:])/(velcrit*10)
-            
-        elif plotvar == 'DPS':
-            wec_diff_bs = wec_diff_bs + prob*data_bs[bcnum,1,:,:]
-            wec_diff_wecs = wec_diff_wecs + prob*data_wecs[bcnum,1,:,:]
-            #wec_diff = (data_w_wecs[bcnum,1,:,:] - data_wo_wecs[bcnum,1,:,:])/data_wo_wecs[bcnum,1,:,:]
-    #========================================================
-
-
-    # Calculate risk metrics over all runs
-    if plotvar == 'TAUMAX' or plotvar == 'VEL':
-        wec_diff_bs_sgn = np.floor(wec_diff_bs*25)/25 
-        wec_diff_wecs_sgn = np.floor(wec_diff_wecs*25)/25 
-
-        wec_diff = (np.sign(wec_diff_wecs_sgn-wec_diff_bs_sgn)*wec_diff_wecs_sgn) 
-        wec_diff = wec_diff.astype(int) + wec_diff_wecs-wec_diff_bs
-        
-        # set to zero
-        wec_diff[np.abs(wec_diff)<0.01] = 0
-        
-        # set everything else  to 1. EMP 10/8/2021
-        #wec_diff[wec_diff != 0] = 1
-        
-        # normalize to 0, 1 code snip EMP 10/8/2021
-        #wec_diff = (wec_diff - np.min(wec_diff))/np.ptp(wec_diff)
-
-    elif plotvar == 'DPS':
-        wec_diff =  wec_diff_wecs - wec_diff_bs
-        wec_diff[np.abs(wec_diff)<0.0005] = 0
-        
-    #========================================================
-        
-    #convert to a geotiff, using wec_diff 
-
-    #listOfFiles = [wec_diff_bs, wec_diff_wecs, wec_diff, wec_diff_bs_sgn, wec_diff_wecs_sgn]  
-
-    #transpose and pull
-
-    newarray=np.transpose(wec_diff)
-    array2 = np.flip(newarray, axis=0) 
-    numpy_array = array2 
-    rows, cols = numpy_array.shape
-    
-    #get number of rows and cols
-    return(rows, cols, numpy_array)
-    
-def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_order_file, plotvar):
-    #===========================
-    # Load With WECs NetCDF file.
-    # MATT: the netcdf files here are 4 (case number, time, x, y) or 5-dimensional (case number, depth, time, x, y). 
-    # We first load the netcdf files when wecs are present, into variable data_wecs, then (below) load netcdf files without wecs into data_bs
-    # Find name of NetCDF output file
-    # nc_file = glob.glob(os.path.join(run_dir,'run_dir_wecs','*.nc'))
-
-    # Read The device present NetCDF file and parse contents needed for plotting
-    file = Dataset(dev_present_file)
-    lat  = file.variables['YZ'][:] # Y-coordinate of cell center
-    lon  = file.variables['XZ'][:] # X-coordinate of cell center
-    
-    # Deprecated?
-    # delft_time = file.variables['time'][:]
-    # depth = file.variables['DPS0'][:] # Initial bottom depth at zeta points (positive down)
-    #sed_fracs = np.squeeze(file.variables['LYRFRAC'][0,0,:,0,:,:])
-    if plotvar != 'VEL':
-        # 4D netcdf files
-        data_wecs = file.variables[plotvar][:]
-        
-    else:
-        # 5D netcdf files. Pick last depth that corresponds to bottom
-        u = file.variables['U1'][:,:,-1,:,:]
-        v = file.variables['V1'][:,:,-1,:,:]
-        data_wecs = np.sqrt(u**2 + v**2)
-        
-    file.close()
-
-    if plotvar == 'TAUMAX':
-        # Empirical calculation of Sediment D50s and critical shear stress for erosion
-        #nsed = np.shape(sed_fracs)[0]
-        #sed_d50 = np.array([3.5e-4, 2.75e-4, 2.0e-4, 0.75e-4])
-        #layer_d50 = np.zeros((np.shape(sed_fracs)[1], np.shape(sed_fracs)[2]))
-        #for ised in range(0,nsed):
-        #    layer_d50 = layer_d50 + np.squeeze(sed_fracs[ised,:,:])*sed_d50[ised]
-        #    
-        #taucrit = 1.65*980*((layer_d50*10**6)/10000)*0.0419
-        
-        # E & E case
-        # soil density * gravity * grain size * 10^6 / unit converter *
-        taucrit = 1.65*980*((1.9e-4*10**6)/10000)*0.0419
+        # convert micron to cm 1 micron is 1e-4
+        # soil density (g/cm^2) * standard gravity (cm/s^2) * (micron / (convert to cm)) * unit conversion
+        taucrit = 1.65*980*((gs_array)/10000)*0.0419
         
     elif plotvar == 'VEL':
         # Define critical velocity for motility as 0.05 m/s
@@ -290,7 +149,8 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
         if plotvar == 'TAUMAX':
             wec_diff_bs = wec_diff_bs + prob*data_bs[bcnum,0,:,:]/(taucrit*10)
             wec_diff_wecs = wec_diff_wecs + prob*data_wecs[bcnum,0,:,:]/(taucrit*10)
-
+            #breakpoint()
+            
         elif plotvar == 'VEL':
             # breakpoint()
             # wec_diff_bs = wec_diff_bs + prob*(2*data_bs[bcnum,1,:,:] - data_bs[bcnum,1,:,:])/(velcrit*10)
@@ -317,12 +177,6 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
         # set to zero
         wec_diff[np.abs(wec_diff)<0.01] = 0
         
-        # set everything else  to 1. EMP 10/8/2021
-        #wec_diff[wec_diff != 0] = 1
-        
-        # normalize to 0, 1 code snip EMP 10/8/2021
-        #wec_diff = (wec_diff - np.min(wec_diff))/np.ptp(wec_diff)
-
     elif plotvar == 'DPS':
         wec_diff =  wec_diff_wecs - wec_diff_bs
         wec_diff[np.abs(wec_diff)<0.0005] = 0

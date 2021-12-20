@@ -47,7 +47,7 @@ import configparser
 import xml.etree.ElementTree as ET
 
 # import netcdf calculations
-from .readnetcdf_createraster import transform_netcdf, transform_netcdf_ro, create_raster, numpy_array_to_raster
+from .readnetcdf_createraster import transform_netcdf_ro, create_raster, numpy_array_to_raster
 
 # grab the data time
 from datetime import date
@@ -301,7 +301,7 @@ class StressorReceptorCalc:
         self.dlg, "Select Output","", '*.tif')
         self.dlg.ofile.setText(filename)
     
-    def calculate_stressor(self, dev_present_file, dev_notpresent_file, bc_file, run_order_file, svar, crs, output_path, output_path_reclass):
+    def calculate_stressor(self, dev_present_file, dev_notpresent_file, bc_file, run_order_file, svar, crs, output_path, output_path_reclass, gsfilename):
         
         # configuration for raster translate
         GDAL_DATA_TYPE = gdal.GDT_Float32 
@@ -328,7 +328,7 @@ class StressorReceptorCalc:
         # original
         # rows, cols, numpy_array = transform_netcdf(dev_present_file, dev_notpresent_file, bc_file, run_order_file, bcarray, svar)
         # new bc one
-        rows, cols, numpy_array = transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_order_file, svar)
+        rows, cols, numpy_array = transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_order_file, svar,gsfilename)
         #if '.tif' in dev_present_file:
         #    rows, cols, numpy_array = read_raster_calculate_diff(dev_present_file, dev_notpresent_file)
         
@@ -557,7 +557,8 @@ class StressorReceptorCalc:
             # This connects the function to the layer combobox when changed
             self.dlg.comboBox.currentIndexChanged.connect(lambda: self.select_calc_type(fields))
            
-            sfields = ['TAUMAX', 'VEL']
+            #sfields = ['TAUMAX', 'VEL']
+            sfields = ['TAUMAX -Structured', 'TAUMAX -Unstructured', 'VEL -Structured', 'VEL -Unstructured']
             self.dlg.stressor_comboBox.addItems(sfields)
             
             # this connecta selecting the files. Since each element has a unique label seperate functions are used.
@@ -634,6 +635,7 @@ class StressorReceptorCalc:
                  crs = int(config['Input']['Coordinate Reference System'])
                  
                  rfilename = config['Input']['Receptor Filepath']
+                 gsfilename = config['Input']['Grainsize Filepath']
                  scfilename = config['Input']['Secondary Constraint Filepath']
                  
                  ofilename = config['Output']['Output Filepath']
@@ -660,9 +662,10 @@ class StressorReceptorCalc:
             # Set up the stressor name            
             sfilename = os.path.join(os.path.dirname(ofilename), "calculated_stressor.tif")
             srclassfilename = os.path.join(os.path.dirname(ofilename), "calculated_stressor_reclassified.tif")
-
+           
             # message
             logger.info('Receptor File: {}'.format(rfilename))
+            logger.info('Grainsize File: {}'.format(gsfilename))
             logger.info('Stressor File: {}'.format(sfilename))
             logger.info('Reclassified Stressor File: {}'.format(srclassfilename))
             logger.info('Device present File: {}'.format(dpresentfname))
@@ -713,7 +716,8 @@ class StressorReceptorCalc:
             
             # calculate the raster from the NetCDF            
             if '.nc' in dpresentfname:
-                sfilename, srclassfilename = self.calculate_stressor(dpresentfname,dnotpresentfname, bcfname, rofname, svar, crs, sfilename, srclassfilename)
+                if svar == 'TAUMAX -Structured':
+                    sfilename, srclassfilename = self.calculate_stressor(dpresentfname,dnotpresentfname, bcfname, rofname, 'TAUMAX', crs, sfilename, srclassfilename, gsfilename)
             
             # if there's .tif in the device present file than loop through the
             # tif files to build the stressor raster-
@@ -755,6 +759,7 @@ class StressorReceptorCalc:
                         ofilename = self.raster_add(tmpfiles, ofilename)
                     # remove the tmp files
                     [os.remove(tmpfile) for tmpfile in tmpfiles]
+              
             
             
             
@@ -772,6 +777,9 @@ class StressorReceptorCalc:
                                                    
                 # add and style the receptor
                 self.style_layer(rfilename, rstylefile, checked = False)
+            else:
+                # save the stressor as the output
+                shutil.copy(sfilename, ofilename)
                         
             if not scfilename == "":
                 # add and style the secondary constraint
