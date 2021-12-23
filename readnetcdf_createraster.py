@@ -49,6 +49,9 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
     lat  = file.variables['YZ'][:] # Y-coordinate of cell center
     lon  = file.variables['XZ'][:] # X-coordinate of cell center
     
+    xcor = file.variables['XCOR'][:].data
+    ycor = file.variables['YCOR'][:].data
+    
     # Deprecated?
     # delft_time = file.variables['time'][:]
     # depth = file.variables['DPS0'][:] # Initial bottom depth at zeta points (positive down)
@@ -120,6 +123,7 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
     else:
         u = file.variables['U1'][:,:,-1,:,:]
         v = file.variables['V1'][:,:,-1,:,:]
+        
         data_bs = np.sqrt(u**2 + v**2)  
         
         
@@ -147,9 +151,40 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
         
         #wec_diff = wec_diff + prob*(data_w_wecs[bcnum,1,:,:] - data_wo_wecs[bcnum,1,:,:])/data_wo_wecs[bcnum,1,:,:]
         if plotvar == 'TAUMAX':
-            wec_diff_bs = wec_diff_bs + prob*data_bs[bcnum,0,:,:]/(taucrit*10)
-            wec_diff_wecs = wec_diff_wecs + prob*data_wecs[bcnum,0,:,:]/(taucrit*10)
-            #breakpoint()
+            # if the shapes are the same then process. Otherwise, process to an array and stop
+            if data_bs[bcnum,-1,:,:].shape == taucrit.shape:
+                wec_diff_bs = wec_diff_bs + prob*data_bs[bcnum,-1,:,:]/(taucrit*10)
+                wec_diff_wecs = wec_diff_wecs + prob*data_wecs[bcnum,-1,:,:]/(taucrit*10)
+            else:
+                newarray=np.transpose(data_bs[bcnum,-1,:,:].data)
+                array2 = np.flip(newarray, axis=0) 
+                numpy_array = array2 
+                rows, cols = numpy_array.shape
+                # will need to dump to raster to check
+                # will error as output path is not defined.
+                SPATIAL_REFERENCE_SYSTEM_WKID = 4326 #WGS84 meters
+                nbands = 1
+                # bottom left, x, y netcdf file
+                
+                # from Kaus -235.8+360 degrees = 124.2 degrees. The 235.8 degree conventions follows longitudes that increase 
+                # eastward from Greenwich around the globe. The 124.2W, or -124.2 goes from 0 to 180 degrees to the east of Greenwich.  
+                bounds = [xcor.min() - 360,ycor.min()] #x,y or lon,lat, this is pulled from an input data source
+                # look for dx/dy
+                dx = xcor[1,0] - xcor[0,0]
+                dy = ycor[0,1] - ycor[0,0]
+                cell_resolution = [dx,dy ] #x res, y res or lon, lat, same as above
+                
+                output_raster = create_raster(output_path,
+                      cols,
+                      rows,
+                      nbands)
+                
+                output_raster = numpy_array_to_raster(output_raster,
+                              numpy_array,
+                              bounds,
+                              cell_resolution,
+                              SPATIAL_REFERENCE_SYSTEM_WKID, output_path)
+                
             
         elif plotvar == 'VEL':
             # breakpoint()
@@ -293,7 +328,8 @@ def numpy_array_to_raster(output_raster,
                           spatial_reference_system_wkid, output_path):
    
 # create output raster
-#(upper_left_x, x_resolution, x_skew 0, upper_left_y, y_skew 0, y_resolution). Need to rotate to go from np array to geo tiff. This can vary depending on the methods used above. Will need to test for this.
+#(upper_left_x, x_resolution, x_skew 0, upper_left_y, y_skew 0, y_resolution). 
+# Need to rotate to go from np array to geo tiff. This can vary depending on the methods used above. Will need to test for this.
     geotransform = (bounds[0],
                     cell_resolution[0],
                     0,
@@ -363,8 +399,17 @@ if __name__ == "__main__":
     #SWAN will always be in meters. Not always WGS84
     SPATIAL_REFERENCE_SYSTEM_WKID = 4326 #WGS84 meters
     nbands = 1 #should be one always right?
-    bounds = [-124.2843933,44.6705] #x,y or lon,lat, this is pulled from an input data source
-    cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
+    # bounds = [-124.2843933,44.6705] #x,y or lon,lat, this is pulled from an input data source
+    # cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
+
+    # from Kaus -235.8+360 degrees = 124.2 degrees. The 235.8 degree conventions follows longitudes that increase 
+    # eastward from Greenwich around the globe. The 124.2W, or -124.2 goes from 0 to 180 degrees to the east of Greenwich.  
+    bounds = [xcor.min() - 360,ycor.min()] #x,y or lon,lat, this is pulled from an input data source
+    # look for dx/dy
+    dx = xcor[1,0] - xcor[0,0]
+    dy = ycor[0,1] - ycor[0,0]
+    cell_resolution = [dx,dy ]
+
 
     #will we ever need to do a np.isnan test?
     #NO_DATA = 'NaN'

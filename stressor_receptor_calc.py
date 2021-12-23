@@ -45,6 +45,7 @@ import shutil
 import tempfile
 import configparser
 import xml.etree.ElementTree as ET
+from netCDF4 import Dataset
 
 # import netcdf calculations
 from .readnetcdf_createraster import transform_netcdf_ro, create_raster, numpy_array_to_raster
@@ -311,7 +312,7 @@ class StressorReceptorCalc:
         # bcarray = [i for i in range(1,23)]
         
         # Skip the bad runs for now
-        bcarray = np.array([0,1,2,3,4,5,6,7,9,10,11,12,13,14,15,16,17,19,20,22])
+        # bcarray = np.array([0,1,2,3,4,5,6,7,9,10,11,12,13,14,15,16,17,19,20,22])
         
         #SWAN will always be in meters. Not always WGS84
         
@@ -321,7 +322,22 @@ class StressorReceptorCalc:
         # bottom left, x, y netcdf file
         bounds = [-124.2843933,44.6705] #x,y or lon,lat, this is pulled from an input data source
         # look for dx/dy
-        cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
+        #cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
+        
+        # from Kaus -235.8+360 degrees = 124.2 degrees. The 235.8 degree conventions follows longitudes that increase 
+        # eastward from Greenwich around the globe. The 124.2W, or -124.2 goes from 0 to 180 degrees to the east of Greenwich.
+        file = Dataset(dev_present_file)
+        xcor = file.variables['XCOR'][:].data
+        ycor = file.variables['YCOR'][:].data
+
+        #bounds = [xcor.min() - 360,ycor.min()] #x,y or lon,lat, this is pulled from an input data source
+        #bounds = [round(bounds[0], 4), round(bounds[1], 4)]
+    
+        # look for dx/dy
+        dx = xcor[1,0] - xcor[0,0]
+        dy = ycor[0,1] - ycor[0,0]
+        cell_resolution = [dx,dy ]
+        
         # original
         # if not a Geotiff
         #if '.tif' not in dev_present_file:
