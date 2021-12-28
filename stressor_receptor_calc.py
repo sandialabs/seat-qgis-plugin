@@ -320,7 +320,7 @@ class StressorReceptorCalc:
         SPATIAL_REFERENCE_SYSTEM_WKID = crs #WGS84 meters
         nbands = 1
         # bottom left, x, y netcdf file
-        bounds = [-124.2843933,44.6705] #x,y or lon,lat, this is pulled from an input data source
+        # bounds = [-124.2843933,44.6705] #x,y or lon,lat, this is pulled from an input data source
         # look for dx/dy
         #cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
         
@@ -329,8 +329,11 @@ class StressorReceptorCalc:
         file = Dataset(dev_present_file)
         xcor = file.variables['XCOR'][:].data
         ycor = file.variables['YCOR'][:].data
-
+        
         #bounds = [xcor.min() - 360,ycor.min()] #x,y or lon,lat, this is pulled from an input data source
+        # adjusted to match original
+        bounds = [xcor.min() - 360 - 0.000396717968754956,ycor.min() + 0.19050045776366886]
+        
         #bounds = [round(bounds[0], 4), round(bounds[1], 4)]
     
         # look for dx/dy
