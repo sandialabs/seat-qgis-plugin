@@ -332,8 +332,8 @@ class StressorReceptorCalc:
         
         #bounds = [xcor.min() - 360,ycor.min()] #x,y or lon,lat, this is pulled from an input data source
         # adjusted to match original
-        bounds = [xcor.min() - 360 - 0.000396717968754956,ycor.min() + 0.19050045776366886]
-        
+        # bounds = [xcor.min() - 360 - 0.000396717968754956,ycor.min() + 0.19050045776366886]
+        bounds = [xcor.min() - 360, ycor.min()]
         #bounds = [round(bounds[0], 4), round(bounds[1], 4)]
     
         # look for dx/dy

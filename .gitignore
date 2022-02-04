@@ -41,3 +41,5 @@ test/test_resources.py
 test/test_stressor_receptor_calc_dialog.py
 test/test_translations.py
 test/utilities.py
+/algorithms.txt
+/inputs/_archive
