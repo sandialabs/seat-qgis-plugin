@@ -36,7 +36,7 @@ import gdal
 # from qgis.core import *
 # import qgis.utils
     
-def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_order_file, plotvar, gsfilename):
+def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_order_file, plotvar, receptor_filename = None):
     #===========================
     # Load With WECs NetCDF file.
     # MATT: the netcdf files here are 4 (case number, time, x, y) or 5-dimensional (case number, depth, time, x, y). 
@@ -82,19 +82,23 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
         # soil density * gravity * grain size(m) * 10^6 / unit converter *
         #taucrit = 1.65*980*((1.9e-4*10**6)/10000)*0.0419
         
-        # ADD in grainsize raster here. Will need to add option to have empty receptor
-        data = gdal.Open(gsfilename)
-        img = data.GetRasterBand(1)
-        gs_array = img.ReadAsArray()
-        # transpose to be in same orientation as NetCDF
-        gs_array = np.transpose(gs_array)
-        gs_array[gs_array<0] = 0
-        # soil density * gravity * grain size array * 10^6 / unit converter *
-        #taucrit = 1.65*980*((gs_array*10**6)/10000)*0.0419
-        
-        # convert micron to cm 1 micron is 1e-4
-        # soil density (g/cm^2) * standard gravity (cm/s^2) * (micron / (convert to cm)) * unit conversion
-        taucrit = 1.65*980*((gs_array)/10000)*0.0419
+        # ADD in receptor here. This started as grain size but is geeralized
+        if receptor_filename is not None:        
+            data = gdal.Open(receptor_filename)
+            img = data.GetRasterBand(1)
+            receptor_array = img.ReadAsArray()
+            # transpose to be in same orientation as NetCDF
+            receptor_array = np.transpose(receptor_array)
+            receptor_array[receptor_array < 0] = 0
+            # soil density * gravity * grain size array * 10^6 / unit converter *
+            #taucrit = 1.65*980*((gs_array*10**6)/10000)*0.0419
+            
+            # convert micron to cm 1 micron is 1e-4
+            # soil density (g/cm^2) * standard gravity (cm/s^2) * (micron / (convert to cm)) * unit conversion
+            taucrit = 1.65*980*((receptor_array)/10000)*0.0419
+        else:
+            # taucrit without areceptor
+            taucrit = 1.65*980*0.0419
         
     elif plotvar == 'VEL':
         # Define critical velocity for motility as 0.05 m/s

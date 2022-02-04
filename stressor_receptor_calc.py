@@ -302,7 +302,7 @@ class StressorReceptorCalc:
         self.dlg, "Select Output","", '*.tif')
         self.dlg.ofile.setText(filename)
     
-    def calculate_stressor(self, dev_present_file, dev_notpresent_file, bc_file, run_order_file, svar, crs, output_path, output_path_reclass, gsfilename):
+    def calculate_stressor(self, dev_present_file, dev_notpresent_file, bc_file, run_order_file, svar, crs, output_path, output_path_reclass, receptor_filename):
         
         # configuration for raster translate
         GDAL_DATA_TYPE = gdal.GDT_Float32 
@@ -347,7 +347,7 @@ class StressorReceptorCalc:
         # original
         # rows, cols, numpy_array = transform_netcdf(dev_present_file, dev_notpresent_file, bc_file, run_order_file, bcarray, svar)
         # new bc one
-        rows, cols, numpy_array = transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_order_file, svar,gsfilename)
+        rows, cols, numpy_array = transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_order_file, svar,receptor_filename = receptor_filename)
         #if '.tif' in dev_present_file:
         #    rows, cols, numpy_array = read_raster_calculate_diff(dev_present_file, dev_notpresent_file)
         
@@ -644,6 +644,8 @@ class StressorReceptorCalc:
             else:
                  config = configparser.ConfigParser()
                  config.read(dpresentfname)
+                 # For QA
+                 configfile = dpresentfname
                  # after reading in the ini overwrite the variable
                  dpresentfname = config['Input']['Device Present Filepath']
                  dnotpresentfname = config['Input']['Device Not Present Filepath']
@@ -654,7 +656,6 @@ class StressorReceptorCalc:
                  crs = int(config['Input']['Coordinate Reference System'])
                  
                  rfilename = config['Input']['Receptor Filepath']
-                 gsfilename = config['Input']['Grainsize Filepath']
                  scfilename = config['Input']['Secondary Constraint Filepath']
                  
                  ofilename = config['Output']['Output Filepath']
@@ -684,7 +685,6 @@ class StressorReceptorCalc:
            
             # message
             logger.info('Receptor File: {}'.format(rfilename))
-            logger.info('Grainsize File: {}'.format(gsfilename))
             logger.info('Stressor File: {}'.format(sfilename))
             logger.info('Reclassified Stressor File: {}'.format(srclassfilename))
             logger.info('Device present File: {}'.format(dpresentfname))
@@ -736,7 +736,7 @@ class StressorReceptorCalc:
             # calculate the raster from the NetCDF            
             if '.nc' in dpresentfname:
                 if svar == 'TAUMAX -Structured':
-                    sfilename, srclassfilename = self.calculate_stressor(dpresentfname,dnotpresentfname, bcfname, rofname, 'TAUMAX', crs, sfilename, srclassfilename, gsfilename)
+                    sfilename, srclassfilename = self.calculate_stressor(dpresentfname,dnotpresentfname, bcfname, rofname, 'TAUMAX', crs, sfilename, srclassfilename, rfilename)
             
             # if there's .tif in the device present file than loop through the
             # tif files to build the stressor raster-
@@ -779,30 +779,17 @@ class StressorReceptorCalc:
                     # remove the tmp files
                     [os.remove(tmpfile) for tmpfile in tmpfiles]
               
+            # save the stressor as the output
+            shutil.copy(sfilename, ofilename)
+
+            # add and style the receptor
+            self.style_layer(rfilename, rstylefile, checked = False)            
             
-            
-            
-            # if the receptor is set then perform calculations
-            if rfilename != "":
-            
-                # add and style the stressor. This is the output if no receptor or stressor are provided
-                self.style_layer(sfilename, '', checked = False)
-                
-                # add the reclassed stressier
-                self.style_layer(srclassfilename, '', checked = False)
-                
-                # calculate the final raster using the reclassed file
-                self.raster_multi(rfilename, srclassfilename, scfilename, ofilename)
-                                                   
-                # add and style the receptor
-                self.style_layer(rfilename, rstylefile, checked = False)
-            else:
-                # save the stressor as the output
-                shutil.copy(sfilename, ofilename)
-                        
             if not scfilename == "":
                 # add and style the secondary constraint
                 self.style_layer(scfilename, scstylefile, checked = False)
+            
+            
             
             # add and style the outfile returning values
             self.style_layer(ofilename, ostylefile, ranges = True)
