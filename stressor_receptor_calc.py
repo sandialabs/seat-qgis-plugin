@@ -49,6 +49,8 @@ from netCDF4 import Dataset
 
 # import netcdf calculations
 from .readnetcdf_createraster import transform_netcdf_ro, create_raster, numpy_array_to_raster
+# UTM finder
+from .Find_UTM_srid import find_utm_srid
 
 # grab the data time
 from datetime import date
@@ -515,7 +517,7 @@ class StressorReceptorCalc:
             range = [x[0] for x in layer.legendSymbologyItems()]
             return range
     
-    def export_area(self, ofilename, ostylefile = None):
+    def export_area(self, ofilename, crs, ostylefile = None):
         cfile = ofilename.replace('.tif', '.csv')
         if os.path.isfile(cfile):
             os.remove(cfile)
@@ -524,11 +526,46 @@ class StressorReceptorCalc:
             sdf = df_from_qml(ostylefile)
         
         
+        basename = os.path.splitext(os.path.basename(ofilename))[0]
+        raster = QgsProject.instance().mapLayersByName(basename)[0]
+        
+        xmin = raster.extent().xMinimum()
+        xmax = raster.extent().xMaximum()
+        ymin = raster.extent().yMinimum()
+        ymax = raster.extent().yMaximum()
+        
+        assert find_utm_srid(xmin, ymin, crs) == find_utm_srid(xmax, ymax, crs), 'grid spans multiple utms'
+        crs_found = find_utm_srid(xmin, ymin, crs)
+        
+        outfile = tempfile.NamedTemporaryFile(suffix='.tif').name
+        #cmd = f'gdalwarp -s_srs EPSG:{crs} -t_srs EPSG:{crs_found} -r near -of GTiff {ofilename} {outfile}'
+        #os.system(cmd)
+        
+        reproject_params = {'INPUT':ofilename,
+                'SOURCE_CRS':QgsCoordinateReferenceSystem(f'EPSG:{crs}'),
+                'TARGET_CRS':QgsCoordinateReferenceSystem(f'EPSG:{crs_found}'),
+                'RESAMPLING':0,
+                'NODATA':None,
+                'TARGET_RESOLUTION':None,
+                'OPTIONS':'',
+                'DATA_TYPE':0,
+                'TARGET_EXTENT':None,
+                'TARGET_EXTENT_CRS':QgsCoordinateReferenceSystem(f'EPSG:{crs_found}'),
+                'MULTITHREADING':False,
+                'EXTRA':'',
+                'OUTPUT':outfile}
+
+        processing.run("gdal:warpreproject", reproject_params)
+        
+        
         params = { 'BAND' : 1, 
-        'INPUT' : ofilename, 
+        'INPUT' : outfile, 
         'OUTPUT_TABLE' : cfile }
         
         processing.run("native:rasterlayeruniquevaluesreport", params)
+        
+        os.remove(outfile)
+        
         
         df = pd.read_csv(cfile, encoding = 'cp1252')
         df.rename(columns = {'m²':'m2'}, inplace = True)
@@ -794,7 +831,7 @@ class StressorReceptorCalc:
             # add and style the outfile returning values
             self.style_layer(ofilename, ostylefile, ranges = True)
                 
-            self.export_area(ofilename, ostylefile = None)
+            self.export_area(ofilename, crs, ostylefile = None)
             
             # close and remove the filehandler
             fh.close()
