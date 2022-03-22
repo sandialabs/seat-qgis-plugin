@@ -33,7 +33,6 @@ import re
 import gdal
 
 from matplotlib.tri import Triangulation, TriAnalyzer, LinearTriInterpolator
-
 # these imports currently don't work :(
 # from qgis.core import *
 # import qgis.utils
@@ -53,6 +52,8 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
     
     xcor = file.variables['XCOR'][:].data
     ycor = file.variables['YCOR'][:].data
+    
+    if plotvar == 'TAUMAX -Structured': plotvar = 'TAUMAX'
     
     # Deprecated?
     # delft_time = file.variables['time'][:]
@@ -156,7 +157,7 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
         # Compute normalized difference between with WEC and without WEC
         
         #wec_diff = wec_diff + prob*(data_w_wecs[bcnum,1,:,:] - data_wo_wecs[bcnum,1,:,:])/data_wo_wecs[bcnum,1,:,:]
-        if plotvar == 'TAUMAX -Structured':
+        if plotvar == 'TAUMAX':
             # if the shapes are the same then process. Otherwise, process to an array and stop
             if data_bs[bcnum,-1,:,:].shape == taucrit.shape:
                 wec_diff_bs = wec_diff_bs + prob*data_bs[bcnum,-1,:,:]/(taucrit*10)
@@ -232,74 +233,78 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
 
     newarray=np.transpose(wec_diff)
     array2 = np.flip(newarray, axis=0) 
-    
     rows, cols = array2.shape
 
     #get number of rows and cols
     return(rows, cols, array2)    
         
-def calculate_diff_cec(fname_base, fname_cec, taucrit=100.):
-
-    """
-    Given non linear grid files calculate the difference. Currently taucrit is 100. Would need to make
-    constant raster of from either fname_base or fname_cec for raster use.
-    """
-    
-    f_base = Dataset(fname_base, mode='r', format='NETCDF4')
-    f_cec = Dataset(fname_cec, mode='r', format='NETCDF4')
-    
-    tau_base = f_base.variables['taus'][1, :].data
-    tau_cec = f_cec.variables['taus'][1, :].data
-
-    lon = f_base.variables['FlowElem_xcc'][:].data
-    lat = f_base.variables['FlowElem_ycc'][:].data
-
-    #lon, lat = transformer.transform(f_base.variables['NetNode_x'][:].data, f_base.variables['NetNode_y'][:].data)
-    # df = pd.DataFrame({'lon': lon, 'lat':lat})
-    # df.to_csv('out_test_lon_lat.csv', index = False)
-
-    wec_diff_bs = np.zeros(np.shape(tau_base))
-    wec_diff_wecs = np.zeros(np.shape(tau_base))
-    wec_diff = np.zeros(np.shape(tau_base))
-
-    #taucrit = 1.65*980*((1.9e-4*10**6)/10000)*0.0419
-    taucrit = 100.
-    return_interval = 1
-    
-    prob = 1/return_interval
-    wec_diff_bs = wec_diff_bs + prob*tau_base/(taucrit*10)
-    wec_diff_wecs = wec_diff_wecs + prob*tau_cec/(taucrit*10)
-
-    wec_diff_bs_sgn = np.floor(wec_diff_bs*25)/25 
-    wec_diff_wecs_sgn = np.floor(wec_diff_wecs*25)/25 
-    wec_diff = (np.sign(wec_diff_wecs_sgn-wec_diff_bs_sgn)*wec_diff_wecs_sgn) 
-    wec_diff = wec_diff.astype(int) + wec_diff_wecs-wec_diff_bs   
-    wec_diff[np.abs(wec_diff)<0.001] = 0
-
-    # Use triangular interpolation to generate grid
-    # reflon=np.linspace(lon.min(),lon.max(),1000)
-    # reflat=np.linspace(lat.min(),lat.max(),1000)
-    reflon=np.linspace(lon.min(),lon.max(),169)
-    reflat=np.linspace(lat.min(),lat.max(),74)
-
-    reflon,reflat=np.meshgrid(reflon,reflat)
+def read_raster_calculate_diff(dev_present_file, dev_notpresent_file):
  
-    # original
-    flatness=0.1  # flatness is from 0-.5 .5 is equilateral triangle
-    flatness=0.2  # flatness is from 0-.5 .5 is equilateral triangle
-    tri=Triangulation(lon,lat)
-    mask = TriAnalyzer(tri).get_flat_tri_mask(flatness)
-    tri.set_mask(mask)
-    tli=LinearTriInterpolator(tri,wec_diff)
-    tau_interp=tli(reflon,reflat)
-
-    newarray=np.transpose(tau_interp[:, :].data)
-    array2 = np.flip(tau_interp[:, :].data, axis=0) 
-
-    # rows, cols = np.shape(tau_interp)
-    rows, cols = np.shape(array2)
+    data = gdal.Open(dev_present_file)
+    img = data.GetRasterBand(1)
+    wec_diff_wecs = img.ReadAsArray()
     
-    return (rows, cols, array2)
+    data = gdal.Open(dev_notpresent_file)
+    img = data.GetRasterBand(1)
+    wec_diff_nowecs = img.ReadAsArray()
+    
+ 
+    wec_diff = wec_diff_wecs-wec_diff_nowecs 
+        
+    wec_diff[np.abs(wec_diff)<0.01] = 0
+ 
+    # newarray=np.transpose(wec_diff)
+    # array2 = np.flip(newarray, axis=0) 
+    numpy_array = wec_diff 
+    
+    rows, cols = numpy_array.shape
+
+    #get number of rows and cols
+    return(rows, cols, numpy_array)
+
+
+# overall creation function merging create_raster and numpy array_to_raster
+def create_raster_from_arr(output_path,
+                  cols,
+                  rows,
+                  nbands,
+                  numpy_array,
+                  bounds,
+                  cell_resolution,
+                  spatial_reference_system_wkid):
+                  
+    # create gdal driver - doing this explicitly
+    driver = gdal.GetDriverByName(str('GTiff'))
+
+    output_raster = driver.Create(output_path,
+                                  int(cols),
+                                  int(rows),
+                                  nbands,
+                                  eType = gdal.GDT_Float32)
+                                  
+    geotransform = (bounds[0],
+                    cell_resolution[0],
+                    0,
+                    bounds[1] + cell_resolution[1],
+                    0,
+                    -1 * cell_resolution[1])
+
+    spatial_reference = osr.SpatialReference()
+    spatial_reference.ImportFromEPSG(spatial_reference_system_wkid)
+
+    output_raster.SetProjection(spatial_reference.ExportToWkt()) #exports the cords to the file
+    output_raster.SetGeoTransform(geotransform)
+    output_band = output_raster.GetRasterBand(1)
+    #output_band.SetNoDataValue(no_data) #Not an issue, may be in other cases?
+    output_band.WriteArray(numpy_array)
+
+    output_band.FlushCache()
+    output_band.ComputeStatistics(False) #you want this false, true will make computed results, but is faster, could be a setting in the UI perhaps, esp for large rasters?
+    
+    if os.path.exists(output_path) == False:
+        raise Exception('Failed to create raster: %s' % output_path)  
+        
+    return output_raster
 
 #returns gdal data source raster object
 def create_raster(output_path,
@@ -400,8 +405,8 @@ if __name__ == "__main__":
     #SWAN will always be in meters. Not always WGS84
     SPATIAL_REFERENCE_SYSTEM_WKID = 4326 #WGS84 meters
     nbands = 1 #should be one always right?
-    bounds = [-124.2843933,44.6705] #x,y or lon,lat, this is pulled from an input data source
-    cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
+    # bounds = [-124.2843933,44.6705] #x,y or lon,lat, this is pulled from an input data source
+    # cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
 
     # from Kaus -235.8+360 degrees = 124.2 degrees. The 235.8 degree conventions follows longitudes that increase 
     # eastward from Greenwich around the globe. The 124.2W, or -124.2 goes from 0 to 180 degrees to the east of Greenwich.  

@@ -48,7 +48,7 @@ import xml.etree.ElementTree as ET
 from netCDF4 import Dataset
 
 # import netcdf calculations
-from .readnetcdf_createraster import transform_netcdf_ro, create_raster, numpy_array_to_raster, calculate_diff_cec
+from .readnetcdf_createraster import transform_netcdf_ro, create_raster, numpy_array_to_raster
 # UTM finder
 from .Find_UTM_srid import find_utm_srid
 
@@ -738,7 +738,8 @@ class StressorReceptorCalc:
             # calculate the raster from the NetCDF            
             if '.nc' in dpresentfname:
                 if svar == 'TAUMAX -Structured':
-                    sfilename, _ = self.calculate_stressor(dpresentfname,dnotpresentfname, bcfname, rofname, 'TAUMAX', crs, sfilename, srclassfilename, rfilename)
+                   
+                    sfilename, _ = self.calculate_stressor(dpresentfname,dnotpresentfname, bcfname, rofname, svar, crs, sfilename, srclassfilename, rfilename)
                 if svar == 'TAUMAX -Unstructured':
                     # set the crs to 4326 since the bounds are also in that
                     bounds = [-149.088,64.5681]
