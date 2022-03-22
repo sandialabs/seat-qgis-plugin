@@ -48,9 +48,12 @@ import xml.etree.ElementTree as ET
 from netCDF4 import Dataset
 
 # import netcdf calculations
-from .readnetcdf_createraster import transform_netcdf_ro, create_raster, numpy_array_to_raster
+from .readnetcdf_createraster import transform_netcdf_ro, create_raster, numpy_array_to_raster, calculate_diff_cec
 # UTM finder
 from .Find_UTM_srid import find_utm_srid
+
+# reproject raster
+from .reproj_epsg import reproj_epsg
 
 # grab the data time
 from datetime import date
@@ -125,7 +128,7 @@ class StressorReceptorCalc:
     def add_action(
         self,
         icon_path,
-        text,
+        setText,
         callback,
         enabled_flag=True,
         add_to_menu=True,
@@ -173,7 +176,7 @@ class StressorReceptorCalc:
         """
 
         icon = QIcon(icon_path)
-        action = QAction(icon, text, parent)
+        action = QAction(icon, setText, parent)
         action.triggered.connect(callback)
         action.setEnabled(enabled_flag)
 
@@ -202,7 +205,7 @@ class StressorReceptorCalc:
         icon_path = ':/plugins/stressor_receptor_calc/icon.png'
         self.add_action(
             icon_path,
-            text=self.tr(u'Calculate a response layer from stressor and receptor layers'),
+            setText=self.tr(u'Calculate a response layer from stressor and receptor layers'),
             callback=self.run,
             parent=self.iface.mainWindow())
 
@@ -303,6 +306,47 @@ class StressorReceptorCalc:
         filename, _filter = QFileDialog.getSaveFileName(
         self.dlg, "Select Output","", '*.tif')
         self.dlg.ofile.setText(filename)
+        
+    def select_and_load_in(self):
+        filename, _filter = QFileDialog.getOpenFileName(
+        self.dlg, "Select Input file","", '*.ini')
+        
+       
+        if filename is not '':
+            # try to parse the ini file
+            config = configparser.ConfigParser()
+            config.read(filename)
+
+            self.dlg.device_present.setText(config.get('Input', 'device present filepath'))               
+            self.dlg.device_not_present.setText(config.get('Input', 'device not present filepath'))
+            self.dlg.bc_prob.setText(config.get('Input', 'boundary condition filepath'))
+            self.dlg.run_order.setText(config.get('Input', 'run order filepath'))
+
+            self.dlg.receptor_file.setText(config.get('Input', 'receptor filepath'))
+            self.dlg.sc_file.setText(config.get('Input', 'secondary constraint filepath'))
+            self.dlg.stressor_comboBox.setCurrentText(config.get('Input', 'stressor variable'))
+            self.dlg.crs.setText(config.get('Input', 'coordinate reference system'))
+
+            self.dlg.ofile.setText(config.get('Output', 'output filepath'))
+    
+    def save_in(self):
+        filename, _filter = QFileDialog.getSaveFileName(
+        self.dlg, "Save input file","", '*.ini')
+        
+        # try to parse the ini file
+        config = configparser.ConfigParser()
+        
+        config['Input'] = {'device present filepath': self.dlg.device_present.text(),
+        'device not present filepath':self.dlg.device_not_present.text(),
+        'boundary condition filepath':self.dlg.bc_prob.text(),
+        'run order filepath':self.dlg.run_order.text(), 'receptor filepath':self.dlg.receptor_file.text(),
+        'secondary constraint filepath':self.dlg.sc_file.text(),'stressor variable':self.dlg.stressor_comboBox.currentText(),
+        'coordinate reference system':self.dlg.crs.text()}
+        
+        config['Output'] = {'output filepath':self.dlg.ofile.text()}
+        
+        with open(filename, 'w') as configfile:
+            config.write(configfile)
     
     def calculate_stressor(self, dev_present_file, dev_notpresent_file, bc_file, run_order_file, svar, crs, output_path, output_path_reclass, receptor_filename):
         
@@ -317,9 +361,8 @@ class StressorReceptorCalc:
         # bcarray = np.array([0,1,2,3,4,5,6,7,9,10,11,12,13,14,15,16,17,19,20,22])
         
         #SWAN will always be in meters. Not always WGS84
-        
         # in the netcdf file maybe?
-        SPATIAL_REFERENCE_SYSTEM_WKID = crs #WGS84 meters
+        SPATIAL_REFERENCE_SYSTEM_WKID = crs #WGS84
         nbands = 1
         # bottom left, x, y netcdf file
         # bounds = [-124.2843933,44.6705] #x,y or lon,lat, this is pulled from an input data source
@@ -392,109 +435,25 @@ class StressorReceptorCalc:
         
         return output_path, output_path_reclass
         
-    def raster_multi(self, r, s, sc, opath):
-        ''' Raster multiplication '''
-        #rLayer  = QgsRasterLayer(r, "r")
-        #tLayer  = QgsRasterLayer(t, "t")
+    def calc_stressor_unstruct(self, fname_base, fname_cec, output_path, nbands, bounds, cell_resolution, crs, taucrit):
         
-        #entries = []
-        rbasename = os.path.splitext(os.path.basename(r))[0]
-        #Define receptor
-        # rl = QgsRasterCalculatorEntry()
-        # rl.ref = 'r@1'
-        # rl.raster = rLayer
-        # rl.bandNumber = 1
-        # entries.append( rl )
+        rows, cols, numpy_array = calculate_diff_cec(fname_base, fname_cec, taucrit=100.)
         
-        #Define stressor
-        sbasename = os.path.splitext(os.path.basename(s))[0]
+        output_raster = create_raster(output_path,
+                  cols,
+                  rows,
+                  nbands)
+     
+        # post processing of numpy array to output raster
         
-        # Define constraint
-        if not sc == "":
-            scbasename = os.path.splitext(os.path.basename(sc))[0]
-            # scl = QgsRasterCalculatorEntry()
-            # scl.ref = 'sc@1'
-            # scl.raster = scLayer
-            # scl.bandNumber = 1
-            # entries.append(scl)
+        output_raster = numpy_array_to_raster(output_raster,
+                                  numpy_array,
+                                  bounds,
+                                  cell_resolution,
+                                  crs, output_path)
+        return output_path
         
-        # grab the current transform to avoid deprecation warnings
-        #coordinateTransformContext=QgsProject.instance().transformContext()
-        
-        if sc == "":
-            params = { 'CELLSIZE' : None, 'CRS' : None, 'EXPRESSION' : '\"' + rbasename + '@1\" * \"' + sbasename + '@1\"', 
-            'EXTENT' : None, 'LAYERS' : [r, s], 
-            'OUTPUT' : opath}
-        else:
-            params = { 'CELLSIZE' : None, 'CRS' : None, 'EXPRESSION' : '\"' + rbasename + '@1\" * \"' + sbasename + '@1\" * \"' + scbasename + '@1\"', 
-            'EXTENT' : None, 'LAYERS' : [r, s, sc], 
-            'OUTPUT' : opath}
-
-        processing.run("qgis:rastercalculator", params)
-        
-    def raster_add(self, rfiles, opath):
-    
-        ''' Raster addition '''
-
-        nbase = [os.path.splitext(os.path.basename(rfile))[0] for rfile in rfiles]
-
-        params = { 'CELLSIZE' : None, 'CRS' : None, 'EXPRESSION' : '@1 + '.join(nbase) +'@1', 
-        'EXTENT' : None, 'LAYERS' : rfiles, 
-        'OUTPUT' : opath}
-
-        processing.run("qgis:rastercalculator", params)
-        
-        return opath    
-    
-    def raster_subtract(self, cec, no_cec, opath, prob = 1):
-    
-        ''' Raster subtraction '''
-        layers = [cec, no_cec]
-        cecbasename = os.path.splitext(os.path.basename(cec))[0]
-        
-        #Define stressor
-        no_cecbasename = os.path.splitext(os.path.basename(no_cec))[0]
-        """
-        params = { 'CELLSIZE' : None, 'CRS' : None, 'EXPRESSION' : '\"' + cecbasename + '@1\" - "' + no_cecbasename + '@1\"', 
-            'EXTENT' : None, 'LAYERS' : [cec, no_cec], 
-            'OUTPUT' : opath}
-
-        processing.run("qgis:rastercalculator", params)
-        """
-        # "@1 + ".join(colors) + '@1'
-        params = { 'CELLSIZE' : None, 'CRS' : None, 'EXPRESSION' : '({0}@1 - {1}@1) * {2}'.format(cecbasename, no_cecbasename, prob), 
-        'EXTENT' : None, 'LAYERS' : layers, 
-        'OUTPUT' : opath}
-
-        processing.run("qgis:rastercalculator", params)
-        
-        return opath
-    
-    def raster_subtract_d50(self, cec, no_cec, tcrit, opath, prob = 1):
-    
-        ''' Raster subtraction '''
-        layers = [cec, no_cec, tcrit]
-        cecbasename = os.path.splitext(os.path.basename(cec))[0]
-        
-        #Define stressor
-        no_cecbasename = os.path.splitext(os.path.basename(no_cec))[0]
-        """
-        params = { 'CELLSIZE' : None, 'CRS' : None, 'EXPRESSION' : '\"' + cecbasename + '@1\" - "' + no_cecbasename + '@1\"', 
-            'EXTENT' : None, 'LAYERS' : [cec, no_cec], 
-            'OUTPUT' : opath}
-
-        processing.run("qgis:rastercalculator", params)
-        """
-        # "@1 + ".join(colors) + '@1'
-        params = { 'CELLSIZE' : None, 'CRS' : None, 'EXPRESSION' : '(({0}@1 - {1}@1) * {2}) / {3}/ 10)'.format(cecbasename, no_cecbasename, prob, tcrit), 
-        'EXTENT' : None, 'LAYERS' : layers, 
-        'OUTPUT' : opath}
-
-        processing.run("qgis:rastercalculator", params)
-        
-        return opath
-    
-        
+                          
     def style_layer(self, fpath, stylepath, checked = True, ranges = True):
         # add the result layer to map
         basename = os.path.splitext(os.path.basename(fpath))[0]
@@ -617,6 +576,12 @@ class StressorReceptorCalc:
             sfields = ['TAUMAX -Structured', 'TAUMAX -Unstructured', 'VEL -Structured', 'VEL -Unstructured']
             self.dlg.stressor_comboBox.addItems(sfields)
             
+            # this connects the input file chooser
+            self.dlg.load_input.clicked.connect(lambda: self.select_and_load_in())
+            
+            # this connects the input file creator
+            self.dlg.save_input.clicked.connect(lambda: self.save_in())
+            
             # this connecta selecting the files. Since each element has a unique label seperate functions are used.
             
             # deprecated
@@ -666,37 +631,37 @@ class StressorReceptorCalc:
                         
             dpresentfname = self.dlg.device_present.text()
             # ADD in an ini file here?
-            if '.ini' not in dpresentfname:                
-                dnotpresentfname = self.dlg.device_not_present.text()
-                bcfname = self.dlg.bc_prob.text()
-                rofname = self.dlg.run_order.text()
-                
-                rfilename = self.dlg.receptor_file.text()
-                scfilename = self.dlg.sc_file.text()
-                ofilename = self.dlg.ofile.text()
-                
-                svar = self.dlg.stressor_comboBox.currentText()
-                
-                crs = int(self.dlg.crs.text())
-            else:
-                 config = configparser.ConfigParser()
-                 config.read(dpresentfname)
-                 # For QA
-                 configfile = dpresentfname
-                 # after reading in the ini overwrite the variable
-                 dpresentfname = config['Input']['Device Present Filepath']
-                 dnotpresentfname = config['Input']['Device Not Present Filepath']
-                 bcfname = config['Input']['Boundary Condition Filepath']
-                 rofname = config['Input']['Run Order Filepath']
-                 
-                 svar = config['Input']['Stressor variable']
-                 crs = int(config['Input']['Coordinate Reference System'])
-                 
-                 rfilename = config['Input']['Receptor Filepath']
-                 scfilename = config['Input']['Secondary Constraint Filepath']
-                 
-                 ofilename = config['Output']['Output Filepath']
-                 
+            # if '.ini' not in dpresentfname:                
+            dnotpresentfname = self.dlg.device_not_present.text()
+            bcfname = self.dlg.bc_prob.text()
+            rofname = self.dlg.run_order.text()
+            
+            rfilename = self.dlg.receptor_file.text()
+            scfilename = self.dlg.sc_file.text()
+            ofilename = self.dlg.ofile.text()
+            
+            svar = self.dlg.stressor_comboBox.currentText()
+            
+            crs = int(self.dlg.crs.text())
+            '''
+            config = configparser.ConfigParser()
+            config.read(dpresentfname)
+            # For QA
+            configfile = dpresentfname
+            # after reading in the ini overwrite the variable
+            dpresentfname = config['Input']['Device Present Filepath']
+            dnotpresentfname = config['Input']['Device Not Present Filepath']
+            bcfname = config['Input']['Boundary Condition Filepath']
+            rofname = config['Input']['Run Order Filepath']
+
+            svar = config['Input']['Stressor variable']
+            crs = int(config['Input']['Coordinate Reference System'])
+
+            rfilename = config['Input']['Receptor Filepath']
+            scfilename = config['Input']['Secondary Constraint Filepath']
+
+            ofilename = config['Output']['Output Filepath']
+            '''    
             
             # create logger
             logger = logging.getLogger(__name__)
@@ -736,8 +701,8 @@ class StressorReceptorCalc:
             
             # this grabs the current Table Widget values
             # calc_index=self.dlg.comboBox.currentIndex()
-            # min_rc = self.dlg.tableWidget.item(calc_index, 1).text()
-            # max_rc = self.dlg.tableWidget.item(calc_index, 2).text()
+            # min_rc = self.dlg.tableWidget.item(calc_index, 1).setText()
+            # max_rc = self.dlg.tableWidget.item(calc_index, 2).setText()
             
             # get the current style file paths
             profilepath = QgsApplication.qgisSettingsDirPath()
@@ -752,7 +717,7 @@ class StressorReceptorCalc:
                 ostylefile = ""
                 
             # deprecated for now
-            #reclass_breakval = float(self.dlg.tableWidget.item(4, 1).text())
+            #reclass_breakval = float(self.dlg.tableWidget.item(4, 1).setText())
             
             logger.info('Receptor Style File: {}'.format(rstylefile))
             logger.info('Stressor Style File: {}'.format(sstylefile))
@@ -773,54 +738,22 @@ class StressorReceptorCalc:
             # calculate the raster from the NetCDF            
             if '.nc' in dpresentfname:
                 if svar == 'TAUMAX -Structured':
-                    sfilename, srclassfilename = self.calculate_stressor(dpresentfname,dnotpresentfname, bcfname, rofname, 'TAUMAX', crs, sfilename, srclassfilename, rfilename)
-            
-            # if there's .tif in the device present file than loop through the
-            # tif files to build the stressor raster-
-            if '.tif' in dpresentfname:
-                # get the folder base names
-                dpresntdir = os.path.dirname(dpresentfname)
-                dnotpresntdir = os.path.dirname(dnotpresentfname)
-                
-                # read in the boundary conditions
-                df_bc = pd.read_csv(bcfname)
-                
-                # set up a file list to append to
-                tmpfiles = []
-                
-                
-                for pfile, notpfile in zip(glob.glob(os.path.join(dpresntdir, '*.tif')), glob.glob(os.path.join(dnotpresntdir, '*.tif'))):
-                    # loop through the files in the folder and apply the probability for subtraction
-                    # get the base name for filtering 
-                    pbase = os.path.basename(pfile)
-                    notpbase = os.path.basename(notpfile)
-                    prob = df_bc.loc[((df_bc.loc[:, 'cec filename'] == pbase) & (df_bc.loc[:, 'no cec filename'] == notpbase)), 'prob'].values[0] 
-                    
-                    # create a temp file to write to.
-                    tpath = tempfile.NamedTemporaryFile(suffix='.tif').name
-                    
-                    tpath = self.raster_subtract(pfile, notpfile, tpath, prob = prob)
-                    tmpfiles.append(tpath)
-                # if we only have 1 file then set it to the output name and remove the temporary file
-                # this sets the resulting addition to the output name
-                if len(tmpfiles) == 1:
-                    shutil.copy2(ofilename, tmpfiles[0])
-                    os.remove(tmpfiles[0])
-                else:
-                    # if there's a receptor set this as the receptor layer
-                    if rfilename != "":
-                        sfilename = self.raster_add(tmpfiles, sfilename)
-                    # if not use it as an output file
-                    else:
-                        ofilename = self.raster_add(tmpfiles, ofilename)
-                    # remove the tmp files
-                    [os.remove(tmpfile) for tmpfile in tmpfiles]
-              
+                    sfilename, _ = self.calculate_stressor(dpresentfname,dnotpresentfname, bcfname, rofname, 'TAUMAX', crs, sfilename, srclassfilename, rfilename)
+                if svar == 'TAUMAX -Unstructured':
+                    # set the crs to 4326 since the bounds are also in that
+                    bounds = [-149.088,64.5681]
+                    #cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
+                    cell_resolution = [0.0001628997158260284031,0.0001628997158260284031 ] #x res, y res or lon, lat, same as above
+                    nbands = 1
+                    taucrit=100.
+                   
+                    sfilename = self.calc_stressor_unstruct(dpresentfname, dnotpresentfname, sfilename, nbands, bounds, cell_resolution, crs, taucrit)      
             # save the stressor as the output
             shutil.copy(sfilename, ofilename)
 
             # add and style the receptor
-            self.style_layer(rfilename, rstylefile, checked = False)            
+            if not rfilename == '':
+                self.style_layer(rfilename, rstylefile, checked = False)            
             
             if not scfilename == "":
                 # add and style the secondary constraint
