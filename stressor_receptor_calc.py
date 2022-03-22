@@ -48,7 +48,7 @@ import xml.etree.ElementTree as ET
 from netCDF4 import Dataset
 
 # import netcdf calculations
-from .readnetcdf_createraster import transform_netcdf_ro, create_raster, numpy_array_to_raster
+from .readnetcdf_createraster import transform_netcdf_ro, create_raster, numpy_array_to_raster, calculate_diff_cec
 # UTM finder
 from .Find_UTM_srid import find_utm_srid
 
