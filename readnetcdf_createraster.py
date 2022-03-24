@@ -47,8 +47,8 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
 
     # Read The device present NetCDF file and parse contents needed for plotting
     file = Dataset(dev_present_file)
-    lat  = file.variables['YZ'][:] # Y-coordinate of cell center
-    lon  = file.variables['XZ'][:] # X-coordinate of cell center
+    # lat  = file.variables['YZ'][:] # Y-coordinate of cell center
+    # lon  = file.variables['XZ'][:] # X-coordinate of cell center
     
     xcor = file.variables['XCOR'][:].data
     ycor = file.variables['YCOR'][:].data
@@ -150,9 +150,12 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
     # merge to the run order. This trims out runs that we want dropped.
     df_merge = pd.merge(df_ro, df, how = 'left', left_on = 'bc_name', right_on = 'pk')
 
+    # currently we are missing a few runs so trim them out of the data_wecs
+    df_merge = df_merge.loc[df_merge['bcnum'].values < data_wecs.shape[0], :]
+    
     # Loop through all boundary conditions and create images
     for bcnum, prob in zip(df_merge['bcnum'], df_merge['prob']):
-
+        
         #===============================================================
         # Compute normalized difference between with WEC and without WEC
         
@@ -217,7 +220,7 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
         wec_diff = wec_diff.astype(int) + wec_diff_wecs-wec_diff_bs
         
         # set to zero
-        wec_diff[np.abs(wec_diff)<0.01] = 0
+        #wec_diff[np.abs(wec_diff)<0.01] = 0
         
     elif plotvar == 'DPS':
         wec_diff =  wec_diff_wecs - wec_diff_bs
@@ -352,7 +355,8 @@ def numpy_array_to_raster(output_raster,
     if os.path.exists(output_path) == False:
         raise Exception('Failed to create raster: %s' % output_path)  
         
-    return output_raster
+    output_raster = None
+    return output_path
 
 #now call the functions
 if __name__ == "__main__":

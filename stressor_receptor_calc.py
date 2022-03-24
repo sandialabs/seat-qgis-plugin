@@ -365,9 +365,9 @@ class StressorReceptorCalc:
         SPATIAL_REFERENCE_SYSTEM_WKID = crs #WGS84
         nbands = 1
         # bottom left, x, y netcdf file
-        # bounds = [-124.2843933,44.6705] #x,y or lon,lat, this is pulled from an input data source
+        bounds = [-124.2843933,44.6705] #x,y or lon,lat, this is pulled from an input data source
         # look for dx/dy
-        #cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
+        cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
         
         # from Kaus -235.8+360 degrees = 124.2 degrees. The 235.8 degree conventions follows longitudes that increase 
         # eastward from Greenwich around the globe. The 124.2W, or -124.2 goes from 0 to 180 degrees to the east of Greenwich.
@@ -375,16 +375,14 @@ class StressorReceptorCalc:
         xcor = file.variables['XCOR'][:].data
         ycor = file.variables['YCOR'][:].data
         
-        #bounds = [xcor.min() - 360,ycor.min()] #x,y or lon,lat, this is pulled from an input data source
-        # adjusted to match original
-        # bounds = [xcor.min() - 360 - 0.000396717968754956,ycor.min() + 0.19050045776366886]
-        bounds = [xcor.min() - 360, ycor.min()]
-        #bounds = [round(bounds[0], 4), round(bounds[1], 4)]
-    
         # look for dx/dy
         dx = xcor[1,0] - xcor[0,0]
         dy = ycor[0,1] - ycor[0,0]
         cell_resolution = [dx,dy ]
+        
+        # Appear to be the top left corner
+        bounds = [xcor.min() - 360 - dx, ycor.max()]
+        
         
         # original
         # if not a Geotiff
@@ -404,7 +402,7 @@ class StressorReceptorCalc:
      
         # post processing of numpy array to output raster
         
-        output_raster = numpy_array_to_raster(output_raster,
+        numpy_array_to_raster(output_raster,
                                   numpy_array,
                                   bounds,
                                   cell_resolution,
@@ -446,7 +444,7 @@ class StressorReceptorCalc:
      
         # post processing of numpy array to output raster
         
-        output_raster = numpy_array_to_raster(output_raster,
+        numpy_array_to_raster(output_raster,
                                   numpy_array,
                                   bounds,
                                   cell_resolution,
