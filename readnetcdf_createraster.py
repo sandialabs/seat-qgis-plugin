@@ -115,7 +115,24 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
     foo = np.loadtxt(run_order_file,
                      delimiter=',', dtype='str')
     bc_name_wecs = foo[:,1]
-
+    
+     # set up a run order dataframe
+    df_ro = pd.DataFrame({'bcnum': foo[:,0].astype(int),'bc_name': np.char.strip(bc_name_wecs)})
+    df_ro['index'] =  df_ro.index
+    # This is zero indexed
+    df_ro['no_wecs_index'] = df_ro['bcnum'].values - 1 
+    dev_notpresent_dir = os.path.dirname(dev_notpresent_file)
+    foo = np.loadtxt(os.path.join(dev_notpresent_dir, 'run_order_nowecs.csv'),
+                     delimiter=',', dtype='str')
+    bc_name_no_wecs = foo[:,1] 
+    
+     # set up a run order dataframe
+    df_ro_no_wecs = pd.DataFrame({'bcnum': foo[:,0].astype(int),'bc_name': np.char.strip(bc_name_no_wecs)})
+    #df_ro_no_wecs['index'] = df_ro_no_wecs.index
+    
+    # filter out bad runs from wecs
+    df_ro = df_ro.loc[df_ro['bcnum'].isin(df_ro_no_wecs['bcnum']), :]
+    
     # Load BC file with probabilities and find appropriate probability
     BC_Annie = np.loadtxt(bc_file, delimiter=',', skiprows=1)
 
@@ -145,26 +162,36 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
     df = pd.DataFrame({'Hs':BC_Annie[:,0].astype(float), 'Tp':BC_Annie[:,1].astype(int).astype(str), 'Dir':BC_Annie[:,2].astype(int).astype(str), 'prob':BC_Annie[:,4].astype(float)/100.})
     # generate a primary key for merge with the run order
     df['pk'] = ['Hs'] + df['Hs'].map('{:.2f}'.format) + ['Tp'] + df['Tp'].str.pad(2, fillchar = '0') + ['Dir'] + df['Dir']
-    # set up a run order dataframe
-    df_ro = pd.DataFrame({'bc_name': np.char.strip(bc_name_wecs), 'bcnum': foo[:,0].astype(int) - 1})
+   
     # merge to the run order. This trims out runs that we want dropped.
+    #df_merge = pd.merge(df_ro, df_ro_no_wecs, how = 'left', on = 'bc_name')
     df_merge = pd.merge(df_ro, df, how = 'left', left_on = 'bc_name', right_on = 'pk')
-
-    # currently we are missing a few runs so trim them out of the data_wecs
-    df_merge = df_merge.loc[df_merge['bcnum'].values < data_wecs.shape[0], :]
     
+    # currently we are missing a few runs so trim them out of the data_wecs
+    # df_merge = df_merge.loc[df_merge['bcnum'].values < data_wecs.shape[0], :]
+    # breakpoint()
     # Loop through all boundary conditions and create images
-    for bcnum, prob in zip(df_merge['bcnum'], df_merge['prob']):
+    # breakpoint()
+    for run_wec, run_nowec, prob in zip(df_merge['index'], df_merge['no_wecs_index'], df_merge['prob']):
         
         #===============================================================
         # Compute normalized difference between with WEC and without WEC
-        
+        if np.isnan(data_wecs[run_wec, -1, :, :].data[:]).all() == True | np.isnan(data_bs[run_nowec, -1, :, :].data[:]).all() == True:
+            continue
         #wec_diff = wec_diff + prob*(data_w_wecs[bcnum,1,:,:] - data_wo_wecs[bcnum,1,:,:])/data_wo_wecs[bcnum,1,:,:]
         if plotvar == 'TAUMAX':
             # if the shapes are the same then process. Otherwise, process to an array and stop
-            if data_bs[bcnum,-1,:,:].shape == taucrit.shape:
-                wec_diff_bs = wec_diff_bs + prob*data_bs[bcnum,-1,:,:]/(taucrit*10)
-                wec_diff_wecs = wec_diff_wecs + prob*data_wecs[bcnum,-1,:,:]/(taucrit*10)
+            if data_bs[run_nowec,-1,:,:].shape == taucrit.shape:
+                wec_diff_bs = wec_diff_bs + prob*data_bs[run_nowec,-1,:,:]/(taucrit*10)
+                wec_diff_wecs = wec_diff_wecs + prob*data_wecs[run_wec,-1,:,:]/(taucrit*10)
+                
+                # create dataframe of subtraction
+                wec_diff_df = wec_diff_wecs-wec_diff_bs
+                newarray=np.transpose(wec_diff_df)
+                array2 = np.flip(newarray, axis=0) 
+                wec_diff_df = pd.DataFrame(array2)
+                wec_diff_df.to_csv(fr'C:\Users\ependleton52\Documents\Projects\Sandia\SEAT_plugin\Code_Model\Codebase\oregon_coast_models\dataframes\out_wec{run_wec}_nowec{run_nowec}.csv', index = False)
+                #breakpoint()
             else:
                 newarray=np.transpose(data_bs[bcnum,-1,:,:].data)
                 array2 = np.flip(newarray, axis=0) 
@@ -172,28 +199,28 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
                 rows, cols = numpy_array.shape
                 # will need to dump to raster to check
                 # will error as output path is not defined.
-                SPATIAL_REFERENCE_SYSTEM_WKID = 4326 #WGS84 meters
-                nbands = 1
+                #SPATIAL_REFERENCE_SYSTEM_WKID = 4326 #WGS84 meters
+                #nbands = 1
                 # bottom left, x, y netcdf file
                 
                 # from Kaus -235.8+360 degrees = 124.2 degrees. The 235.8 degree conventions follows longitudes that increase 
                 # eastward from Greenwich around the globe. The 124.2W, or -124.2 goes from 0 to 180 degrees to the east of Greenwich.  
                 bounds = [xcor.min() - 360,ycor.min()] #x,y or lon,lat, this is pulled from an input data source
                 # look for dx/dy
-                dx = xcor[1,0] - xcor[0,0]
-                dy = ycor[0,1] - ycor[0,0]
-                cell_resolution = [dx,dy ] #x res, y res or lon, lat, same as above
+                #dx = xcor[1,0] - xcor[0,0]
+                #dy = ycor[0,1] - ycor[0,0]
+                #cell_resolution = [dx,dy ] #x res, y res or lon, lat, same as above
                 
-                output_raster = create_raster(output_path,
-                      cols,
-                      rows,
-                      nbands)
+                #output_raster = create_raster(output_path,
+                #      cols,
+                #      rows,
+                #      nbands)
                 
-                output_raster = numpy_array_to_raster(output_raster,
-                              numpy_array,
-                              bounds,
-                              cell_resolution,
-                              SPATIAL_REFERENCE_SYSTEM_WKID, output_path)
+                #output_raster = numpy_array_to_raster(output_raster,
+                #              numpy_array,
+                #              bounds,
+                #              cell_resolution,
+                #             SPATIAL_REFERENCE_SYSTEM_WKID, output_path)
                 
             
         elif plotvar == 'VEL':
@@ -219,7 +246,8 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
         wec_diff = (np.sign(wec_diff_wecs_sgn-wec_diff_bs_sgn)*wec_diff_wecs_sgn) 
         wec_diff = wec_diff.astype(int) + wec_diff_wecs-wec_diff_bs
         
-        # set to zero
+        
+        # set to zero. Might be turning this back on
         #wec_diff[np.abs(wec_diff)<0.01] = 0
         
     elif plotvar == 'DPS':
@@ -233,7 +261,6 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
     #listOfFiles = [wec_diff_bs, wec_diff_wecs, wec_diff, wec_diff_bs_sgn, wec_diff_wecs_sgn]  
 
     #transpose and pull
-
     newarray=np.transpose(wec_diff)
     array2 = np.flip(newarray, axis=0) 
     rows, cols = array2.shape
