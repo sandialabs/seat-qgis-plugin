@@ -110,28 +110,29 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
 
     # Load and parse run order file. This csv file has the wave conditions for each case. The wave conditions are listed in the order of cases as they are 
     # stored in the first dimension of data_wecs or data_bs
-    dev_present_dir = os.path.dirname(dev_present_file)
+    #dev_present_dir = os.path.dirname(dev_present_file)
     
-    foo = np.loadtxt(run_order_file,
-                     delimiter=',', dtype='str')
-    bc_name_wecs = foo[:,1]
+    #foo = np.loadtxt(run_order_file,
+    #                 delimiter=',', dtype='str')
+    #bc_name_wecs = foo[:,1]
+    df_ro = pd.read_csv(run_order_file)
     
      # set up a run order dataframe
-    df_ro = pd.DataFrame({'bcnum': foo[:,0].astype(int),'bc_name': np.char.strip(bc_name_wecs)})
-    df_ro['index'] =  df_ro.index
+    #df_ro = pd.DataFrame({'bcnum': foo[:,0].astype(int),'bc_name': np.char.strip(bc_name_wecs)})
+    #df_ro['index'] =  df_ro.index
     # This is zero indexed
-    df_ro['no_wecs_index'] = df_ro['bcnum'].values - 1 
-    dev_notpresent_dir = os.path.dirname(dev_notpresent_file)
-    foo = np.loadtxt(os.path.join(dev_notpresent_dir, 'run_order_nowecs.csv'),
-                     delimiter=',', dtype='str')
-    bc_name_no_wecs = foo[:,1] 
+    #df_ro['no_wecs_index'] = df_ro['bcnum'].values - 1 
+    #dev_notpresent_dir = os.path.dirname(dev_notpresent_file)
+    #foo = np.loadtxt(os.path.join(dev_notpresent_dir, 'run_order_nowecs.csv'),
+    #                 delimiter=',', dtype='str')
+    #bc_name_no_wecs = foo[:,1] 
     
      # set up a run order dataframe
-    df_ro_no_wecs = pd.DataFrame({'bcnum': foo[:,0].astype(int),'bc_name': np.char.strip(bc_name_no_wecs)})
+    # df_ro_no_wecs = pd.DataFrame({'bcnum': foo[:,0].astype(int),'bc_name': np.char.strip(bc_name_no_wecs)})
     #df_ro_no_wecs['index'] = df_ro_no_wecs.index
     
     # filter out bad runs from wecs
-    df_ro = df_ro.loc[df_ro['bcnum'].isin(df_ro_no_wecs['bcnum']), :]
+    df_ro = df_ro.loc[df_ro['bad_run'] != 'X', :]
     
     # Load BC file with probabilities and find appropriate probability
     BC_Annie = np.loadtxt(bc_file, delimiter=',', skiprows=1)
@@ -166,31 +167,32 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
     # merge to the run order. This trims out runs that we want dropped.
     #df_merge = pd.merge(df_ro, df_ro_no_wecs, how = 'left', on = 'bc_name')
     df_merge = pd.merge(df_ro, df, how = 'left', left_on = 'bc_name', right_on = 'pk')
-    
+    #df_merge['wec_run_id'] = df_merge['wec_run_id'].astype(int) - 1
+    #df_merge['nowec_run_id'] = df_merge['nowec_run_id'].astype(int) - 1
     # currently we are missing a few runs so trim them out of the data_wecs
     # df_merge = df_merge.loc[df_merge['bcnum'].values < data_wecs.shape[0], :]
     # breakpoint()
     # Loop through all boundary conditions and create images
     # breakpoint()
-    for run_wec, run_nowec, prob in zip(df_merge['index'], df_merge['no_wecs_index'], df_merge['prob']):
+    for run_wec, run_nowec, prob in zip(df_merge['wec_run_id'], df_merge['nowec_run_id'], df_merge['prob']):
         
         #===============================================================
         # Compute normalized difference between with WEC and without WEC
-        if np.isnan(data_wecs[run_wec, -1, :, :].data[:]).all() == True | np.isnan(data_bs[run_nowec, -1, :, :].data[:]).all() == True:
-            continue
+        #if np.isnan(data_wecs[run_wec, -1, :, :].data[:]).all() == True | np.isnan(data_bs[run_nowec, -1, :, :].data[:]).all() == True:
+        #    continue
         #wec_diff = wec_diff + prob*(data_w_wecs[bcnum,1,:,:] - data_wo_wecs[bcnum,1,:,:])/data_wo_wecs[bcnum,1,:,:]
         if plotvar == 'TAUMAX':
             # if the shapes are the same then process. Otherwise, process to an array and stop
-            if data_bs[run_nowec,-1,:,:].shape == taucrit.shape:
-                wec_diff_bs = wec_diff_bs + prob*data_bs[run_nowec,-1,:,:]/(taucrit*10)
-                wec_diff_wecs = wec_diff_wecs + prob*data_wecs[run_wec,-1,:,:]/(taucrit*10)
-                
+            if data_bs[int(run_nowec - 1) ,-1,:,:].shape == taucrit.shape:
+                wec_diff_bs = wec_diff_bs + prob*data_bs[int(run_nowec - 1),-1,:,:]/(taucrit*10)
+                wec_diff_wecs = wec_diff_wecs + prob*data_wecs[int(run_wec - 1),-1,:,:]/(taucrit*10)
+                # breakpoint()
                 # create dataframe of subtraction
                 wec_diff_df = wec_diff_wecs-wec_diff_bs
                 newarray=np.transpose(wec_diff_df)
                 array2 = np.flip(newarray, axis=0) 
                 wec_diff_df = pd.DataFrame(array2)
-                wec_diff_df.to_csv(fr'C:\Users\ependleton52\Documents\Projects\Sandia\SEAT_plugin\Code_Model\Codebase\oregon_coast_models\dataframes\out_wec{run_wec}_nowec{run_nowec}.csv', index = False)
+                wec_diff_df.to_csv(fr'C:\Users\ependleton52\Documents\Projects\Sandia\SEAT_plugin\Code_Model\Codebase\oregon_coast_models\dataframes\out_wec{int(run_wec)}_nowec{int(run_nowec)}.csv', index = False)
                 #breakpoint()
             else:
                 newarray=np.transpose(data_bs[bcnum,-1,:,:].data)
