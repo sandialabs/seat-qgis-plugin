@@ -270,43 +270,49 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
     #get number of rows and cols
     return(rows, cols, array2)    
         
-def calculate_diff_cec(fname_base, fname_cec, taucrit=100.):
+def calculate_diff_cec(folder_base, folder_cec, taucrit=100.):
 
     """
     Given non linear grid files calculate the difference. Currently taucrit is 100. Would need to make
     constant raster of from either fname_base or fname_cec for raster use.
     """
-    
-    f_base = Dataset(fname_base, mode='r', format='NETCDF4')
-    f_cec = Dataset(fname_cec, mode='r', format='NETCDF4')
-    
-    tau_base = f_base.variables['taus'][1, :].data
-    tau_cec = f_cec.variables['taus'][1, :].data
+    # Loop through the base folder name and the cec folders, Get the return interval from the filename
+    first_loop = 1
+    for fname_base, fname_cec in zip(glob.glob(os.path.join(folder_base, '*.nc')), glob.glob(os.path.join(folder_cec, '*.nc'))):
+        
+        # get the return interval from the name
+        return_interval = int(os.path.basename(fname_base).split("_")[1].split('tanana')[1])
+        
+        f_base = Dataset(fname_base, mode='r', format='NETCDF4')
+        f_cec = Dataset(fname_cec, mode='r', format='NETCDF4')
+        
+        tau_base = f_base.variables['taus'][1, :].data
+        tau_cec = f_cec.variables['taus'][1, :].data
 
-    lon = f_base.variables['FlowElem_xcc'][:].data
-    lat = f_base.variables['FlowElem_ycc'][:].data
+        lon = f_base.variables['FlowElem_xcc'][:].data
+        lat = f_base.variables['FlowElem_ycc'][:].data
 
-    #lon, lat = transformer.transform(f_base.variables['NetNode_x'][:].data, f_base.variables['NetNode_y'][:].data)
-    # df = pd.DataFrame({'lon': lon, 'lat':lat})
-    # df.to_csv('out_test_lon_lat.csv', index = False)
+        #lon, lat = transformer.transform(f_base.variables['NetNode_x'][:].data, f_base.variables['NetNode_y'][:].data)
+        # df = pd.DataFrame({'lon': lon, 'lat':lat})
+        # df.to_csv('out_test_lon_lat.csv', index = False)
+        if first_loop == 1:
+            wec_diff_bs = np.zeros(np.shape(tau_base))
+            wec_diff_wecs = np.zeros(np.shape(tau_base))
+            wec_diff = np.zeros(np.shape(tau_base))
 
-    wec_diff_bs = np.zeros(np.shape(tau_base))
-    wec_diff_wecs = np.zeros(np.shape(tau_base))
-    wec_diff = np.zeros(np.shape(tau_base))
+        #taucrit = 1.65*980*((1.9e-4*10**6)/10000)*0.0419
+        taucrit = taucrit
+        # return_interval = 1
+        prob = 1/return_interval
+        
+        wec_diff_bs = wec_diff_bs + prob*tau_base/(taucrit*10)
+        wec_diff_wecs = wec_diff_wecs + prob*tau_cec/(taucrit*10)
 
-    #taucrit = 1.65*980*((1.9e-4*10**6)/10000)*0.0419
-    taucrit = 100.
-    return_interval = 1
-    
-    prob = 1/return_interval
-    wec_diff_bs = wec_diff_bs + prob*tau_base/(taucrit*10)
-    wec_diff_wecs = wec_diff_wecs + prob*tau_cec/(taucrit*10)
-
-    wec_diff_bs_sgn = np.floor(wec_diff_bs*25)/25 
-    wec_diff_wecs_sgn = np.floor(wec_diff_wecs*25)/25 
-    wec_diff = (np.sign(wec_diff_wecs_sgn-wec_diff_bs_sgn)*wec_diff_wecs_sgn) 
-    wec_diff = wec_diff.astype(int) + wec_diff_wecs-wec_diff_bs   
-    wec_diff[np.abs(wec_diff)<0.001] = 0
+        wec_diff_bs_sgn = np.floor(wec_diff_bs*25)/25 
+        wec_diff_wecs_sgn = np.floor(wec_diff_wecs*25)/25 
+        wec_diff = (np.sign(wec_diff_wecs_sgn-wec_diff_bs_sgn)*wec_diff_wecs_sgn) 
+        wec_diff = wec_diff.astype(int) + wec_diff_wecs-wec_diff_bs   
+    # wec_diff[np.abs(wec_diff)<0.001] = 0
 
     # Use triangular interpolation to generate grid
     # reflon=np.linspace(lon.min(),lon.max(),1000)

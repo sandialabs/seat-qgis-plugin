@@ -734,19 +734,19 @@ class StressorReceptorCalc:
             #self.dlg.tableWidget.findItems(i,j, QTableWidgetItem(item))
             
             # calculate the raster from the NetCDF            
-            if '.nc' in dpresentfname:
-                if svar == 'TAUMAX -Structured':
-                   
-                    sfilename, _ = self.calculate_stressor(dpresentfname,dnotpresentfname, bcfname, rofname, svar, crs, sfilename, srclassfilename, rfilename)
-                if svar == 'TAUMAX -Unstructured':
-                    # set the crs to 4326 since the bounds are also in that
-                    bounds = [-149.088,64.5681]
-                    #cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
-                    cell_resolution = [0.0001628997158260284031,0.0001628997158260284031 ] #x res, y res or lon, lat, same as above
-                    nbands = 1
-                    taucrit=100.
-                   
-                    sfilename = self.calc_stressor_unstruct(dpresentfname, dnotpresentfname, sfilename, nbands, bounds, cell_resolution, crs, taucrit)      
+            if svar == 'TAUMAX -Structured':
+               
+                sfilename, _ = self.calculate_stressor(dpresentfname,dnotpresentfname, bcfname, rofname, svar, crs, sfilename, srclassfilename, rfilename)
+            if svar == 'TAUMAX -Unstructured':
+                # set the crs to 4326 since the bounds are also in that
+                bounds = [-149.088,64.5681]
+                #cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
+                cell_resolution = [0.0001628997158260284031,0.0001628997158260284031 ] #x res, y res or lon, lat, same as above
+                nbands = 1
+                taucrit=100.
+               
+                sfilename = self.calc_stressor_unstruct(dpresentfname, dnotpresentfname, sfilename, nbands, bounds, cell_resolution, crs, taucrit)      
+            
             # save the stressor as the output
             shutil.copy(sfilename, ofilename)
 
