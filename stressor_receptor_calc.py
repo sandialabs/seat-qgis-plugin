@@ -59,6 +59,7 @@ from .reproj_epsg import reproj_epsg
 from datetime import date
 import logging
 
+# Most of the below is boilerplate code  until plugin specific functions start----
 def df_from_qml(fpath):
     tree = ET.parse(fpath)
     root = tree.getroot()
@@ -220,9 +221,10 @@ class StressorReceptorCalc:
                 self.tr(u'&Stressor Receptor Calculator'),
                 action)
             self.iface.removeToolBarIcon(action)
-    
+ # End mostly boilerplate code ------
+ 
     def select_calc_type(self, fields):
-        '''This loads in any inputs into a drop down selector '''
+        """This loads in any inputs into a drop down selector """
         calcname=self.dlg.comboBox.currentIndex()
         # set up table
         path = os.path.join(QgsApplication.qgisSettingsDirPath(),
@@ -232,6 +234,7 @@ class StressorReceptorCalc:
         
     
     def loadcsv(self, filename):
+        """ This is csv loader for the table widget """
         with open(filename) as csvfile:
             data = csv.reader(csvfile)
             col = next(data)
@@ -250,16 +253,9 @@ class StressorReceptorCalc:
                     self.dlg.tableWidget.setItem(i,j, QTableWidgetItem(item))
             
             self.dlg.tableWidget.resizeColumnsToContents()
-    """
-    Deprecationed with transform NetCDF
-    def select_receptor_file(self):
-        # input the receptor file
-        filename, _filter = QFileDialog.getOpenFileName(
-        self.dlg, "Select Receptor","", '*.tif')
-        self.dlg.lineEdit.setText(filename)
-    """
+
     def select_device_file(self, presence):
-        """ input the .nc file """
+        """ input the .nc file dialog """
         filename, _filter = QFileDialog.getOpenFileName(
         self.dlg, "Select NetCDF file","", "*.tif; *.nc; *.ini")
         if presence  == 'not present':
@@ -268,19 +264,19 @@ class StressorReceptorCalc:
             self.dlg.device_present.setText(filename)
 
     def select_bc_file(self):
-        """ input the bc file """
+        """ input the bc file dialog """
         filename, _filter = QFileDialog.getOpenFileName(
         self.dlg, "Select Boundary Condition","", '*.csv')
         self.dlg.bc_prob.setText(filename)
     
     def select_run_order_file(self):
-        """ input the bc file """
+        """ input the bc file dialog """
         filename, _filter = QFileDialog.getOpenFileName(
         self.dlg, "Select Run Order","", '*.csv')
         self.dlg.run_order.setText(filename)
         
     def select_crs(self):
-        # input the crs
+        """ input the crs using the QGIS widget box """
         
         projSelector = QgsProjectionSelectionDialog(None)
         # set up a default one
@@ -292,26 +288,28 @@ class StressorReceptorCalc:
         self.dlg.crs.setText(projSelector.crs().authid().split(":")[1])
 
     def select_receptor_file(self):
-        # input the receptor file
+        """ input the receptor file """
         filename, _filter = QFileDialog.getOpenFileName(
         self.dlg, "Select Receptor","", '*.tif')
         self.dlg.receptor_file.setText(filename)
         
     def select_secondary_constraint_file(self):
+        """ select secondary constriant file """
         filename, _filter = QFileDialog.getOpenFileName(
         self.dlg, "Select Secondary Constraint","", '*.tif')
         self.dlg.sc_file.setText(filename)
     
     def select_output_file(self):
+        """ Select output file picker """
         filename, _filter = QFileDialog.getSaveFileName(
         self.dlg, "Select Output","", '*.tif')
         self.dlg.ofile.setText(filename)
         
     def select_and_load_in(self):
+        """ Select and load an input file """
         filename, _filter = QFileDialog.getOpenFileName(
         self.dlg, "Select Input file","", '*.ini')
-        
-       
+        # if there's a file selected try and parse it
         if filename is not '':
             # try to parse the ini file
             config = configparser.ConfigParser()
@@ -330,6 +328,7 @@ class StressorReceptorCalc:
             self.dlg.ofile.setText(config.get('Output', 'output filepath'))
     
     def save_in(self):
+        """ Select and save an input file """
         filename, _filter = QFileDialog.getSaveFileName(
         self.dlg, "Save input file","", '*.ini')
         
@@ -349,6 +348,7 @@ class StressorReceptorCalc:
             config.write(configfile)
     
     def calculate_stressor(self, dev_present_file, dev_notpresent_file, bc_file, run_order_file, svar, crs, output_path, output_path_reclass, receptor_filename):
+        """ This is structured calculate stressor function """
         
         # configuration for raster translate
         GDAL_DATA_TYPE = gdal.GDT_Float32 
@@ -357,7 +357,7 @@ class StressorReceptorCalc:
         # all runs
         # bcarray = [i for i in range(1,23)]
         
-        # Skip the bad runs for now
+        # Skip the bad runs for now. This is deprecated as we load them in from a file now
         # bcarray = np.array([0,1,2,3,4,5,6,7,9,10,11,12,13,14,15,16,17,19,20,22])
         
         #SWAN will always be in meters. Not always WGS84
@@ -365,9 +365,9 @@ class StressorReceptorCalc:
         SPATIAL_REFERENCE_SYSTEM_WKID = crs #WGS84
         nbands = 1
         # bottom left, x, y netcdf file
-        bounds = [-124.2843933,44.6705] #x,y or lon,lat, this is pulled from an input data source
+        #bounds = [-124.2843933,44.6705] #x,y or lon,lat, this is pulled from an input data source
         # look for dx/dy
-        cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
+        # cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
         
         # from Kaus -235.8+360 degrees = 124.2 degrees. The 235.8 degree conventions follows longitudes that increase 
         # eastward from Greenwich around the globe. The 124.2W, or -124.2 goes from 0 to 180 degrees to the east of Greenwich.
@@ -400,8 +400,7 @@ class StressorReceptorCalc:
                           rows,
                           nbands)
      
-        # post processing of numpy array to output raster
-        
+        # post processing of numpy array to output raster       
         numpy_array_to_raster(output_raster,
                                   numpy_array,
                                   bounds,
@@ -434,7 +433,7 @@ class StressorReceptorCalc:
         return output_path, output_path_reclass
         
     def calc_stressor_unstruct(self, fname_base, fname_cec, output_path, nbands, bounds, cell_resolution, crs, taucrit):
-        
+        """ Calculate stressor unstructured function """
         rows, cols, numpy_array = calculate_diff_cec(fname_base, fname_cec, taucrit=100.)
         
         output_raster = create_raster(output_path,
@@ -453,7 +452,8 @@ class StressorReceptorCalc:
         
                           
     def style_layer(self, fpath, stylepath, checked = True, ranges = True):
-        # add the result layer to map
+       """ Style and add the result layer to map """
+       
         basename = os.path.splitext(os.path.basename(fpath))[0]
         layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))
         
@@ -467,14 +467,19 @@ class StressorReceptorCalc:
         # refresh legend entries
         self.iface.layerTreeView().refreshLayerSymbology(layer.id())
         
+        # do we want the layer visible in the map?
         if not checked:
             root = QgsProject.instance().layerTreeRoot()
             root.findLayer(layer.id()).setItemVisibilityChecked(checked)
+            
+        # do we want to return the ranges?
         if ranges:
             range = [x[0] for x in layer.legendSymbologyItems()]
             return range
     
     def export_area(self, ofilename, crs, ostylefile = None):
+        """ Export the areas of the given file. Find a UTM of the given crs and calculate in m2"""
+        
         cfile = ofilename.replace('.tif', '.csv')
         if os.path.isfile(cfile):
             os.remove(cfile)
@@ -482,21 +487,25 @@ class StressorReceptorCalc:
         if ostylefile is not None:
             sdf = df_from_qml(ostylefile)
         
-        
+        # get the basename and use the raster in the instance to get the min / max
         basename = os.path.splitext(os.path.basename(ofilename))[0]
         raster = QgsProject.instance().mapLayersByName(basename)[0]
+        
         
         xmin = raster.extent().xMinimum()
         xmax = raster.extent().xMaximum()
         ymin = raster.extent().yMinimum()
         ymax = raster.extent().yMaximum()
         
+        # using the min and max make sure the crs doesn't change across grids
         assert find_utm_srid(xmin, ymin, crs) == find_utm_srid(xmax, ymax, crs), 'grid spans multiple utms'
         crs_found = find_utm_srid(xmin, ymin, crs)
         
+        # create a temporary file for reprojection
         outfile = tempfile.NamedTemporaryFile(suffix='.tif').name
         #cmd = f'gdalwarp -s_srs EPSG:{crs} -t_srs EPSG:{crs_found} -r near -of GTiff {ofilename} {outfile}'
         #os.system(cmd)
+        
         
         reproject_params = {'INPUT':ofilename,
                 'SOURCE_CRS':QgsCoordinateReferenceSystem(f'EPSG:{crs}'),
@@ -511,7 +520,8 @@ class StressorReceptorCalc:
                 'MULTITHREADING':False,
                 'EXTRA':'',
                 'OUTPUT':outfile}
-
+        
+        # reproject to a UTM crs for meters calculation
         processing.run("gdal:warpreproject", reproject_params)
         
         
@@ -520,7 +530,7 @@ class StressorReceptorCalc:
         'OUTPUT_TABLE' : cfile }
         
         processing.run("native:rasterlayeruniquevaluesreport", params)
-        
+        # remove the temporary file
         os.remove(outfile)
         
         
@@ -529,11 +539,11 @@ class StressorReceptorCalc:
         df = df.groupby(by = ['value']).sum().reset_index()
         
         df['percentage'] = (df['m2'] / df['m2'].sum()) * 100.
-   
+            
         df['value'] = df['value'].astype(float)
         # recode 0 to np.nan
         df.loc[df['value'] == 0, 'value'] = float('nan')
-        
+        # sort ascending values
         df = df.sort_values(by = ['value'])
         
         
@@ -744,7 +754,7 @@ class StressorReceptorCalc:
                 cell_resolution = [0.0001628997158260284031,0.0001628997158260284031 ] #x res, y res or lon, lat, same as above
                 nbands = 1
                 taucrit=100.
-               
+                # calculate the unstructured version using the parameters defined above
                 sfilename = self.calc_stressor_unstruct(dpresentfname, dnotpresentfname, sfilename, nbands, bounds, cell_resolution, crs, taucrit)      
             
             # save the stressor as the output
@@ -754,15 +764,14 @@ class StressorReceptorCalc:
             if not rfilename == '':
                 self.style_layer(rfilename, rstylefile, checked = False)            
             
+            # add and style the secondary constraint
             if not scfilename == "":
-                # add and style the secondary constraint
                 self.style_layer(scfilename, scstylefile, checked = False)
-            
             
             
             # add and style the outfile returning values
             self.style_layer(ofilename, ostylefile, ranges = True)
-                
+            # export the areas using the output files    
             self.export_area(ofilename, crs, ostylefile = None)
             
             # close and remove the filehandler
