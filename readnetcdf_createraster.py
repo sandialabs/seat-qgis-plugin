@@ -296,23 +296,32 @@ def calculate_diff_cec(folder_base, folder_cec, taucrit=100.):
         # df = pd.DataFrame({'lon': lon, 'lat':lat})
         # df.to_csv('out_test_lon_lat.csv', index = False)
         if first_loop == 1:
-            wec_diff_bs = np.zeros(np.shape(tau_base))
-            wec_diff_wecs = np.zeros(np.shape(tau_base))
-            wec_diff = np.zeros(np.shape(tau_base))
+            cec_diff_bs = np.zeros(np.shape(tau_base))
+            cec_diff_cecs = np.zeros(np.shape(tau_base))
+            cec_diff = np.zeros(np.shape(tau_base))
+            first_loop = 0
 
         #taucrit = 1.65*980*((1.9e-4*10**6)/10000)*0.0419
         taucrit = taucrit
         # return_interval = 1
         prob = 1/return_interval
         
-        wec_diff_bs = wec_diff_bs + prob*tau_base/(taucrit*10)
-        wec_diff_wecs = wec_diff_wecs + prob*tau_cec/(taucrit*10)
+        cec_diff_bs = cec_diff_bs + prob*tau_base/(taucrit*10)
+        cec_diff_cecs = cec_diff_cecs + prob*tau_cec/(taucrit*10)
+        
+        
+        
+        cec_diff_df = cec_diff_cecs-cec_diff_bs
+        newarray=np.transpose(cec_diff_df)
+        array2 = np.flip(newarray, axis=0) 
+        cec_diff_df = pd.DataFrame(array2)
+        cec_diff_df.to_csv(fr'C:\Users\ependleton52\Documents\Projects\Sandia\SEAT_plugin\Code_Model\Codebase\tanana\out_cec_{int(return_interval)}.csv', index = False)
 
-        wec_diff_bs_sgn = np.floor(wec_diff_bs*25)/25 
-        wec_diff_wecs_sgn = np.floor(wec_diff_wecs*25)/25 
-        wec_diff = (np.sign(wec_diff_wecs_sgn-wec_diff_bs_sgn)*wec_diff_wecs_sgn) 
-        wec_diff = wec_diff.astype(int) + wec_diff_wecs-wec_diff_bs   
-    # wec_diff[np.abs(wec_diff)<0.001] = 0
+    cec_diff_bs_sgn = np.floor(cec_diff_bs*25)/25 
+    cec_diff_cecs_sgn = np.floor(cec_diff_cecs*25)/25 
+    cec_diff = (np.sign(cec_diff_cecs_sgn-cec_diff_bs_sgn)*cec_diff_cecs_sgn) 
+    cec_diff = cec_diff.astype(int) + cec_diff_cecs-cec_diff_bs   
+    # cec_diff[np.abs(cec_diff)<0.001] = 0
 
     # Use triangular interpolation to generate grid
     # reflon=np.linspace(lon.min(),lon.max(),1000)
@@ -328,7 +337,7 @@ def calculate_diff_cec(folder_base, folder_cec, taucrit=100.):
     tri=Triangulation(lon,lat)
     mask = TriAnalyzer(tri).get_flat_tri_mask(flatness)
     tri.set_mask(mask)
-    tli=LinearTriInterpolator(tri,wec_diff)
+    tli=LinearTriInterpolator(tri,cec_diff)
     tau_interp=tli(reflon,reflat)
 
     newarray=np.transpose(tau_interp[:, :].data)
