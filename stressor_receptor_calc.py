@@ -52,9 +52,6 @@ from .readnetcdf_createraster import transform_netcdf_ro, create_raster, numpy_a
 # UTM finder
 from .Find_UTM_srid import find_utm_srid
 
-# reproject raster
-from .reproj_epsg import reproj_epsg
-
 # grab the data time
 from datetime import date
 import logging
@@ -741,10 +738,12 @@ class StressorReceptorCalc:
             
             #self.dlg.tableWidget.findItems(i,j, QTableWidgetItem(item))
             
-            # calculate the raster from the NetCDF            
+            # calculate the raster from a structured NetCDF             
             if svar == 'TAUMAX -Structured':
                
                 sfilename, _ = self.calculate_stressor(dpresentfname,dnotpresentfname, bcfname, rofname, svar, crs, sfilename, srclassfilename, rfilename)
+            
+            # calculate the raster from an unstructured NetCDF 
             if svar == 'TAUMAX -Unstructured':
                 # set the crs to 4326 since the bounds are also in that
                 bounds = [-149.088,64.5681]
