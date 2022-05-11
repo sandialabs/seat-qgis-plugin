@@ -450,23 +450,21 @@ class StressorReceptorCalc:
                                   crs, output_path)
         return output_path
         
-                          
     def style_layer(self, fpath, stylepath, checked = True, ranges = True):
-       """ Style and add the result layer to map """
-       
+        """ Style and add the result layer to map """ 
         basename = os.path.splitext(os.path.basename(fpath))[0]
         layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))
-        
+
         if stylepath != "":
             # apply layer style
             layer.loadNamedStyle(stylepath)
 
             # reload to see layer classification
             layer.reload()
-        
+
         # refresh legend entries
         self.iface.layerTreeView().refreshLayerSymbology(layer.id())
-        
+
         # do we want the layer visible in the map?
         if not checked:
             root = QgsProject.instance().layerTreeRoot()
@@ -476,7 +474,7 @@ class StressorReceptorCalc:
         if ranges:
             range = [x[0] for x in layer.legendSymbologyItems()]
             return range
-    
+         
     def export_area(self, ofilename, crs, ostylefile = None):
         """ Export the areas of the given file. Find a UTM of the given crs and calculate in m2"""
         
@@ -552,7 +550,7 @@ class StressorReceptorCalc:
             df.loc[:, ['value','label', 'count', 'm2', 'percentage']].to_csv(cfile, index = False)
         else:
             df.loc[:, ['value', 'count', 'm2', 'percentage']].to_csv(cfile, na_rep='NULL', index = False)
-        
+       
     def run(self):
         """Run method that performs all the real work"""
 

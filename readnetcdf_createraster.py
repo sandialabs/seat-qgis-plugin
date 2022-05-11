@@ -19,10 +19,8 @@
 # 12/22/2017 Kaus added creation of metric file for habitat polygons
 # 06/09/2020 Kaus simplified script for a single run, for Matt
 # 06/26/2020 Matt added GDAL geotransform
+# 05/10/2022 Eben Pendleton added comments
 
-# Turn off display of figure (Linux command line only)
-#import matplotlib
-#matplotlib.use('Agg')
 import glob, os, osr
 
 import numpy as np
@@ -47,20 +45,21 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
 
     # Read The device present NetCDF file and parse contents needed for plotting
     file = Dataset(dev_present_file)
-    # lat  = file.variables['YZ'][:] # Y-coordinate of cell center
-    # lon  = file.variables['XZ'][:] # X-coordinate of cell center
-    
+
+    # X-coordinate of cell center
     xcor = file.variables['XCOR'][:].data
+    # Y-coordinate of cell center
     ycor = file.variables['YCOR'][:].data
     
+    # if we are running a structured case update the plot varaiable to what we can query
     if plotvar == 'TAUMAX -Structured': plotvar = 'TAUMAX'
     
-    # Deprecated?
+    # Deprecated
     # delft_time = file.variables['time'][:]
     # depth = file.variables['DPS0'][:] # Initial bottom depth at zeta points (positive down)
     #sed_fracs = np.squeeze(file.variables['LYRFRAC'][0,0,:,0,:,:])
     if plotvar != 'VEL':
-        # 4D netcdf files
+        # set as 4D netcdf files
         data_wecs = file.variables[plotvar][:]
         
     else:
@@ -69,6 +68,7 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
         v = file.variables['V1'][:,:,-1,:,:]
         data_wecs = np.sqrt(u**2 + v**2)
         
+    # close the device prsent file    
     file.close()
 
     if plotvar == 'TAUMAX':
@@ -85,7 +85,7 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
         # soil density * gravity * grain size(m) * 10^6 / unit converter *
         #taucrit = 1.65*980*((1.9e-4*10**6)/10000)*0.0419
         
-        # ADD in receptor here. This started as grain size but is geeralized
+        # Add in the receptor here. This started as grain size but is geeralized
         if receptor_filename is not None:        
             data = gdal.Open(receptor_filename)
             img = data.GetRasterBand(1)
@@ -110,26 +110,7 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
 
     # Load and parse run order file. This csv file has the wave conditions for each case. The wave conditions are listed in the order of cases as they are 
     # stored in the first dimension of data_wecs or data_bs
-    #dev_present_dir = os.path.dirname(dev_present_file)
-    
-    #foo = np.loadtxt(run_order_file,
-    #                 delimiter=',', dtype='str')
-    #bc_name_wecs = foo[:,1]
     df_ro = pd.read_csv(run_order_file)
-    
-     # set up a run order dataframe
-    #df_ro = pd.DataFrame({'bcnum': foo[:,0].astype(int),'bc_name': np.char.strip(bc_name_wecs)})
-    #df_ro['index'] =  df_ro.index
-    # This is zero indexed
-    #df_ro['no_wecs_index'] = df_ro['bcnum'].values - 1 
-    #dev_notpresent_dir = os.path.dirname(dev_notpresent_file)
-    #foo = np.loadtxt(os.path.join(dev_notpresent_dir, 'run_order_nowecs.csv'),
-    #                 delimiter=',', dtype='str')
-    #bc_name_no_wecs = foo[:,1] 
-    
-     # set up a run order dataframe
-    # df_ro_no_wecs = pd.DataFrame({'bcnum': foo[:,0].astype(int),'bc_name': np.char.strip(bc_name_no_wecs)})
-    #df_ro_no_wecs['index'] = df_ro_no_wecs.index
     
     # filter out bad runs from wecs
     df_ro = df_ro.loc[df_ro['bad_run'] != 'X', :]
@@ -150,10 +131,11 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
         v = file.variables['V1'][:,:,-1,:,:]
         
         data_bs = np.sqrt(u**2 + v**2)  
-        
-        
+    
+    # close the device not present file
     file.close()
     
+    # create zero arrays for the device present / not present
     wec_diff_bs = np.zeros(np.shape(data_bs[0,0,:,:]))
     wec_diff_wecs = np.zeros(np.shape(data_wecs[0,0,:,:]))
     # wec_diff = np.zeros(np.shape(data_wecs[0,0,:,:]))
@@ -167,17 +149,13 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
     # merge to the run order. This trims out runs that we want dropped.
     #df_merge = pd.merge(df_ro, df_ro_no_wecs, how = 'left', on = 'bc_name')
     df_merge = pd.merge(df_ro, df, how = 'left', left_on = 'bc_name', right_on = 'pk')
-    #df_merge['wec_run_id'] = df_merge['wec_run_id'].astype(int) - 1
-    #df_merge['nowec_run_id'] = df_merge['nowec_run_id'].astype(int) - 1
-    # currently we are missing a few runs so trim them out of the data_wecs
-    # df_merge = df_merge.loc[df_merge['bcnum'].values < data_wecs.shape[0], :]
-    # breakpoint()
     # Loop through all boundary conditions and create images
     # breakpoint()
     for run_wec, run_nowec, prob in zip(df_merge['wec_run_id'], df_merge['nowec_run_id'], df_merge['prob']):
         
         #===============================================================
         # Compute normalized difference between with WEC and without WEC
+        # QA dataframes are here
         #if np.isnan(data_wecs[run_wec, -1, :, :].data[:]).all() == True | np.isnan(data_bs[run_nowec, -1, :, :].data[:]).all() == True:
         #    continue
         #wec_diff = wec_diff + prob*(data_w_wecs[bcnum,1,:,:] - data_wo_wecs[bcnum,1,:,:])/data_wo_wecs[bcnum,1,:,:]
@@ -192,13 +170,16 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
                 newarray=np.transpose(wec_diff_df)
                 array2 = np.flip(newarray, axis=0) 
                 wec_diff_df = pd.DataFrame(array2)
-                wec_diff_df.to_csv(fr'C:\Users\ependleton52\Documents\Projects\Sandia\SEAT_plugin\Code_Model\Codebase\oregon_coast_models\dataframes\out_wec{int(run_wec)}_nowec{int(run_nowec)}.csv', index = False)
+                
+                # dump for QA. Should make this more flexible
+                #wec_diff_df.to_csv(fr'C:\Users\ependleton52\Documents\Projects\Sandia\SEAT_plugin\Code_Model\Codebase\oregon_coast_models\dataframes\out_wec{int(run_wec)}_nowec{int(run_nowec)}.csv', index = False)
                 #breakpoint()
             else:
                 newarray=np.transpose(data_bs[bcnum,-1,:,:].data)
                 array2 = np.flip(newarray, axis=0) 
                 numpy_array = array2 
                 rows, cols = numpy_array.shape
+                breakpoint()
                 # will need to dump to raster to check
                 # will error as output path is not defined.
                 #SPATIAL_REFERENCE_SYSTEM_WKID = 4326 #WGS84 meters
@@ -267,7 +248,7 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
     array2 = np.flip(newarray, axis=0) 
     rows, cols = array2.shape
 
-    #get number of rows and cols
+    #return the number of rows and cols and array2
     return(rows, cols, array2)    
         
 def calculate_diff_cec(folder_base, folder_cec, taucrit=100.):
@@ -277,7 +258,10 @@ def calculate_diff_cec(folder_base, folder_cec, taucrit=100.):
     constant raster of from either fname_base or fname_cec for raster use.
     """
     # Loop through the base folder name and the cec folders, Get the return interval from the filename
-    first_loop = 1
+    
+    cec_diff_bs = np.zeros(np.shape(tau_base))
+    cec_diff_cecs = np.zeros(np.shape(tau_base))
+    cec_diff = np.zeros(np.shape(tau_base))
     for fname_base, fname_cec in zip(glob.glob(os.path.join(folder_base, '*.nc')), glob.glob(os.path.join(folder_cec, '*.nc'))):
         
         # get the return interval from the name
@@ -295,40 +279,39 @@ def calculate_diff_cec(folder_base, folder_cec, taucrit=100.):
         #lon, lat = transformer.transform(f_base.variables['NetNode_x'][:].data, f_base.variables['NetNode_y'][:].data)
         # df = pd.DataFrame({'lon': lon, 'lat':lat})
         # df.to_csv('out_test_lon_lat.csv', index = False)
-        if first_loop == 1:
-            cec_diff_bs = np.zeros(np.shape(tau_base))
-            cec_diff_cecs = np.zeros(np.shape(tau_base))
-            cec_diff = np.zeros(np.shape(tau_base))
-            first_loop = 0
 
         #taucrit = 1.65*980*((1.9e-4*10**6)/10000)*0.0419
         taucrit = taucrit
         # return_interval = 1
         prob = 1/return_interval
         
+        # calculate differences
         cec_diff_bs = cec_diff_bs + prob*tau_base/(taucrit*10)
         cec_diff_cecs = cec_diff_cecs + prob*tau_cec/(taucrit*10)
         
-        
-        
         cec_diff_df = cec_diff_cecs-cec_diff_bs
+        
+        # transpose and flip
         newarray=np.transpose(cec_diff_df)
         array2 = np.flip(newarray, axis=0) 
-        cec_diff_df = pd.DataFrame(array2)
-        cec_diff_df.to_csv(fr'C:\Users\ependleton52\Documents\Projects\Sandia\SEAT_plugin\Code_Model\Codebase\tanana\out_cec_{int(return_interval)}.csv', index = False)
-
+        
+        #cec_diff_df = pd.DataFrame(array2)
+        #cec_diff_df.to_csv(fr'C:\Users\ependleton52\Documents\Projects\Sandia\SEAT_plugin\Code_Model\Codebase\tanana\out_cec_{int(return_interval)}.csv', index = False)
+    
+    # adjust the signs. Take from Kaus' oroginal code
     cec_diff_bs_sgn = np.floor(cec_diff_bs*25)/25 
     cec_diff_cecs_sgn = np.floor(cec_diff_cecs*25)/25 
     cec_diff = (np.sign(cec_diff_cecs_sgn-cec_diff_bs_sgn)*cec_diff_cecs_sgn) 
     cec_diff = cec_diff.astype(int) + cec_diff_cecs-cec_diff_bs   
     # cec_diff[np.abs(cec_diff)<0.001] = 0
 
-    # Use triangular interpolation to generate grid
+    # Use triangular interpolation to generate grid. Matched x, y counts
     # reflon=np.linspace(lon.min(),lon.max(),1000)
     # reflat=np.linspace(lat.min(),lat.max(),1000)
     reflon=np.linspace(lon.min(),lon.max(),169)
     reflat=np.linspace(lat.min(),lat.max(),74)
-
+    
+    # create long, lat from the meshgrid
     reflon,reflat=np.meshgrid(reflon,reflat)
  
     # original
@@ -347,11 +330,13 @@ def calculate_diff_cec(folder_base, folder_cec, taucrit=100.):
     rows, cols = np.shape(array2)
     
     return (rows, cols, array2)
-#returns gdal data source raster object
+
 def create_raster(output_path,
                   cols,
                   rows,
                   nbands):
+                  
+    """ Create a gdal raster object """
     # create gdal driver - doing this explicitly
     driver = gdal.GetDriverByName(str('GTiff'))
 
@@ -365,18 +350,19 @@ def create_raster(output_path,
     # spatial_reference.ImportFromEPSG(spatial_reference_system_wkid)
     # output_raster.SetProjection(spatial_reference.ExportToWkt())
     
+    #returns gdal data source raster object
     return output_raster
 
-#returns a gdal raster data source
 def numpy_array_to_raster(output_raster,
                           numpy_array,
                           bounds,
                           cell_resolution,
                           spatial_reference_system_wkid, output_path):
    
-# create output raster
-#(upper_left_x, x_resolution, x_skew 0, upper_left_y, y_skew 0, y_resolution). 
-# Need to rotate to go from np array to geo tiff. This can vary depending on the methods used above. Will need to test for this.
+    """ Create the output raster """
+    # create output raster
+    #(upper_left_x, x_resolution, x_skew 0, upper_left_y, y_skew 0, y_resolution). 
+    # Need to rotate to go from np array to geo tiff. This can vary depending on the methods used above. Will need to test for this.
     geotransform = (bounds[0],
                     cell_resolution[0],
                     0,
@@ -395,15 +381,18 @@ def numpy_array_to_raster(output_raster,
 
     output_band.FlushCache()
     output_band.ComputeStatistics(False) #you want this false, true will make computed results, but is faster, could be a setting in the UI perhaps, esp for large rasters?
-    
+
     if os.path.exists(output_path) == False:
         raise Exception('Failed to create raster: %s' % output_path)  
         
+    # this closes the file
     output_raster = None
     return output_path
 
 #now call the functions
 if __name__ == "__main__":
+
+    """ Testing paramters """
 
     #=================
     # User input block
