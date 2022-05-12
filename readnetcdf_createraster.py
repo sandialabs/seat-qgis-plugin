@@ -21,13 +21,13 @@
 # 06/26/2020 Matt added GDAL geotransform
 # 05/10/2022 Eben Pendleton added comments
 
-import glob, os, osr
+import glob, os
 
 import numpy as np
 import pandas as pd
 
 from netCDF4 import Dataset
-from osgeo import gdal
+from osgeo import gdal, osr
 
 from matplotlib.tri import Triangulation, TriAnalyzer, LinearTriInterpolator
 # these imports currently don't work :(
