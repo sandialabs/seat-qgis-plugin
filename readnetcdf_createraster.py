@@ -27,8 +27,7 @@ import numpy as np
 import pandas as pd
 
 from netCDF4 import Dataset
-import re
-import gdal
+from osgeo import gdal
 
 from matplotlib.tri import Triangulation, TriAnalyzer, LinearTriInterpolator
 # these imports currently don't work :(
