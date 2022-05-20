@@ -244,7 +244,9 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
 
     #transpose and pull
     newarray=np.transpose(wec_diff)
-    array2 = np.flip(newarray, axis=0) 
+    # we should not flip here
+    #array2 = np.flip(newarray, axis=0) 
+    array2 = newarray
     rows, cols = array2.shape
 
     #return the number of rows and cols and array2
