@@ -34,7 +34,7 @@ from matplotlib.tri import Triangulation, TriAnalyzer, LinearTriInterpolator
 # from qgis.core import *
 # import qgis.utils
     
-def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_order_file, plotvar, receptor_filename = None):
+def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_order_file, plotvar, receptor_filename = None, receptor = True):
     #===========================
     # Load With WECs NetCDF file.
     # MATT: the netcdf files here are 4 (case number, time, x, y) or 5-dimensional (case number, depth, time, x, y). 
@@ -99,7 +99,7 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
             # soil density (g/cm^2) * standard gravity (cm/s^2) * (micron / (convert to cm)) * unit conversion
             taucrit = 1.65*980*((receptor_array)/10000)*0.0419
         else:
-            # taucrit without areceptor
+            # taucrit without a receptor
             taucrit = 1.65*980*0.0419
         
     elif plotvar == 'VEL':
@@ -158,20 +158,32 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
         #if np.isnan(data_wecs[run_wec, -1, :, :].data[:]).all() == True | np.isnan(data_bs[run_nowec, -1, :, :].data[:]).all() == True:
         #    continue
         #wec_diff = wec_diff + prob*(data_w_wecs[bcnum,1,:,:] - data_wo_wecs[bcnum,1,:,:])/data_wo_wecs[bcnum,1,:,:]
+        
         if plotvar == 'TAUMAX':
+            
             # if the shapes are the same then process. Otherwise, process to an array and stop
             if data_bs[int(run_nowec - 1) ,-1,:,:].shape == taucrit.shape:
-                wec_diff_bs = wec_diff_bs + prob*data_bs[int(run_nowec - 1),-1,:,:]/(taucrit*10)
-                wec_diff_wecs = wec_diff_wecs + prob*data_wecs[int(run_wec - 1),-1,:,:]/(taucrit*10)
-                # breakpoint()
-                # create dataframe of subtraction
-                wec_diff_df = wec_diff_wecs-wec_diff_bs
-                newarray=np.transpose(wec_diff_df)
-                array2 = np.flip(newarray, axis=0) 
-                wec_diff_df = pd.DataFrame(array2)
+                wec_diff_bs_b = wec_diff_bs
+                wec_diff_wecs_b = wec_diff_wecs
+               
+                if receptor == True:
+                    
+                    wec_diff_bs = np.flip(wec_diff_bs + prob*data_bs[int(run_nowec - 1),-1,:,:], axis = 1)/(taucrit*10)
+                    wec_diff_wecs = np.flip(wec_diff_wecs + prob*data_wecs[int(run_wec - 1),-1,:,:], axis = 1)/(taucrit*10)
+                else:
+                    wec_diff_bs = np.flip(wec_diff_bs + prob*data_bs[int(run_nowec - 1),-1,:,:], axis = 1)
+                    wec_diff_wecs = np.flip(wec_diff_wecs + prob*data_wecs[int(run_wec - 1),-1,:,:], axis = 1)
+                    
+                # create dataframe of subtraction for QA
+                wec_diff_df = (wec_diff_bs + prob*data_bs[int(run_nowec - 1),-1,:,:]) - (wec_diff_wecs + prob*data_wecs[int(run_wec - 1),-1,:,:])
+                wec_diff_df = (wec_diff_bs + prob*data_bs[int(run_nowec - 1),-1,:,:])
+                wec_diff_df=np.transpose(wec_diff_df)
+                # removed flip 05/27/2022
+                # wec_diff_df = np.flip(wec_diff_df, axis=0) 
+                wec_diff_df = pd.DataFrame(wec_diff_df)
                 
                 # dump for QA. Should make this more flexible
-                #wec_diff_df.to_csv(fr'C:\Users\ependleton52\Documents\Projects\Sandia\SEAT_plugin\Code_Model\Codebase\oregon_coast_models\dataframes\out_wec{int(run_wec)}_nowec{int(run_nowec)}.csv', index = False)
+                # wec_diff_df.to_csv(fr'C:\Users\ependleton52\Documents\Projects\Sandia\SEAT_plugin\Code_Model\Codebase\oregon_coast_models\dataframes\out_wec{int(run_wec)}_nowec{int(run_nowec)}.csv', index = False)
                 #breakpoint()
             else:
                 newarray=np.transpose(data_bs[bcnum,-1,:,:].data)

@@ -344,7 +344,7 @@ class StressorReceptorCalc:
         with open(filename, 'w') as configfile:
             config.write(configfile)
     
-    def calculate_stressor(self, dev_present_file, dev_notpresent_file, bc_file, run_order_file, svar, crs, output_path, output_path_reclass, receptor_filename):
+    def calculate_stressor(self, dev_present_file, dev_notpresent_file, bc_file, run_order_file, svar, crs, output_path, output_path_reclass, receptor_filename, receptor=True):
         """ This is structured calculate stressor function """
         
         # configuration for raster translate
@@ -387,7 +387,7 @@ class StressorReceptorCalc:
         # original
         # rows, cols, numpy_array = transform_netcdf(dev_present_file, dev_notpresent_file, bc_file, run_order_file, bcarray, svar)
         # new bc one
-        rows, cols, numpy_array = transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_order_file, svar,receptor_filename = receptor_filename)
+        rows, cols, numpy_array = transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_order_file, svar,receptor_filename = receptor_filename, receptor = receptor)
         #if '.tif' in dev_present_file:
         #    rows, cols, numpy_array = read_raster_calculate_diff(dev_present_file, dev_notpresent_file)
         
@@ -686,12 +686,15 @@ class StressorReceptorCalc:
 
             # Set up the stressor name            
             sfilename = os.path.join(os.path.dirname(ofilename), "calculated_stressor.tif")
+            sworfilename = os.path.join(os.path.dirname(ofilename), "calculated_stressor_without_grainsize.tif")
             srclassfilename = os.path.join(os.path.dirname(ofilename), "calculated_stressor_reclassified.tif")
            
             # message
             logger.info('Receptor File: {}'.format(rfilename))
             logger.info('Stressor File: {}'.format(sfilename))
+            logger.info('Stressor with Receptor File: {}'.format(sworfilename))
             logger.info('Reclassified Stressor File: {}'.format(srclassfilename))
+            
             logger.info('Device present File: {}'.format(dpresentfname))
             logger.info('Device not present File: {}'.format(dnotpresentfname))
             logger.info('Boundary Condition File: {}'.format(bcfname))
@@ -740,8 +743,10 @@ class StressorReceptorCalc:
             
             # calculate the raster from a structured NetCDF             
             if svar == 'TAUMAX -Structured':
-               
+                
                 sfilename, _ = self.calculate_stressor(dpresentfname,dnotpresentfname, bcfname, rofname, svar, crs, sfilename, srclassfilename, rfilename)
+                # test condition without grain size in file
+                sworfilename, _ = self.calculate_stressor(dpresentfname,dnotpresentfname, bcfname, rofname, svar, crs, sworfilename, srclassfilename, rfilename, receptor = False)
             
             # calculate the raster from an unstructured NetCDF 
             if svar == 'TAUMAX -Unstructured':
@@ -768,6 +773,10 @@ class StressorReceptorCalc:
             
             # add and style the outfile returning values
             self.style_layer(ofilename, ostylefile, ranges = True)
+            
+            # add and style the outfile without the griansize returning values
+            self.style_layer(sworfilename, ostylefile)
+            
             # export the areas using the output files    
             self.export_area(ofilename, crs, ostylefile = None)
             

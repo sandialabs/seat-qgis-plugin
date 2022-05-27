@@ -1,7 +1,0 @@
-Eventually we'll want to load / save data and also use dynamically entered values. A helpful link may be
-https://gis.stackexchange.com/questions/350495/return-the-text-entered-in-a-qtablewidget
-
-This needs to be placed in the plugin profile. One examples is:
-C:\Users\ependleton52\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\stressor_receptor_calc
-
-Eben Pendleton 2021-04-20.
