@@ -138,6 +138,10 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
     wec_diff_bs = np.zeros(np.shape(data_bs[0,0,:,:]))
     wec_diff_wecs = np.zeros(np.shape(data_wecs[0,0,:,:]))
     # wec_diff = np.zeros(np.shape(data_wecs[0,0,:,:]))
+    
+    # flip the data arrays
+    data_bs = np.flip(data_bs, axis = 3)
+    data_wecs = np.flip(data_wecs, axis = 3)
 
     #=======================================================
     # set up a dataframe of probabilities
@@ -164,8 +168,11 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
             # if the shapes are the same then process. Otherwise, process to an array and stop
             if data_bs[int(run_nowec - 1) ,-1,:,:].shape == taucrit.shape:
             
-                # get max along the 3rd axis (time)
-                data_wecs_max = np.amax(data_wecs, axis = 1, keepdims = True)
+                # get max along the 2nd axis (time)
+                #data_wecs_max = np.amax(data_wecs, axis = 1, keepdims = True)
+               
+                # get last axis value
+                data_wecs_max = data_wecs[:,[-1],:,:]
                 
                 # make a backup just in case
                 wec_diff_bs_b = wec_diff_bs
@@ -173,11 +180,11 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
                 
                 if receptor == True:
                     
-                    wec_diff_bs = np.flip(wec_diff_bs + prob*data_bs[int(run_nowec - 1),-1,:,:], axis = 1)/(taucrit*10)
-                    wec_diff_wecs = np.flip(wec_diff_wecs + prob*data_wecs_max[int(run_wec - 1),-1,:,:], axis = 1)/(taucrit*10)
+                    wec_diff_bs = wec_diff_bs + prob*data_bs[int(run_nowec - 1),-1,:,:]/(taucrit*10)
+                    wec_diff_wecs = wec_diff_wecs + prob*data_wecs_max[int(run_wec - 1),-1,:,:]/(taucrit*10)
                 else:
-                    wec_diff_bs = np.flip(wec_diff_bs + prob*data_bs[int(run_nowec - 1),-1,:,:], axis = 1)
-                    wec_diff_wecs = np.flip(wec_diff_wecs + prob*data_wecs_max[int(run_wec - 1),-1,:,:], axis = 1)
+                    wec_diff_bs = wec_diff_bs + prob*data_bs[int(run_nowec - 1),-1,:,:]
+                    wec_diff_wecs = wec_diff_wecs + prob*data_wecs_max[int(run_wec - 1),-1,:,:]
                     
                 # create dataframe of subtraction for QA
                 wec_diff_df = (wec_diff_bs + prob*data_bs[int(run_nowec - 1),-1,:,:]) - (wec_diff_wecs + prob*data_wecs[int(run_wec - 1),-1,:,:])
