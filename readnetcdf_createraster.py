@@ -163,16 +163,21 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
             
             # if the shapes are the same then process. Otherwise, process to an array and stop
             if data_bs[int(run_nowec - 1) ,-1,:,:].shape == taucrit.shape:
+            
+                # get max along the 3rd axis (time)
+                data_wecs_max = np.amax(data_wecs, axis = 1, keepdims = True)
+                
+                # make a backup just in case
                 wec_diff_bs_b = wec_diff_bs
                 wec_diff_wecs_b = wec_diff_wecs
-               
+                
                 if receptor == True:
                     
                     wec_diff_bs = np.flip(wec_diff_bs + prob*data_bs[int(run_nowec - 1),-1,:,:], axis = 1)/(taucrit*10)
-                    wec_diff_wecs = np.flip(wec_diff_wecs + prob*data_wecs[int(run_wec - 1),-1,:,:], axis = 1)/(taucrit*10)
+                    wec_diff_wecs = np.flip(wec_diff_wecs + prob*data_wecs_max[int(run_wec - 1),-1,:,:], axis = 1)/(taucrit*10)
                 else:
                     wec_diff_bs = np.flip(wec_diff_bs + prob*data_bs[int(run_nowec - 1),-1,:,:], axis = 1)
-                    wec_diff_wecs = np.flip(wec_diff_wecs + prob*data_wecs[int(run_wec - 1),-1,:,:], axis = 1)
+                    wec_diff_wecs = np.flip(wec_diff_wecs + prob*data_wecs_max[int(run_wec - 1),-1,:,:], axis = 1)
                     
                 # create dataframe of subtraction for QA
                 wec_diff_df = (wec_diff_bs + prob*data_bs[int(run_nowec - 1),-1,:,:]) - (wec_diff_wecs + prob*data_wecs[int(run_wec - 1),-1,:,:])
@@ -271,10 +276,7 @@ def calculate_diff_cec(folder_base, folder_cec, taucrit=100.):
     constant raster of from either fname_base or fname_cec for raster use.
     """
     # Loop through the base folder name and the cec folders, Get the return interval from the filename
-    
-    cec_diff_bs = np.zeros(np.shape(tau_base))
-    cec_diff_cecs = np.zeros(np.shape(tau_base))
-    cec_diff = np.zeros(np.shape(tau_base))
+    first_run = True
     for fname_base, fname_cec in zip(glob.glob(os.path.join(folder_base, '*.nc')), glob.glob(os.path.join(folder_cec, '*.nc'))):
         
         # get the return interval from the name
@@ -288,6 +290,12 @@ def calculate_diff_cec(folder_base, folder_cec, taucrit=100.):
 
         lon = f_base.variables['FlowElem_xcc'][:].data
         lat = f_base.variables['FlowElem_ycc'][:].data
+        
+        if first_run:
+            cec_diff_bs = np.zeros(np.shape(tau_base))
+            cec_diff_cecs = np.zeros(np.shape(tau_base))
+            cec_diff = np.zeros(np.shape(tau_base))
+            first_run = False
 
         #lon, lat = transformer.transform(f_base.variables['NetNode_x'][:].data, f_base.variables['NetNode_y'][:].data)
         # df = pd.DataFrame({'lon': lon, 'lat':lat})

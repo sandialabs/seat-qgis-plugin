@@ -346,11 +346,7 @@ class StressorReceptorCalc:
     
     def calculate_stressor(self, dev_present_file, dev_notpresent_file, bc_file, run_order_file, svar, crs, output_path, output_path_reclass, receptor_filename, receptor=True):
         """ This is structured calculate stressor function """
-        
-        # configuration for raster translate
-        GDAL_DATA_TYPE = gdal.GDT_Float32 
-        GEOTIFF_DRIVER_NAME = r'GTiff'
-                
+                        
         # all runs
         # bcarray = [i for i in range(1,23)]
         
@@ -775,7 +771,8 @@ class StressorReceptorCalc:
             self.style_layer(ofilename, ostylefile, ranges = True)
             
             # add and style the outfile without the griansize returning values
-            self.style_layer(sworfilename, ostylefile)
+            if svar == 'TAUMAX -Structured':
+                self.style_layer(sworfilename, ostylefile)
             
             # export the areas using the output files    
             self.export_area(ofilename, crs, ostylefile = None)
