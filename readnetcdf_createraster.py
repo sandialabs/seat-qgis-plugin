@@ -169,10 +169,10 @@ def transform_netcdf_ro(dev_present_file, dev_notpresent_file, bc_file, run_orde
             if data_bs[int(run_nowec - 1) ,-1,:,:].shape == taucrit.shape:
             
                 # get max along the 2nd axis (time)
-                #data_wecs_max = np.amax(data_wecs, axis = 1, keepdims = True)
+                data_wecs_max = np.amax(data_wecs, axis = 1, keepdims = True)
                
                 # get last axis value
-                data_wecs_max = data_wecs[:,[-1],:,:]
+                # data_wecs_max = data_wecs[:,[-1],:,:]
                 
                 # make a backup just in case
                 wec_diff_bs_b = wec_diff_bs
