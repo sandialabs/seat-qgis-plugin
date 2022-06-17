@@ -1,0 +1,16 @@
+name: Zip Files
+
+on:
+  push
+  # release:
+    # types: [published]
+
+jobs:
+  zip-files:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: papeloto/action-zip@v1
+        with:
+          files: stressor_receptor_calc
+          dest: stressor_receptor_calc.zip
