@@ -9,7 +9,7 @@ jobs:
     steps:
     - uses: actions/checkout@main
     - name: Archive Release
-      run: zip -qq -r stressor_receptor_calc.zip stressor_receptor_calc -x ".git/*" ".github/*"
+      run: zip -qq -r stressor_receptor_calc.zip . -x ".git/*" ".github/*"
     - name: Upload Release
       uses: ncipollo/release-action@v1
       with:
