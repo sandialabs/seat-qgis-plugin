@@ -16,7 +16,7 @@ jobs:
           mkdir -p ~/stressor_receptor_calc/stressor_receptor_calc && cp -R . ~/stressor_receptor_calc/stressor_receptor_calc
           ls ~/stressor_receptor_calc
     - name: Archive Release
-      run: cd ~/stressor_receptor_calc/ && zip -qq -r stressor_receptor_calc.zip . -x ".git/*" ".github/*"
+      run: cd home/runner/stressor_receptor_calc && zip -qq -r stressor_receptor_calc.zip . -x ".git/*" ".github/*"
     - name: Upload Release
       uses: ncipollo/release-action@v1
       with:
