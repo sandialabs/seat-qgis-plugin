@@ -14,8 +14,8 @@ jobs:
         type: 'zip'
         filename: 'stressor_receptor_calc.zip'
         exclusions: '*.git* /*node_modules/* .editorconfig'
-    - name: Bump version and push tag
-      uses: anothrNick/github-tag-action@1.36.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        WITH_V: true
+    - name: Upload Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "stressor_receptor_calc.zip"
+        token: ${{ secrets.GITHUB_TOKEN }
