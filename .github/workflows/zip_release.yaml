@@ -17,6 +17,5 @@ jobs:
     - name: Upload Release
       uses: ncipollo/release-action@v1
       with:
-        tag: 0.12
         artifacts: "stressor_receptor_calc.zip"
         token: ${{ secrets.GITHUB_TOKEN }}
