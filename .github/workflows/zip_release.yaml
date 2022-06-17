@@ -8,12 +8,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Create Release Folder
-      run: rsync -arv --exclude='.git/' --exclude='.github/' --exclude='.gitignore' . ./release
-    - name: Switch to Release Folder
-      run: |
-        cd release
-        ls -la
+    - name: Archive Release
+      uses: thedoctor0/zip-release@main
+      with:
+        type: 'zip'
+        filename: 'stressor_receptor_calc.zip'
+        exclusions: '*.git* /*node_modules/* .editorconfig'
     - name: Bump version and push tag
       uses: anothrNick/github-tag-action@1.36.0
       env:
