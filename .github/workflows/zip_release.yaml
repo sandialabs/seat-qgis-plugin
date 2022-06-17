@@ -2,14 +2,19 @@ name: Create Archive
 on:
     push:
       tags:
-      - '*'
+      - '*'     
+    # Allows you to run this workflow manually from the Actions tab
+    workflow_dispatch:
+  
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@main
     - name: Generate root
-      run: cp -a . /./stressor_receptor_calc
+      run: |
+          mkdir -p ~/stressor_receptor_calc && cp -R . ~/stressor_receptor_calc
+          ls ~/stressor_receptor_calc
     - name: Archive Release
       run: zip -qq -r stressor_receptor_calc.zip . -x ".git/*" ".github/*"
     - name: Upload Release
