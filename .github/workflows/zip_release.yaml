@@ -8,9 +8,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@main
+    - name: Generate root
+      run: cp -a . /./stressor_receptor_calc
     - name: Archive Release
-    - run: cp -a . /./stressor_receptor_calc
-    - run: zip -qq -r stressor_receptor_calc.zip . -x ".git/*" ".github/*"
+      run: zip -qq -r stressor_receptor_calc.zip . -x ".git/*" ".github/*"
     - name: Upload Release
       uses: ncipollo/release-action@v1
       with:
