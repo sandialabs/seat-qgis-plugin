@@ -7,7 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@main
     - name: Archive Release
       run: zip -qq -r stressor_receptor_calc.zip stressor_receptor_calc -x ".git/*" ".github/*"
     - name: Upload Release
