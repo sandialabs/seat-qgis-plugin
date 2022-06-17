@@ -13,10 +13,10 @@ jobs:
     - uses: actions/checkout@main
     - name: Generate root
       run: |
-          mkdir -p ~/stressor_receptor_calc/stressor_receptor_calc && cp -R . ~/stressor_receptor_calc/stressor_receptor_calc
+          mkdir ~/stressor_receptor_calc/stressor_receptor_calc && cp -R . ~/stressor_receptor_calc/stressor_receptor_calc
           ls ~/stressor_receptor_calc
     - name: Archive Release
-      run: zip -qq -r stressor_receptor_calc.zip ~/stressor_receptor_calc -x ".git/*" ".github/*"
+      run: zip -qq -r stressor_receptor_calc.zip ~/stressor_receptor_calc/ -x ".git/*" ".github/*"
     - name: Upload Release
       uses: ncipollo/release-action@v1
       with:
