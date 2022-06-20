@@ -12,7 +12,9 @@ jobs:
     steps:
     - uses: actions/checkout@main
     - name: Generate root
-      run: cp -RT . tmp/Releases/stressor_receptor_calc/stressor_receptor_calc
+      run: |
+        mkdir -p tmp/Releases/stressor_receptor_calc/stressor_receptor_calc
+        cp -RT . tmp/Releases/stressor_receptor_calc/stressor_receptor_calc
     - name: Archive Release
       run: zip -qq -r tmp/Releases/stressor_receptor_calc.zip tmp/Releases/stressor_receptor_calc/ -x ".git/*" ".github/*"
     - name: Upload Release
