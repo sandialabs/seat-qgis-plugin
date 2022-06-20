@@ -13,7 +13,7 @@ jobs:
     - uses: actions/checkout@main
     - name: Generate root
       run: |
-        mkdir -p ../stressor_receptor_calc/stressor_receptor_calc
+        mkdir -p ./stressor_receptor_calc/stressor_receptor_calc
         rsync -a ./* ./stressor_receptor_calc/stressor_receptor_calc --exclude stressor_receptor_calc
         ls ./stressor_receptor_calc
     - name: Archive Release
