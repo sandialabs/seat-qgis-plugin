@@ -13,12 +13,13 @@ jobs:
     - uses: actions/checkout@main
     - name: Generate root
       run: |
-          mkdir -p home/tmp/Releases/stressor_receptor_calc/stressor_receptor_calc && cp -R ./dist home/tmp/Releases/stressor_receptor_calc/stressor_receptor_calc
-          ls home/tmp/stressor_receptor_calc
+        mkdir ./stressor_receptor_calc/stressor_receptor_calc
+        mv ./* ./stressor_receptor_calc/stressor_receptor_calc
+        ls ./stressor_receptor_calc
     - name: Archive Release
-      run: zip -qq -r home/tmp/Releases/stressor_receptor_calc.zip home/tmp/Releases/stressor_receptor_calc/ -x ".git/*" ".github/*"
+      run: zip -qq -r ./stressor_receptor_calc.zip ./stressor_receptor_calc/ -x ".git/*" ".github/*"
     - name: Upload Release
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "home/tmp/Releases/stressor_receptor_calc.zip"
+        artifacts: "stressor_receptor_calc.zip"
         token: ${{ secrets.GITHUB_TOKEN }}
