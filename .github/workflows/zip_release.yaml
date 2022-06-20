@@ -13,7 +13,7 @@ jobs:
     - uses: actions/checkout@main
     - name: Generate root
       run: |
-          mkdir -p home/tmp/stressor_receptor_calc/stressor_receptor_calc && cp -R . home/tmp/stressor_receptor_calc/stressor_receptor_calc
+          mkdir -p home/tmp/Releases/stressor_receptor_calc/stressor_receptor_calc && cp -R ./dist home/tmp/Releases/stressor_receptor_calc/stressor_receptor_calc
           ls home/tmp/stressor_receptor_calc
     - name: Archive Release
       run: zip -qq -r home/tmp/Releases/stressor_receptor_calc.zip home/tmp/Releases/stressor_receptor_calc/ -x ".git/*" ".github/*"
