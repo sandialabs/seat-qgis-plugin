@@ -5,7 +5,7 @@ This repository contains code for the Spatial Environmental Assessment Tool (SEA
 
 ## Install
 
-To install download the latest [stresser_receptor_calc.zip](https://github.com/IntegralEnvision/SEAT-QGIS-Plugin/releases/latest/download/stressor_receptor_calc.zip) file from  the [Releases](https://github.com/IntegralEnvision/SEAT-QGIS-Plugin/releases/latest) page. You can use the Install from zip option under installing plugins in QGIS. 
+To install download the latest [stresser_receptor_calc.zip](https://github.com/IntegralEnvision/SEAT-QGIS-Plugin/releases/latest/download/stressor_receptor_calc.zip) file from  the [Releases](https://github.com/IntegralEnvision/SEAT-QGIS-Plugin/releases/latest) page. You can then use the Install from zip option under the Install Plugins dialog in [QGIS](https://docs.qgis.org/3.22/en/docs/training_manual/qgis_plugins/fetching_plugins.html). 
 
 Plugins are located in C:\Users\<USER>AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\ 
 
