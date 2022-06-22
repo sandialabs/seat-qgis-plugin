@@ -11,6 +11,16 @@ Plugins are located in C:\Users\<USER>AppData\Roaming\QGIS\QGIS3\profiles\defaul
 
 The Python package of [netCDF](https://github.com/Unidata/netcdf4-python) is required. This can be installed by opening "C:\Program Files\QGIS 3.22.6\OSGeo4W.bat" by right - clicking Run As Administrator and running pip install netCDF4.
 
+## Development
+
+Clone the repository and push changes To trigger a release buid use the following 
+```
+git <tag>
+git push origin <tag>
+```
+
+In QGIS there are two plugins that are helpful. [Plugin Reloader](https://plugins.qgis.org/plugins/plugin_reloader/) and [FirstAid](https://plugins.qgis.org/plugins/firstaid/)
+
 ## Dependencies
 * QGIS 3.22.6
 * netCDF4
