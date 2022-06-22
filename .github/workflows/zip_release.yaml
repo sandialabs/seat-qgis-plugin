@@ -15,7 +15,7 @@ jobs:
       run: |
         mkdir -p ./stressor_receptor_calc/
         rsync -a ./* ./stressor_receptor_calc/ --exclude stressor_receptor_calc
-        rsync -a ./.git ./stressor_receptor_calc/
+        rsync ./.git/* ./stressor_receptor_calc/
         ls ./stressor_receptor_calc
     - name: Archive Release
       # run: zip -qq -r ./stressor_receptor_calc.zip ./stressor_receptor_calc/ -x ".git/*" ".github/*"
