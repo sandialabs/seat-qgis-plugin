@@ -13,7 +13,7 @@ The Python package of [netCDF](https://github.com/Unidata/netcdf4-python) is req
 
 ## Development
 
-Clone the repository and push changes To trigger a release buid use the following 
+Clone the repository and push changes. To trigger a release buid use the following 
 ```
 git <tag>
 git push origin <tag>
