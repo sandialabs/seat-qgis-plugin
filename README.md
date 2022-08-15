@@ -2,7 +2,7 @@
 
 <a href='https://github.com/IntegralEnvision/SEAT-QGIS-Plugin'><img src='code/icon.png' align="right" height="60" /></a>
 
-[![Release](https://github.com/IntegralEnvision/seat-qgis-plugin/actions/workflows/zip_release.yaml/badge.svg?event=release)](https://github.com/IntegralEnvision/seat-qgis-plugin/actions/workflows/zip_release.yaml)
+[![release](https://github.com/IntegralEnvision/seat-qgis-plugin/actions/workflows/release.yaml/badge.svg)](https://github.com/IntegralEnvision/seat-qgis-plugin/actions/workflows/release.yaml)
 
 This repository contains code for the Spatial Environmental Assessment Tool (SEAT) QGIS Plugin. This is a collaboration between [Integral Consulting](https://integral-corp.com) and [Sandia National Laboratories](https://www.sandia.gov/).
 
@@ -46,8 +46,8 @@ There are two QGIS plugins that are helpful during the development process:
 To trigger a release buid on GitHub use the following commands:
 
 ```bash
-git <tag>
-git push origin <tag>
+git tag -a <version> -m "<release notes>"
+git push --tag
 ```
 
 ## Notes
