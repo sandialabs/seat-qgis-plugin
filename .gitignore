@@ -1,10 +1,4 @@
-__pycache__/**
-i18n/af.ts
-icon_old.png
-inputs/East.csv
-inputs/North.csv
-inputs/Northwest.csv
-inputs/South.csv
-inputs/West.csv
-/algorithms.txt
-/inputs/_archive
+*.nc
+*.tif
+*cache*
+env/

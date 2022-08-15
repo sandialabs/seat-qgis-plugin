@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/plugins/stressor_receptor_calc" >
-        <file>icon.png</file>
-    </qresource>
-</RCC>

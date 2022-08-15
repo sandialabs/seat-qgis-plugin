@@ -1,0 +1,63 @@
+---
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=5000"]
+      - id: check-ast
+      - id: check-case-conflict
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: requirements-txt-fixer
+      - id: trailing-whitespace
+  # Markdown lint
+  - repo: https://github.com/markdownlint/markdownlint
+    rev: v0.11.0
+    hooks:
+      - id: markdownlint
+        args: [-t, ~line_length, -r, ~MD033]
+  # Add trailing commas to calls and literals.
+  - repo: https://github.com/asottile/add-trailing-comma
+    rev: v2.2.3
+    hooks:
+      - id: add-trailing-comma
+        args: [--py36-plus]
+  # Upgrade syntax for newer versions of the language
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.37.3
+    hooks:
+      - id: pyupgrade
+  # Sort imports
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+        args: [--profile=black]
+  # Format Python docstrings
+  - repo: https://github.com/DanielNoord/pydocstringformatter
+    rev: v0.6.2
+    hooks:
+      - id: pydocstringformatter
+  # Remove unused imports and variables
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v1.4
+    hooks:
+      - id: autoflake
+        args:
+          [
+            --remove-all-unused-imports,
+            --ignore-init-module-imports,
+            --remove-unused-variables,
+          ]
+  # Code styling
+  - repo: https://github.com/psf/black
+    rev: 22.6.0
+    hooks:
+      - id: black
+  # # PEP 8 style guide, error and complexity checks
+  # - repo: https://github.com/PyCQA/flake8
+  #   rev: 5.0.4
+  #   hooks:
+  #     - id: flake8
+  #       args: [--config=./.github/linters/.flake8]
