@@ -1,0 +1,22 @@
+name: Release
+on:
+    push:
+      tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@main
+    - name: Create Archive Release
+      run: |
+        git clone . ./SEAT-plugin/
+        ls ./SEAT-plugin
+    - name: Archive Release
+      run: zip -qq -r ./SEAT-plugin.zip ./SEAT-plugin/
+    - name: Upload Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "SEAT-plugin.zip"
+        token: ${{ secrets.GITHUB_TOKEN }}
