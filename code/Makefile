@@ -40,7 +40,7 @@ SOURCES = \
 	__init__.py \
 	stressor_receptor_calc.py stressor_receptor_calc_dialog.py
 
-PLUGINNAME = stressor_receptor_calc
+PLUGINNAME = seat_qgis_plugin
 
 PY_FILES = \
 	__init__.py \
@@ -65,7 +65,7 @@ PEP8EXCLUDE=pydev,resources.py,conf.py,third_party,ui
 #	* Windows:
 #	  AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins'
 
-QGISDIR=C:\Users\ependleton52\AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins
+QGISDIR=~/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins
 
 #################################################
 # Normally you would not need to edit below here
