@@ -10,12 +10,12 @@ This repository contains code for the Spatial Environmental Assessment Tool (SEA
 
 ### Requirements
 
-- QGIS 3.22.6
-- Python for QGIS 3.22.6
-- [netCDF](https://github.com/Unidata/netcdf4-python) - Python install procedures vary depending on your OS.
+- QGIS >= 3.16
+- Python for QGIS >= 3.16
+- [netCDF](https://github.com/Unidata/netcdf4-python) >= 3.5.4 - Python install location varies depending on your OS.
 
-  - **Windows** - run `C:\Program Files\QGIS 3.22.6\OSGeo4W.bat` as administrator, then `pip install netCDF4`
-  - **Linux & MacOS** - both OS use the system's Python environment, therefore you will need Python (3+) installed on your machine prior to installing QGIS. Using your system Python version, run `pip install netCDF4`. If there are multiple Python versions on your machine, you may need to use the QGIS Python console to determine which install is used:
+  - **Windows** - run `C:\Program Files\QGIS 3.16\OSGeo4W.bat` as administrator.
+  - **Linux & MacOS** - Open the Python console in QGIS and enter the commands below to determine where your Python install is:
 
     ```python
     import sys
@@ -28,9 +28,9 @@ Download the latest [release](https://github.com/IntegralEnvision/SEAT-QGIS-Plug
 
 The installed plugin is located here:
 
-- **Windows**: `C:\Users\<USER>\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins`
-- **Linux**: `/home/<USER>/.local/share/QGIS/QGIS3/profiles/default/python/plugins`
-- **Mac** `/Users/<USER>/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins`
+- **Windows**: `AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins`
+- **Linux**: `.local/share/QGIS/QGIS3/profiles/default/python/plugins`
+- **Mac** `Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins`
 
 ## Development
 
