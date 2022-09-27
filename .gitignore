@@ -1,4 +1,4 @@
 *.nc
 *.tif
 *cache*
-env/
+*env*

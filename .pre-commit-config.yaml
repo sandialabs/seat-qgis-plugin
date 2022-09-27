@@ -19,13 +19,13 @@ repos:
         args: [-t, ~line_length, -r, ~MD033]
   # Add trailing commas to calls and literals.
   - repo: https://github.com/asottile/add-trailing-comma
-    rev: v2.2.3
+    rev: v2.3.0
     hooks:
       - id: add-trailing-comma
         args: [--py36-plus]
   # Upgrade syntax for newer versions of the language
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.37.3
+    rev: v2.38.2
     hooks:
       - id: pyupgrade
   # Sort imports
@@ -36,12 +36,12 @@ repos:
         args: [--profile=black]
   # Format Python docstrings
   - repo: https://github.com/DanielNoord/pydocstringformatter
-    rev: v0.6.2
+    rev: v0.7.2
     hooks:
       - id: pydocstringformatter
   # Remove unused imports and variables
   - repo: https://github.com/PyCQA/autoflake
-    rev: v1.4
+    rev: v1.6.1
     hooks:
       - id: autoflake
         args:
@@ -52,12 +52,12 @@ repos:
           ]
   # Code styling
   - repo: https://github.com/psf/black
-    rev: 22.6.0
+    rev: 22.8.0
     hooks:
       - id: black
-  # # PEP 8 style guide, error and complexity checks
-  # - repo: https://github.com/PyCQA/flake8
-  #   rev: 5.0.4
-  #   hooks:
-  #     - id: flake8
-  #       args: [--config=./.github/linters/.flake8]
+  # PEP 8 style guide, error and complexity checks
+  - repo: https://github.com/PyCQA/flake8
+    rev: 5.0.4
+    hooks:
+      - id: flake8
+        args: [--config=./.github/linters/.flake8]

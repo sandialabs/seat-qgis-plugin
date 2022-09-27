@@ -1,7 +1,0 @@
-1. Install the latest version of the plugin as a zip file from \\pfs1w\C1300-C1399\C1308_MREA_Sandia\Working_Files\QGIS Plugin\stressor_receptor_calc.zip.
-2. In QGIS go to Plugins – Manage and Install Plugins – Install from ZIP. Select the zip file referenced above in the path box and select Install. Select OK for any security warnings
-
-3. The NetCDF Python library will need to be installed for QGIS. To install, navigate to C:\Program Files\QGIS 3.16\. Run OSGeo4W.bat as an Administrator
-4. At the prompt enter py3_env and hit Enter. Then enter pip install netcdf4 and hit Enter
-
-2022-05-10. Eben Pendleton

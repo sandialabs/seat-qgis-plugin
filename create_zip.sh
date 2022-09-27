@@ -1,10 +1,9 @@
 #!/bin/bash
 #
-#   create_release.sh
+#   create_zip.sh
 #
-#   PURPOSE: Create a zipped code archive which
-#       can be used to install the SEAT plugin
-#       in QGIS.
+#   PURPOSE: Create a local zipped code archive which
+#       can be used to install the SEAT plugin in QGIS.
 #
 #   DATE: 2022-08-12
 #
@@ -13,7 +12,7 @@
 
 TIMESLOT=`date +%Y_%m_%d.%H_%M`
 
-printf "[$TIMESLOT] START ...................... create_release\n"
+printf "[$TIMESLOT] START ...................... create_zip\n"
 
 printf "[$TIMESLOT] COPY ....................... ./code -> ./seat_qgis_plugin\n"
 

@@ -15,7 +15,7 @@ This repository contains code for the Spatial Environmental Assessment Tool (SEA
 - [netCDF](https://github.com/Unidata/netcdf4-python) - Python install procedures vary depending on your OS.
 
   - **Windows** - run `C:\Program Files\QGIS 3.22.6\OSGeo4W.bat` as administrator, then `pip install netCDF4`
-  - **Linux & MacOS** - both OS use the system's Python environment, therefore you will need Python (3+) installed on your machine prior to installing QGIS. Using your system Python version, run `pip install netCDF4`. If there are multiple Python versions on your machine, you may need to use the QGIS Python console to determine which install to use:
+  - **Linux & MacOS** - both OS use the system's Python environment, therefore you will need Python (3+) installed on your machine prior to installing QGIS. Using your system Python version, run `pip install netCDF4`. If there are multiple Python versions on your machine, you may need to use the QGIS Python console to determine which install is used:
 
     ```python
     import sys
@@ -28,9 +28,9 @@ Download the latest [release](https://github.com/IntegralEnvision/SEAT-QGIS-Plug
 
 The installed plugin is located here:
 
-- **Windows**: `C:\Users\<USER>\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\`
+- **Windows**: `C:\Users\<USER>\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins`
 - **Linux**: `/home/<USER>/.local/share/QGIS/QGIS3/profiles/default/python/plugins`
-- **Mac** `/Users/<USER>/Library/Application Support/QGIS/QGIS3/profiles/default/python`
+- **Mac** `/Users/<USER>/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins`
 
 ## Development
 
@@ -49,33 +49,3 @@ To trigger a release buid on GitHub use the following commands:
 git tag -a <version> -m "<release notes>"
 git push --tag
 ```
-
-## Notes
-
-Folders in this repository contain all data files and code needed to successfully run the SEAT QGIS Plugin. Below is a brief summary on the contents of each folder in the root directory. There is a separate README within each folder going into more detail.
-
-### [code](./code/)
-
-Code used to create the QGIS plugin.
-
-The steps below outline how to install the plugin in QGIS:
-
-1. Navigate to [https://github.com/IntegralEnvision/SEAT-QGIS-Plugin/releases/latest](https://github.com/IntegralEnvision/SEAT-QGIS-Plugin/releases/latest) and download the file zip file
-1. Open QGIS
-1. Navigate to `Plugins > Manage and Install Plugins...`. A window will open
-1. Click on `Install from ZIP` in the sidebar then enter the path to your zip file downloaded from GitHub
-1. Follow the dialog to complete installation
-
-### [plugin-input](./plugin-input)
-
-There are two subdirectories in the input folder, [oregon](./plugin-input/oregon) and [tanana](./plugin-input/tanana). The two directories are test cases for the tool. Both test case directories contain the same set of subdirectories, but the datafiles within them are different.
-
-The subdirecotries directly relate to the plugin input parameters, where each subdirectory is a single input parameter. It is not clear what the parameter data are or should be a this time, but it is what the project staff were provided. At the time of writing this (**_2022-08-05_**), it is not clear if any of the inputs are checked and validated by the tool.
-
-![GUI](./resources/GUI.png)
-
-Plugin input parameter configurations can be saved from the QGIS GUI. Case specific input configurations are saved under `_plugin-config-files` and can be reused by the plugin to simplify parameter selections.
-
-### [plugin-output](./plugin-output)
-
-Files created by the plugin for each case should be saved here and dated. There are subdirectories for each test case output.
