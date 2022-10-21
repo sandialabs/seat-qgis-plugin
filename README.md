@@ -49,3 +49,30 @@ To trigger a release buid on GitHub use the following commands:
 git tag -a <version> -m "<release notes>"
 git push --tag
 ```
+
+## Contents
+
+Below is a brief description of the repository contents.
+
+- [seat-qgis-plugin](https://github.com/IntegralEnvision/seat-qgis-plugin): Repository root.
+
+  - [.github/workflows/release.yaml](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/.github/workflows/release.yaml): Automated GitHub routine that is triggered upon committing a new tag.
+  - [.pre-commit-config.yaml](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/.pre-commit-config.yaml): Collection of hooks to run prior to committing the code state to Git. Hooks include linters and code formatters.
+  - [create_zip.sh](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/create_zip.sh): Shell script to create a zipped code archive locally, which can be imported to the QGIS plugin installer.
+  - [seat-qgis-plugin/code](https://github.com/IntegralEnvision/seat-qgis-plugin/tree/main/code): Plugin code.
+    - [stressor_receptor_calc.py](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/stressor_receptor_calc.py): Main plugin script doing the heavy lifting.
+    - [stressor_receptor_calc_dialog.py](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/stressor_receptor_calc_dialog.py): Initializes the plugin GUI.
+    - [stressor_receptor_calc_dialog_base.ui](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/stressor_receptor_calc_dialog_base.ui): Interface configuration (generated with Qt Designer).
+    - [resources.qrc](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/resources.qrc): Application resources such as icons and trnalsation files.
+    - [resources.py](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/resources.py): Resource file generated from compiling resources.qrc.
+    - [readnetcdf_createraster.py](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/readnetcdf_createraster.py): Utility - plot normalized comparison of simulations with WECs and without WECs for user selected vairable for all boundary conditions.
+    - [plugin_upload.py](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/plugin_upload.py): Utility - upload a plugin package to the [QGIS plugin repository](https://plugins.qgis.org/plugins/).
+    - [pb_tool.cfg](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/pb_tool.cfg): Configuration file for the plugin builder tool.
+    - [metadata.txt](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/metadata.txt): Plugin metadata.
+    - [icon.png](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/icon.png): Plugin icon.
+    - [compile.bat](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/compile.bat): Compile plugin resources (Windows).
+    - [Find_UTM_srid.py](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/Find_UTM_srid.py): Utility - finds UTM zone for given WGS latitude and longitude.
+    - [seat-qgis-plugin/code/inputs](https://github.com/IntegralEnvision/seat-qgis-plugin/tree/main/code/inputs): Files used to configure layer styling.
+      - [TaumaxStyle1.csv](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/inputs/TaumaxStyle1.csv): Style file configuration for the Taumax calculation.
+      - [VelStyle1.csv](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/inputs/VelStyle1.csv): Style file configuration for the Vel calculation.
+      - [seat-qgis-plugin/code/inputs/Layer Style](https://github.com/IntegralEnvision/seat-qgis-plugin/tree/main/code/inputs/Layer%20Style): Layer style files used to set attributes like layer colors, categories, and resampling methods.
