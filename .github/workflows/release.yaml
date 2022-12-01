@@ -11,14 +11,14 @@ jobs:
       - uses: actions/checkout@main
       - name: Create Archive Release
         run: |
-          git clone . ./SEAT-plugin/
-          mv ./SEAT-plugin/code/* ./SEAT-plugin
-          rm -rf ./SEAT-plugin/code create_zip.sh
-          ls ./SEAT-plugin
+          git clone . ./seat_qgis_plugin/
+          mv ./seat_qgis_plugin/code/* ./seat_qgis_plugin
+          rm -rf ./seat_qgis_plugin/code create_zip.sh
+          ls ./seat_qgis_plugin
       - name: Archive Release
-        run: zip -qq -r ./SEAT-plugin.zip ./SEAT-plugin/
+        run: zip -qq -r ./seat_qgis_plugin.zip ./seat_qgis_plugin/
       - name: Upload Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "SEAT-plugin.zip"
+          artifacts: "seat_qgis_plugin.zip"
           token: ${{ secrets.GITHUB_TOKEN }}
