@@ -6,7 +6,7 @@
 name=Spatial Environmental Assessment Tool
 qgisMinimumVersion=3.16
 description=This plugin calculates a response layer from stressor and receptor layers
-version=v0.42
+version=v0.43
 author=Integral Consulting
 email=cgrant@integral-corp.com
 
