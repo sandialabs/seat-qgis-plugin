@@ -72,6 +72,9 @@ from .readnetcdf_createraster import (
 # Initialize Qt resources from file resources.py
 from .resources import *
 
+# Import PowerModule
+from .power_module import calculate_power
+
 # Import the code for the dialog
 from .stressor_receptor_calc_dialog import StressorReceptorCalcDialog
 
@@ -912,6 +915,14 @@ class StressorReceptorCalc:
                     "Output file path not given.",
                     level=Qgis.MessageLevel.Warning,
                 )
+
+            # Calculate Power Files
+            # calculate power from devices (need power_file_folder, need power_polygon_file)
+            top_level_path =  os.path.abspath(os.path.join(rfilename ,"../..")) #added trn 
+            power_path = os.path.join(top_level_path, 'power_files')
+#            print('Calculating Power....')
+            logger.info("Power File Folder: {}".format(power_path))
+            calculate_power(power_path, bcfname, save_path=os.path.dirname(ofilename))
 
             # self.dlg.tableWidget.findItems(i,j, QTableWidgetItem(item))
 
