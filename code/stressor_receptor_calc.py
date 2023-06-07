@@ -67,6 +67,7 @@ from .readnetcdf_createraster import (
     create_raster,
     numpy_array_to_raster,
     transform_netcdf_ro,
+    calculate_receptor_change_percentage,
 )
 
 # Initialize Qt resources from file resources.py
@@ -476,6 +477,10 @@ class StressorReceptorCalc:
             receptor_filename=receptor_filename,
             receptor=receptor,
         )
+        if receptor == True:
+            print('calculating percentages')
+            print(output_path)
+            calculate_receptor_change_percentage(receptor_filename=receptor_filename, data_diff=numpy_array, ofpath=os.path.dirname(output_path))
         # if '.tif' in dev_present_file:
         #    rows, cols, numpy_array = read_raster_calculate_diff(dev_present_file, dev_notpresent_file)
 
@@ -817,6 +822,7 @@ class StressorReceptorCalc:
                 ".tif",
                 "_{}.log".format(date.today().strftime("%Y%m%d")),
             )
+            os.makedirs(os.path.dirname(fname), exist_ok=True)#create output directory if it doesn't exist
             fh = logging.FileHandler(fname, mode="a", encoding="utf8")
             fh.setLevel(logging.INFO)
 

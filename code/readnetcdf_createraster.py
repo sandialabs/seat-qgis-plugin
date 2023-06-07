@@ -34,6 +34,46 @@ from osgeo import gdal, osr
 # from qgis.core import *
 # import qgis.utils
 
+def critical_shear_stress(D_meters, rhow=1024, nu=1e-6, s=2.65, g=9.81):
+    # D_meters = grain size in meters, can be array
+    # rhow = density of water in kg/m3
+    # nu = kinematic viscosity of water
+    # s = specific gravity of sediment
+    # g = acceleratin due to gravity
+    Dstar = ((g * (s-1))/ nu**2)**(1/3) * D_meters
+    SHcr = (0.3/(1+1.2*Dstar)) + 0.055*(1-np.exp(-0.02 * Dstar))
+    taucrit = (2.65 - 1) * g * D_meters * SHcr #in Pascals
+    return taucrit
+
+def calculate_receptor_change_percentage(receptor_filename, data_diff, ofpath):
+    #gdal version
+    data_diff = np.transpose(data_diff)
+    data = gdal.Open(receptor_filename)
+    img = data.GetRasterBand(1)
+    receptor_array = img.ReadAsArray()
+    # transpose to be in same orientation as NetCDF
+    receptor_array = np.transpose(receptor_array)
+    receptor_array[receptor_array < 0] = 0
+
+    pct_mobility = {'Receptor_Value': [],
+                        'pct_decrease': [],
+                        'pct_increase': [],
+                        'pct_nochange': []}
+    for unique_val in np.unique(receptor_array):
+        mask = receptor_array==unique_val
+        data_at_val = np.where(mask, data_diff, np.nan)
+        data_at_val = data_at_val.flatten()
+        data_at_val = data_at_val[~np.isnan(data_at_val)]
+        ncells = data_at_val.size
+        pct_mobility['Receptor_Value'].append(unique_val)
+        pct_mobility['pct_decrease'].append(100 * np.size(np.flatnonzero(data_at_val<0))/ncells)
+        pct_mobility['pct_increase'].append(100 * np.size(np.flatnonzero(data_at_val>0))/ncells)
+        pct_mobility['pct_nochange'].append(100 * np.size(np.flatnonzero(data_at_val==0))/ncells)
+
+        # print(f" Receptor Value = {unique_val}um | decrease = {pct_decrease}% | increase = {pct_increase}% | no change = {pct_nochange}%")
+    DF = pd.DataFrame(pct_mobility)
+    DF = DF.set_index('Receptor_Value')
+    DF.to_csv(os.path.join(ofpath, 'receptor_percent_change.csv'))
 
 def transform_netcdf_ro(
     dev_present_file,
@@ -52,12 +92,12 @@ def transform_netcdf_ro(
     # nc_file = glob.glob(os.path.join(run_dir,'run_dir_wecs','*.nc'))
 
     # Read The device present NetCDF file and parse contents needed for plotting
-    file = Dataset(dev_present_file)
+    file_dev_present = Dataset(dev_present_file)
 
     # X-coordinate of cell center
-    xcor = file.variables["XCOR"][:].data
+    xcor = file_dev_present.variables["XCOR"][:].data
     # Y-coordinate of cell center
-    ycor = file.variables["YCOR"][:].data
+    ycor = file_dev_present.variables["YCOR"][:].data
 
     # if we are running a structured case update the plot varaiable to what we can query
     if plotvar == "TAUMAX -Structured":
@@ -67,20 +107,20 @@ def transform_netcdf_ro(
     # delft_time = file.variables['time'][:]
     # depth = file.variables['DPS0'][:] # Initial bottom depth at zeta points (positive down)
     # sed_fracs = np.squeeze(file.variables['LYRFRAC'][0,0,:,0,:,:])
-    if plotvar != "VEL":
+    if plotvar != "VEL": #not velocity
         # set as 4D netcdf files
-        data_wecs = file.variables[plotvar][:]
+        data_wecs = file_dev_present.variables[plotvar][:]
 
-    else:
+    else: #Larval Transport Velocity
         # 5D netcdf files. Pick last depth that corresponds to bottom
-        u = file.variables["U1"][:, :, -1, :, :]
-        v = file.variables["V1"][:, :, -1, :, :]
+        u = file_dev_present.variables["U1"][:, :, -1, :, :]
+        v = file_dev_present.variables["V1"][:, :, -1, :, :]
         data_wecs = np.sqrt(u**2 + v**2)
 
     # close the device prsent file
-    file.close()
+    file_dev_present.close()
 
-    if plotvar == "TAUMAX":
+    if plotvar == "TAUMAX": # Grain Size
         # Empirical calculation of Sediment D50s and critical shear stress for erosion
         # nsed = np.shape(sed_fracs)[0]
         # sed_d50 = np.array([3.5e-4, 2.75e-4, 2.0e-4, 0.75e-4])
@@ -107,49 +147,56 @@ def transform_netcdf_ro(
 
             # convert micron to cm 1 micron is 1e-4
             # soil density (g/cm^2) * standard gravity (cm/s^2) * (micron / (convert to cm)) * unit conversion
-            taucrit = 1.65 * 980 * ((receptor_array) / 10000) * 0.0419
+            # taucrit = 1.65 * 980 * ((receptor_array) / 10000) * 0.0419
+            taucrit = critical_shear_stress(D_meters=receptor_array * 1e-6,
+                                rhow=1024,
+                                nu=1e-6,
+                                s=2.65,
+                                g=9.81) #units N/m2 = Pa
         else:
             # taucrit without a receptor
-            taucrit = 1.65 * 980 * 0.0419
+            # taucrit = 1.65 * 980 * 0.0419
+            #Assume the following grain sizes and conditions for typical beach sand (Nielsen, 1992 p.108)
+            taucrit = critical_shear_stress(D_meters=200*1e-6, rhow=1024, nu=1e-6, s=2.65, g=9.81) #units N/m2 = Pa
 
-    elif plotvar == "VEL":
+    elif plotvar == "VEL": #Larval Transport
         # Define critical velocity for motility as 0.05 m/s
         velcrit = 0.05 * np.ones(np.shape(np.squeeze(u[0, 0, :, :])))
 
     # Load and parse run order file. This csv file has the wave conditions for each case. The wave conditions are listed in the order of cases as they are
-    # stored in the first dimension of data_wecs or data_bs
-    df_ro = pd.read_csv(run_order_file)
+    # stored in the first dimension of data_wecs or data_nodev
+    df_run_order = pd.read_csv(run_order_file)
 
     # filter out bad runs from wecs
-    df_ro = df_ro.loc[df_ro["bad_run"] != "X", :]
+    df_run_order = df_run_order.loc[df_run_order["bad_run"] != "X", :]
 
     # Load BC file with probabilities and find appropriate probability
     BC_Annie = np.loadtxt(bc_file, delimiter=",", skiprows=1)
 
     # ==============================
-    # Load WECs NetCDF file without wecs into variable data_bs
+    # Load WECs NetCDF file without wecs into variable data_nodev
 
     # Find name of NetCDF device not present output file
     # Read NetCDF file and parse contents needed for plotting
     file = Dataset(dev_notpresent_file)
     if plotvar != "VEL":
-        data_bs = file.variables[plotvar][:]
+        data_nodev = file.variables[plotvar][:]
     else:
         u = file.variables["U1"][:, :, -1, :, :]
         v = file.variables["V1"][:, :, -1, :, :]
-
-        data_bs = np.sqrt(u**2 + v**2)
+        #data_bs
+        data_nodev = np.sqrt(u**2 + v**2)
 
     # close the device not present file
     file.close()
 
     # create zero arrays for the device present / not present
-    wec_diff_bs = np.zeros(np.shape(data_bs[0, 0, :, :]))
+    wec_diff_nodev = np.zeros(np.shape(data_nodev[0, 0, :, :]))
     wec_diff_wecs = np.zeros(np.shape(data_wecs[0, 0, :, :]))
     # wec_diff = np.zeros(np.shape(data_wecs[0,0,:,:]))
 
     # flip the data arrays
-    data_bs = np.flip(data_bs, axis=3)
+    data_nodev = np.flip(data_nodev, axis=3)
     data_wecs = np.flip(data_wecs, axis=3)
 
     # =======================================================
@@ -162,7 +209,7 @@ def transform_netcdf_ro(
             "prob": BC_Annie[:, 4].astype(float) / 100.0,
         },
     )
-    # generate a primary key for merge with the run order
+    # generate a primary key (string) for merge with the run order based on forcing
     df["pk"] = (
         ["Hs"]
         + df["Hs"].map("{:.2f}".format)
@@ -173,8 +220,8 @@ def transform_netcdf_ro(
     )
 
     # merge to the run order. This trims out runs that we want dropped.
-    # df_merge = pd.merge(df_ro, df_ro_no_wecs, how = 'left', on = 'bc_name')
-    df_merge = pd.merge(df_ro, df, how="left", left_on="bc_name", right_on="pk")
+    # df_merge = pd.merge(df_run_order, df_ro_no_wecs, how = 'left', on = 'bc_name')
+    df_merge = pd.merge(df_run_order, df, how="left", left_on="bc_name", right_on="pk")
     # Loop through all boundary conditions and create images
     # breakpoint()
     for run_wec, run_nowec, prob in zip(
@@ -182,18 +229,19 @@ def transform_netcdf_ro(
         df_merge["nowec_run_id"],
         df_merge["prob"],
     ):
+        bcnum = int(run_nowec - 1)
 
         # ===============================================================
         # Compute normalized difference between with WEC and without WEC
         # QA dataframes are here
-        # if np.isnan(data_wecs[run_wec, -1, :, :].data[:]).all() == True | np.isnan(data_bs[run_nowec, -1, :, :].data[:]).all() == True:
+        # if np.isnan(data_wecs[run_wec, -1, :, :].data[:]).all() == True | np.isnan(data_nodev[run_nowec, -1, :, :].data[:]).all() == True:
         #    continue
         # wec_diff = wec_diff + prob*(data_w_wecs[bcnum,1,:,:] - data_wo_wecs[bcnum,1,:,:])/data_wo_wecs[bcnum,1,:,:]
 
         if plotvar == "TAUMAX":
 
             # if the shapes are the same then process. Otherwise, process to an array and stop
-            if data_bs[int(run_nowec - 1), -1, :, :].shape == taucrit.shape:
+            if data_nodev[bcnum, -1, :, :].shape == taucrit.shape:
 
                 # get max along the 2nd axis (time)
                 data_wecs_max = np.amax(data_wecs, axis=1, keepdims=True)
@@ -202,46 +250,33 @@ def transform_netcdf_ro(
                 # data_wecs_max = data_wecs[:,[-1],:,:]
 
                 # make a backup just in case
-                wec_diff_bs_b = wec_diff_bs
-                wec_diff_wecs_b = wec_diff_wecs
+                # wec_diff_bs_b = wec_diff_bs
+                # wec_diff_wecs_b = wec_diff_wecs
 
                 if receptor == True:
-
-                    wec_diff_bs = wec_diff_bs + prob * data_bs[
-                        int(run_nowec - 1),
-                        -1,
-                        :,
-                        :,
-                    ] / (taucrit * 10)
-                    wec_diff_wecs = wec_diff_wecs + prob * data_wecs_max[
-                        int(run_wec - 1),
-                        -1,
-                        :,
-                        :,
-                    ] / (taucrit * 10)
+                    wec_diff_nodev = wec_diff_nodev + prob * data_nodev[bcnum,-1,:,:] / taucrit
+                    wec_diff_wecs = wec_diff_wecs + prob * data_wecs_max[bcnum,-1,:,:] / taucrit
                 else:
-                    wec_diff_bs = (
-                        wec_diff_bs + prob * data_bs[int(run_nowec - 1), -1, :, :]
-                    )
-                    wec_diff_wecs = (
-                        wec_diff_wecs + prob * data_wecs_max[int(run_wec - 1), -1, :, :]
-                    )
-
-                # create dataframe of subtraction for QA
-                wec_diff_df = (
-                    wec_diff_bs + prob * data_bs[int(run_nowec - 1), -1, :, :]
-                ) - (wec_diff_wecs + prob * data_wecs[int(run_wec - 1), -1, :, :])
-                wec_diff_df = wec_diff_bs + prob * data_bs[int(run_nowec - 1), -1, :, :]
-                wec_diff_df = np.transpose(wec_diff_df)
-                # removed flip 05/27/2022
-                # wec_diff_df = np.flip(wec_diff_df, axis=0)
-                wec_diff_df = pd.DataFrame(wec_diff_df)
+                    wec_diff_nodev = (wec_diff_nodev + prob * data_nodev[bcnum, -1, :, :])
+                    wec_diff_wecs = (wec_diff_wecs + prob * data_wecs_max[bcnum, -1, :, :])
+                # pd.DataFrame(wec_diff_nodev).to_csv(r"H:\Projects\C1308_SEAT\SEAT_outputs\tester.csv")
+                # with open("H:\Projects\C1308_SEAT\SEAT_outputs\tester_size", 'w') as file:
+                #     file.write(f'{np.shape(wec_diff_nodev)}')
+                # # create dataframe of subtraction for QA
+                # wec_diff_df = (
+                #     wec_diff_bs + prob * data_nodev[bcnum, -1, :, :]
+                # ) - (wec_diff_wecs + prob * data_wecs[bcnum -1, :, :])
+                # wec_diff_df = wec_diff_bs + prob * data_nodev[bcnum, -1, :, :]
+                # wec_diff_df = np.transpose(wec_diff_df)
+                # # removed flip 05/27/2022
+                # # wec_diff_df = np.flip(wec_diff_df, axis=0)
+                # wec_diff_df = pd.DataFrame(wec_diff_df)
 
                 # dump for QA. Should make this more flexible
                 # wec_diff_df.to_csv(fr'C:\Users\ependleton52\Documents\Projects\Sandia\SEAT_plugin\Code_Model\Codebase\oregon_coast_models\dataframes\out_wec{int(run_wec)}_nowec{int(run_nowec)}.csv', index = False)
                 # breakpoint()
             else:
-                newarray = np.transpose(data_bs[bcnum, -1, :, :].data)
+                newarray = np.transpose(data_nodev[bcnum, -1, :, :].data)
                 array2 = np.flip(newarray, axis=0)
                 numpy_array = array2
                 rows, cols = numpy_array.shape
@@ -276,42 +311,42 @@ def transform_netcdf_ro(
 
         elif plotvar == "VEL":
             # breakpoint()
-            # wec_diff_bs = wec_diff_bs + prob*(2*data_bs[bcnum,1,:,:] - data_bs[bcnum,1,:,:])/(velcrit*10)
+            # wec_diff_nodev = wec_diff_nodev + prob*(2*data_bs[bcnum,1,:,:] - data_bs[bcnum,1,:,:])/(velcrit*10)
             # wec_diff_wecs = wec_diff_wecs + prob*(2*data_wecs[bcnum,1,:,:] - data_wecs[bcnum,1,:,:])/(velcrit*10)
             # Should this be 0?
-            wec_diff_bs = wec_diff_bs + prob * (
-                2 * data_bs[bcnum, 0, :, :] - data_bs[bcnum, 0, :, :]
+            wec_diff_nodev = wec_diff_nodev + prob * (
+                2 * data_nodev[bcnum, 0, :, :] - data_nodev[bcnum, 0, :, :]
             ) / (velcrit * 10)
             wec_diff_wecs = wec_diff_wecs + prob * (
                 2 * data_wecs[bcnum, 0, :, :] - data_wecs[bcnum, 0, :, :]
             ) / (velcrit * 10)
 
         elif plotvar == "DPS":
-            wec_diff_bs = wec_diff_bs + prob * data_bs[bcnum, 1, :, :]
+            wec_diff_nodev = wec_diff_nodev + prob * data_nodev[bcnum, 1, :, :]
             wec_diff_wecs = wec_diff_wecs + prob * data_wecs[bcnum, 1, :, :]
             # wec_diff = (data_w_wecs[bcnum,1,:,:] - data_wo_wecs[bcnum,1,:,:])/data_wo_wecs[bcnum,1,:,:]
     # ========================================================
 
     # Calculate risk metrics over all runs
     if plotvar == "TAUMAX" or plotvar == "VEL":
-        wec_diff_bs_sgn = np.floor(wec_diff_bs * 25) / 25
+        wec_diff_nodev_sgn = np.floor(wec_diff_nodev * 25) / 25
         wec_diff_wecs_sgn = np.floor(wec_diff_wecs * 25) / 25
 
-        wec_diff = np.sign(wec_diff_wecs_sgn - wec_diff_bs_sgn) * wec_diff_wecs_sgn
-        wec_diff = wec_diff.astype(int) + wec_diff_wecs - wec_diff_bs
+        wec_diff = np.sign(wec_diff_wecs_sgn - wec_diff_nodev_sgn) * wec_diff_wecs_sgn
+        wec_diff = wec_diff.astype(int) + wec_diff_wecs - wec_diff_nodev
 
         # set to zero. Might be turning this back on
         # wec_diff[np.abs(wec_diff)<0.01] = 0
 
     elif plotvar == "DPS":
-        wec_diff = wec_diff_wecs - wec_diff_bs
+        wec_diff = wec_diff_wecs - wec_diff_nodev
         wec_diff[np.abs(wec_diff) < 0.0005] = 0
 
     # ========================================================
 
     # convert to a geotiff, using wec_diff
 
-    # listOfFiles = [wec_diff_bs, wec_diff_wecs, wec_diff, wec_diff_bs_sgn, wec_diff_wecs_sgn]
+    # listOfFiles = [wec_diff_nodev, wec_diff_wecs, wec_diff, wec_diff_nodev_sgn, wec_diff_wecs_sgn]
 
     # transpose and pull
     newarray = np.transpose(wec_diff)
@@ -506,8 +541,8 @@ if __name__ == "__main__":
     # plotvar = 'DPS'     # Bottom depth at zeta point (m)
 
     # Set NetCDF file to load WEC
-    dev_present_file = r"C:\Users\ependleton52\Desktop\temp_local\QGIS\Code_Model\Codebase\run_dir_wecs\trim_sets_flow_inset_allruns.nc"
-    dev_notpresent_file = r"C:\Users\ependleton52\Desktop\temp_local\QGIS\Code_Model\Codebase\run_dir_nowecs\trim_sets_flow_inset_allruns.nc"
+    dev_present_file = r"H:\Projects\C1308_SEAT\SEAT_inputs\plugin-input\oregon\devices-present\trim_sets_flow_inset_allruns.nc"
+    dev_notpresent_file = r"H:\Projects\C1308_SEAT\SEAT_inputs\plugin-input\oregon\devices-not-present\trim_sets_flow_inset_allruns.nc"
 
     # cec files
     # dev_present_file = r"C:\Users\ependleton52\Desktop\temp_local\QGIS\Code_Model\Codebase\cec\with_cec_1.nc"
@@ -517,10 +552,12 @@ if __name__ == "__main__":
     # dev_notpresent_file = r"C:\Users\ependleton52\Desktop\temp_local\QGIS\Code_Model\Codebase\tanana\DFM_OUTPUT_tanana100\modified\tanana100_map_6_tanana1_cec.nc"
 
     # set the boundary_coditions file
-    bc_file = r"C:\Users\ependleton52\Desktop\temp_local\QGIS\Code_Model\Codebase\BC_Annie_Annual_SETS.csv"
+    bc_file = r"H:\Projects\C1308_SEAT\SEAT_inputs\plugin-input\oregon\boundary-condition\BC_Annie_Annual_SETS.csv"
 
     # run order file
-    run_order_file = r"C:\Users\ependleton52\Desktop\temp_local\QGIS\Code_Model\Codebase\run_dir_wecs\run_order_wecs.csv"
+    run_order_file = r"H:\Projects\C1308_SEAT\SEAT_inputs\plugin-input\oregon\run-order\run_order_wecs_bad_runs_removed_v2.csv"
+
+    receptor = r"H:\Projects\C1308_SEAT\SEAT_inputs\plugin-input\oregon\receptor\grainsize_receptor.tif"
 
     # configuration for raster translate
     GDAL_DATA_TYPE = gdal.GDT_Float32
