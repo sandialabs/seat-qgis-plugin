@@ -137,91 +137,114 @@ def classify_mobility(mobility_parameter_dev, mobility_parameter_nodev):
     #NoChange = 0
     return mobility_classification
 
-def calculate_taumax_structured(
-    dev_present_file,
-    dev_notpresent_file,
-    bc_file,
-    run_order_file,
-    receptor_filename=None,
+def check_grid_define_vars(dataset):
+    vars = list(dataset.variables)
+    if 'XCOR' in vars:
+        gridtype = 'structured'
+        xvar = 'XCOR'
+        yvar = 'YCOR'
+        tauvar = 'TAUMAX'
+    else:
+        gridtype = 'unstructured'
+        xvar = 'FlowElem_xcc'
+        yvar = 'FlowElem_ycc'
+        tauvar = 'taus'
+    return gridtype, xvar, yvar, tauvar
+
+def calculate_wave_probability_shear_stress_stressors(fpath_nodev, 
+                                                      fpath_dev, 
+                                                      probabilities_file,
+                                                      receptor_filename=None,
+                                                      latlon=True
 ):
-    # ===========================
-    # Load With NetCDF files
-    # the netcdf files here are 4 (case number, time, x, y) or 5-dimensional (case number, depth, time, x, y).
-    # nc_file = glob.glob(os.path.join(run_dir,'run_dir_wecs','*.nc'))
+    files_nodev = [i for i in os.listdir(fpath_nodev) if i.endswith('.nc')]
+    files_dev = [i for i in os.listdir(fpath_dev) if i.endswith('.nc')]
 
-    # Read The device present NetCDF file and parse contents needed for plotting
-    file_dev_present = Dataset(dev_present_file)
-    # X-coordinate of cell center
-    xcor = file_dev_present.variables["XCOR"][:].data
-    # Y-coordinate of cell center
-    ycor = file_dev_present.variables["YCOR"][:].data
-    # TAUMAX
-    data_dev = file_dev_present.variables['TAUMAX'][:]
-    # close the device prsent file
-    file_dev_present.close()
+    # Load and sort files
+    if len(files_nodev) == 1 & len(files_dev) ==1: 
+        #asumes a concatonated files with shape
+        #[run_order, time, rows, cols]
 
-    file_dev_notpresent = Dataset(dev_notpresent_file)
-    data_nodev = file_dev_notpresent.variables['TAUMAX'][:]
-    # close the device not present file
-    file_dev_notpresent.close()
+        file_dev_present = Dataset(os.path.join(fpath_nodev, files_nodev[0]))
+        gridtype, xvar, yvar, tauvar = check_grid_define_vars(file_dev_present)
+        # X-coordinate of cell center
+        xcor = file_dev_present.variables[xvar][:].data
+        # Y-coordinate of cell center
+        ycor = file_dev_present.variables[yvar][:].data
+        # TAUMAX
+        tau_dev = file_dev_present.variables[tauvar][:]
+        # close the device prsent file
+        file_dev_present.close()
 
+        file_dev_notpresent = Dataset(os.path.join(fpath_dev, files_dev[0]))
+        tau_nodev = file_dev_notpresent.variables[tauvar][:]
+        # close the device not present file
+        file_dev_notpresent.close()
 
-    # Load and parse run order file. This csv file has the wave conditions for each case. The wave conditions are listed in the order of cases as they are
-    # stored in the first dimension of data_wecs or data_nodev
-    df_run_order = pd.read_csv(run_order_file)
+    else: 
+        #asumes each run is separate with the some_name_RunNum_map.nc, where run number comes at the last underscore before _map.nc
+        runorder_nodev = np.zeros((len(files_nodev)))
+        for ic, file in enumerate(files_nodev):
+            runorder_nodev[ic] = int(file.split('.')[0].split('_')[-2])
+        runorder_dev = np.zeros((len(files_dev)))
+        for ic, file in enumerate(files_dev):
+            runorder_dev[ic] = int(file.split('.')[0].split('_')[-2])
 
-    # filter out bad runs from wecs
-    if "bad_run" in df_run_order.columns:
-        df_run_order = df_run_order.loc[df_run_order["bad_run"] != "X", :]
+        #ensure run oder for nodev matches dev files
+        if np.any(runorder_nodev != runorder_dev):
+            adjust_dev_order = []
+            for ri in runorder_nodev:
+                adjust_dev_order = np.append(adjust_dev_order, np.flatnonzero(runorder_dev == ri))
+            files_dev = [files_dev[int(i)] for i in adjust_dev_order]
+            runorder_dev = [runorder_dev[int(i)] for i in adjust_dev_order]
+        DF = pd.DataFrame({'files_nodev':files_nodev, 
+                    'run_order_nodev':runorder_nodev,
+                    'files_dev':files_dev,
+                    'run_order_dev':runorder_dev})
+        DF = DF.sort_values(by=runorder_nodev)
+
+        first_run = True
+        ir = 0
+        for _, row in DF.iterrows():
+            file_dev_notpresent = Dataset(os.path.join(fpath_nodev, row.files_nodev))
+            file_dev_present = Dataset(os.path.join(fpath_dev, row.files_dev))
+
+            gridtype, xvar, yvar, tauvar = check_grid_define_vars(file_dev_present)
+
+            if first_run:
+                tmp = file_dev_notpresent.variables[tauvar].data
+                tau_nodev = np.zeros(DF.shape[0], tmp.shape[0], tmp.shape[1], tmp.shape[2])
+                tau_dev = np.zeros(DF.shape[0], tmp.shape[0], tmp.shape[1], tmp.shape[2])
+                xcor = file_dev_notpresent.variables[xvar][:].data
+                ycor = file_dev_notpresent.variables[yvar][:].data            
+                first_run = False
+            tau_nodev = file_dev_notpresent.variables[tauvar].data
+            tau_dev = file_dev_present.variables[tauvar].data
+            ir += 1
+    # Finished loading and sorting files
 
     # Load BC file with probabilities and find appropriate probability
-    BC_probability = np.loadtxt(bc_file, delimiter=",", skiprows=1)
+    BC_probability = pd.read_csv(probabilities_file, delimiter=",")
+    BC_probability['run order'] = BC_probability['run order']-1
+    BC_probability = BC_probability.sort_values(by='run order')
+    BC_probability
 
-    df = pd.DataFrame(
-        {
-            "Hs": BC_probability[:, 0].astype(float),
-            "Tp": BC_probability[:, 1].astype(int).astype(str),
-            "Dir": BC_probability[:, 2].astype(int).astype(str),
-            "prob": BC_probability[:, 4].astype(float) / 100.0,
-        },
-    )
-    # generate a primary key (string) for merge with the run order based on forcing
-    df["pk"] = (
-        ["Hs"]
-        + df["Hs"].map("{:.2f}".format)
-        + ["Tp"]
-        + df["Tp"].str.pad(2, fillchar="0")
-        + ["Dir"]
-        + df["Dir"]
-    )
+    # Calculate Stressor and Receptors
+    # data_dev_max = np.amax(data_dev, axis=1, keepdims=True) #look at maximum shear stress difference change
+    tau_dev_max = np.amax(tau_dev, axis=1, keepdims=True) #max over time
+    tau_nodev_max = np.amax(tau_dev, axis=1, keepdims=True) #max over time
 
-    # merge to the run order. This trims out runs that we want dropped.
-    # set up a dataframe of probabilities    
-    df_merge = pd.merge(df_run_order, df, how="left", left_on="bc_name", right_on="pk")
+    #initialize arrays
+    taumax_combined_nodev = np.zeros(np.shape(tau_nodev[0, 0, :, :]))
+    taumax_combined_dev = np.zeros(np.shape(tau_dev[0, 0, :, :]))
 
-    # Loop through all boundary conditions and create images
-    # Calculate the critical shear stress from the grain size receptor.
+    for run_number, prob in zip(BC_probability['run order'].values,
+                                BC_probability["% of yr"].values):
+            
+        taumax_combined_nodev = taumax_combined_nodev + prob * tau_nodev_max[run_number,-1,:,:] #tau_max #from last model run
+        taumax_combined_dev = taumax_combined_dev + prob * tau_dev_max[run_number,-1,:,:] #tau_max #from maximum of timeseries
 
-    data_dev_max = np.amax(data_dev, axis=1, keepdims=True) #look at maximum shear stress difference change
-    taumax_combined_nodev = np.zeros(np.shape(data_nodev[0, 0, :, :]))
-    taumax_combined_dev = np.zeros(np.shape(data_dev[0, 0, :, :]))
-
-    for run_dev, run_nodev, prob in zip(
-        df_merge["wec_run_id"],
-        df_merge["nowec_run_id"],
-        df_merge["prob"],
-    ):
-        bc_nodev_num = int(run_nodev - 1)
-        bc_dev_num = int(run_dev - 1)
-           
-        taumax_combined_nodev = taumax_combined_nodev + prob * data_nodev[bc_nodev_num,-1,:,:] #tau_max #from last model run
-        taumax_combined_dev = taumax_combined_dev + prob * data_dev_max[bc_dev_num,-1,:,:] #tau_max #from maximum of timeseries
-
-        # ===============================================================
-        # Compute difference between with WEC and without WEC
-    
     tau_diff = taumax_combined_dev - taumax_combined_nodev
-
     taucrit, receptor_array = calc_receptor_taucrit(receptor_filename, xcor, ycor, latlon=True)
     mobility_parameter_nodev = taumax_combined_nodev / taucrit
     mobility_parameter_nodev = np.where(receptor_array==0, 0, mobility_parameter_nodev)
@@ -231,17 +254,26 @@ def calculate_taumax_structured(
 
     mobility_parameter_diff = mobility_parameter_dev - mobility_parameter_nodev
 
-    mobility_classification = classify_mobility(mobility_parameter_dev, mobility_parameter_nodev)
+    if gridtype=='structured':
+        mobility_classification = classify_mobility(mobility_parameter_dev, mobility_parameter_nodev)
+        listOfFiles = [tau_diff, mobility_parameter_nodev, mobility_parameter_dev, mobility_parameter_diff, mobility_classification]
+        dx = np.nanmean(np.diff(xcor[:,0]))
+        dy = np.nanmean(np.diff(ycor[0,:]))
+        rx = xcor
+        ry = ycor
+    else: # unstructured
+        dxdy = estimate_grid_spacing(xcor,ycor, nsamples=100)
+        rx, ry, tau_diff_struct = create_structured_array_from_unstructured(xcor, ycor, tau_diff, dxdy, flatness=0.2)
+        _, _, mobility_parameter_nodev_struct = create_structured_array_from_unstructured(xcor, ycor, mobility_parameter_nodev, dxdy, flatness=0.2)
+        _, _, mobility_parameter_dev_struct = create_structured_array_from_unstructured(xcor, ycor, mobility_parameter_dev, dxdy, flatness=0.2)
+        _, _, mobility_parameter_diff_struct = create_structured_array_from_unstructured(xcor, ycor, mobility_parameter_diff, dxdy, flatness=0.2)
+        mobility_classification = classify_mobility(mobility_parameter_dev_struct, mobility_parameter_nodev_struct)
+        listOfFiles = [tau_diff_struct, mobility_parameter_nodev_struct, mobility_parameter_dev_struct, mobility_parameter_diff_struct, mobility_classification]
 
-    listOfFiles = [tau_diff, mobility_parameter_nodev, mobility_parameter_dev, mobility_parameter_diff, mobility_classification]
-
-    # return the number of listOfFiles
-    dx = np.nanmean(np.diff(xcor[:,0]))
-    dy = np.nanmean(np.diff(ycor[0,:]))
-    return listOfFiles, xcor, ycor, dx, dy
+    return listOfFiles, rx, ry, dxdy, dxdy
 
 
-def calculate_taumax_unstructured(fpath_nodev, fpath_dev, receptor_filename):
+def calculate_shear_stress_stressor_return_inverval(fpath_nodev, fpath_dev, receptor_filename):
     """
     Given unstructured grid files calculate the difference.
     """
@@ -313,182 +345,3 @@ def calculate_taumax_unstructured(fpath_nodev, fpath_dev, receptor_filename):
 
     listOfFiles = [tau_diff_struct, mobility_parameter_nodev_struct, mobility_parameter_dev_struct, mobility_parameter_diff_struct, mobility_classification]
     return listOfFiles, rx, ry, dxdy, dxdy
-
-def create_raster(
-    output_path,
-    cols,
-    rows,
-    nbands,
-):
-
-    """Create a gdal raster object."""
-    # create gdal driver - doing this explicitly
-    driver = gdal.GetDriverByName(str("GTiff"))
-
-    output_raster = driver.Create(
-        output_path,
-        int(cols),
-        int(rows),
-        nbands,
-        eType=gdal.GDT_Float32,
-    )
-
-    # spatial_reference = osr.SpatialReference()
-    # spatial_reference.ImportFromEPSG(spatial_reference_system_wkid)
-    # output_raster.SetProjection(spatial_reference.ExportToWkt())
-
-    # returns gdal data source raster object
-    return output_raster
-
-
-def numpy_array_to_raster(
-    output_raster,
-    numpy_array,
-    bounds,
-    cell_resolution,
-    spatial_reference_system_wkid,
-    output_path,
-):
-
-    """Create the output raster."""
-    # create output raster
-    # (upper_left_x, x_resolution, x_skew 0, upper_left_y, y_skew 0, y_resolution).
-    # Need to rotate to go from np array to geo tiff. This can vary depending on the methods used above. Will need to test for this.
-    geotransform = (
-        bounds[0],
-        cell_resolution[0],
-        0,
-        bounds[1] + cell_resolution[1],
-        0,
-        -1 * cell_resolution[1],
-    )
-
-    spatial_reference = osr.SpatialReference()
-    spatial_reference.ImportFromEPSG(spatial_reference_system_wkid)
-
-    output_raster.SetProjection(
-        spatial_reference.ExportToWkt(),
-    )  # exports the cords to the file
-    output_raster.SetGeoTransform(geotransform)
-    output_band = output_raster.GetRasterBand(1)
-    # output_band.SetNoDataValue(no_data) #Not an issue, may be in other cases?
-    output_band.WriteArray(numpy_array)
-
-    output_band.FlushCache()
-    output_band.ComputeStatistics(
-        False,
-    )  # you want this false, true will make computed results, but is faster, could be a setting in the UI perhaps, esp for large rasters?
-
-    if os.path.exists(output_path) == False:
-        raise Exception("Failed to create raster: %s" % output_path)
-
-    # this closes the file
-    output_raster = None
-    return output_path
-
-
-# now call the functions
-if __name__ == "__main__":
-
-    """Testing paramters."""
-
-    # =================
-    # User input block
-
-    # Set directory with output folders (contains with_wecs and without_wecs folders)
-    # run_dir = r'C:\Users\mjamieson61\Documents\Internal_Working\Projects\QGIS_Python\Codebase'
-    # linux
-
-    # Set plot variable
-    # plotvar = 'VEL'      # Concentrations per layer at zeta point
-    plotvar = "TAUMAX"  # Tau max in zeta points (N/m^2)
-    # plotvar = 'DPS'     # Bottom depth at zeta point (m)
-
-    # Set NetCDF file to load WEC
-    dev_present_file = r"H:\Projects\C1308_SEAT\SEAT_inputs\plugin-input\oregon\devices-present\trim_sets_flow_inset_allruns.nc"
-    dev_notpresent_file = r"H:\Projects\C1308_SEAT\SEAT_inputs\plugin-input\oregon\devices-not-present\trim_sets_flow_inset_allruns.nc"
-
-    # cec files
-    # dev_present_file = r"C:\Users\ependleton52\Desktop\temp_local\QGIS\Code_Model\Codebase\cec\with_cec_1.nc"
-    # dev_notpresent_file = r"C:\Users\ependleton52\Desktop\temp_local\QGIS\Code_Model\Codebase\cec\no_cec_1.nc"
-
-    # dev_present_file = r"C:\Users\ependleton52\Desktop\temp_local\QGIS\Code_Model\Codebase\tanana\DFM_OUTPUT_tanana100\modified\tanana100_map_0_tanana1_cec.nc"
-    # dev_notpresent_file = r"C:\Users\ependleton52\Desktop\temp_local\QGIS\Code_Model\Codebase\tanana\DFM_OUTPUT_tanana100\modified\tanana100_map_6_tanana1_cec.nc"
-
-    # set the boundary_coditions file
-    bc_file = r"H:\Projects\C1308_SEAT\SEAT_inputs\plugin-input\oregon\boundary-condition\BC_probability_Annual_SETS.csv"
-
-    # run order file
-    run_order_file = r"H:\Projects\C1308_SEAT\SEAT_inputs\plugin-input\oregon\run-order\run_order_wecs_bad_runs_removed_v2.csv"
-
-    receptor = r"H:\Projects\C1308_SEAT\SEAT_inputs\plugin-input\oregon\receptor\grainsize_receptor.tif"
-
-    # configuration for raster translate
-    GDAL_DATA_TYPE = gdal.GDT_Float32
-    GEOTIFF_DRIVER_NAME = r"GTiff"
-
-    # Skip the bad runs for now
-    bcarray = np.array(
-        [0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 20, 22],
-    )
-
-    # all runs
-    # bcarray = [i for i in range(1,23)]
-
-    # SWAN will always be in meters. Not always WGS84
-    SPATIAL_REFERENCE_SYSTEM_WKID = 4326  # WGS84 meters
-    nbands = 1  # should be one always right?
-    # bounds = [-124.2843933,44.6705] #x,y or lon,lat, this is pulled from an input data source
-    # cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
-
-    # from Kaus -235.8+360 degrees = 124.2 degrees. The 235.8 degree conventions follows longitudes that increase
-    # eastward from Greenwich around the globe. The 124.2W, or -124.2 goes from 0 to 180 degrees to the east of Greenwich.
-    bounds = [
-        xcor.min() - 360,
-        ycor.min(),
-    ]  # x,y or lon,lat, this is pulled from an input data source
-    # look for dx/dy
-    dx = xcor[1, 0] - xcor[0, 0]
-    dy = ycor[0, 1] - ycor[0, 0]
-    cell_resolution = [dx, dy]
-
-    # will we ever need to do a np.isnan test?
-    # NO_DATA = 'NaN'
-
-    # set output path
-    output_path = r"C:\Users\ependleton52\Desktop\temp_local\QGIS\Code_Model\Codebase\rasters\rasters_created\plugin\out_calculated.tif"
-
-    # Functions
-    rows, cols, numpy_array = transform_netcdf(
-        dev_present_file,
-        dev_notpresent_file,
-        bc_file,
-        run_order_file,
-        bcarray,
-        plotvar,
-    )
-
-    output_raster = create_raster(
-        output_path,
-        cols,
-        rows,
-        nbands,
-    )
-
-    # post processing of numpy array to output raster
-    output_raster = numpy_array_to_raster(
-        output_raster,
-        numpy_array,
-        bounds,
-        cell_resolution,
-        SPATIAL_REFERENCE_SYSTEM_WKID,
-        output_path,
-    )
-
-    """
-    # add the raster to the QGIS interface
-    #newRLayer = iface.addRasterLayer(output_raster)
-
-    #now add to the interface of QGIS
-    #newRLayer = iface.addRasterLayer(output_path)
-    """
