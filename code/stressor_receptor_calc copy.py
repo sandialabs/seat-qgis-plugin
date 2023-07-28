@@ -65,7 +65,9 @@ from .Find_UTM_srid import find_utm_srid
 from .readnetcdf_createraster import (
     calculate_diff_cec,
     create_raster,
-    numpy_array_to_raster
+    numpy_array_to_raster,
+    transform_netcdf_ro,
+    calculate_receptor_change_percentage,
 )
 
 # Initialize Qt resources from file resources.py
@@ -73,8 +75,6 @@ from .resources import *
 
 # Import PowerModule
 from .power_module import calculate_power
-
-from .shear_stress_module import calculate_taumax_structured, calculate_receptor_change_percentage
 
 # Import the code for the dialog
 from .stressor_receptor_calc_dialog import StressorReceptorCalcDialog
@@ -393,8 +393,6 @@ class StressorReceptorCalc:
 
             self.dlg.ofile.setText(config.get("Output", "output filepath"))
 
-            self.dlg.comboBox.setCurrentText(config.get("Input", "calculation type"))
-
     def save_in(self):
         """Select and save an input file."""
         filename, _filter = QFileDialog.getSaveFileName(
@@ -416,7 +414,6 @@ class StressorReceptorCalc:
             "secondary constraint filepath": self.dlg.sc_file.text(),
             "stressor variable": self.dlg.stressor_comboBox.currentText(),
             "coordinate reference system": self.dlg.crs.text(),
-            "calculation type": self.dlg.comboBox.currentText(),
         }
 
         config["Output"] = {"output filepath": self.dlg.ofile.text()}
@@ -434,7 +431,7 @@ class StressorReceptorCalc:
         crs,
         output_path,
         output_path_reclass,
-        receptor_filename=None,
+        receptor_filename,
         receptor=True,
     ):
         """This is structured calculate stressor function."""
@@ -474,70 +471,69 @@ class StressorReceptorCalc:
         # original
         # rows, cols, numpy_array = transform_netcdf(dev_present_file, dev_notpresent_file, bc_file, run_order_file, bcarray, svar)
         # new bc one
-        # rows, cols, numpy_array = transform_netcdf_ro(
-        #     dev_present_file,
-        #     dev_notpresent_file,
-        #     bc_file,
-        #     run_order_file,
-        #     svar,
-        #     receptor_filename=receptor_filename,
-        #     receptor=receptor,
-        # )
-        if svar == "TAUMAX -Structured":
-            numpy_arrays = calculate_taumax_structured(
-                dev_present_file = dev_present_file,
-                dev_notpresent_file = dev_notpresent_file,
-                bc_file = bc_file,
-                run_order_file = run_order_file,
-                receptor_filename = receptor_filename,
-            )
-            #numpy_arrays = [0] mobility_parameter_nodev
-            #               [1] mobility_parameter_dev
-            #               [2] mobility_parameter_diff
-            #               [3] tau_diff
-            #               [4] mobility_classification
+        rows, cols, numpy_array = transform_netcdf_ro(
+            dev_present_file,
+            dev_notpresent_file,
+            bc_file,
+            run_order_file,
+            svar,
+            receptor_filename=receptor_filename,
+            receptor=receptor,
+        )
+        if receptor == True:
+            print('calculating percentages')
+            print(output_path)
+            calculate_receptor_change_percentage(receptor_filename=receptor_filename, data_diff=numpy_array, ofpath=os.path.dirname(output_path))
+        # if '.tif' in dev_present_file:
+        #    rows, cols, numpy_array = read_raster_calculate_diff(dev_present_file, dev_notpresent_file)
 
-            # numpy_arrays_no_receptor = calculate_taumax_structured(
-            #     dev_present_file = dev_present_file,
-            #     dev_notpresent_file = dev_notpresent_file,
-            #     bc_file = bc_file,
-            #     run_order_file = run_order_file,
-            #     receptor_filename = None,
-            # ) #[2] only need mobility_parameter_diff
-            
-            numpy_array_names = ['calculated_stressor_with_receptor.tif', 
-                                 'calculated_stressor.tif', 
-                                 'calculated_stressor_reclassified.tif']
-            use_numpy_arrays = [numpy_arrays[2], numpy_arrays[3], numpy_arrays[4]]
-            output_rasters = []
-            for array_name, numpy_array in zip(numpy_array_names, use_numpy_arrays):
-                array2 = np.flip(np.transpose(numpy_array), axis=0)
-                rows, cols = array2.shape
-                # create an ouput raster given the stressor file path
-                output_rasters.append(os.path.join(os.path.dirname(output_path), array_name))
-                output_raster = create_raster(
-                    os.path.join(os.path.dirname(output_path), array_name),
-                    cols,
-                    rows,
-                    nbands=1,
-                )
+        # create an ouput raster given the stressor file path
+        output_raster = create_raster(
+            output_path,
+            cols,
+            rows,
+            nbands,
+        )
 
-                # post processing of numpy array to output raster
-                numpy_array_to_raster(
-                    output_raster,
-                    array2,
-                    bounds,
-                    cell_resolution,
-                    SPATIAL_REFERENCE_SYSTEM_WKID,
-                    os.path.join(os.path.dirname(output_path), array_name),
-                )
-            if receptor_filename is not None:
-                # print('calculating percentages')
-                # print(output_path)
-                calculate_receptor_change_percentage(receptor_filename=receptor_filename, data_diff=numpy_arrays[-1], ofpath=os.path.dirname(output_path))
+        # post processing of numpy array to output raster
+        numpy_array_to_raster(
+            output_raster,
+            numpy_array,
+            bounds,
+            cell_resolution,
+            SPATIAL_REFERENCE_SYSTEM_WKID,
+            output_path,
+        )
 
+        # create an ouput raster given the reclassified stressor file path
+        output_raster_reclass = create_raster(
+            output_path_reclass,
+            cols,
+            rows,
+            nbands,
+        )
 
-        return output_rasters
+        # reclassify according to the break value
+        numpy_array_reclass = numpy_array.copy()
+
+        # deprecated for now. Make zeros NA
+        # numpy_array_reclass[numpy_array<=reclass_breakval] = 1
+        # numpy_array_reclass[numpy_array>reclass_breakval] = 0
+
+        # make null
+        # numpy_array_reclass[numpy_array == 0] = np.nan
+
+        # post processing of numpy array to output raster
+        output_raster_reclass = numpy_array_to_raster(
+            output_raster_reclass,
+            numpy_array_reclass,
+            bounds,
+            cell_resolution,
+            SPATIAL_REFERENCE_SYSTEM_WKID,
+            output_path_reclass,
+        )
+
+        return output_path, output_path_reclass
 
     def calc_stressor_unstruct(
         self,
@@ -584,14 +580,12 @@ class StressorReceptorCalc:
         if stylepath != "":
             # apply layer style
             layer.loadNamedStyle(stylepath)
-            layer.triggerRepaint()
+
             # reload to see layer classification
-            # layer.reload()
+            layer.reload()
 
         # refresh legend entries
         self.iface.layerTreeView().refreshLayerSymbology(layer.id())
-
-        # self.iface.legendInterface().refreshLayerSymbology(layer) 
 
         # do we want the layer visible in the map?
         if not checked:
@@ -852,9 +846,9 @@ class StressorReceptorCalc:
                 os.path.dirname(ofilename),
                 "calculated_stressor.tif",
             )
-            srfilename = os.path.join(
+            sworfilename = os.path.join(
                 os.path.dirname(ofilename),
-                "calculated_stressor_with_grainsize.tif",
+                "calculated_stressor_without_grainsize.tif",
             )
             srclassfilename = os.path.join(
                 os.path.dirname(ofilename),
@@ -864,7 +858,7 @@ class StressorReceptorCalc:
             # message
             logger.info("Receptor File: {}".format(rfilename))
             logger.info("Stressor File: {}".format(sfilename))
-            logger.info("Stressor with Receptor File: {}".format(srfilename))
+            logger.info("Stressor with Receptor File: {}".format(sworfilename))
             logger.info("Reclassified Stressor File: {}".format(srclassfilename))
 
             logger.info("Device present File: {}".format(dpresentfname))
@@ -911,14 +905,6 @@ class StressorReceptorCalc:
                 ).replace("\\", "/")
             else:
                 ostylefile = ""
-            
-            if self.dlg.tableWidget.item(4, 1).text() != "":
-                rcstylefile = os.path.join(
-                    profilepath,
-                    self.dlg.tableWidget.item(4, 1).text(),
-                ).replace("\\", "/")
-            else:
-                rcstylefile = ""
 
             # deprecated for now
             # reclass_breakval = float(self.dlg.tableWidget.item(4, 1).setText())
@@ -926,8 +912,8 @@ class StressorReceptorCalc:
             logger.info("Receptor Style File: {}".format(rstylefile))
             logger.info("Stressor Style File: {}".format(sstylefile))
             logger.info("Secondary Constraint Style File: {}".format(scstylefile))
-            logger.info("Output Style File: {}".format(ostylefile)) #stressor with receptor
-            logger.info('Stressor reclassification: {}'.format(rcstylefile))
+            logger.info("Output Style File: {}".format(ostylefile))
+            # logger.info('Stressor reclassification break value: {}'.format(reclass_breakval))
 
             # QgsMessageLog.logMessage(min_rc + " , " + max_rc, level =Qgis.MessageLevel.Info)
             # if the output file path is empty display a warning
@@ -950,7 +936,7 @@ class StressorReceptorCalc:
             # calculate the raster from a structured NetCDF
             if svar == "TAUMAX -Structured":
 
-                sfilenames = self.calculate_stressor(
+                sfilename, _ = self.calculate_stressor(
                     dpresentfname,
                     dnotpresentfname,
                     bcfname,
@@ -961,31 +947,19 @@ class StressorReceptorCalc:
                     srclassfilename,
                     rfilename,
                 )
-                # sfilenames = ['mobility_change.tif', 
-                #      'stressor.tif', 
-                #      'mobility_classification.tif']
-                ofilename = sfilenames[0] #streessor with receptor
-                srfilename = sfilenames[1] #stressor 
-                classifeidfilename = sfilenames[2] #reclassified
-                # add and style the outfile returning values
-                self.style_layer(ofilename, ostylefile, ranges=True)
-                self.style_layer(srfilename, sstylefile, ranges=True)
-                self.style_layer(classifeidfilename, rcstylefile, ranges=True)
-
-            # add and style the outfile without the griansize returning values
-            # if svar == "TAUMAX -Structured":
-            #     self.style_layer(srfilename, ostylefile)
                 # test condition without grain size in file
-                # srfilenames = self.calculate_stressor(
-                #     dpresentfname,
-                #     dnotpresentfname,
-                #     bcfname,
-                #     rofname,
-                #     svar,
-                #     crs,
-                #     srfilename,
-                #     srclassfilename,
-                # )
+                sworfilename, _ = self.calculate_stressor(
+                    dpresentfname,
+                    dnotpresentfname,
+                    bcfname,
+                    rofname,
+                    svar,
+                    crs,
+                    sworfilename,
+                    srclassfilename,
+                    rfilename,
+                    receptor=False,
+                )
 
             # calculate the raster from an unstructured NetCDF
             if svar == "TAUMAX -Unstructured":
@@ -999,7 +973,7 @@ class StressorReceptorCalc:
                 nbands = 1
                 taucrit = 100.0
                 # calculate the unstructured version using the parameters defined above
-                sfilenames = self.calc_stressor_unstruct(
+                sfilename = self.calc_stressor_unstruct(
                     dpresentfname,
                     dnotpresentfname,
                     sfilename,
@@ -1015,16 +989,12 @@ class StressorReceptorCalc:
                 #extract folder from stressor
                 paracousti_folder = os.path.dirname(dpresentfname)
                 paracousti_files = [i for i in os.listdir(paracousti_folder) if i.endswith('.nc')]
-                sfilenames = calc_stressor_paracousti(paracousti_folder = paracousti_folder, 
+                sfilename = calc_stressor_paracousti(paracousti_folder = paracousti_folder, 
                                                      paracousti_files = paracousti_files, 
                                                      receptor_file = rfilename)
 
-            # save the stressor as the output #now saved in cal_stressor
-            # if len(sfilenames)>1:
-            #     for sfilename in sfilenames:
-            #         shutil.copy(sfilename, os.path.dirname(ofilename))
-            # else:
-            #     shutil.copy(sfilename, ofilename)
+            # save the stressor as the output
+            shutil.copy(sfilename, ofilename)
 
             # add and style the receptor
             if not rfilename == "":
@@ -1034,12 +1004,12 @@ class StressorReceptorCalc:
             if not scfilename == "":
                 self.style_layer(scfilename, scstylefile, checked=False)
 
-            # # add and style the outfile returning values
-            # self.style_layer(ofilename, ostylefile, ranges=True)
+            # add and style the outfile returning values
+            self.style_layer(ofilename, ostylefile, ranges=True)
 
             # add and style the outfile without the griansize returning values
-            # if svar == "TAUMAX -Structured":
-            #     self.style_layer(srfilename, ostylefile)
+            if svar == "TAUMAX -Structured":
+                self.style_layer(sworfilename, ostylefile)
 
             # export the areas using the output files
             self.export_area(ofilename, crs, ostylefile=None)

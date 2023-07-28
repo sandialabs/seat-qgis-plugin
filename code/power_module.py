@@ -10,7 +10,7 @@
 # AUTHORS (Authors to use initals in history)
 #  Timothy R. Nelson - tnelson@integral-corp.com
 # NOTES (Data descriptions and any script specific notes)
-#	1. BC_Annie and .OUT files must be in the same folder
+#	1. BC_probability and .OUT files must be in the same folder
 #	2. .OUT file is format sensitive
 #
 # HISTORY:
@@ -199,7 +199,7 @@ def calculate_power(power_files, bc_file, save_path=None):
     """
     Reads the power files and calculates the total annual power based on hydrdynamic probabilities in bc_file. Data are saved as a csv files.
     Three files are output:
-        1) Total Power among all devices for each hydrodynamic conditions BC_Annie_Annual_SETS_wPower.csv
+        1) Total Power among all devices for each hydrodynamic conditions BC_probability_Annual_SETS_wPower.csv
         2) Power per device per hydordynamic scenario. Power_per_device_per_scenario.csv
         3) Total power per device during a year, scaled by $ of year in bc_file
  
@@ -244,7 +244,7 @@ def calculate_power(power_files, bc_file, save_path=None):
     #need to reorder Total_Power and Power to run roder in 
     bc_data['Power_Run_Name'] = datafiles
     bc_data['Power [W]'] = Total_Power_Scaled# bc_data['% of yr'] * Total_Power
-    bc_data.to_csv(os.path.join(save_path, 'BC_Annie_Annual_SETS_wPower.csv'), index=False)
+    bc_data.to_csv(os.path.join(save_path, 'BC_probability_wPower.csv'), index=False)
 
     fig,ax = plt.subplots(figsize=(9,6))
     ax.bar(np.arange(np.shape(Total_Power_Scaled)[0])+1, np.log10(Total_Power_Scaled), width=1, edgecolor='black')
@@ -371,7 +371,7 @@ def calculate_power(power_files, bc_file, save_path=None):
         Devices_total.to_csv(os.path.join(save_path, 'Power_per_device_annual.csv'))
         
         fig,ax = plt.subplots(figsize=(9,6))
-        ax.bar(Devices_total.index, Devices_total['Power [W]'], width=1, edgecolor='black')
+        ax.bar(Devices_total.index, np.log10(Devices_total['Power [W]']), width=1, edgecolor='black')
         ax. set_ylabel('Power [$log_{10}(Watts)$]')
         ax.set_xlabel('Device')
         fig.savefig(os.path.join(save_path, 'Total_Scaled_Power_per_Device_.png'))
@@ -426,17 +426,17 @@ def calculate_power(power_files, bc_file, save_path=None):
 #from power_module import calculate_power as cp
   # import os
 #power_files = r'H:\Projects\C1308_0107_2_SEAT\seat-qgis-plugin\plugin-input\oregon\power_files_4x4'
-#bc_file = r'H:\Projects\C1308_0107_2_SEAT\seat-qgis-plugin\plugin-input\oregon\boundary-condition\BC_Annie_Annual_SETS.csv'
+#bc_file = r'H:\Projects\C1308_0107_2_SEAT\seat-qgis-plugin\plugin-input\oregon\boundary-condition\BC_probability_Annual_SETS.csv'
 #save_path = r'H:\Projects\C1308_0107_2_SEAT\seat-qgis-plugin\plugin-output\test_qgis_20230518'
 #
  # power_files = r'H:\Projects\C1308_0107_2_SEAT\seat-qgis-plugin\plugin-input\oregon\power_files_16x6'
- # bc_file = r'H:\Projects\C1308_0107_2_SEAT\seat-qgis-plugin\plugin-input\oregon\boundary-condition\BC_Annie_Annual_SETS.csv'
+ # bc_file = r'H:\Projects\C1308_0107_2_SEAT\seat-qgis-plugin\plugin-input\oregon\boundary-condition\BC_probability_Annual_SETS.csv'
  # save_path = r'H:\Projects\C1308_0107_2_SEAT\seat-qgis-plugin\plugin-output\test_16x6_v2'
 #calculate_power(power_files, bc_file, save_path=save_path)
 # now call the functions
 if __name__ == "__main__":
     power_files = r'H:\Projects\C1308_0107_2_SEAT\seat-qgis-plugin\plugin-input\oregon\power_files_4x4'
-    bc_file = r'H:\Projects\C1308_0107_2_SEAT\seat-qgis-plugin\plugin-input\oregon\boundary-condition\BC_Annie_Annual_SETS.csv'
+    bc_file = r'H:\Projects\C1308_0107_2_SEAT\seat-qgis-plugin\plugin-input\oregon\boundary-condition\BC_probability_Annual_SETS.csv'
     save_path = r'H:\Projects\C1308_0107_2_SEAT\seat-qgis-plugin\plugin-output\test_qgis_20230518'
 
     calculate_power(power_files, bc_file, save_path=save_path)
