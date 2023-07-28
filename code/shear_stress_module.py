@@ -292,7 +292,7 @@ def calculate_taumax_unstructured(fpath_nodev, fpath_dev, receptor_filename):
         taumax_combined_dev = taumax_combined_dev + 1/row.return_intervals_dev * tau_dev 
 
     #calculate stressor diff
-    tau_diff = taumax_combined_dev - taumax_combined_nodev4
+    tau_diff = taumax_combined_dev - taumax_combined_nodev
 
     #calculate mobility diff
     taucrit, receptor_array = calc_receptor_taucrit(receptor_filename, xc, yc)

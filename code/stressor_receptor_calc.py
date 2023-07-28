@@ -74,7 +74,7 @@ from .resources import *
 # Import PowerModule
 from .power_module import calculate_power
 
-from .shear_stress_module import calculate_taumax_structured, calculate_receptor_change_percentage
+from .shear_stress_module import calculate_taumax_structured, calculate_receptor_change_percentage, calculate_taumax_unstructured
 
 # Import the code for the dialog
 from .stressor_receptor_calc_dialog import StressorReceptorCalcDialog
@@ -456,17 +456,17 @@ class StressorReceptorCalc:
 
         # from Kaus -235.8+360 degrees = 124.2 degrees. The 235.8 degree conventions follows longitudes that increase
         # eastward from Greenwich around the globe. The 124.2W, or -124.2 goes from 0 to 180 degrees to the east of Greenwich.
-        file = Dataset(dev_present_file)
-        xcor = file.variables["XCOR"][:].data
-        ycor = file.variables["YCOR"][:].data
+        # file = Dataset(dev_present_file)
+        # xcor = file.variables["XCOR"][:].data
+        # ycor = file.variables["YCOR"][:].data
 
         # look for dx/dy
-        dx = xcor[1, 0] - xcor[0, 0]
-        dy = ycor[0, 1] - ycor[0, 0]
-        cell_resolution = [dx, dy]
+        # dx = xcor[1, 0] - xcor[0, 0]
+        # dy = ycor[0, 1] - ycor[0, 0]
+        # cell_resolution = [dx, dy]
 
-        # Appear to be the top left corner
-        bounds = [xcor.min() - 360 - dx, ycor.max()]
+        # # Appear to be the top left corner
+        # bounds = [xcor.min() - 360 - dx, ycor.max()]
 
         # original
         # if not a Geotiff
@@ -484,57 +484,65 @@ class StressorReceptorCalc:
         #     receptor=receptor,
         # )
         if svar == "TAUMAX -Structured":
-            numpy_arrays = calculate_taumax_structured(
+            numpy_arrays, rx, ry, dx, dy = calculate_taumax_structured(
                 dev_present_file = dev_present_file,
                 dev_notpresent_file = dev_notpresent_file,
                 bc_file = bc_file,
                 run_order_file = run_order_file,
                 receptor_filename = receptor_filename,
             )
-            #numpy_arrays = [0] mobility_parameter_nodev
-            #               [1] mobility_parameter_dev
-            #               [2] mobility_parameter_diff
-            #               [3] tau_diff
-            #               [4] mobility_classification
 
-            # numpy_arrays_no_receptor = calculate_taumax_structured(
-            #     dev_present_file = dev_present_file,
-            #     dev_notpresent_file = dev_notpresent_file,
-            #     bc_file = bc_file,
-            #     run_order_file = run_order_file,
-            #     receptor_filename = None,
-            # ) #[2] only need mobility_parameter_diff
-            
-            numpy_array_names = ['calculated_stressor_with_receptor.tif', 
-                                 'calculated_stressor.tif', 
-                                 'calculated_stressor_reclassified.tif']
-            use_numpy_arrays = [numpy_arrays[2], numpy_arrays[3], numpy_arrays[4]]
-            output_rasters = []
-            for array_name, numpy_array in zip(numpy_array_names, use_numpy_arrays):
-                array2 = np.flip(np.transpose(numpy_array), axis=0)
-                rows, cols = array2.shape
-                # create an ouput raster given the stressor file path
-                output_rasters.append(os.path.join(os.path.dirname(output_path), array_name))
-                output_raster = create_raster(
-                    os.path.join(os.path.dirname(output_path), array_name),
-                    cols,
-                    rows,
-                    nbands=1,
-                )
+        if svar == "TAUMAX -Unstructured":
+            numpy_arrays, rx, ry, dx, dy = calculate_taumax_unstructured(
+                fpath_nodev = dev_notpresent_file, 
+                fpath_dev = dev_present_file,
+                receptor_filename = receptor_filename,
+            )
+        #numpy_arrays = [0] tau_diff
+        #               [1] mobility_parameter_nodev
+        #               [2] mobility_parameter_dev
+        #               [3] mobility_parameter_diff
+        #               [4] mobility_classification    
+        if ((receptor_filename is not None) or (not receptor_filename == "")):
+            numpy_array_names = ['calculated_stressor.tif',
+                                 'calculated_stressor_with_receptor.tif',
+                                'calculated_stressor_reclassified.tif']
+            use_numpy_arrays = [numpy_arrays[0], numpy_arrays[3], numpy_arrays[4]]
+        else:
+            numpy_array_names = ['calculated_stressor.tif']
+            use_numpy_arrays = [numpy_arrays[3]]
+        
+        output_rasters = []
+        for array_name, numpy_array in zip(numpy_array_names, use_numpy_arrays):
+            array2 = np.flip(np.transpose(numpy_array), axis=0)
+            cell_resolution = [dx, dy]
+            if crs == 4326:
+                bounds = [rx.min()-360 - dx/2, ry.max() - dy/2]
+            else:
+                bounds = [rx.min() - dx/2, ry.max() - dy/2]
+            rows, cols = array2.shape
+            # create an ouput raster given the stressor file path
+            output_rasters.append(os.path.join(os.path.dirname(output_path), array_name))
+            output_raster = create_raster(
+                os.path.join(os.path.dirname(output_path), array_name),
+                cols,
+                rows,
+                nbands=1,
+            )
 
-                # post processing of numpy array to output raster
-                numpy_array_to_raster(
-                    output_raster,
-                    array2,
-                    bounds,
-                    cell_resolution,
-                    SPATIAL_REFERENCE_SYSTEM_WKID,
-                    os.path.join(os.path.dirname(output_path), array_name),
-                )
-            if receptor_filename is not None:
-                # print('calculating percentages')
-                # print(output_path)
-                calculate_receptor_change_percentage(receptor_filename=receptor_filename, data_diff=numpy_arrays[-1], ofpath=os.path.dirname(output_path))
+            # post processing of numpy array to output raster
+            numpy_array_to_raster(
+                output_raster,
+                array2,
+                bounds,
+                cell_resolution,
+                SPATIAL_REFERENCE_SYSTEM_WKID,
+                os.path.join(os.path.dirname(output_path), array_name),
+            )
+        if ((receptor_filename is not None) or (not receptor_filename == "")):
+            # print('calculating percentages')
+            # print(output_path)
+            calculate_receptor_change_percentage(receptor_filename=receptor_filename, data_diff=numpy_arrays[-1], ofpath=os.path.dirname(output_path))
 
 
         return output_rasters
@@ -548,7 +556,7 @@ class StressorReceptorCalc:
         bounds,
         cell_resolution,
         crs,
-        taucrit,
+        receptor_filename,
     ):
         """Calculate stressor unstructured function."""
         rows, cols, numpy_array = calculate_diff_cec(
@@ -948,7 +956,7 @@ class StressorReceptorCalc:
             # self.dlg.tableWidget.findItems(i,j, QTableWidgetItem(item))
 
             # calculate the raster from a structured NetCDF
-            if svar == "TAUMAX -Structured":
+            if ((svar == "TAUMAX -Structured") or ("TAUMAX -Unstructured")):
 
                 sfilenames = self.calculate_stressor(
                     dpresentfname,
@@ -988,27 +996,27 @@ class StressorReceptorCalc:
                 # )
 
             # calculate the raster from an unstructured NetCDF
-            if svar == "TAUMAX -Unstructured":
-                # set the crs to 4326 since the bounds are also in that
-                bounds = [-149.088, 64.5681]
-                # cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
-                cell_resolution = [
-                    0.0001628997158260284031,
-                    0.0001628997158260284031,
-                ]  # x res, y res or lon, lat, same as above
-                nbands = 1
-                taucrit = 100.0
-                # calculate the unstructured version using the parameters defined above
-                sfilenames = self.calc_stressor_unstruct(
-                    dpresentfname,
-                    dnotpresentfname,
-                    sfilename,
-                    nbands,
-                    bounds,
-                    cell_resolution,
-                    crs,
-                    taucrit,
-                )
+            # if svar == "TAUMAX -Unstructured":
+            #     # set the crs to 4326 since the bounds are also in that
+            #     bounds = [-149.088, 64.5681]
+            #     # cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
+            #     cell_resolution = [
+            #         0.0001628997158260284031,
+            #         0.0001628997158260284031,
+            #     ]  # x res, y res or lon, lat, same as above
+            #     nbands = 1
+            #     taucrit = 100.0
+            #     # calculate the unstructured version using the parameters defined above
+            #     sfilenames = self.calc_stressor_unstruct(
+            #         dpresentfname,
+            #         dnotpresentfname,
+            #         sfilename,
+            #         nbands,
+            #         bounds,
+            #         cell_resolution,
+            #         crs,
+            #         taucrit,
+            #     )
 
             if svar == "Acoustics -ParAcousti":
                 #read stressor file to get density 
