@@ -31,12 +31,12 @@ def critical_shear_stress(D_meters, rhow=1024, nu=1e-6, s=2.65, g=9.81):
     taucrit = rhow * (s - 1) * g * D_meters * SHcr #in Pascals
     return taucrit
 
-def calculate_receptor_change_percentage(receptor_filename, data_diff, ofpath):
+def calculate_receptor_change_percentage(receptor_array, data_diff):
     #gdal version
-    data_diff = np.transpose(data_diff)
-    data = gdal.Open(receptor_filename)
-    img = data.GetRasterBand(1)
-    receptor_array = img.ReadAsArray()
+    # data_diff = np.transpose(data_diff)
+    # data = gdal.Open(receptor_filename)
+    # img = data.GetRasterBand(1)
+    # receptor_array = img.ReadAsArray()
     # transpose to be in same orientation as NetCDF
     receptor_array[receptor_array < 0] = np.nan
 
@@ -55,7 +55,7 @@ def calculate_receptor_change_percentage(receptor_filename, data_diff, ofpath):
         ncells = data_at_val.size
         pct_mobility['Receptor_Value'].append(unique_val)
         pct_mobility['Increased Deposition'].append(100 * np.size(np.flatnonzero(data_at_val==-2))/ncells)
-        pct_mobility['Reduced Deposition'].append(100 * np.size(np.flatnonzero(data_at_val>-1))/ncells)
+        pct_mobility['Reduced Deposition'].append(100 * np.size(np.flatnonzero(data_at_val==-1))/ncells)
         pct_mobility['Reduced Erosion'].append(100 * np.size(np.flatnonzero(data_at_val==1))/ncells)
         pct_mobility['Increased Erosion'].append(100 * np.size(np.flatnonzero(data_at_val==2))/ncells)
         pct_mobility['No Change'].append(100 * np.size(np.flatnonzero(data_at_val==0))/ncells)
@@ -63,7 +63,8 @@ def calculate_receptor_change_percentage(receptor_filename, data_diff, ofpath):
         # print(f" Receptor Value = {unique_val}um | decrease = {pct_decrease}% | increase = {pct_increase}% | no change = {pct_nochange}%")
     DF = pd.DataFrame(pct_mobility)
     DF = DF.set_index('Receptor_Value')
-    DF.to_csv(os.path.join(ofpath, 'receptor_percent_change.csv'))
+    return DF
+    # DF.to_csv(os.path.join(ofpath, 'receptor_percent_change.csv'))
 
 def estimate_grid_spacing(x,y, nsamples=100):
     import random
@@ -86,7 +87,8 @@ def estimate_grid_spacing(x,y, nsamples=100):
 
 
 def calc_receptor_taucrit(receptor_filename, x, y, latlon=False):
-    if ((receptor_filename is not None) or (not receptor_filename == "")):
+    # if ((receptor_filename is not None) or (not receptor_filename == "")):
+    if not((receptor_filename is None) or (receptor_filename == "")):
         data = gdal.Open(receptor_filename)
         img = data.GetRasterBand(1)
         receptor_array = img.ReadAsArray()
@@ -110,6 +112,7 @@ def calc_receptor_taucrit(receptor_filename, x, y, latlon=False):
         # taucrit without a receptor
         #Assume the following grain sizes and conditions for typical beach sand (Nielsen, 1992 p.108)
         taucrit = critical_shear_stress(D_meters=200*1e-6, rhow=1024, nu=1e-6, s=2.65, g=9.81)  #units N/m2 = Pa
+        receptor_array = 200*1e-6 * np.ones(x.shape)
     return taucrit, receptor_array
 
 def create_structured_array_from_unstructured(x, y, z, dxdy, flatness=0.2):
@@ -165,7 +168,7 @@ def calculate_wave_probability_shear_stress_stressors(fpath_nodev,
         #asumes a concatonated files with shape
         #[run_order, time, rows, cols]
 
-        file_dev_present = Dataset(os.path.join(fpath_nodev, files_nodev[0]))
+        file_dev_present = Dataset(os.path.join(fpath_dev, files_dev[0]))
         gridtype, xvar, yvar, tauvar = check_grid_define_vars(file_dev_present)
         # X-coordinate of cell center
         xcor = file_dev_present.variables[xvar][:].data
@@ -176,12 +179,15 @@ def calculate_wave_probability_shear_stress_stressors(fpath_nodev,
         # close the device prsent file
         file_dev_present.close()
 
-        file_dev_notpresent = Dataset(os.path.join(fpath_dev, files_dev[0]))
+        file_dev_notpresent = Dataset(os.path.join(fpath_nodev, files_nodev[0]))
         tau_nodev = file_dev_notpresent.variables[tauvar][:]
         # close the device not present file
         file_dev_notpresent.close()
+        
+        # if tau_dev.shape[0] != tau_nodev.shape[0]:
+        #     raise Exception(f"Number of device runs ({tau_dev.shape[0]}) must be the same as no device runs ({tau_nodev.shape[0]}).") 
 
-    else: 
+    elif len(files_nodev) == 1 & len(files_dev): 
         #asumes each run is separate with the some_name_RunNum_map.nc, where run number comes at the last underscore before _map.nc
         runorder_nodev = np.zeros((len(files_nodev)))
         for ic, file in enumerate(files_nodev):
@@ -221,18 +227,23 @@ def calculate_wave_probability_shear_stress_stressors(fpath_nodev,
             tau_nodev = file_dev_notpresent.variables[tauvar].data
             tau_dev = file_dev_present.variables[tauvar].data
             ir += 1
+    else:
+        raise Exception(f"Number of device runs ({len(files_dev)}) must be the same as no device runs ({len(files_nodev)}).") 
     # Finished loading and sorting files
 
     # Load BC file with probabilities and find appropriate probability
     BC_probability = pd.read_csv(probabilities_file, delimiter=",")
     BC_probability['run order'] = BC_probability['run order']-1
     BC_probability = BC_probability.sort_values(by='run order')
-    BC_probability
+    BC_probability["% of yr"]= BC_probability["% of yr"].values/100
+    # BC_probability
+    if 'Exclude' in BC_probability.columns:
+        BC_probability = BC_probability[~((BC_probability['Exclude'] == 'x') | (BC_probability['Exclude'] == 'X'))]
 
     # Calculate Stressor and Receptors
     # data_dev_max = np.amax(data_dev, axis=1, keepdims=True) #look at maximum shear stress difference change
     tau_dev_max = np.amax(tau_dev, axis=1, keepdims=True) #max over time
-    tau_nodev_max = np.amax(tau_dev, axis=1, keepdims=True) #max over time
+    tau_nodev_max = np.amax(tau_nodev, axis=1, keepdims=True) #max over time
 
     #initialize arrays
     taumax_combined_nodev = np.zeros(np.shape(tau_nodev[0, 0, :, :]))
@@ -245,7 +256,7 @@ def calculate_wave_probability_shear_stress_stressors(fpath_nodev,
         taumax_combined_dev = taumax_combined_dev + prob * tau_dev_max[run_number,-1,:,:] #tau_max #from maximum of timeseries
 
     tau_diff = taumax_combined_dev - taumax_combined_nodev
-    taucrit, receptor_array = calc_receptor_taucrit(receptor_filename, xcor, ycor, latlon=True)
+    taucrit, receptor_array = calc_receptor_taucrit(receptor_filename, xcor, ycor, latlon=latlon)
     mobility_parameter_nodev = taumax_combined_nodev / taucrit
     mobility_parameter_nodev = np.where(receptor_array==0, 0, mobility_parameter_nodev)
     mobility_parameter_dev = taumax_combined_dev / taucrit
@@ -253,10 +264,11 @@ def calculate_wave_probability_shear_stress_stressors(fpath_nodev,
     # Calculate risk metrics over all runs
 
     mobility_parameter_diff = mobility_parameter_dev - mobility_parameter_nodev
+    
 
     if gridtype=='structured':
         mobility_classification = classify_mobility(mobility_parameter_dev, mobility_parameter_nodev)
-        listOfFiles = [tau_diff, mobility_parameter_nodev, mobility_parameter_dev, mobility_parameter_diff, mobility_classification]
+        listOfFiles = [tau_diff, mobility_parameter_nodev, mobility_parameter_dev, mobility_parameter_diff, mobility_classification, receptor_array]
         dx = np.nanmean(np.diff(xcor[:,0]))
         dy = np.nanmean(np.diff(ycor[0,:]))
         rx = xcor
@@ -272,7 +284,8 @@ def calculate_wave_probability_shear_stress_stressors(fpath_nodev,
         mobility_classification = classify_mobility(mobility_parameter_dev_struct, mobility_parameter_nodev_struct)
         listOfFiles = [tau_diff_struct, mobility_parameter_nodev_struct, mobility_parameter_dev_struct, mobility_parameter_diff_struct, mobility_classification]
 
-    return listOfFiles, rx, ry, dx, dy
+    DF_classified = calculate_receptor_change_percentage(receptor_array, mobility_classification)
+    return listOfFiles, rx, ry, dx, dy, DF_classified
 
 
 def calculate_shear_stress_stressor_return_inverval(fpath_nodev, fpath_dev, receptor_filename):

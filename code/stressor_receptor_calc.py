@@ -499,7 +499,7 @@ class StressorReceptorCalc:
         #         receptor_filename = receptor_filename,
         #     )
         if ((svar == "TAUMAX -Structured") or (svar == "TAUMAX -Unstructured")):
-            numpy_arrays, rx, ry, dx, dy = calculate_wave_probability_shear_stress_stressors(fpath_nodev=os.path.dirname(dev_notpresent_file), 
+            numpy_arrays, rx, ry, dx, dy, DF_classified = calculate_wave_probability_shear_stress_stressors(fpath_nodev=os.path.dirname(dev_notpresent_file), 
                                                         fpath_dev=os.path.dirname(dev_present_file), 
                                                         probabilities_file=bc_file,
                                                         receptor_filename=receptor_filename,
@@ -509,11 +509,12 @@ class StressorReceptorCalc:
         #               [2] mobility_parameter_dev
         #               [3] mobility_parameter_diff
         #               [4] mobility_classification    
-        if ((receptor_filename is not None) or (not receptor_filename == "")):
+        if not((receptor_filename is None) or (receptor_filename == "")):
             numpy_array_names = ['calculated_stressor.tif',
                                  'calculated_stressor_with_receptor.tif',
                                 'calculated_stressor_reclassified.tif']
             use_numpy_arrays = [numpy_arrays[0], numpy_arrays[3], numpy_arrays[4]]
+            DF_classified.to_csv(os.path.join(os.path.dirname(output_path), 'receptor_percent_change.csv'))
         else:
             numpy_array_names = ['calculated_stressor.tif']
             use_numpy_arrays = [numpy_arrays[3]]
@@ -545,10 +546,10 @@ class StressorReceptorCalc:
                 SPATIAL_REFERENCE_SYSTEM_WKID,
                 os.path.join(os.path.dirname(output_path), array_name),
             )
-        if ((receptor_filename is not None) or (not receptor_filename == "")):
-            # print('calculating percentages')
-            # print(output_path)
-            calculate_receptor_change_percentage(receptor_filename=receptor_filename, data_diff=numpy_arrays[-1], ofpath=os.path.dirname(output_path))
+        # if not((receptor_filename is None) or (receptor_filename == "")):
+        #     # print('calculating percentages')
+        #     # print(output_path)
+        #     calculate_receptor_change_percentage(receptor_filename=receptor_filename, data_diff=numpy_arrays[-1], ofpath=os.path.dirname(output_path))
 
 
         return output_rasters
@@ -600,7 +601,7 @@ class StressorReceptorCalc:
             layer.loadNamedStyle(stylepath)
             layer.triggerRepaint()
             # reload to see layer classification
-            # layer.reload()
+            layer.reload()
 
         # refresh legend entries
         self.iface.layerTreeView().refreshLayerSymbology(layer.id())
@@ -617,15 +618,15 @@ class StressorReceptorCalc:
             range = [x[0] for x in layer.legendSymbologyItems()]
             return range
 
-    def export_area(self, ofilename, crs, ostylefile=None):
+    def calc_area_change(self, ofilename, crs, ostylefile=None):
         """Export the areas of the given file. Find a UTM of the given crs and calculate in m2."""
 
         cfile = ofilename.replace(".tif", ".csv")
         if os.path.isfile(cfile):
             os.remove(cfile)
 
-        if ostylefile is not None:
-            sdf = df_from_qml(ostylefile)
+        # if ostylefile is not None:
+        #     sdf = df_from_qml(ostylefile)
 
         # get the basename and use the raster in the instance to get the min / max
         basename = os.path.splitext(os.path.basename(ofilename))[0]
@@ -953,7 +954,7 @@ class StressorReceptorCalc:
 
             # Calculate Power Files
             # calculate power from devices (need power_file_folder, need power_polygon_file)
-            top_level_path =  os.path.abspath(os.path.join(rfilename ,"../..")) #added trn 
+            top_level_path =  os.path.abspath(os.path.join(dpresentfname ,"../..")) #added trn 
             power_path = os.path.join(top_level_path, 'power_files')
 #            print('Calculating Power....')
             logger.info("Power File Folder: {}".format(power_path))
@@ -975,16 +976,23 @@ class StressorReceptorCalc:
                     srclassfilename,
                     rfilename,
                 )
-                # sfilenames = ['mobility_change.tif', 
-                #      'stressor.tif', 
-                #      'mobility_classification.tif']
-                ofilename = sfilenames[0] #streessor with receptor
-                srfilename = sfilenames[1] #stressor 
-                classifeidfilename = sfilenames[2] #reclassified
-                # add and style the outfile returning values
-                self.style_layer(ofilename, ostylefile, ranges=True)
+                # sfilenames = ['calculated_stressor.tif',
+                #  'calculated_stressor_with_receptor.tif',
+                # 'calculated_stressor_reclassified.tif']
+                srfilename = sfilenames[0] #stressor 
                 self.style_layer(srfilename, sstylefile, ranges=True)
-                self.style_layer(classifeidfilename, rcstylefile, ranges=True)
+                self.calc_area_change(srfilename, crs)
+                if not((rfilename is None) or (rfilename == "")): #if receptor present
+                    ofilename = sfilenames[1] #streessor with receptor
+                    classifiedfilename = sfilenames[2] #reclassified
+                    self.style_layer(ofilename, ostylefile, ranges=True)
+                    self.style_layer(classifiedfilename, rcstylefile, ranges=True)
+                    self.calc_area_change(ofilename, crs)
+                    self.calc_area_change(classifiedfilename, crs)
+
+                
+                # add and style the outfile returning values
+
 
             # add and style the outfile without the griansize returning values
             # if svar == "TAUMAX -Structured":
@@ -1056,7 +1064,7 @@ class StressorReceptorCalc:
             #     self.style_layer(srfilename, ostylefile)
 
             # export the areas using the output files
-            self.export_area(ofilename, crs, ostylefile=None)
+            # self.export_area(ofilename, crs, ostylefile=None)
 
             # close and remove the filehandler
             fh.close()
