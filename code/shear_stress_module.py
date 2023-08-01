@@ -263,6 +263,8 @@ def calculate_wave_probability_shear_stress_stressors(fpath_nodev,
         ry = ycor
     else: # unstructured
         dxdy = estimate_grid_spacing(xcor,ycor, nsamples=100)
+        dx = dxdy
+        dy = dxdy
         rx, ry, tau_diff_struct = create_structured_array_from_unstructured(xcor, ycor, tau_diff, dxdy, flatness=0.2)
         _, _, mobility_parameter_nodev_struct = create_structured_array_from_unstructured(xcor, ycor, mobility_parameter_nodev, dxdy, flatness=0.2)
         _, _, mobility_parameter_dev_struct = create_structured_array_from_unstructured(xcor, ycor, mobility_parameter_dev, dxdy, flatness=0.2)
@@ -270,7 +272,7 @@ def calculate_wave_probability_shear_stress_stressors(fpath_nodev,
         mobility_classification = classify_mobility(mobility_parameter_dev_struct, mobility_parameter_nodev_struct)
         listOfFiles = [tau_diff_struct, mobility_parameter_nodev_struct, mobility_parameter_dev_struct, mobility_parameter_diff_struct, mobility_classification]
 
-    return listOfFiles, rx, ry, dxdy, dxdy
+    return listOfFiles, rx, ry, dx, dy
 
 
 def calculate_shear_stress_stressor_return_inverval(fpath_nodev, fpath_dev, receptor_filename):

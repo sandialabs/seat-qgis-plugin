@@ -74,7 +74,7 @@ from .resources import *
 # Import PowerModule
 from .power_module import calculate_power
 
-from .shear_stress_module import calculate_wave_probability_shear_stress_stressors# calculate_taumax_structured, calculate_receptor_change_percentage, calculate_taumax_unstructured
+from .shear_stress_module import calculate_wave_probability_shear_stress_stressors, calculate_receptor_change_percentage# calculate_taumax_structured, calculate_receptor_change_percentage, calculate_taumax_unstructured
 
 # Import the code for the dialog
 from .stressor_receptor_calc_dialog import StressorReceptorCalcDialog
@@ -498,12 +498,12 @@ class StressorReceptorCalc:
         #         fpath_dev = dev_present_file,
         #         receptor_filename = receptor_filename,
         #     )
-        if ((svar == "TAUMAX -Structured") or (svar == "TAUMAX -Unstructured"))
-        numpy_arrays, rx, ry, dx, dy = calculate_wave_probability_shear_stress_stressors(fpath_nodev=os.path.dirname(dev_notpresent_file), 
-                                                      fpath_dev=os.path.dirname(dev_present_file), 
-                                                      probabilities_file=bc_file,
-                                                      receptor_filename=receptor_filename,
-                                                      latlon= crs==4326)
+        if ((svar == "TAUMAX -Structured") or (svar == "TAUMAX -Unstructured")):
+            numpy_arrays, rx, ry, dx, dy = calculate_wave_probability_shear_stress_stressors(fpath_nodev=os.path.dirname(dev_notpresent_file), 
+                                                        fpath_dev=os.path.dirname(dev_present_file), 
+                                                        probabilities_file=bc_file,
+                                                        receptor_filename=receptor_filename,
+                                                        latlon= crs==4326)
         #numpy_arrays = [0] tau_diff
         #               [1] mobility_parameter_nodev
         #               [2] mobility_parameter_dev
