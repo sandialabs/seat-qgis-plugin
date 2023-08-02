@@ -154,17 +154,18 @@ def check_grid_define_vars(dataset):
         tauvar = 'taus'
     return gridtype, xvar, yvar, tauvar
 
-def calculate_wave_probability_shear_stress_stressors(fpath_nodev, 
-                                                      fpath_dev, 
-                                                      probabilities_file,
-                                                      receptor_filename=None,
-                                                      latlon=True
+def calculate_shear_stress_stressors(fpath_nodev, 
+                                    fpath_dev, 
+                                    probabilities_file,
+                                    receptor_filename=None,
+                                    latlon=True, 
+                                    value_selection='MAX'
 ):
     files_nodev = [i for i in os.listdir(fpath_nodev) if i.endswith('.nc')]
     files_dev = [i for i in os.listdir(fpath_dev) if i.endswith('.nc')]
 
     # Load and sort files
-    if len(files_nodev) == 1 & len(files_dev) ==1: 
+    if len(files_nodev) == 1 & len(files_dev) == 1: 
         #asumes a concatonated files with shape
         #[run_order, time, rows, cols]
 
@@ -187,7 +188,7 @@ def calculate_wave_probability_shear_stress_stressors(fpath_nodev,
         # if tau_dev.shape[0] != tau_nodev.shape[0]:
         #     raise Exception(f"Number of device runs ({tau_dev.shape[0]}) must be the same as no device runs ({tau_nodev.shape[0]}).") 
 
-    elif len(files_nodev) == 1 & len(files_dev): 
+    elif len(files_nodev) == len(files_dev): #same number of files, file name must be formatted with either run number or return interval
         #asumes each run is separate with the some_name_RunNum_map.nc, where run number comes at the last underscore before _map.nc
         runorder_nodev = np.zeros((len(files_nodev)))
         for ic, file in enumerate(files_nodev):
@@ -207,7 +208,7 @@ def calculate_wave_probability_shear_stress_stressors(fpath_nodev,
                     'run_order_nodev':runorder_nodev,
                     'files_dev':files_dev,
                     'run_order_dev':runorder_dev})
-        DF = DF.sort_values(by=runorder_nodev)
+        DF = DF.sort_values(by='run_order_dev')
 
         first_run = True
         ir = 0
@@ -218,145 +219,106 @@ def calculate_wave_probability_shear_stress_stressors(fpath_nodev,
             gridtype, xvar, yvar, tauvar = check_grid_define_vars(file_dev_present)
 
             if first_run:
-                tmp = file_dev_notpresent.variables[tauvar].data
-                tau_nodev = np.zeros(DF.shape[0], tmp.shape[0], tmp.shape[1], tmp.shape[2])
-                tau_dev = np.zeros(DF.shape[0], tmp.shape[0], tmp.shape[1], tmp.shape[2])
+                tmp = file_dev_notpresent.variables[tauvar][:].data
+                if gridtype=='structured':
+                    tau_nodev = np.zeros((DF.shape[0], tmp.shape[0], tmp.shape[1], tmp.shape[2]))
+                    tau_dev = np.zeros((DF.shape[0], tmp.shape[0], tmp.shape[1], tmp.shape[2]))
+                else:
+                    tau_nodev = np.zeros((DF.shape[0], tmp.shape[0], tmp.shape[1]))
+                    tau_dev = np.zeros((DF.shape[0], tmp.shape[0], tmp.shape[1]))
                 xcor = file_dev_notpresent.variables[xvar][:].data
                 ycor = file_dev_notpresent.variables[yvar][:].data            
                 first_run = False
-            tau_nodev = file_dev_notpresent.variables[tauvar].data
-            tau_dev = file_dev_present.variables[tauvar].data
+            tau_nodev[ir, :] = file_dev_notpresent.variables[tauvar][:].data
+            tau_dev[ir, :] = file_dev_present.variables[tauvar][:].data
+            
+            file_dev_notpresent.close()
+            file_dev_present.close()
             ir += 1
     else:
         raise Exception(f"Number of device runs ({len(files_dev)}) must be the same as no device runs ({len(files_nodev)}).") 
     # Finished loading and sorting files
 
-    # Load BC file with probabilities and find appropriate probability
-    BC_probability = pd.read_csv(probabilities_file, delimiter=",")
-    BC_probability['run order'] = BC_probability['run order']-1
-    BC_probability = BC_probability.sort_values(by='run order')
-    BC_probability["% of yr"]= BC_probability["% of yr"].values/100
-    # BC_probability
-    if 'Exclude' in BC_probability.columns:
-        BC_probability = BC_probability[~((BC_probability['Exclude'] == 'x') | (BC_probability['Exclude'] == 'X'))]
+    if not(probabilities_file == ""):
+        # Load BC file with probabilities and find appropriate probability
+        BC_probability = pd.read_csv(probabilities_file, delimiter=",")
+        BC_probability['run order'] = BC_probability['run order']-1
+        BC_probability = BC_probability.sort_values(by='run order')
+        BC_probability["probability"]= BC_probability["% of yr"].values/100
+        # BC_probability
+        if 'Exclude' in BC_probability.columns:
+            BC_probability = BC_probability[~((BC_probability['Exclude'] == 'x') | (BC_probability['Exclude'] == 'X'))]
+    else: #assume run_order in file name is return interval
+        BC_probability = pd.DataFrame()
+        BC_probability['run order'] = np.arange(0,tau_dev.shape[0]) #ignor number and start sequentially from zero
+        BC_probability["probability"] = 1/DF.run_order_dev.to_numpy() #assumes run order in name is the return interval
 
     # Calculate Stressor and Receptors
     # data_dev_max = np.amax(data_dev, axis=1, keepdims=True) #look at maximum shear stress difference change
-    tau_dev_max = np.amax(tau_dev, axis=1, keepdims=True) #max over time
-    tau_nodev_max = np.amax(tau_nodev, axis=1, keepdims=True) #max over time
+    if value_selection == 'MAX':
+        tau_dev = np.nanmax(tau_dev, axis=1, keepdims=True) #max over time
+        tau_nodev = np.nanmax(tau_nodev, axis=1, keepdims=True) #max over time
+    elif value_selection == 'MEAN':
+        tau_dev = np.nanmean(tau_dev, axis=1, keepdims=True) #max over time
+        tau_nodev = np.nanmean(tau_nodev, axis=1, keepdims=True) #max over time
+    elif value_selection == 'LAST':
+        tau_dev = tau_dev[:, -2:-1, :] #max over time
+        tau_nodev = tau_nodev[:, -2:-1, :] #max over time
+    else:
+        tau_dev = np.nanmax(tau_dev, axis=1, keepdims=True) #max over time
+        tau_nodev = np.nanmax(tau_nodev, axis=1, keepdims=True) #max over time
+
 
     #initialize arrays
-    taumax_combined_nodev = np.zeros(np.shape(tau_nodev[0, 0, :, :]))
-    taumax_combined_dev = np.zeros(np.shape(tau_dev[0, 0, :, :]))
+    if gridtype == 'structured':
+        tau_combined_nodev = np.zeros(np.shape(tau_nodev[0, 0, :, :]))
+        tau_combined_dev = np.zeros(np.shape(tau_dev[0, 0, :, :]))
+    else:
+        tau_combined_nodev = np.zeros(np.shape(tau_nodev)[-1])
+        tau_combined_dev = np.zeros(np.shape(tau_dev)[-1])
 
     for run_number, prob in zip(BC_probability['run order'].values,
-                                BC_probability["% of yr"].values):
+                                BC_probability["probability"].values):
             
-        taumax_combined_nodev = taumax_combined_nodev + prob * tau_nodev_max[run_number,-1,:,:] #tau_max #from last model run
-        taumax_combined_dev = taumax_combined_dev + prob * tau_dev_max[run_number,-1,:,:] #tau_max #from maximum of timeseries
+        tau_combined_nodev = tau_combined_nodev + prob * tau_nodev[run_number,-1,:] 
+        tau_combined_dev = tau_combined_dev + prob * tau_dev[run_number,-1,:] 
 
-    tau_diff = taumax_combined_dev - taumax_combined_nodev
+    tau_diff = tau_combined_dev - tau_combined_nodev
     taucrit, receptor_array = calc_receptor_taucrit(receptor_filename, xcor, ycor, latlon=latlon)
-    mobility_parameter_nodev = taumax_combined_nodev / taucrit
+    mobility_parameter_nodev = tau_combined_nodev / taucrit
     mobility_parameter_nodev = np.where(receptor_array==0, 0, mobility_parameter_nodev)
-    mobility_parameter_dev = taumax_combined_dev / taucrit
+    mobility_parameter_dev = tau_combined_dev / taucrit
     mobility_parameter_dev = np.where(receptor_array==0, 0, mobility_parameter_dev)
     # Calculate risk metrics over all runs
 
     mobility_parameter_diff = mobility_parameter_dev - mobility_parameter_nodev
-    
+
 
     if gridtype=='structured':
         mobility_classification = classify_mobility(mobility_parameter_dev, mobility_parameter_nodev)
-        listOfFiles = [tau_diff, mobility_parameter_nodev, mobility_parameter_dev, mobility_parameter_diff, mobility_classification, receptor_array]
         dx = np.nanmean(np.diff(xcor[:,0]))
         dy = np.nanmean(np.diff(ycor[0,:]))
         rx = xcor
         ry = ycor
+        DF_classified = calculate_receptor_change_percentage(receptor_array, mobility_classification)
+        listOfFiles = [tau_diff, mobility_parameter_nodev, mobility_parameter_dev, mobility_parameter_diff, mobility_classification, receptor_array]
     else: # unstructured
         dxdy = estimate_grid_spacing(xcor,ycor, nsamples=100)
         dx = dxdy
         dy = dxdy
         rx, ry, tau_diff_struct = create_structured_array_from_unstructured(xcor, ycor, tau_diff, dxdy, flatness=0.2)
-        _, _, mobility_parameter_nodev_struct = create_structured_array_from_unstructured(xcor, ycor, mobility_parameter_nodev, dxdy, flatness=0.2)
-        _, _, mobility_parameter_dev_struct = create_structured_array_from_unstructured(xcor, ycor, mobility_parameter_dev, dxdy, flatness=0.2)
-        _, _, mobility_parameter_diff_struct = create_structured_array_from_unstructured(xcor, ycor, mobility_parameter_diff, dxdy, flatness=0.2)
+        if not((receptor_filename is None) or (receptor_filename == "")):
+            _, _, mobility_parameter_nodev_struct = create_structured_array_from_unstructured(xcor, ycor, mobility_parameter_nodev, dxdy, flatness=0.2)
+            _, _, mobility_parameter_dev_struct = create_structured_array_from_unstructured(xcor, ycor, mobility_parameter_dev, dxdy, flatness=0.2)
+            _, _, mobility_parameter_diff_struct = create_structured_array_from_unstructured(xcor, ycor, mobility_parameter_diff, dxdy, flatness=0.2)
+            _, _, receptor_array_struct = create_structured_array_from_unstructured(xcor, ycor, receptor_array, dxdy, flatness=0.2)
+        else:
+            mobility_parameter_nodev_struct = np.nan * tau_diff_struct
+            mobility_parameter_dev_struct = np.nan * tau_diff_struct
+            mobility_parameter_diff_struct = np.nan * tau_diff_struct
+            receptor_array_struct = np.nan * tau_diff_struct
         mobility_classification = classify_mobility(mobility_parameter_dev_struct, mobility_parameter_nodev_struct)
-        listOfFiles = [tau_diff_struct, mobility_parameter_nodev_struct, mobility_parameter_dev_struct, mobility_parameter_diff_struct, mobility_classification]
+        DF_classified = calculate_receptor_change_percentage(receptor_array_struct, mobility_classification)
+        listOfFiles = [tau_diff_struct, mobility_parameter_nodev_struct, mobility_parameter_dev_struct, mobility_parameter_diff_struct, mobility_classification, receptor_array_struct]
 
-    DF_classified = calculate_receptor_change_percentage(receptor_array, mobility_classification)
-    return listOfFiles, rx, ry, dx, dy, DF_classified
-
-
-def calculate_shear_stress_stressor_return_inverval(fpath_nodev, fpath_dev, receptor_filename):
-    """
-    Given unstructured grid files calculate the difference.
-    """
-    # glob.glob(os.path.join(fpath_nodev, "*.nc")
-    files_nodev = [i for i in os.listdir(fpath_nodev) if i.endswith('.nc')]
-    files_dev = [i for i in os.listdir(fpath_dev) if i.endswith('.nc')]
-    #extract return order from file name, file must be in format x_xxx_returninverval_xxx.nc, example: 1_tanana_1_map.nc
-    return_intervals_nodev = np.zeros((len(files_nodev)))
-    for ic, file in enumerate(files_nodev):
-        return_intervals_nodev[ic] = float(file.split('.')[0].split('_')[2])
-    return_intervals_dev = np.zeros((len(files_dev)))
-    for ic, file in enumerate(files_dev):
-        return_intervals_dev[ic] = float(file.split('.')[0].split('_')[2])
-
-    #ensure return order for nodev matches dev files
-    if np.any(return_intervals_nodev != return_intervals_dev):
-        adjust_dev_order = []
-        for ri in return_intervals_dev:
-            adjust_dev_order = np.append(adjust_dev_order, np.flatnonzero(return_intervals_dev == ri))
-        adjust_dev_order
-        files_dev = [files_dev[int(i)] for i in adjust_dev_order]
-        return_intervals_dev = [return_intervals_dev[int(i)] for i in adjust_dev_order]
-
-    DF = pd.DataFrame({'files_nodev':files_nodev, 
-                    'return_intervals_nodev':return_intervals_nodev,
-                    'files_dev':files_dev,
-                    'return_intervals_dev':return_intervals_dev})
-
-    first_run = True
-    for ir, row in DF.iterrows():
-        # DS_nodev = xr.open_dataset(os.path.join(fpath_nodev, row.files_nodev))
-        DS_nodev = Dataset(os.path.join(fpath_nodev, row.files_nodev))
-        # DS_dev = xr.open_dataset(os.path.join(fpath_dev, row.files_dev))
-        DS_dev = Dataset(os.path.join(fpath_dev, row.files_dev))
-        tau_nodev = DS_nodev.variables["taus"][-1,:].data
-        tau_dev = DS_dev.variables["taus"][-1,:].data
-
-        if first_run:
-            xc = DS_nodev.variables["FlowElem_xcc"][:].data
-            yc = DS_nodev.variables["FlowElem_ycc"][:].data
-            taumax_combined_nodev = 1/row.return_intervals_nodev * tau_nodev 
-            taumax_combined_dev = 1/row.return_intervals_dev * tau_dev 
-            first_run = False
-            
-        DS_dev.close()
-        DS_nodev.close()
-        taumax_combined_nodev = taumax_combined_nodev + 1/row.return_intervals_nodev * tau_nodev 
-        taumax_combined_dev = taumax_combined_dev + 1/row.return_intervals_dev * tau_dev 
-
-    #calculate stressor diff
-    tau_diff = taumax_combined_dev - taumax_combined_nodev
-
-    #calculate mobility diff
-    taucrit, receptor_array = calc_receptor_taucrit(receptor_filename, xc, yc)
-    mobility_parameter_nodev = taumax_combined_nodev / taucrit
-    mobility_parameter_nodev = np.where(receptor_array==0, 0, mobility_parameter_nodev)
-    mobility_parameter_dev = taumax_combined_dev / taucrit
-    mobility_parameter_dev = np.where(receptor_array==0, 0, mobility_parameter_dev)
-    mobility_parameter_diff = mobility_parameter_dev - mobility_parameter_nodev
-
-    #create structured output from the unstructured input
-    dxdy = estimate_grid_spacing(xc,yc, nsamples=100)
-    rx, ry, tau_diff_struct = create_structured_array_from_unstructured(xc, yc, tau_diff, dxdy, flatness=0.2)
-    _, _, mobility_parameter_nodev_struct = create_structured_array_from_unstructured(xc, yc, mobility_parameter_nodev, dxdy, flatness=0.2)
-    _, _, mobility_parameter_dev_struct = create_structured_array_from_unstructured(xc, yc, mobility_parameter_dev, dxdy, flatness=0.2)
-    _, _, mobility_parameter_diff_struct = create_structured_array_from_unstructured(xc, yc, mobility_parameter_diff, dxdy, flatness=0.2)
-
-    mobility_classification = classify_mobility(mobility_parameter_dev, mobility_parameter_nodev)
-
-    listOfFiles = [tau_diff_struct, mobility_parameter_nodev_struct, mobility_parameter_dev_struct, mobility_parameter_diff_struct, mobility_classification]
-    return listOfFiles, rx, ry, dxdy, dxdy
+    return listOfFiles, rx, ry, dx, dy, DF_classified, gridtype

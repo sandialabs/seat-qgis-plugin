@@ -74,7 +74,7 @@ from .resources import *
 # Import PowerModule
 from .power_module import calculate_power
 
-from .shear_stress_module import calculate_wave_probability_shear_stress_stressors, calculate_receptor_change_percentage# calculate_taumax_structured, calculate_receptor_change_percentage, calculate_taumax_unstructured
+from .shear_stress_module import calculate_shear_stress_stressors# calculate_taumax_structured, calculate_receptor_change_percentage, calculate_taumax_unstructured
 
 # Import the code for the dialog
 from .stressor_receptor_calc_dialog import StressorReceptorCalcDialog
@@ -251,51 +251,75 @@ class StressorReceptorCalc:
 
     # End mostly boilerplate code ------
 
-    def select_calc_type(self, fields):
-        """This loads in any inputs into a drop down selector."""
-        calcname = self.dlg.comboBox.currentIndex()
-        # set up table
-        path = os.path.join(
-            QgsApplication.qgisSettingsDirPath(),
-            "python/plugins/seat_qgis_plugin/inputs",
-            fields[calcname] + ".csv",
-        )
-        path = path.replace(os.sep, "/")
-        self.loadcsv(path)
-
-    def loadcsv(self, filename):
-        """This is csv loader for the table widget."""
-        with open(filename) as csvfile:
-            data = csv.reader(csvfile)
-            col = next(data)
-            ncol = len(col)
-            nrow = sum(1 for row in data)
-            # move to first row of data
-            csvfile.seek(0)
-            next(data)
-            self.dlg.tableWidget.setColumnCount(ncol)
-            self.dlg.tableWidget.setRowCount(nrow)
-            # grid = QGridLayout()
-            # grid.addWidget(self.dlg.tableWidget, nrow, ncol);
-            self.dlg.tableWidget.setHorizontalHeaderLabels(col)
-            for i, row in enumerate(data):
-                for j, item in enumerate(row):
-                    self.dlg.tableWidget.setItem(i, j, QTableWidgetItem(item))
-
-            self.dlg.tableWidget.resizeColumnsToContents()
-
-    def select_device_file(self, presence):
-        """Input the .nc file dialog."""
+    def select_style_files(self):
+        """Input the bc file dialog."""
         filename, _filter = QFileDialog.getOpenFileName(
             self.dlg,
-            "Select NetCDF file",
+            "Select Style Files CSV file",
             "",
-            "*.tif; *.nc; *.ini",
+            "*.csv",
         )
+        self.dlg.output_stylefile.setText(filename)
+
+    # def select_style_files_type(self, fields):
+    #     """This loads in any inputs into a drop down selector."""
+    #     calcname = self.dlg.comboBox.currentIndex()
+    #     # set up table
+    #     path = os.path.join(
+    #         QgsApplication.qgisSettingsDirPath(),
+    #         "python/plugins/seat_qgis_plugin/inputs",
+    #         fields[calcname] + ".csv",
+    #     )
+    #     path = path.replace(os.sep, "/")
+    #     self.loadcsv_style_files(path)
+
+    # def loadcsv_style_files(self, filename):
+    #     """This is csv loader for the table widget."""
+    #     with open(filename) as csvfile:
+    #         data = csv.reader(csvfile)
+    #         col = next(data)
+    #         ncol = len(col)
+    #         nrow = sum(1 for row in data)
+    #         # move to first row of data
+    #         csvfile.seek(0)
+    #         next(data)
+    #         self.dlg.tableWidget.setColumnCount(ncol)
+    #         self.dlg.tableWidget.setRowCount(nrow)
+    #         # grid = QGridLayout()
+    #         # grid.addWidget(self.dlg.tableWidget, nrow, ncol);
+    #         self.dlg.tableWidget.setHorizontalHeaderLabels(col)
+    #         for i, row in enumerate(data):
+    #             for j, item in enumerate(row):
+    #                 self.dlg.tableWidget.setItem(i, j, QTableWidgetItem(item))
+
+    #         self.dlg.tableWidget.resizeColumnsToContents()
+
+    def select_device_folder(self, presence):
+        folder_name = QFileDialog.getExistingDirectory(
+                    self.dlg,
+                    "Select Folder"
+                )
         if presence == "not present":
-            self.dlg.device_not_present.setText(filename)
+            self.dlg.device_not_present.setText(folder_name)
         else:
-            self.dlg.device_present.setText(filename)
+            self.dlg.device_present.setText(folder_name)
+
+    def read_style_files(self, file):
+        data = pd.read_csv(file)
+        data = data.set_index('Type')
+        return data
+    # def select_device_file(self, presence):
+    #     """Input the .nc file dialog."""
+    #     filename, _filter = QFileDialog.getOpenFileName(
+    #         self.dlg,
+    #         "Select NetCDF file",
+    #         "",
+    #         "*.tif; *.nc; *.ini",
+    #     )
+    #     if presence == "not present":
+    #         self.dlg.device_not_present.setText(filename)
+    #     else:
+    #         self.dlg.device_present.setText(filename)
 
     def select_bc_file(self):
         """Input the bc file dialog."""
@@ -307,15 +331,12 @@ class StressorReceptorCalc:
         )
         self.dlg.bc_prob.setText(filename)
 
-    def select_run_order_file(self):
-        """Input the bc file dialog."""
-        filename, _filter = QFileDialog.getOpenFileName(
-            self.dlg,
-            "Select Run Order",
-            "",
-            "*.csv",
-        )
-        self.dlg.run_order.setText(filename)
+    def select_power_files_folder(self):
+        folder_name = QFileDialog.getExistingDirectory(
+                    self.dlg,
+                    "Select Folder"
+                )
+        self.dlg.power_files.setText(folder_name)
 
     def select_crs(self):
         """Input the crs using the QGIS widget box."""
@@ -349,15 +370,13 @@ class StressorReceptorCalc:
         )
         self.dlg.sc_file.setText(filename)
 
-    def select_output_file(self):
+    def select_output_folder(self):
         """Select output file picker."""
-        filename, _filter = QFileDialog.getSaveFileName(
-            self.dlg,
-            "Select Output",
-            "",
-            "*.tif",
-        )
-        self.dlg.ofile.setText(filename)
+        folder_name = QFileDialog.getExistingDirectory(
+                            self.dlg,
+                            "Select Folder"
+                        )
+        self.dlg.output_folder.setText(folder_name)
 
     def select_and_load_in(self):
         """Select and load an input file."""
@@ -380,7 +399,7 @@ class StressorReceptorCalc:
                 config.get("Input", "device not present filepath"),
             )
             self.dlg.bc_prob.setText(config.get("Input", "boundary condition filepath"))
-            self.dlg.run_order.setText(config.get("Input", "run order filepath"))
+            self.dlg.power_files.setText(config.get("Input", "power files filepath"))
 
             self.dlg.receptor_file.setText(config.get("Input", "receptor filepath"))
             self.dlg.sc_file.setText(
@@ -391,9 +410,9 @@ class StressorReceptorCalc:
             )
             self.dlg.crs.setText(config.get("Input", "coordinate reference system"))
 
-            self.dlg.ofile.setText(config.get("Output", "output filepath"))
+            self.dlg.output_folder.setText(config.get("Output", "output filepath"))
 
-            self.dlg.comboBox.setCurrentText(config.get("Input", "calculation type"))
+            self.dlg.output_stylefile.setText(config.get("Input", "output style files"))
 
     def save_in(self):
         """Select and save an input file."""
@@ -411,99 +430,34 @@ class StressorReceptorCalc:
             "device present filepath": self.dlg.device_present.text(),
             "device not present filepath": self.dlg.device_not_present.text(),
             "boundary condition filepath": self.dlg.bc_prob.text(),
-            "run order filepath": self.dlg.run_order.text(),
+            "power files filepath": self.dlg.power_files.text(),
             "receptor filepath": self.dlg.receptor_file.text(),
             "secondary constraint filepath": self.dlg.sc_file.text(),
             "stressor variable": self.dlg.stressor_comboBox.currentText(),
             "coordinate reference system": self.dlg.crs.text(),
-            "calculation type": self.dlg.comboBox.currentText(),
+            "output style files": self.dlg.output_stylefile.text(),
         }
 
-        config["Output"] = {"output filepath": self.dlg.ofile.text()}
+        config["Output"] = {"output filepath": self.dlg.output_folder.text()}
 
         with open(filename, "w") as configfile:
             config.write(configfile)
 
-    def calculate_stressor(
+    def run_shear_stress_stressor(
         self,
         dev_present_file,
         dev_notpresent_file,
         bc_file,
-        run_order_file,
-        svar,
         crs,
         output_path,
-        output_path_reclass,
-        receptor_filename=None,
-        receptor=True,
+        receptor_filename=None
     ):
-        """This is structured calculate stressor function."""
-
-        # all runs
-        # bcarray = [i for i in range(1,23)]
-
-        # Skip the bad runs for now. This is deprecated as we load them in from a file now
-        # bcarray = np.array([0,1,2,3,4,5,6,7,9,10,11,12,13,14,15,16,17,19,20,22])
-
-        # SWAN will always be in meters. Not always WGS84
-        # in the netcdf file maybe?
-        SPATIAL_REFERENCE_SYSTEM_WKID = crs  # WGS84
-        nbands = 1
-        # bottom left, x, y netcdf file
-        # bounds = [-124.2843933,44.6705] #x,y or lon,lat, this is pulled from an input data source
-        # look for dx/dy
-        # cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
-
-        # from Kaus -235.8+360 degrees = 124.2 degrees. The 235.8 degree conventions follows longitudes that increase
-        # eastward from Greenwich around the globe. The 124.2W, or -124.2 goes from 0 to 180 degrees to the east of Greenwich.
-        # file = Dataset(dev_present_file)
-        # xcor = file.variables["XCOR"][:].data
-        # ycor = file.variables["YCOR"][:].data
-
-        # look for dx/dy
-        # dx = xcor[1, 0] - xcor[0, 0]
-        # dy = ycor[0, 1] - ycor[0, 0]
-        # cell_resolution = [dx, dy]
-
-        # # Appear to be the top left corner
-        # bounds = [xcor.min() - 360 - dx, ycor.max()]
-
-        # original
-        # if not a Geotiff
-        # if '.tif' not in dev_present_file:
-        # original
-        # rows, cols, numpy_array = transform_netcdf(dev_present_file, dev_notpresent_file, bc_file, run_order_file, bcarray, svar)
-        # new bc one
-        # rows, cols, numpy_array = transform_netcdf_ro(
-        #     dev_present_file,
-        #     dev_notpresent_file,
-        #     bc_file,
-        #     run_order_file,
-        #     svar,
-        #     receptor_filename=receptor_filename,
-        #     receptor=receptor,
-        # )
-        # if svar == "TAUMAX -Structured":
-        #     numpy_arrays, rx, ry, dx, dy = calculate_taumax_structured(
-        #         dev_present_file = dev_present_file,
-        #         dev_notpresent_file = dev_notpresent_file,
-        #         bc_file = bc_file,
-        #         run_order_file = run_order_file,
-        #         receptor_filename = receptor_filename,
-        #     )
-
-        # if svar == "TAUMAX -Unstructured":
-        #     numpy_arrays, rx, ry, dx, dy = calculate_taumax_unstructured(
-        #         fpath_nodev = dev_notpresent_file, 
-        #         fpath_dev = dev_present_file,
-        #         receptor_filename = receptor_filename,
-        #     )
-        if ((svar == "TAUMAX -Structured") or (svar == "TAUMAX -Unstructured")):
-            numpy_arrays, rx, ry, dx, dy, DF_classified = calculate_wave_probability_shear_stress_stressors(fpath_nodev=os.path.dirname(dev_notpresent_file), 
-                                                        fpath_dev=os.path.dirname(dev_present_file), 
-                                                        probabilities_file=bc_file,
-                                                        receptor_filename=receptor_filename,
-                                                        latlon= crs==4326)
+        
+        numpy_arrays, rx, ry, dx, dy, DF_classified, gridtype = calculate_shear_stress_stressors(fpath_nodev=dev_notpresent_file, 
+                                                    fpath_dev=dev_present_file, 
+                                                    probabilities_file=bc_file,
+                                                    receptor_filename=receptor_filename,
+                                                    latlon= crs==4326)
         #numpy_arrays = [0] tau_diff
         #               [1] mobility_parameter_nodev
         #               [2] mobility_parameter_dev
@@ -514,24 +468,29 @@ class StressorReceptorCalc:
                                  'calculated_stressor_with_receptor.tif',
                                 'calculated_stressor_reclassified.tif']
             use_numpy_arrays = [numpy_arrays[0], numpy_arrays[3], numpy_arrays[4]]
-            DF_classified.to_csv(os.path.join(os.path.dirname(output_path), 'receptor_percent_change.csv'))
+            DF_classified.to_csv(os.path.join(output_path, 'receptor_percent_change.csv'))
         else:
             numpy_array_names = ['calculated_stressor.tif']
-            use_numpy_arrays = [numpy_arrays[3]]
+            use_numpy_arrays = [numpy_arrays[0]]
         
         output_rasters = []
         for array_name, numpy_array in zip(numpy_array_names, use_numpy_arrays):
-            array2 = np.flip(np.transpose(numpy_array), axis=0)
+
+            if gridtype=='structured':
+                numpy_array = np.flip(np.transpose(numpy_array), axis=0)
+            else:
+                numpy_array = np.flip(numpy_array, axis=0)
+
             cell_resolution = [dx, dy]
             if crs == 4326:
                 bounds = [rx.min()-360 - dx/2, ry.max() - dy/2]
             else:
                 bounds = [rx.min() - dx/2, ry.max() - dy/2]
-            rows, cols = array2.shape
+            rows, cols = numpy_array.shape
             # create an ouput raster given the stressor file path
-            output_rasters.append(os.path.join(os.path.dirname(output_path), array_name))
+            output_rasters.append(os.path.join(output_path, array_name))
             output_raster = create_raster(
-                os.path.join(os.path.dirname(output_path), array_name),
+                os.path.join(output_path, array_name),
                 cols,
                 rows,
                 nbands=1,
@@ -540,11 +499,11 @@ class StressorReceptorCalc:
             # post processing of numpy array to output raster
             numpy_array_to_raster(
                 output_raster,
-                array2,
+                numpy_array,
                 bounds,
                 cell_resolution,
-                SPATIAL_REFERENCE_SYSTEM_WKID,
-                os.path.join(os.path.dirname(output_path), array_name),
+                crs,
+                os.path.join(output_path, array_name),
             )
         # if not((receptor_filename is None) or (receptor_filename == "")):
         #     # print('calculating percentages')
@@ -618,15 +577,15 @@ class StressorReceptorCalc:
             range = [x[0] for x in layer.legendSymbologyItems()]
             return range
 
-    def calc_area_change(self, ofilename, crs, ostylefile=None):
+    def calc_area_change(self, ofilename, crs, stylefile=None):
         """Export the areas of the given file. Find a UTM of the given crs and calculate in m2."""
 
         cfile = ofilename.replace(".tif", ".csv")
         if os.path.isfile(cfile):
             os.remove(cfile)
 
-        # if ostylefile is not None:
-        #     sdf = df_from_qml(ostylefile)
+        # if stylefile is not None:
+        #     sdf = df_from_qml(stylefile)
 
         # get the basename and use the raster in the instance to get the min / max
         basename = os.path.splitext(os.path.basename(ofilename))[0]
@@ -638,52 +597,64 @@ class StressorReceptorCalc:
         ymax = raster.extent().yMaximum()
 
         # using the min and max make sure the crs doesn't change across grids
-        assert find_utm_srid(xmin, ymin, crs) == find_utm_srid(
-            xmax,
-            ymax,
-            crs,
-        ), "grid spans multiple utms"
-        crs_found = find_utm_srid(xmin, ymin, crs)
+        if crs==4326:
+            assert find_utm_srid(xmin, ymin, crs) == find_utm_srid(
+                xmax,
+                ymax,
+                crs,
+            ), "grid spans multiple utms"
+            crs_found = find_utm_srid(xmin, ymin, crs)
 
-        # create a temporary file for reprojection
-        outfile = tempfile.NamedTemporaryFile(suffix=".tif").name
-        # cmd = f'gdalwarp -s_srs EPSG:{crs} -t_srs EPSG:{crs_found} -r near -of GTiff {ofilename} {outfile}'
-        # os.system(cmd)
+            # create a temporary file for reprojection
+            outfile = tempfile.NamedTemporaryFile(suffix=".tif").name
+            # cmd = f'gdalwarp -s_srs EPSG:{crs} -t_srs EPSG:{crs_found} -r near -of GTiff {ofilename} {outfile}'
+            # os.system(cmd)
 
-        reproject_params = {
-            "INPUT": ofilename,
-            "SOURCE_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs}"),
-            "TARGET_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs_found}"),
-            "RESAMPLING": 0,
-            "NODATA": None,
-            "TARGET_RESOLUTION": None,
-            "OPTIONS": "",
-            "DATA_TYPE": 0,
-            "TARGET_EXTENT": None,
-            "TARGET_EXTENT_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs_found}"),
-            "MULTITHREADING": False,
-            "EXTRA": "",
-            "OUTPUT": outfile,
-        }
+            reproject_params = {
+                "INPUT": ofilename,
+                "SOURCE_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs}"),
+                "TARGET_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs_found}"),
+                "RESAMPLING": 0,
+                "NODATA": None,
+                "TARGET_RESOLUTION": None,
+                "OPTIONS": "",
+                "DATA_TYPE": 0,
+                "TARGET_EXTENT": None,
+                "TARGET_EXTENT_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs_found}"),
+                "MULTITHREADING": False,
+                "EXTRA": "",
+                "OUTPUT": outfile,
+            }
 
-        # reproject to a UTM crs for meters calculation
-        processing.run("gdal:warpreproject", reproject_params)
+            # reproject to a UTM crs for meters calculation
+            processing.run("gdal:warpreproject", reproject_params)
 
-        params = {
-            "BAND": 1,
-            "INPUT": outfile,
-            "OUTPUT_TABLE": cfile,
-        }
+            params = {
+                "BAND": 1,
+                "INPUT": outfile,
+                "OUTPUT_TABLE": cfile,
+            }
 
-        processing.run("native:rasterlayeruniquevaluesreport", params)
-        # remove the temporary file
-        os.remove(outfile)
+            processing.run("native:rasterlayeruniquevaluesreport", params)
+            # remove the temporary file
+            os.remove(outfile)
+        else:
+            params = {
+                "BAND": 1,
+                "INPUT": ofilename,
+                "OUTPUT_TABLE": cfile,
+            }
+
+            processing.run("native:rasterlayeruniquevaluesreport", params)
 
         df = pd.read_csv(cfile, encoding="cp1252")
-        df.rename(columns={"m²": "m2"}, inplace=True)
+        if "m²" in df.columns:
+            df.rename(columns={"m²": "Area"}, inplace=True)
+        elif "Unnamed: 2" in df.columns:
+            df.rename(columns={"Unnamed: 2": "Area"}, inplace=True)
         df = df.groupby(by=["value"]).sum().reset_index()
 
-        df["percentage"] = (df["m2"] / df["m2"].sum()) * 100.0
+        df["percentage"] = (df["Area"] / df["Area"].sum()) * 100.0
 
         df["value"] = df["value"].astype(float)
         # recode 0 to np.nan
@@ -691,14 +662,14 @@ class StressorReceptorCalc:
         # sort ascending values
         df = df.sort_values(by=["value"])
 
-        if ostylefile is not None:
+        if stylefile is not None:
             df = pd.merge(df, sdf, how="left", on="value")
-            df.loc[:, ["value", "label", "count", "m2", "percentage"]].to_csv(
+            df.loc[:, ["value", "label", "count", "Area", "percentage"]].to_csv(
                 cfile,
                 index=False,
             )
         else:
-            df.loc[:, ["value", "count", "m2", "percentage"]].to_csv(
+            df.loc[:, ["value", "count", "Area", "percentage"]].to_csv(
                 cfile,
                 na_rep="NULL",
                 index=False,
@@ -712,37 +683,11 @@ class StressorReceptorCalc:
         if self.first_start == True:
             self.first_start = False
             self.dlg = StressorReceptorCalcDialog()
-            # this set the plugin to be the top most window
-            # self.dlg.setWindowFlags(Qt.WindowStaysOnTopHint)
-            # This connects the function to the combobox when changed
-            self.dlg.comboBox.clear()
 
-            # look here for the inputs
-            path = os.path.join(
-                QgsApplication.qgisSettingsDirPath(),
-                "python/plugins/seat_qgis_plugin/inputs",
-            )
-            path = os.path.join(path, "*.{}".format("csv"))
-            path = path.replace(os.sep, "/")
-            result = glob.glob(path)
-            fields = sorted(os.path.basename(f).split(".csv")[0] for f in result)
-            self.dlg.comboBox.addItems(fields)
-
-            # this loads the inputs and populates the layer combobox
-            self.select_calc_type(fields)
-
-            # This connects the function to the layer combobox when changed
-            self.dlg.comboBox.currentIndexChanged.connect(
-                lambda: self.select_calc_type(fields),
-            )
-
-            # sfields = ['TAUMAX', 'VEL']
             sfields = [
-                "TAUMAX -Structured",
-                "TAUMAX -Unstructured",
-                "VEL -Structured",
-                "VEL -Unstructured",
-                "Acoustics -ParAcousti"
+                "Shear Stress",
+                "Velocity",
+                "Acoustics"
             ]
             self.dlg.stressor_comboBox.addItems(sfields)
 
@@ -752,23 +697,19 @@ class StressorReceptorCalc:
             # this connects the input file creator
             self.dlg.save_input.clicked.connect(lambda: self.save_in())
 
-            # this connecta selecting the files. Since each element has a unique label seperate functions are used.
-
-            # deprecated
-            # self.dlg.pushButton.clicked.connect(self.select_receptor_file)
-            # self.dlg.pushButton_2.clicked.connect(self.select_stressor_file)
 
             # set the present and not present files. Either .nc files or .tif folders
-            self.dlg.pushButton.clicked.connect(
-                    lambda: self.select_device_file("present"),
+            self.dlg.device_pushButton.clicked.connect(
+                    lambda: self.select_device_folder("present"),
                 )
-            self.dlg.pushButton_5.clicked.connect(
-                lambda: self.select_device_file("not present"),
+            self.dlg.no_device_pushButton.clicked.connect(
+                lambda: self.select_device_folder("not present"),
             )
 
             # set the boundary and run order files
-            self.dlg.pushButton_6.clicked.connect(self.select_bc_file)
-            self.dlg.pushButton_7.clicked.connect(self.select_run_order_file)
+            self.dlg.bc_prob_pushButton.clicked.connect(self.select_bc_file)
+
+            self.dlg.power_files_pushButton.clicked.connect(self.select_power_files_folder)
 
             # set the crs file
             self.dlg.crs_button.clicked.connect(self.select_crs)
@@ -777,22 +718,22 @@ class StressorReceptorCalc:
             self.dlg.receptor_button.clicked.connect(self.select_receptor_file)
 
             # set the secondary constraint
-            self.dlg.pushButton_3.clicked.connect(self.select_secondary_constraint_file)
+            self.dlg.secondary_constraint_pushButton.clicked.connect(self.select_secondary_constraint_file)
             # set the output
-            self.dlg.pushButton_4.clicked.connect(self.select_output_file)
+            self.dlg.output_pushButton.clicked.connect(self.select_output_folder)
 
-        # deprecated
-        # self.dlg.lineEdit.clear()
-        # self.dlg.lineEdit_2.clear()
+            self.dlg.select_stylefile_button.clicked.connect(self.select_style_files)
+
 
         self.dlg.device_present.clear()
         self.dlg.device_not_present.clear()
         self.dlg.bc_prob.clear()
-        self.dlg.run_order.clear()
+        self.dlg.power_files.clear()
         self.dlg.crs.clear()
         self.dlg.receptor_file.clear()
         self.dlg.sc_file.clear()
-        self.dlg.ofile.clear()
+        self.dlg.output_folder.clear()
+        self.dlg.output_stylefile.clear()
 
         # show the dialog
         self.dlg.show()
@@ -808,46 +749,23 @@ class StressorReceptorCalc:
             # if '.ini' not in dpresentfname:
             dnotpresentfname = self.dlg.device_not_present.text()
             bcfname = self.dlg.bc_prob.text()
-            rofname = self.dlg.run_order.text()
+            power_files_folder = self.dlg.power_files.text()
 
             rfilename = self.dlg.receptor_file.text()
             scfilename = self.dlg.sc_file.text()
-            ofilename = self.dlg.ofile.text()
+            output_folder_name = self.dlg.output_folder.text()
+            os.makedirs(output_folder_name, exist_ok=True)#create output directory if it doesn't exist
 
             svar = self.dlg.stressor_comboBox.currentText()
 
             crs = int(self.dlg.crs.text())
-            """
-            Config = configparser.ConfigParser().
-
-            config.read(dpresentfname)
-            # For QA
-            configfile = dpresentfname
-            # after reading in the ini overwrite the variable
-            dpresentfname = config['Input']['Device Present Filepath']
-            dnotpresentfname = config['Input']['Device Not Present Filepath']
-            bcfname = config['Input']['Boundary Condition Filepath']
-            rofname = config['Input']['Run Order Filepath']
-
-            svar = config['Input']['Stressor variable']
-            crs = int(config['Input']['Coordinate Reference System'])
-
-            rfilename = config['Input']['Receptor Filepath']
-            scfilename = config['Input']['Secondary Constraint Filepath']
-
-            ofilename = config['Output']['Output Filepath']
-            """
 
             # create logger
             logger = logging.getLogger(__name__)
             logger.setLevel(logging.INFO)
 
             # create file handler and set level to info
-            fname = ofilename.replace(
-                ".tif",
-                "_{}.log".format(date.today().strftime("%Y%m%d")),
-            )
-            os.makedirs(os.path.dirname(fname), exist_ok=True)#create output directory if it doesn't exist
+            fname = os.path.join(output_folder_name, "_{}.log".format(date.today().strftime("%Y%m%d")))
             fh = logging.FileHandler(fname, mode="a", encoding="utf8")
             fh.setLevel(logging.INFO)
 
@@ -862,119 +780,52 @@ class StressorReceptorCalc:
             # add ch to logger
             logger.addHandler(fh)
 
-            # Set up the stressor name
-            sfilename = os.path.join(
-                os.path.dirname(ofilename),
-                "calculated_stressor.tif",
-            )
-            srfilename = os.path.join(
-                os.path.dirname(ofilename),
-                "calculated_stressor_with_grainsize.tif",
-            )
-            srclassfilename = os.path.join(
-                os.path.dirname(ofilename),
-                "calculated_stressor_reclassified.tif",
-            )
-
-            # message
-            logger.info("Receptor File: {}".format(rfilename))
-            logger.info("Stressor File: {}".format(sfilename))
-            logger.info("Stressor with Receptor File: {}".format(srfilename))
-            logger.info("Reclassified Stressor File: {}".format(srclassfilename))
 
             logger.info("Device present File: {}".format(dpresentfname))
             logger.info("Device not present File: {}".format(dnotpresentfname))
             logger.info("Boundary Condition File: {}".format(bcfname))
-            logger.info("Run Order File: {}".format(rofname))
+            logger.info("Power Files: {}".format(power_files_folder))
             logger.info("Stressor: {}".format(svar))
             logger.info("CRS: {}".format(crs))
             logger.info("Secondary Constraint File: {}".format(scfilename))
-            logger.info("Output File: {}".format(ofilename))
+            logger.info("Output Folder: {}".format(output_folder_name))
 
-            # this grabs the current Table Widget values
-            # calc_index=self.dlg.comboBox.currentIndex()
-            # min_rc = self.dlg.tableWidget.item(calc_index, 1).setText()
-            # max_rc = self.dlg.tableWidget.item(calc_index, 2).setText()
 
-            # get the current style file paths
-            profilepath = QgsApplication.qgisSettingsDirPath()
-            profilepath = os.path.join(
-                profilepath,
-                "python",
-                "plugins",
-                "stressor_receptor_calc",
-                "inputs",
-                "Layer Style",
-            )
-            rstylefile = os.path.join(
-                profilepath,
-                self.dlg.tableWidget.item(0, 1).text(),
-            ).replace("\\", "/")
-            sstylefile = os.path.join(
-                profilepath,
-                self.dlg.tableWidget.item(1, 1).text(),
-            ).replace("\\", "/")
-            scstylefile = os.path.join(
-                profilepath,
-                self.dlg.tableWidget.item(2, 1).text(),
-            ).replace("\\", "/")
-
-            if self.dlg.tableWidget.item(3, 1).text() != "":
-                ostylefile = os.path.join(
-                    profilepath,
-                    self.dlg.tableWidget.item(3, 1).text(),
-                ).replace("\\", "/")
-            else:
-                ostylefile = ""
+            stylefiles_DF = self.read_style_files(self.dlg.output_stylefile.text())
             
-            if self.dlg.tableWidget.item(4, 1).text() != "":
-                rcstylefile = os.path.join(
-                    profilepath,
-                    self.dlg.tableWidget.item(4, 1).text(),
-                ).replace("\\", "/")
-            else:
-                rcstylefile = ""
-
-            # deprecated for now
-            # reclass_breakval = float(self.dlg.tableWidget.item(4, 1).setText())
+            sstylefile = stylefiles_DF.loc['Stressor'].values.item().replace("\\", "/")
+            rstylefile = stylefiles_DF.loc['Receptor'].values.item().replace("\\", "/")
+            scstylefile = stylefiles_DF.loc['Secondary Constraint'].values.item().replace("\\", "/")
+            swrstylefile = stylefiles_DF.loc['Stressor with receptor'].values.item().replace("\\", "/")
+            rcstylefile = stylefiles_DF.loc['Reclassificed Stressor with receptor'].values.item().replace("\\", "/")
 
             logger.info("Receptor Style File: {}".format(rstylefile))
             logger.info("Stressor Style File: {}".format(sstylefile))
             logger.info("Secondary Constraint Style File: {}".format(scstylefile))
-            logger.info("Output Style File: {}".format(ostylefile)) #stressor with receptor
+            logger.info("Output Style File: {}".format(swrstylefile)) #stressor with receptor
             logger.info('Stressor reclassification: {}'.format(rcstylefile))
 
             # QgsMessageLog.logMessage(min_rc + " , " + max_rc, level =Qgis.MessageLevel.Info)
             # if the output file path is empty display a warning
-            if ofilename == "":
+            if output_folder_name == "":
                 QgsMessageLog.logMessage(
                     "Output file path not given.",
                     level=Qgis.MessageLevel.Warning,
                 )
 
             # Calculate Power Files
-            # calculate power from devices (need power_file_folder, need power_polygon_file)
-            top_level_path =  os.path.abspath(os.path.join(dpresentfname ,"../..")) #added trn 
-            power_path = os.path.join(top_level_path, 'power_files')
-#            print('Calculating Power....')
-            logger.info("Power File Folder: {}".format(power_path))
-            calculate_power(power_path, bcfname, save_path=os.path.dirname(ofilename))
+            if power_files_folder is not "":
+                logger.info("Power File Folder: {}".format(power_files_folder))
+                calculate_power(power_files_folder, bcfname, save_path=output_folder_name)
 
-            # self.dlg.tableWidget.findItems(i,j, QTableWidgetItem(item))
-
-            # calculate the raster from a structured NetCDF
-            if ((svar == "TAUMAX -Structured") or ("TAUMAX -Unstructured")):
-
-                sfilenames = self.calculate_stressor(
-                    dpresentfname,
-                    dnotpresentfname,
-                    bcfname,
-                    rofname,
-                    svar,
-                    crs,
-                    sfilename,
-                    srclassfilename,
-                    rfilename,
+            if svar == "Shear Stress":
+                sfilenames = self.run_shear_stress_stressor(
+                    dev_present_file=dpresentfname,
+                    dev_notpresent_file=dnotpresentfname,
+                    bc_file=bcfname,
+                    crs=crs,
+                    output_path=output_folder_name,
+                    receptor_filename=rfilename,
                 )
                 # sfilenames = ['calculated_stressor.tif',
                 #  'calculated_stressor_with_receptor.tif',
@@ -983,56 +834,18 @@ class StressorReceptorCalc:
                 self.style_layer(srfilename, sstylefile, ranges=True)
                 self.calc_area_change(srfilename, crs)
                 if not((rfilename is None) or (rfilename == "")): #if receptor present
-                    ofilename = sfilenames[1] #streessor with receptor
+                    swrfilename = sfilenames[1] #streessor with receptor
                     classifiedfilename = sfilenames[2] #reclassified
-                    self.style_layer(ofilename, ostylefile, ranges=True)
+                    self.style_layer(swrfilename, swrstylefile, ranges=True)
                     self.style_layer(classifiedfilename, rcstylefile, ranges=True)
-                    self.calc_area_change(ofilename, crs)
+                    # crs==4326
+                    self.calc_area_change(swrfilename, crs)
                     self.calc_area_change(classifiedfilename, crs)
 
                 
                 # add and style the outfile returning values
 
-
-            # add and style the outfile without the griansize returning values
-            # if svar == "TAUMAX -Structured":
-            #     self.style_layer(srfilename, ostylefile)
-                # test condition without grain size in file
-                # srfilenames = self.calculate_stressor(
-                #     dpresentfname,
-                #     dnotpresentfname,
-                #     bcfname,
-                #     rofname,
-                #     svar,
-                #     crs,
-                #     srfilename,
-                #     srclassfilename,
-                # )
-
-            # calculate the raster from an unstructured NetCDF
-            # if svar == "TAUMAX -Unstructured":
-            #     # set the crs to 4326 since the bounds are also in that
-            #     bounds = [-149.088, 64.5681]
-            #     # cell_resolution = [0.0008,0.001 ] #x res, y res or lon, lat, same as above
-            #     cell_resolution = [
-            #         0.0001628997158260284031,
-            #         0.0001628997158260284031,
-            #     ]  # x res, y res or lon, lat, same as above
-            #     nbands = 1
-            #     taucrit = 100.0
-            #     # calculate the unstructured version using the parameters defined above
-            #     sfilenames = self.calc_stressor_unstruct(
-            #         dpresentfname,
-            #         dnotpresentfname,
-            #         sfilename,
-            #         nbands,
-            #         bounds,
-            #         cell_resolution,
-            #         crs,
-            #         taucrit,
-            #     )
-
-            if svar == "Acoustics -ParAcousti":
+            if svar == "Acoustics":
                 #read stressor file to get density 
                 #extract folder from stressor
                 paracousti_folder = os.path.dirname(dpresentfname)
