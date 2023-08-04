@@ -19,6 +19,16 @@ from matplotlib.tri import LinearTriInterpolator, TriAnalyzer, Triangulation
 from scipy.interpolate import griddata
 from netCDF4 import Dataset
 from osgeo import gdal, osr
+from .readnetcdf_createraster import (
+    create_raster,
+    numpy_array_to_raster
+)
+from .stressor_utils import (
+    estimate_grid_spacing,
+    create_structured_array_from_unstructured,
+    calc_receptor_array,
+    trim_zeros
+)
 
 def critical_shear_stress(D_meters, rhow=1024, nu=1e-6, s=2.65, g=9.81):
     # D_meters = grain size in meters, can be array
@@ -66,67 +76,6 @@ def calculate_receptor_change_percentage(receptor_array, data_diff):
     return DF
     # DF.to_csv(os.path.join(ofpath, 'receptor_percent_change.csv'))
 
-def estimate_grid_spacing(x,y, nsamples=100):
-    import random
-    import sys
-    coords = list(set(zip(x,y)))
-    if nsamples != len(x):
-        points = [random.choice(coords) for i in range(nsamples)] # pick N random points
-    else:
-        points = coords
-    MD = []
-    for p0x, p0y in points:
-        minimum_distance = sys.maxsize
-        for px, py in coords:
-            distance = np.sqrt((p0x - px) ** 2 + (p0y - py) ** 2)
-            if (distance < minimum_distance) & (distance !=0):
-                minimum_distance = distance
-        MD.append(minimum_distance)
-    dxdy = np.median(MD)
-    return dxdy
-
-
-def calc_receptor_taucrit(receptor_filename, x, y, latlon=False):
-    # if ((receptor_filename is not None) or (not receptor_filename == "")):
-    if not((receptor_filename is None) or (receptor_filename == "")):
-        data = gdal.Open(receptor_filename)
-        img = data.GetRasterBand(1)
-        receptor_array = img.ReadAsArray()
-        receptor_array[receptor_array < 0] = 0
-        (upper_left_x, x_size, x_rotation, upper_left_y, y_rotation, y_size) = data.GetGeoTransform()
-        cols = data.RasterXSize
-        rows = data.RasterYSize
-        r_rows = np.arange(rows) * y_size + upper_left_y + (y_size / 2)
-        r_cols = np.arange(cols) * x_size + upper_left_x + (x_size / 2)
-        if latlon==True:
-            r_cols = np.where(r_cols<0, r_cols+360, r_cols)
-        x_grid, y_grid = np.meshgrid(r_cols, r_rows)
-        receptor_array = griddata((x_grid.flatten(), y_grid.flatten()), receptor_array.flatten(), (x,y), method='nearest', fill_value=0)
-
-        taucrit = critical_shear_stress(D_meters=receptor_array * 1e-6,
-                            rhow=1024,
-                            nu=1e-6,
-                            s=2.65,
-                            g=9.81) #units N/m2 = Pa
-    else:
-        # taucrit without a receptor
-        #Assume the following grain sizes and conditions for typical beach sand (Nielsen, 1992 p.108)
-        taucrit = critical_shear_stress(D_meters=200*1e-6, rhow=1024, nu=1e-6, s=2.65, g=9.81)  #units N/m2 = Pa
-        receptor_array = 200*1e-6 * np.ones(x.shape)
-    return taucrit, receptor_array
-
-def create_structured_array_from_unstructured(x, y, z, dxdy, flatness=0.2):
-    # flatness is from 0-.5 .5 is equilateral triangle
-    refx = np.arange(np.nanmin(x), np.nanmax(x)+dxdy, dxdy)
-    refy = np.arange(np.nanmin(y), np.nanmax(y)+dxdy, dxdy)
-    refxg, refyg = np.meshgrid(refx, refy)
-    tri = Triangulation(x, y)
-    mask = TriAnalyzer(tri).get_flat_tri_mask(flatness)
-    tri.set_mask(mask)
-    tli = LinearTriInterpolator(tri, z)
-    z_interp = tli(refxg, refyg)
-    return refxg, refyg, z_interp.data
-
 def classify_mobility(mobility_parameter_dev, mobility_parameter_nodev):
     mobility_classification = np.zeros(mobility_parameter_dev.shape)
     #Reduced Erosion (Tw<Tb) & (Tw-Tb)>1
@@ -142,16 +91,13 @@ def classify_mobility(mobility_parameter_dev, mobility_parameter_nodev):
 
 def check_grid_define_vars(dataset):
     vars = list(dataset.variables)
-    if 'XCOR' in vars:
+    if 'TAUMAX' in vars:
         gridtype = 'structured'
-        xvar = 'XCOR'
-        yvar = 'YCOR'
         tauvar = 'TAUMAX'
     else:
         gridtype = 'unstructured'
-        xvar = 'FlowElem_xcc'
-        yvar = 'FlowElem_ycc'
         tauvar = 'taus'
+    xvar, yvar = dataset.variables[tauvar].coordinates.split()
     return gridtype, xvar, yvar, tauvar
 
 def calculate_shear_stress_stressors(fpath_nodev, 
@@ -171,11 +117,8 @@ def calculate_shear_stress_stressors(fpath_nodev,
 
         file_dev_present = Dataset(os.path.join(fpath_dev, files_dev[0]))
         gridtype, xvar, yvar, tauvar = check_grid_define_vars(file_dev_present)
-        # X-coordinate of cell center
         xcor = file_dev_present.variables[xvar][:].data
-        # Y-coordinate of cell center
         ycor = file_dev_present.variables[yvar][:].data
-        # TAUMAX
         tau_dev = file_dev_present.variables[tauvar][:]
         # close the device prsent file
         file_dev_present.close()
@@ -239,6 +182,11 @@ def calculate_shear_stress_stressors(fpath_nodev,
         raise Exception(f"Number of device runs ({len(files_dev)}) must be the same as no device runs ({len(files_nodev)}).") 
     # Finished loading and sorting files
 
+    if (gridtype == 'structured'):
+        if (xcor[0,0]==0) & (xcor[-1,0]==0):
+            #at least for some runs the boundary has 0 coordinates. Check and fix.
+            xcor, ycor, tau_nodev, tau_dev = trim_zeros(xcor, ycor, tau_nodev, tau_dev)
+
     if not(probabilities_file == ""):
         # Load BC file with probabilities and find appropriate probability
         BC_probability = pd.read_csv(probabilities_file, delimiter=",")
@@ -267,8 +215,7 @@ def calculate_shear_stress_stressors(fpath_nodev,
     else:
         tau_dev = np.nanmax(tau_dev, axis=1, keepdims=True) #max over time
         tau_nodev = np.nanmax(tau_nodev, axis=1, keepdims=True) #max over time
-
-
+    
     #initialize arrays
     if gridtype == 'structured':
         tau_combined_nodev = np.zeros(np.shape(tau_nodev[0, 0, :, :]))
@@ -283,8 +230,13 @@ def calculate_shear_stress_stressors(fpath_nodev,
         tau_combined_nodev = tau_combined_nodev + prob * tau_nodev[run_number,-1,:] 
         tau_combined_dev = tau_combined_dev + prob * tau_dev[run_number,-1,:] 
 
+    receptor_array = calc_receptor_array(receptor_filename, xcor, ycor, latlon=latlon)
+    taucrit = critical_shear_stress(D_meters=receptor_array * 1e-6,
+                    rhow=1024,
+                    nu=1e-6,
+                    s=2.65,
+                    g=9.81) #units N/m2 = Pa
     tau_diff = tau_combined_dev - tau_combined_nodev
-    taucrit, receptor_array = calc_receptor_taucrit(receptor_filename, xcor, ycor, latlon=latlon)
     mobility_parameter_nodev = tau_combined_nodev / taucrit
     mobility_parameter_nodev = np.where(receptor_array==0, 0, mobility_parameter_nodev)
     mobility_parameter_dev = tau_combined_dev / taucrit
@@ -322,3 +274,73 @@ def calculate_shear_stress_stressors(fpath_nodev,
         listOfFiles = [tau_diff_struct, mobility_parameter_nodev_struct, mobility_parameter_dev_struct, mobility_parameter_diff_struct, mobility_classification, receptor_array_struct]
 
     return listOfFiles, rx, ry, dx, dy, DF_classified, gridtype
+
+def run_shear_stress_stressor(
+    dev_present_file,
+    dev_notpresent_file,
+    bc_file,
+    crs,
+    output_path,
+    receptor_filename=None
+):
+    
+    numpy_arrays, rx, ry, dx, dy, DF_classified, gridtype = calculate_shear_stress_stressors(fpath_nodev=dev_notpresent_file, 
+                                                fpath_dev=dev_present_file, 
+                                                probabilities_file=bc_file,
+                                                receptor_filename=receptor_filename,
+                                                latlon= crs==4326)
+    #numpy_arrays = [0] tau_diff
+    #               [1] mobility_parameter_nodev
+    #               [2] mobility_parameter_dev
+    #               [3] mobility_parameter_diff
+    #               [4] mobility_classification
+    #               [5] receptor array   
+    if not((receptor_filename is None) or (receptor_filename == "")):
+        numpy_array_names = ['calculated_stressor.tif',
+                            'calculated_stressor_with_receptor.tif',
+                            'calculated_stressor_reclassified.tif']
+        use_numpy_arrays = [numpy_arrays[0], numpy_arrays[3], numpy_arrays[4]]
+        DF_classified.to_csv(os.path.join(output_path, 'receptor_percent_change.csv'))
+    else:
+        numpy_array_names = ['calculated_stressor.tif']
+        use_numpy_arrays = [numpy_arrays[0]]
+    
+    output_rasters = []
+    for array_name, numpy_array in zip(numpy_array_names, use_numpy_arrays):
+
+        if gridtype=='structured':
+            numpy_array = np.flip(np.transpose(numpy_array), axis=0)
+        else:
+            numpy_array = np.flip(numpy_array, axis=0)
+
+        cell_resolution = [dx, dy]
+        if crs == 4326:
+            bounds = [rx.min()-360 - dx/2, ry.max() - dy/2]
+        else:
+            bounds = [rx.min() - dx/2, ry.max() - dy/2]
+        rows, cols = numpy_array.shape
+        # create an ouput raster given the stressor file path
+        output_rasters.append(os.path.join(output_path, array_name))
+        output_raster = create_raster(
+            os.path.join(output_path, array_name),
+            cols,
+            rows,
+            nbands=1,
+        )
+
+        # post processing of numpy array to output raster
+        numpy_array_to_raster(
+            output_raster,
+            numpy_array,
+            bounds,
+            cell_resolution,
+            crs,
+            os.path.join(output_path, array_name),
+        )
+    # if not((receptor_filename is None) or (receptor_filename == "")):
+    #     # print('calculating percentages')
+    #     # print(output_path)
+    #     calculate_receptor_change_percentage(receptor_filename=receptor_filename, data_diff=numpy_arrays[-1], ofpath=os.path.dirname(output_path))
+
+
+    return output_rasters

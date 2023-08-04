@@ -63,7 +63,6 @@ from .Find_UTM_srid import find_utm_srid
 
 # import netcdf calculations
 from .readnetcdf_createraster import (
-    calculate_diff_cec,
     create_raster,
     numpy_array_to_raster
 )
@@ -74,8 +73,8 @@ from .resources import *
 # Import PowerModule
 from .power_module import calculate_power
 
-from .shear_stress_module import calculate_shear_stress_stressors# calculate_taumax_structured, calculate_receptor_change_percentage, calculate_taumax_unstructured
-
+from .shear_stress_module import run_shear_stress_stressor#calculate_shear_stress_stressors# calculate_taumax_structured, calculate_receptor_change_percentage, calculate_taumax_unstructured
+from .velocity_module import run_velocity_stressor
 # Import the code for the dialog
 from .stressor_receptor_calc_dialog import StressorReceptorCalcDialog
 
@@ -443,113 +442,6 @@ class StressorReceptorCalc:
         with open(filename, "w") as configfile:
             config.write(configfile)
 
-    def run_shear_stress_stressor(
-        self,
-        dev_present_file,
-        dev_notpresent_file,
-        bc_file,
-        crs,
-        output_path,
-        receptor_filename=None
-    ):
-        
-        numpy_arrays, rx, ry, dx, dy, DF_classified, gridtype = calculate_shear_stress_stressors(fpath_nodev=dev_notpresent_file, 
-                                                    fpath_dev=dev_present_file, 
-                                                    probabilities_file=bc_file,
-                                                    receptor_filename=receptor_filename,
-                                                    latlon= crs==4326)
-        #numpy_arrays = [0] tau_diff
-        #               [1] mobility_parameter_nodev
-        #               [2] mobility_parameter_dev
-        #               [3] mobility_parameter_diff
-        #               [4] mobility_classification    
-        if not((receptor_filename is None) or (receptor_filename == "")):
-            numpy_array_names = ['calculated_stressor.tif',
-                                 'calculated_stressor_with_receptor.tif',
-                                'calculated_stressor_reclassified.tif']
-            use_numpy_arrays = [numpy_arrays[0], numpy_arrays[3], numpy_arrays[4]]
-            DF_classified.to_csv(os.path.join(output_path, 'receptor_percent_change.csv'))
-        else:
-            numpy_array_names = ['calculated_stressor.tif']
-            use_numpy_arrays = [numpy_arrays[0]]
-        
-        output_rasters = []
-        for array_name, numpy_array in zip(numpy_array_names, use_numpy_arrays):
-
-            if gridtype=='structured':
-                numpy_array = np.flip(np.transpose(numpy_array), axis=0)
-            else:
-                numpy_array = np.flip(numpy_array, axis=0)
-
-            cell_resolution = [dx, dy]
-            if crs == 4326:
-                bounds = [rx.min()-360 - dx/2, ry.max() - dy/2]
-            else:
-                bounds = [rx.min() - dx/2, ry.max() - dy/2]
-            rows, cols = numpy_array.shape
-            # create an ouput raster given the stressor file path
-            output_rasters.append(os.path.join(output_path, array_name))
-            output_raster = create_raster(
-                os.path.join(output_path, array_name),
-                cols,
-                rows,
-                nbands=1,
-            )
-
-            # post processing of numpy array to output raster
-            numpy_array_to_raster(
-                output_raster,
-                numpy_array,
-                bounds,
-                cell_resolution,
-                crs,
-                os.path.join(output_path, array_name),
-            )
-        # if not((receptor_filename is None) or (receptor_filename == "")):
-        #     # print('calculating percentages')
-        #     # print(output_path)
-        #     calculate_receptor_change_percentage(receptor_filename=receptor_filename, data_diff=numpy_arrays[-1], ofpath=os.path.dirname(output_path))
-
-
-        return output_rasters
-
-    def calc_stressor_unstruct(
-        self,
-        fname_base,
-        fname_cec,
-        output_path,
-        nbands,
-        bounds,
-        cell_resolution,
-        crs,
-        receptor_filename,
-    ):
-        """Calculate stressor unstructured function."""
-        rows, cols, numpy_array = calculate_diff_cec(
-            fname_base,
-            fname_cec,
-            taucrit=100.0,
-        )
-
-        output_raster = create_raster(
-            output_path,
-            cols,
-            rows,
-            nbands,
-        )
-
-        # post processing of numpy array to output raster
-
-        numpy_array_to_raster(
-            output_raster,
-            numpy_array,
-            bounds,
-            cell_resolution,
-            crs,
-            output_path,
-        )
-        return output_path
-
     def style_layer(self, fpath, stylepath, checked=True, ranges=True):
         """Style and add the result layer to map."""
         basename = os.path.splitext(os.path.basename(fpath))[0]
@@ -648,7 +540,9 @@ class StressorReceptorCalc:
             processing.run("native:rasterlayeruniquevaluesreport", params)
 
         df = pd.read_csv(cfile, encoding="cp1252")
-        if "m²" in df.columns:
+        if "m2" in df.columns:
+            df.rename(columns={"m2": "Area"}, inplace=True)
+        elif "m²" in df.columns:
             df.rename(columns={"m²": "Area"}, inplace=True)
         elif "Unnamed: 2" in df.columns:
             df.rename(columns={"Unnamed: 2": "Area"}, inplace=True)
@@ -819,7 +713,33 @@ class StressorReceptorCalc:
                 calculate_power(power_files_folder, bcfname, save_path=output_folder_name)
 
             if svar == "Shear Stress":
-                sfilenames = self.run_shear_stress_stressor(
+                sfilenames = run_shear_stress_stressor(
+                    dev_present_file=dpresentfname,
+                    dev_notpresent_file=dnotpresentfname,
+                    bc_file=bcfname,
+                    crs=crs,
+                    output_path=output_folder_name,
+                    receptor_filename=rfilename,
+                )
+                # sfilenames = ['calculated_stressor.tif',
+                #  'calculated_stressor_with_receptor.tif',
+                # 'calculated_stressor_reclassified.tif'
+                srfilename = sfilenames[0] #stressor 
+                self.style_layer(srfilename, sstylefile, ranges=True)
+                # self.calc_area_change(srfilename, crs)
+                if not((rfilename is None) or (rfilename == "")): #if receptor present
+                    swrfilename = sfilenames[1] #streessor with receptor
+                    classifiedfilename = sfilenames[2] #reclassified
+                    self.style_layer(swrfilename, swrstylefile, ranges=True)
+                    self.style_layer(classifiedfilename, rcstylefile, ranges=True)
+                    if rfilename.endswith('.tif'):
+                        self.style_layer(rfilename, rstylefile, checked=False)
+                    # crs==4326
+                    # self.calc_area_change(swrfilename, crs)
+                    # self.calc_area_change(classifiedfilename, crs)
+
+            if svar == "Velocity":
+                sfilenames = run_velocity_stressor(
                     dev_present_file=dpresentfname,
                     dev_notpresent_file=dnotpresentfname,
                     bc_file=bcfname,
@@ -832,18 +752,19 @@ class StressorReceptorCalc:
                 # 'calculated_stressor_reclassified.tif']
                 srfilename = sfilenames[0] #stressor 
                 self.style_layer(srfilename, sstylefile, ranges=True)
-                self.calc_area_change(srfilename, crs)
+                # self.calc_area_change(srfilename, crs)
                 if not((rfilename is None) or (rfilename == "")): #if receptor present
                     swrfilename = sfilenames[1] #streessor with receptor
                     classifiedfilename = sfilenames[2] #reclassified
                     self.style_layer(swrfilename, swrstylefile, ranges=True)
                     self.style_layer(classifiedfilename, rcstylefile, ranges=True)
+                    if rfilename.endswith('.tif'):
+                        self.style_layer(rfilename, rstylefile, checked=False)
                     # crs==4326
-                    self.calc_area_change(swrfilename, crs)
-                    self.calc_area_change(classifiedfilename, crs)
+                    # self.calc_area_change(swrfilename, crs)
+                    # self.calc_area_change(classifiedfilename, crs)
 
-                
-                # add and style the outfile returning values
+
 
             if svar == "Acoustics":
                 #read stressor file to get density 
@@ -862,8 +783,8 @@ class StressorReceptorCalc:
             #     shutil.copy(sfilename, ofilename)
 
             # add and style the receptor
-            if not rfilename == "":
-                self.style_layer(rfilename, rstylefile, checked=False)
+            # if not rfilename == "":
+            #     self.style_layer(rfilename, rstylefile, checked=False)
 
             # add and style the secondary constraint
             if not scfilename == "":
