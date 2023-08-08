@@ -3,6 +3,7 @@ import pandas as pd
 from matplotlib.tri import LinearTriInterpolator, TriAnalyzer, Triangulation
 from scipy.interpolate import griddata
 from osgeo import gdal, osr
+import os
 
 def estimate_grid_spacing(x,y, nsamples=100):
     import random
@@ -66,3 +67,77 @@ def calc_receptor_array(receptor_filename, x, y, latlon=False):
 def trim_zeros(x,y,z1, z2):
     #edges of structured array have zeros, not sure if universal issue
     return x[1:-1,1:-1], y[1:-1,1:-1], z1[:, :, 1:-1, 1:-1], z2[:, :, 1:-1, 1:-1]
+
+
+
+def create_raster(
+    output_path,
+    cols,
+    rows,
+    nbands,
+):
+
+    """Create a gdal raster object."""
+    # create gdal driver - doing this explicitly
+    driver = gdal.GetDriverByName(str("GTiff"))
+
+    output_raster = driver.Create(
+        output_path,
+        int(cols),
+        int(rows),
+        nbands,
+        eType=gdal.GDT_Float32,
+    )
+
+    # spatial_reference = osr.SpatialReference()
+    # spatial_reference.ImportFromEPSG(spatial_reference_system_wkid)
+    # output_raster.SetProjection(spatial_reference.ExportToWkt())
+
+    # returns gdal data source raster object
+    return output_raster
+
+
+def numpy_array_to_raster(
+    output_raster,
+    numpy_array,
+    bounds,
+    cell_resolution,
+    spatial_reference_system_wkid,
+    output_path,
+):
+
+    """Create the output raster."""
+    # create output raster
+    # (upper_left_x, x_resolution, x_skew 0, upper_left_y, y_skew 0, y_resolution).
+    # Need to rotate to go from np array to geo tiff. This can vary depending on the methods used above. Will need to test for this.
+    geotransform = (
+        bounds[0],
+        cell_resolution[0],
+        0,
+        bounds[1] + cell_resolution[1],
+        0,
+        -1 * cell_resolution[1],
+    )
+
+    spatial_reference = osr.SpatialReference()
+    spatial_reference.ImportFromEPSG(spatial_reference_system_wkid)
+
+    output_raster.SetProjection(
+        spatial_reference.ExportToWkt(),
+    )  # exports the cords to the file
+    output_raster.SetGeoTransform(geotransform)
+    output_band = output_raster.GetRasterBand(1)
+    # output_band.SetNoDataValue(no_data) #Not an issue, may be in other cases?
+    output_band.WriteArray(numpy_array)
+
+    output_band.FlushCache()
+    output_band.ComputeStatistics(
+        False,
+    )  # you want this false, true will make computed results, but is faster, could be a setting in the UI perhaps, esp for large rasters?
+
+    if os.path.exists(output_path) == False:
+        raise Exception("Failed to create raster: %s" % output_path)
+
+    # this closes the file
+    output_raster = None
+    return output_path

@@ -61,19 +61,13 @@ from qgis.PyQt.QtWidgets import QAction, QFileDialog, QGridLayout, QTableWidgetI
 # UTM finder
 from .Find_UTM_srid import find_utm_srid
 
-# import netcdf calculations
-from .readnetcdf_createraster import (
-    create_raster,
-    numpy_array_to_raster
-)
-
 # Initialize Qt resources from file resources.py
 from .resources import *
 
 # Import PowerModule
 from .power_module import calculate_power
 
-from .shear_stress_module import run_shear_stress_stressor#calculate_shear_stress_stressors# calculate_taumax_structured, calculate_receptor_change_percentage, calculate_taumax_unstructured
+from .shear_stress_module import run_shear_stress_stressor
 from .velocity_module import run_velocity_stressor
 # Import the code for the dialog
 from .stressor_receptor_calc_dialog import StressorReceptorCalcDialog

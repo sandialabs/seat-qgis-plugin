@@ -19,15 +19,13 @@ from matplotlib.tri import LinearTriInterpolator, TriAnalyzer, Triangulation
 from scipy.interpolate import griddata
 from netCDF4 import Dataset
 from osgeo import gdal, osr
-from .readnetcdf_createraster import (
-    create_raster,
-    numpy_array_to_raster
-)
 from .stressor_utils import (
     estimate_grid_spacing,
     create_structured_array_from_unstructured,
     calc_receptor_array,
-    trim_zeros
+    trim_zeros,
+    create_raster,
+    numpy_array_to_raster
 )
 
 def calculate_receptor_change_percentage(receptor_array, data_diff):

@@ -19,15 +19,14 @@ from matplotlib.tri import LinearTriInterpolator, TriAnalyzer, Triangulation
 from scipy.interpolate import griddata
 from netCDF4 import Dataset
 from osgeo import gdal, osr
-from .readnetcdf_createraster import (
-    create_raster,
-    numpy_array_to_raster
-)
+
 from .stressor_utils import (
     estimate_grid_spacing,
     create_structured_array_from_unstructured,
     calc_receptor_array,
-    trim_zeros
+    trim_zeros,
+    create_raster,
+    numpy_array_to_raster
 )
 
 def critical_shear_stress(D_meters, rhow=1024, nu=1e-6, s=2.65, g=9.81):
