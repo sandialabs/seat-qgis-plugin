@@ -36,6 +36,17 @@ def create_structured_array_from_unstructured(x, y, z, dxdy, flatness=0.2):
     z_interp = tli(refxg, refyg)
     return refxg, refyg, z_interp.data
 
+def redefine_structured_grid(x,y,z):
+    min_x = np.nanmin(x)
+    min_y = np.nanmin(y)
+    max_x = np.nanmax(x)
+    max_y = np.nanmax(y)
+    xx = np.linspace(min_x, max_x, x.shape[1])
+    yy = np.linspace(min_y, max_y, y.shape[0])
+    x_new, y_new = np.meshgrid(xx,yy)
+    z_new = griddata((x.flatten(), y.flatten()), z.flatten(), (x_new, y_new), method='nearest', fill_value=0)
+    return x_new, y_new, z_new
+
 def calc_receptor_array(receptor_filename, x, y, latlon=False):
     # if ((receptor_filename is not None) or (not receptor_filename == "")):
     if not((receptor_filename is None) or (receptor_filename == "")):
