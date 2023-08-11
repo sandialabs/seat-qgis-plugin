@@ -124,3 +124,73 @@ def calculate_acoustic_stressors(fpath_dev,
     dx = np.nanmean(np.diff(XX[:,0]))
     dy = np.nanmean(np.diff(YY[0,:]))
     return listOfFiles, XX, YY, dx, dy
+
+def run_acoustics_stressor(
+    dev_present_file,
+    dev_notpresent_file,
+    bc_file,
+    crs,
+    output_path,
+    receptor_filename=None
+):
+    
+    numpy_arrays, rx, ry, dx, dy, DF_classified, gridtype = calculate_acoustic_stressors(fpath_nodev=dev_notpresent_file, 
+                                                fpath_dev=dev_present_file, 
+                                                probabilities_file=bc_file,
+                                                receptor_filename=receptor_filename,
+                                                latlon= crs==4326)
+    #numpy_arrays = [0] tau_diff
+    #               [1] mobility_parameter_nodev
+    #               [2] mobility_parameter_dev
+    #               [3] mobility_parameter_diff
+    #               [4] mobility_classification
+    #               [5] receptor array   
+    if not((receptor_filename is None) or (receptor_filename == "")):
+        numpy_array_names = ['calculated_stressor.tif',
+                            'calculated_stressor_with_receptor.tif',
+                            'calculated_stressor_reclassified.tif']
+        use_numpy_arrays = [numpy_arrays[0], numpy_arrays[3], numpy_arrays[4]]
+        DF_classified.to_csv(os.path.join(output_path, 'receptor_percent_change.csv'))
+    else:
+        numpy_array_names = ['calculated_stressor.tif']
+        use_numpy_arrays = [numpy_arrays[0]]
+    
+    output_rasters = []
+    for array_name, numpy_array in zip(numpy_array_names, use_numpy_arrays):
+
+        if gridtype=='structured':
+            numpy_array = np.flip(np.transpose(numpy_array), axis=0)
+        else:
+            numpy_array = np.flip(numpy_array, axis=0)
+
+        cell_resolution = [dx, dy]
+        if crs == 4326:
+            bounds = [rx.min()-360 - dx/2, ry.max() - dy/2]
+        else:
+            bounds = [rx.min() - dx/2, ry.max() - dy/2]
+        rows, cols = numpy_array.shape
+        # create an ouput raster given the stressor file path
+        output_rasters.append(os.path.join(output_path, array_name))
+        output_raster = create_raster(
+            os.path.join(output_path, array_name),
+            cols,
+            rows,
+            nbands=1,
+        )
+
+        # post processing of numpy array to output raster
+        numpy_array_to_raster(
+            output_raster,
+            numpy_array,
+            bounds,
+            cell_resolution,
+            crs,
+            os.path.join(output_path, array_name),
+        )
+    # if not((receptor_filename is None) or (receptor_filename == "")):
+    #     # print('calculating percentages')
+    #     # print(output_path)
+    #     calculate_receptor_change_percentage(receptor_filename=receptor_filename, data_diff=numpy_arrays[-1], ofpath=os.path.dirname(output_path))
+
+
+    return output_rasters
