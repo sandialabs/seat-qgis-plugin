@@ -4,6 +4,7 @@ from matplotlib.tri import LinearTriInterpolator, TriAnalyzer, Triangulation
 from scipy.interpolate import griddata
 from osgeo import gdal, osr
 import os
+from .Find_UTM_srid import find_utm_srid # UTM finder
 
 def estimate_grid_spacing(x,y, nsamples=100):
     import random
@@ -152,3 +153,50 @@ def numpy_array_to_raster(
     # this closes the file
     output_raster = None
     return output_path
+
+def find_utm_srid(lon, lat, srid):
+
+    """
+    Given a WGS 64 srid calculate the corresponding UTM srid.
+
+    :param lon: WGS 84 (srid 4326) longitude value)
+    :param lat: WGS 84 (srid 4326) latitude value)
+    :param srid: WGS 84 srid 4326 to make sure the function is appropriate
+    :return: out_srid: UTM srid
+    """
+
+    assert srid == 4326, f"find_utm_srid: input geometry has wrong SRID {srid}"
+
+    if lat < 0:
+        # south hemisphere
+        base_srid = 32700
+    else:
+        # north hemisphere or on equator
+        base_srid = 32600
+
+    # calculate final srid
+    out_srid = base_srid + np.floor((lon + 186) / 6)
+
+    if lon == 180:
+        out_srid = base_srid + 60
+
+    return out_srid
+
+def calculate_grid_sqarea_latlon2m(rx, ry):
+    import numpy as np
+    from pyproj import Geod
+
+    geod = Geod(ellps="WGS84")
+    rxx = np.where(rx>180, rx-360, rx)
+    lon2D,lat2D = rxx, ry
+    _,_, distEW = geod.inv(lon2D[:,:-1],lat2D[:,1:], lon2D[:,1:], lat2D[:,1:])
+    _,_, distNS = geod.inv(lon2D[1:,:],lat2D[1:,:], lon2D[1:,:], lat2D[:-1,:])
+    square_area = distEW[1:,:] * distNS[:,1:]
+    np.nanmean(square_area)
+    rxm = np.zeros(square_area.shape)
+    rym = np.zeros(square_area.shape)
+    for row in range(rx.shape[0]-1):
+        rxm[row,:] = (rx[row,:-1]+ rx[row,1:])/2
+    for col in range(ry.shape[1]-1):
+        rym[:,col] = (ry[:-1,col]+ ry[1:,col])/2
+    return rxm, rym, square_area
