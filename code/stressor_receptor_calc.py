@@ -64,11 +64,12 @@ from .Find_UTM_srid import find_utm_srid
 # Initialize Qt resources from file resources.py
 from .resources import *
 
-# Import PowerModule
-from .power_module import calculate_power
-
+# Import Modules
 from .shear_stress_module import run_shear_stress_stressor
 from .velocity_module import run_velocity_stressor
+from .acoustics_module import run_acoustics_stressor
+from .power_module import calculate_power
+
 # Import the code for the dialog
 from .stressor_receptor_calc_dialog import StressorReceptorCalcDialog
 
@@ -254,39 +255,6 @@ class StressorReceptorCalc:
         )
         self.dlg.output_stylefile.setText(filename)
 
-    # def select_style_files_type(self, fields):
-    #     """This loads in any inputs into a drop down selector."""
-    #     calcname = self.dlg.comboBox.currentIndex()
-    #     # set up table
-    #     path = os.path.join(
-    #         QgsApplication.qgisSettingsDirPath(),
-    #         "python/plugins/seat_qgis_plugin/inputs",
-    #         fields[calcname] + ".csv",
-    #     )
-    #     path = path.replace(os.sep, "/")
-    #     self.loadcsv_style_files(path)
-
-    # def loadcsv_style_files(self, filename):
-    #     """This is csv loader for the table widget."""
-    #     with open(filename) as csvfile:
-    #         data = csv.reader(csvfile)
-    #         col = next(data)
-    #         ncol = len(col)
-    #         nrow = sum(1 for row in data)
-    #         # move to first row of data
-    #         csvfile.seek(0)
-    #         next(data)
-    #         self.dlg.tableWidget.setColumnCount(ncol)
-    #         self.dlg.tableWidget.setRowCount(nrow)
-    #         # grid = QGridLayout()
-    #         # grid.addWidget(self.dlg.tableWidget, nrow, ncol);
-    #         self.dlg.tableWidget.setHorizontalHeaderLabels(col)
-    #         for i, row in enumerate(data):
-    #             for j, item in enumerate(row):
-    #                 self.dlg.tableWidget.setItem(i, j, QTableWidgetItem(item))
-
-    #         self.dlg.tableWidget.resizeColumnsToContents()
-
     def select_device_folder(self, presence):
         folder_name = QFileDialog.getExistingDirectory(
                     self.dlg,
@@ -301,18 +269,6 @@ class StressorReceptorCalc:
         data = pd.read_csv(file)
         data = data.set_index('Type')
         return data
-    # def select_device_file(self, presence):
-    #     """Input the .nc file dialog."""
-    #     filename, _filter = QFileDialog.getOpenFileName(
-    #         self.dlg,
-    #         "Select NetCDF file",
-    #         "",
-    #         "*.tif; *.nc; *.ini",
-    #     )
-    #     if presence == "not present":
-    #         self.dlg.device_not_present.setText(filename)
-    #     else:
-    #         self.dlg.device_present.setText(filename)
 
     def select_bc_file(self):
         """Input the bc file dialog."""
@@ -679,20 +635,6 @@ class StressorReceptorCalc:
             logger.info("Output Folder: {}".format(output_folder_name))
 
 
-            stylefiles_DF = self.read_style_files(self.dlg.output_stylefile.text())
-            
-            sstylefile = stylefiles_DF.loc['Stressor'].values.item().replace("\\", "/")
-            rstylefile = stylefiles_DF.loc['Receptor'].values.item().replace("\\", "/")
-            scstylefile = stylefiles_DF.loc['Secondary Constraint'].values.item().replace("\\", "/")
-            swrstylefile = stylefiles_DF.loc['Stressor with receptor'].values.item().replace("\\", "/")
-            rcstylefile = stylefiles_DF.loc['Reclassificed Stressor with receptor'].values.item().replace("\\", "/")
-
-            logger.info("Receptor Style File: {}".format(rstylefile))
-            logger.info("Stressor Style File: {}".format(sstylefile))
-            logger.info("Secondary Constraint Style File: {}".format(scstylefile))
-            logger.info("Output Style File: {}".format(swrstylefile)) #stressor with receptor
-            logger.info('Stressor reclassification: {}'.format(rcstylefile))
-
             # QgsMessageLog.logMessage(min_rc + " , " + max_rc, level =Qgis.MessageLevel.Info)
             # if the output file path is empty display a warning
             if output_folder_name == "":
@@ -718,6 +660,21 @@ class StressorReceptorCalc:
                 # sfilenames = ['calculated_stressor.tif',
                 #  'calculated_stressor_with_receptor.tif',
                 # 'calculated_stressor_reclassified.tif'
+
+                stylefiles_DF = self.read_style_files(self.dlg.output_stylefile.text())
+                
+                sstylefile = stylefiles_DF.loc['Stressor'].values.item().replace("\\", "/")
+                rstylefile = stylefiles_DF.loc['Receptor'].values.item().replace("\\", "/")
+                scstylefile = stylefiles_DF.loc['Secondary Constraint'].values.item().replace("\\", "/")
+                swrstylefile = stylefiles_DF.loc['Stressor with receptor'].values.item().replace("\\", "/")
+                rcstylefile = stylefiles_DF.loc['Reclassificed Stressor with receptor'].values.item().replace("\\", "/")
+
+                logger.info("Receptor Style File: {}".format(rstylefile))
+                logger.info("Stressor Style File: {}".format(sstylefile))
+                logger.info("Secondary Constraint Style File: {}".format(scstylefile))
+                logger.info("Output Style File: {}".format(swrstylefile)) #stressor with receptor
+                logger.info('Stressor reclassification: {}'.format(rcstylefile))
+
                 srfilename = sfilenames[0] #stressor 
                 self.style_layer(srfilename, sstylefile, ranges=True)
                 # self.calc_area_change(srfilename, crs)
@@ -744,6 +701,21 @@ class StressorReceptorCalc:
                 # sfilenames = ['calculated_stressor.tif',
                 #  'calculated_stressor_with_receptor.tif',
                 # 'calculated_stressor_reclassified.tif']
+
+                stylefiles_DF = self.read_style_files(self.dlg.output_stylefile.text())
+                
+                sstylefile = stylefiles_DF.loc['Stressor'].values.item().replace("\\", "/")
+                rstylefile = stylefiles_DF.loc['Receptor'].values.item().replace("\\", "/")
+                scstylefile = stylefiles_DF.loc['Secondary Constraint'].values.item().replace("\\", "/")
+                swrstylefile = stylefiles_DF.loc['Stressor with receptor'].values.item().replace("\\", "/")
+                rcstylefile = stylefiles_DF.loc['Reclassificed Stressor with receptor'].values.item().replace("\\", "/")
+
+                logger.info("Receptor Style File: {}".format(rstylefile))
+                logger.info("Stressor Style File: {}".format(sstylefile))
+                logger.info("Secondary Constraint Style File: {}".format(scstylefile))
+                logger.info("Output Style File: {}".format(swrstylefile)) #stressor with receptor
+                logger.info('Stressor reclassification: {}'.format(rcstylefile))
+                
                 srfilename = sfilenames[0] #stressor 
                 self.style_layer(srfilename, sstylefile, ranges=True)
                 # self.calc_area_change(srfilename, crs)
@@ -758,41 +730,55 @@ class StressorReceptorCalc:
                     # self.calc_area_change(swrfilename, crs)
                     # self.calc_area_change(classifiedfilename, crs)
 
-
-
             if svar == "Acoustics":
-                #read stressor file to get density 
-                #extract folder from stressor
-                paracousti_folder = os.path.dirname(dpresentfname)
-                paracousti_files = [i for i in os.listdir(paracousti_folder) if i.endswith('.nc')]
-                sfilenames = calc_stressor_paracousti(paracousti_folder = paracousti_folder, 
-                                                     paracousti_files = paracousti_files, 
-                                                     receptor_file = rfilename)
+                sfilenames = run_acoustics_stressor(
+                    dev_present_file = dpresentfname,
+                    bc_file=bcfname,
+                    crs=crs,
+                    output_path=output_folder_name,
+                    receptor_filename=rfilename,
+                    species_folder=scfilename
+                    )
+                #numpy_arrays = [0] stressor
+                #               [1] Threshold_Exceeded
+                #               [2] Percent_Impacted
+                #               [3] Density_Impacted
+                #               [4] threshold_exceeded
+                #               [5] percent_impacted
+                #               [6] density_impacted   
+                #               [7] Percent_Impacted_scaled
+                #               [8] Density_Impacted_scaled
+                #               [9] percent_impacted_scaled
+                #               [10] density_impacted_scaled
 
-            # save the stressor as the output #now saved in cal_stressor
-            # if len(sfilenames)>1:
-            #     for sfilename in sfilenames:
-            #         shutil.copy(sfilename, os.path.dirname(ofilename))
-            # else:
-            #     shutil.copy(sfilename, ofilename)
 
-            # add and style the receptor
-            # if not rfilename == "":
-            #     self.style_layer(rfilename, rstylefile, checked=False)
+                stylefiles_DF = self.read_style_files(self.dlg.output_stylefile.text())
+                
+                stressor_stylefile = stylefiles_DF.loc['Stressor'].values.item().replace("\\", "/")
+                threshold_stylefile = stylefiles_DF.loc['Threshold'].values.item().replace("\\", "/")
+                percent_stylefile = stylefiles_DF.loc['Species Percent'].values.item().replace("\\", "/")
+                density_stylefile = stylefiles_DF.loc['Species Density'].values.item().replace("\\", "/")
 
-            # add and style the secondary constraint
-            if not scfilename == "":
-                self.style_layer(scfilename, scstylefile, checked=False)
+                logger.info("Stressor Style File: {}".format(stressor_stylefile))
+                logger.info("Threshold Style File: {}".format(threshold_stylefile))
+                logger.info("Species Percent Style File: {}".format(percent_stylefile))
+                logger.info("Species Density Style File: {}".format(density_stylefile))
 
-            # # add and style the outfile returning values
-            # self.style_layer(ofilename, ostylefile, ranges=True)
+                srfilename = sfilenames[0] #stressor 
+                self.style_layer(srfilename, sstylefile, ranges=True)
+                # self.calc_area_change(srfilename, crs)
+                if not((rfilename is None) or (rfilename == "")): #if receptor present
 
-            # add and style the outfile without the griansize returning values
-            # if svar == "TAUMAX -Structured":
-            #     self.style_layer(srfilename, ostylefile)
-
-            # export the areas using the output files
-            # self.export_area(ofilename, crs, ostylefile=None)
+                    self.style_layer(sfilenames[1], threshold_stylefile, ranges=True)
+                    self.style_layer(sfilenames[2], percent_stylefile, ranges=True)
+                    self.style_layer(sfilenames[3], density_stylefile, ranges=True)
+                    self.style_layer(sfilenames[4], threshold_stylefile, ranges=True)
+                    self.style_layer(sfilenames[5], percent_stylefile, ranges=True)
+                    self.style_layer(sfilenames[6], density_stylefile, ranges=True)                    
+                    self.style_layer(sfilenames[7], percent_stylefile, ranges=True)
+                    self.style_layer(sfilenames[8], density_stylefile, ranges=True)   
+                    self.style_layer(sfilenames[9], percent_stylefile, ranges=True)
+                    self.style_layer(sfilenames[10], density_stylefile, ranges=True)                       
 
             # close and remove the filehandler
             fh.close()
