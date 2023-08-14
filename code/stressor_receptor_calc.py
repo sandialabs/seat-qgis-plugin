@@ -59,7 +59,7 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QGridLayout, QTableWidgetItem
 
 # UTM finder
-from .Find_UTM_srid import find_utm_srid
+# from .Find_UTM_srid import find_utm_srid
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -309,15 +309,13 @@ class StressorReceptorCalc:
         )
         self.dlg.receptor_file.setText(filename)
 
-    def select_secondary_constraint_file(self):
+    def select_secondary_constraint_folder(self):
         """Select secondary constriant file."""
-        filename, _filter = QFileDialog.getOpenFileName(
-            self.dlg,
-            "Select Secondary Constraint",
-            "",
-            "*.tif",
-        )
-        self.dlg.sc_file.setText(filename)
+        folder_name = QFileDialog.getExistingDirectory(
+                    self.dlg,
+                    "Select Folder"
+                )
+        self.dlg.sc_file.setText(folder_name)
 
     def select_output_folder(self):
         """Select output file picker."""
@@ -419,105 +417,105 @@ class StressorReceptorCalc:
             range = [x[0] for x in layer.legendSymbologyItems()]
             return range
 
-    def calc_area_change(self, ofilename, crs, stylefile=None):
-        """Export the areas of the given file. Find a UTM of the given crs and calculate in m2."""
+    # def calc_area_change(self, ofilename, crs, stylefile=None):
+    #     """Export the areas of the given file. Find a UTM of the given crs and calculate in m2."""
 
-        cfile = ofilename.replace(".tif", ".csv")
-        if os.path.isfile(cfile):
-            os.remove(cfile)
+    #     cfile = ofilename.replace(".tif", ".csv")
+    #     if os.path.isfile(cfile):
+    #         os.remove(cfile)
 
-        # if stylefile is not None:
-        #     sdf = df_from_qml(stylefile)
+    #     # if stylefile is not None:
+    #     #     sdf = df_from_qml(stylefile)
 
-        # get the basename and use the raster in the instance to get the min / max
-        basename = os.path.splitext(os.path.basename(ofilename))[0]
-        raster = QgsProject.instance().mapLayersByName(basename)[0]
+    #     # get the basename and use the raster in the instance to get the min / max
+    #     basename = os.path.splitext(os.path.basename(ofilename))[0]
+    #     raster = QgsProject.instance().mapLayersByName(basename)[0]
 
-        xmin = raster.extent().xMinimum()
-        xmax = raster.extent().xMaximum()
-        ymin = raster.extent().yMinimum()
-        ymax = raster.extent().yMaximum()
+    #     xmin = raster.extent().xMinimum()
+    #     xmax = raster.extent().xMaximum()
+    #     ymin = raster.extent().yMinimum()
+    #     ymax = raster.extent().yMaximum()
 
-        # using the min and max make sure the crs doesn't change across grids
-        if crs==4326:
-            assert find_utm_srid(xmin, ymin, crs) == find_utm_srid(
-                xmax,
-                ymax,
-                crs,
-            ), "grid spans multiple utms"
-            crs_found = find_utm_srid(xmin, ymin, crs)
+    #     # using the min and max make sure the crs doesn't change across grids
+    #     if crs==4326:
+    #         assert find_utm_srid(xmin, ymin, crs) == find_utm_srid(
+    #             xmax,
+    #             ymax,
+    #             crs,
+    #         ), "grid spans multiple utms"
+    #         crs_found = find_utm_srid(xmin, ymin, crs)
 
-            # create a temporary file for reprojection
-            outfile = tempfile.NamedTemporaryFile(suffix=".tif").name
-            # cmd = f'gdalwarp -s_srs EPSG:{crs} -t_srs EPSG:{crs_found} -r near -of GTiff {ofilename} {outfile}'
-            # os.system(cmd)
+    #         # create a temporary file for reprojection
+    #         outfile = tempfile.NamedTemporaryFile(suffix=".tif").name
+    #         # cmd = f'gdalwarp -s_srs EPSG:{crs} -t_srs EPSG:{crs_found} -r near -of GTiff {ofilename} {outfile}'
+    #         # os.system(cmd)
 
-            reproject_params = {
-                "INPUT": ofilename,
-                "SOURCE_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs}"),
-                "TARGET_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs_found}"),
-                "RESAMPLING": 0,
-                "NODATA": None,
-                "TARGET_RESOLUTION": None,
-                "OPTIONS": "",
-                "DATA_TYPE": 0,
-                "TARGET_EXTENT": None,
-                "TARGET_EXTENT_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs_found}"),
-                "MULTITHREADING": False,
-                "EXTRA": "",
-                "OUTPUT": outfile,
-            }
+    #         reproject_params = {
+    #             "INPUT": ofilename,
+    #             "SOURCE_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs}"),
+    #             "TARGET_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs_found}"),
+    #             "RESAMPLING": 0,
+    #             "NODATA": None,
+    #             "TARGET_RESOLUTION": None,
+    #             "OPTIONS": "",
+    #             "DATA_TYPE": 0,
+    #             "TARGET_EXTENT": None,
+    #             "TARGET_EXTENT_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs_found}"),
+    #             "MULTITHREADING": False,
+    #             "EXTRA": "",
+    #             "OUTPUT": outfile,
+    #         }
 
-            # reproject to a UTM crs for meters calculation
-            processing.run("gdal:warpreproject", reproject_params)
+    #         # reproject to a UTM crs for meters calculation
+    #         processing.run("gdal:warpreproject", reproject_params)
 
-            params = {
-                "BAND": 1,
-                "INPUT": outfile,
-                "OUTPUT_TABLE": cfile,
-            }
+    #         params = {
+    #             "BAND": 1,
+    #             "INPUT": outfile,
+    #             "OUTPUT_TABLE": cfile,
+    #         }
 
-            processing.run("native:rasterlayeruniquevaluesreport", params)
-            # remove the temporary file
-            os.remove(outfile)
-        else:
-            params = {
-                "BAND": 1,
-                "INPUT": ofilename,
-                "OUTPUT_TABLE": cfile,
-            }
+    #         processing.run("native:rasterlayeruniquevaluesreport", params)
+    #         # remove the temporary file
+    #         os.remove(outfile)
+    #     else:
+    #         params = {
+    #             "BAND": 1,
+    #             "INPUT": ofilename,
+    #             "OUTPUT_TABLE": cfile,
+    #         }
 
-            processing.run("native:rasterlayeruniquevaluesreport", params)
+    #         processing.run("native:rasterlayeruniquevaluesreport", params)
 
-        df = pd.read_csv(cfile, encoding="cp1252")
-        if "m2" in df.columns:
-            df.rename(columns={"m2": "Area"}, inplace=True)
-        elif "m²" in df.columns:
-            df.rename(columns={"m²": "Area"}, inplace=True)
-        elif "Unnamed: 2" in df.columns:
-            df.rename(columns={"Unnamed: 2": "Area"}, inplace=True)
-        df = df.groupby(by=["value"]).sum().reset_index()
+    #     df = pd.read_csv(cfile, encoding="cp1252")
+    #     if "m2" in df.columns:
+    #         df.rename(columns={"m2": "Area"}, inplace=True)
+    #     elif "m²" in df.columns:
+    #         df.rename(columns={"m²": "Area"}, inplace=True)
+    #     elif "Unnamed: 2" in df.columns:
+    #         df.rename(columns={"Unnamed: 2": "Area"}, inplace=True)
+    #     df = df.groupby(by=["value"]).sum().reset_index()
 
-        df["percentage"] = (df["Area"] / df["Area"].sum()) * 100.0
+    #     df["percentage"] = (df["Area"] / df["Area"].sum()) * 100.0
 
-        df["value"] = df["value"].astype(float)
-        # recode 0 to np.nan
-        df.loc[df["value"] == 0, "value"] = float("nan")
-        # sort ascending values
-        df = df.sort_values(by=["value"])
+    #     df["value"] = df["value"].astype(float)
+    #     # recode 0 to np.nan
+    #     df.loc[df["value"] == 0, "value"] = float("nan")
+    #     # sort ascending values
+    #     df = df.sort_values(by=["value"])
 
-        if stylefile is not None:
-            df = pd.merge(df, sdf, how="left", on="value")
-            df.loc[:, ["value", "label", "count", "Area", "percentage"]].to_csv(
-                cfile,
-                index=False,
-            )
-        else:
-            df.loc[:, ["value", "count", "Area", "percentage"]].to_csv(
-                cfile,
-                na_rep="NULL",
-                index=False,
-            )
+    #     if stylefile is not None:
+    #         df = pd.merge(df, sdf, how="left", on="value")
+    #         df.loc[:, ["value", "label", "count", "Area", "percentage"]].to_csv(
+    #             cfile,
+    #             index=False,
+    #         )
+    #     else:
+    #         df.loc[:, ["value", "count", "Area", "percentage"]].to_csv(
+    #             cfile,
+    #             na_rep="NULL",
+    #             index=False,
+    #             )
 
     def run(self):
         """Run method that performs all the real work."""
@@ -562,7 +560,7 @@ class StressorReceptorCalc:
             self.dlg.receptor_button.clicked.connect(self.select_receptor_file)
 
             # set the secondary constraint
-            self.dlg.secondary_constraint_pushButton.clicked.connect(self.select_secondary_constraint_file)
+            self.dlg.secondary_constraint_pushButton.clicked.connect(self.select_secondary_constraint_folder)
             # set the output
             self.dlg.output_pushButton.clicked.connect(self.select_output_folder)
 
@@ -764,21 +762,31 @@ class StressorReceptorCalc:
                 logger.info("Species Percent Style File: {}".format(percent_stylefile))
                 logger.info("Species Density Style File: {}".format(density_stylefile))
 
-                srfilename = sfilenames[0] #stressor 
-                self.style_layer(srfilename, sstylefile, ranges=True)
+                
                 # self.calc_area_change(srfilename, crs)
                 if not((rfilename is None) or (rfilename == "")): #if receptor present
 
-                    self.style_layer(sfilenames[1], threshold_stylefile, ranges=True)
-                    self.style_layer(sfilenames[2], percent_stylefile, ranges=True)
-                    self.style_layer(sfilenames[3], density_stylefile, ranges=True)
-                    self.style_layer(sfilenames[4], threshold_stylefile, ranges=True)
-                    self.style_layer(sfilenames[5], percent_stylefile, ranges=True)
-                    self.style_layer(sfilenames[6], density_stylefile, ranges=True)                    
-                    self.style_layer(sfilenames[7], percent_stylefile, ranges=True)
-                    self.style_layer(sfilenames[8], density_stylefile, ranges=True)   
+                    self.style_layer(sfilenames[10], density_stylefile, ranges=True)
                     self.style_layer(sfilenames[9], percent_stylefile, ranges=True)
-                    self.style_layer(sfilenames[10], density_stylefile, ranges=True)                       
+                    self.style_layer(sfilenames[8], density_stylefile, ranges=True)
+                    self.style_layer(sfilenames[7], percent_stylefile, ranges=True)
+                    self.style_layer(sfilenames[6], density_stylefile, ranges=True)   
+                    self.style_layer(sfilenames[5], percent_stylefile, ranges=True)  
+                    self.style_layer(sfilenames[4], threshold_stylefile, ranges=True)
+                    self.style_layer(sfilenames[3], density_stylefile, ranges=True)
+                    self.style_layer(sfilenames[2], percent_stylefile, ranges=True)
+                    self.style_layer(sfilenames[1], threshold_stylefile, ranges=True)
+                    
+                self.style_layer(sfilenames[0], stressor_stylefile, ranges=True) #stressor 
+                    
+                    
+                    
+                    
+                                    
+                    
+                      
+                    
+                                           
 
             # close and remove the filehandler
             fh.close()

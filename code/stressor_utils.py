@@ -44,6 +44,9 @@ def redefine_structured_grid(x,y,z):
     max_y = np.nanmax(y)
     xx = np.linspace(min_x, max_x, x.shape[1])
     yy = np.linspace(min_y, max_y, y.shape[0])
+    dx = np.nanmin([np.nanmedian(np.diff(xx)), np.nanmedian(np.diff(yy))])
+    xx = np.arange(min_x, max_x+dx, dx)
+    yy = np.arange(min_y, max_y+dx, dx)
     x_new, y_new = np.meshgrid(xx,yy)
     z_new = griddata((x.flatten(), y.flatten()), z.flatten(), (x_new, y_new), method='nearest', fill_value=0)
     return x_new, y_new, z_new
