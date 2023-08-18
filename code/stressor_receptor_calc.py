@@ -737,17 +737,13 @@ class StressorReceptorCalc:
                     receptor_filename=rfilename,
                     species_folder=scfilename
                     )
-                #numpy_arrays = [0] stressor
-                #               [1] Threshold_Exceeded
-                #               [2] Percent_Impacted
-                #               [3] Density_Impacted
-                #               [4] threshold_exceeded
-                #               [5] percent_impacted
-                #               [6] density_impacted   
-                #               [7] Percent_Impacted_scaled
-                #               [8] Density_Impacted_scaled
-                #               [9] percent_impacted_scaled
-                #               [10] density_impacted_scaled
+                #numpy_arrays = [0] PARACOUSTI
+                #               [1] stressor
+                #               [2] threshold_exceeded
+                #               [3] percent
+                #               [4] density
+                #               [5] percent_scaled
+                #               [6] density_scaled
 
 
                 stylefiles_DF = self.read_style_files(self.dlg.output_stylefile.text())
@@ -766,27 +762,14 @@ class StressorReceptorCalc:
                 # self.calc_area_change(srfilename, crs)
                 if not((rfilename is None) or (rfilename == "")): #if receptor present
 
-                    self.style_layer(sfilenames[10], density_stylefile, ranges=True)
-                    self.style_layer(sfilenames[9], percent_stylefile, ranges=True)
-                    self.style_layer(sfilenames[8], density_stylefile, ranges=True)
-                    self.style_layer(sfilenames[7], percent_stylefile, ranges=True)
-                    self.style_layer(sfilenames[6], density_stylefile, ranges=True)   
-                    self.style_layer(sfilenames[5], percent_stylefile, ranges=True)  
-                    self.style_layer(sfilenames[4], threshold_stylefile, ranges=True)
-                    self.style_layer(sfilenames[3], density_stylefile, ranges=True)
-                    self.style_layer(sfilenames[2], percent_stylefile, ranges=True)
-                    self.style_layer(sfilenames[1], threshold_stylefile, ranges=True)
+                    self.style_layer(sfilenames[6], density_stylefile, ranges=True)
+                    self.style_layer(sfilenames[5], percent_stylefile, ranges=True)
+                    self.style_layer(sfilenames[4], density_stylefile, ranges=True)
+                    self.style_layer(sfilenames[3], percent_stylefile, ranges=True)
+                    self.style_layer(sfilenames[2], threshold_stylefile, ranges=True)
                     
-                self.style_layer(sfilenames[0], stressor_stylefile, ranges=True) #stressor 
-                    
-                    
-                    
-                    
-                                    
-                    
-                      
-                    
-                                           
+                self.style_layer(sfilenames[0], stressor_stylefile, ranges=True) #paracousti     
+                self.style_layer(sfilenames[1], stressor_stylefile, ranges=True) #stressor                                         
 
             # close and remove the filehandler
             fh.close()
