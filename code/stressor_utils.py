@@ -4,7 +4,7 @@ from matplotlib.tri import LinearTriInterpolator, TriAnalyzer, Triangulation
 from scipy.interpolate import griddata
 from osgeo import gdal, osr
 import os
-from .Find_UTM_srid import find_utm_srid # UTM finder
+from ....Sunset.Find_UTM_srid import find_utm_srid # UTM finder
 
 def estimate_grid_spacing(x,y, nsamples=100):
     import random
@@ -51,6 +51,9 @@ def redefine_structured_grid(x,y,z):
     z_new = griddata((x.flatten(), y.flatten()), z.flatten(), (x_new, y_new), method='nearest', fill_value=0)
     return x_new, y_new, z_new
 
+def rescale_structured_grid(x_grid, y_grid, z, X_grid_out, Y_grid_out):
+    return griddata((x_grid.flatten(), y_grid.flatten()), z.flatten(), (X_grid_out,Y_grid_out), method='nearest', fill_value=0)
+
 def calc_receptor_array(receptor_filename, x, y, latlon=False):
     # if ((receptor_filename is not None) or (not receptor_filename == "")):
     if not((receptor_filename is None) or (receptor_filename == "")):
@@ -90,6 +93,7 @@ def create_raster(
     cols,
     rows,
     nbands,
+    eType=gdal.GDT_Float32,
 ):
 
     """Create a gdal raster object."""
@@ -185,15 +189,15 @@ def find_utm_srid(lon, lat, srid):
 
     return out_srid
 
-def calculate_grid_sqarea_latlon2m(rx, ry):
+def calculate_grid_square_latlon2m(rx, ry):
     import numpy as np
     from pyproj import Geod
 
     geod = Geod(ellps="WGS84")
     rxx = np.where(rx>180, rx-360, rx)
     lon2D,lat2D = rxx, ry
-    _,_, distEW = geod.inv(lon2D[:,:-1],lat2D[:,1:], lon2D[:,1:], lat2D[:,1:])
-    _,_, distNS = geod.inv(lon2D[1:,:],lat2D[1:,:], lon2D[1:,:], lat2D[:-1,:])
+    _,_, distEW = geod.inv(lon2D[:,:-1], lat2D[:,1:], lon2D[:,1:], lat2D[:,1:])
+    _,_, distNS = geod.inv(lon2D[1:,:], lat2D[1:,:], lon2D[1:,:], lat2D[:-1,:])
     square_area = distEW[1:,:] * distNS[:,1:]
     np.nanmean(square_area)
     rxm = np.zeros(square_area.shape)
