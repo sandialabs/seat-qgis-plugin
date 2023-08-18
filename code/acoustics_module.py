@@ -171,8 +171,8 @@ def run_acoustics_stressor(
     #               [2] threshold_exceeded
     #               [3] percent
     #               [4] density
-    #               [9] percent_scaled
-    #               [10] density_scaled
+    #               [5] percent_scaled
+    #               [6] density_scaled
     
     if not((receptor_filename is None) or (receptor_filename == "")):
         numpy_array_names = ['calculated_paracousti.tif',
