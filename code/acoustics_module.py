@@ -8,7 +8,7 @@ from .stressor_utils import (
     redefine_structured_grid,
     create_raster,
     numpy_array_to_raster,
-    calculate_grid_sqarea_latlon2m
+    calculate_grid_square_latlon2m
 )
 
 def create_whale_array(species_filename, x, y, variable='percent', latlon=False):
@@ -37,13 +37,12 @@ def create_whale_array(species_filename, x, y, variable='percent', latlon=False)
         else:
             raise Exception("Invalid File Type. Must be of type .tif or .csv")
     else:
-        # taucrit without a receptor
-        #Assume the following grain sizes and conditions for typical beach sand (Nielsen, 1992 p.108)
-        variable_array = np.ones(x.shape)
+        variable_array = np.zeros(x.shape)
     return variable_array
 
-def calculate_acoustic_stressors(fpath_dev, 
+def calculate_acoustic_stressors(fpath_dev,
                                 probabilities_file,
+                                fpath_nodev=None,
                                 receptor_filename=None,
                                 species_folder=None, #secondary constraint
                                 latlon=True,
@@ -54,18 +53,21 @@ def calculate_acoustic_stressors(fpath_dev,
     
     receptor = pd.read_csv(receptor_filename, index_col=0, header=None).T
     Threshold = receptor['Threshold (dB re 1uPa)'].astype(float).to_numpy().item()
-    grid_res_species = receptor['species file averaged area (km2)'].astype(float).to_numpy().item() * 1.0e6 #converted to m2
+    if not((receptor['species file averaged area (km2)'] is None) or (receptor['species file averaged area (km2)'] == "")):
+        grid_res_species = receptor['species file averaged area (km2)'].astype(float).to_numpy().item() * 1.0e6 #converted to m2
+    else:
+        grid_res_species = 0
     Averaging = receptor['Depth Averaging'].values.item()
     variable = receptor['Paracousti Variable'].values.item()
 
     for ic, paracousti_file in enumerate(paracousti_files):
         ds = Dataset(paracousti_file)
-        spl = ds.variables[variable][:].data
+        acoust_var = ds.variables[variable][:].data
         cords = ds.variables[variable].coordinates.split()
         X = ds.variables[cords[0]][:].data
         Y = ds.variables[cords[1]][:].data
-        if X.shape[0] != spl.shape[0]:
-            spl = np.transpose(spl, (1, 2, 0))
+        if X.shape[0] != acoust_var.shape[0]:
+            acoust_var = np.transpose(acoust_var, (1, 2, 0))
         if ic==0:
             xunits = ds.variables['XCOR'].units
             if 'degrees' in xunits:
@@ -73,66 +75,78 @@ def calculate_acoustic_stressors(fpath_dev,
             else:
                 XCOR = X
             YCOR = Y
-            SPL = np.zeros((len(paracousti_files), np.shape(spl)[0], np.shape(spl)[1], np.shape(spl)[2]))
-        SPL[ic,:] = spl
+            ACOUST_VAR = np.zeros((len(paracousti_files), np.shape(acoust_var)[0], np.shape(acoust_var)[1], np.shape(acoust_var)[2]))
+        ACOUST_VAR[ic,:] = acoust_var
+
+    if not((fpath_nodev is None) or (fpath_nodev == "")): #Assumes same grid as paracousti_files
+        baseline_files = [os.path.join(fpath_nodev, i) for i in os.listdir(fpath_nodev) if i.endswith('.nc')]
+        for ic, baseline_file in enumerate(baseline_files):
+            ds = Dataset(baseline_file)
+            baseline = ds.variables[variable][:].data
+            cords = ds.variables[variable].coordinates.split()
+            if ds.variables[cords[0]][:].data.shape[0] != baseline.shape[0]:
+                baseline = np.transpose(baseline, (1, 2, 0))
+            if ic==0:
+                Baseline = np.zeros((len(baseline_files), np.shape(baseline)[0], np.shape(baseline)[1], np.shape(baseline)[2]))
+            Baseline[ic,:] = baseline
+    else:
+        Baseline == np.zeros(ACOUST_VAR.shape)
+
 
     if Averaging == 'DepthMax':
-        SPL = np.nanmax(SPL, axis=3)
+        ACOUST_VAR = np.nanmax(ACOUST_VAR, axis=3)
     elif Averaging == 'DepthAverage':
-        SPL = np.nanmean(SPL, axis=3)
+        ACOUST_VAR = np.nanmean(ACOUST_VAR, axis=3)
     elif Averaging == 'Bottom':
-        SPL = SPL[:,:,-1]
+        ACOUST_VAR = ACOUST_VAR[:,:,-1]
     elif Averaging == 'Top':
-        SPL = SPL[:,:,0]
+        ACOUST_VAR = ACOUST_VAR[:,:,0]
     else:
-        SPL = np.nanmax(SPL, axis=3)
+        ACOUST_VAR = np.nanmax(ACOUST_VAR, axis=3)
 
     for ic, file in enumerate(paracousti_files):
-        rx, ry, spl = redefine_structured_grid(XCOR, YCOR, SPL[ic,:]) #paracousti files might not have regular grid spacing.
+        rx, ry, acoust_var = redefine_structured_grid(XCOR, YCOR, ACOUST_VAR[ic,:]) #paracousti files might not have regular grid spacing.
+        baseline = Baseline[ic,:]
+        
         if ic==0:
+            PARACOUSTI = np.zeros(rx.shape)
             stressor = np.zeros(rx.shape)
-            species_percent_occurance = np.zeros(rx.shape)
-            species_density = np.zeros(rx.shape)
+            # species_percent_occurance = np.zeros(rx.shape)
+            # species_density = np.zeros(rx.shape)
             threshold_exceeded = np.zeros(rx.shape)
-            percent_impacted = np.zeros(rx.shape)
-            density_impacted = np.zeros(rx.shape)
-            percent_impacted_scaled = np.zeros(rx.shape)
-            density_impacted_scaled = np.zeros(rx.shape)
+            percent = np.zeros(rx.shape)
+            density = np.zeros(rx.shape)
+            percent_scaled = np.zeros(rx.shape)
+            density_scaled = np.zeros(rx.shape)
 
         probability = boundary_conditions.loc[os.path.basename(file)]['Paracousti Percent Occurance'] / 100
         species_percent_filename = boundary_conditions.loc[os.path.basename(paracousti_file)]['Species Percent Occurance File']
         species_density_filename = boundary_conditions.loc[os.path.basename(paracousti_file)]['Species Density File']
         
 
-        stressor = stressor + probability * spl
-        _, _, square_area = calculate_grid_sqarea_latlon2m(rx, ry) #TODO this only applies to lat/lon, add option for already in UTM
+        PARACOUSTI = PARACOUSTI + probability * acoust_var
+        stressor = stressor + probability * (acoust_var - baseline)
+        _, _, square_area = calculate_grid_square_latlon2m(rx, ry) #TODO this only applies to lat/lon, add option for already in UTM
         square_area = np.nanmean(square_area) # square area of each grid cell
-        ratio = square_area / grid_res_species # ratio of grid cell to species averaged, now prob/density per each grid cell
+        if grid_res_species != 0:
+            ratio = square_area / grid_res_species # ratio of grid cell to species averaged, now prob/density per each grid cell
+        else:
+            ratio = 1
         parray = create_whale_array(os.path.join(species_folder, species_percent_filename), rx, ry, variable='percent', latlon=True)
         darray = create_whale_array(os.path.join(species_folder, species_density_filename), rx, ry, variable='density', latlon=True)
         parray_scaled = parray * ratio
         darray_scaled = darray  * ratio
 
-        species_percent_occurance = species_percent_occurance + probability * parray
-        species_density = species_density + probability * darray
+        threshold_mask = acoust_var>Threshold
+        threshold_exceeded[threshold_mask] += probability*100
+        percent[threshold_mask] += probability * parray[threshold_mask]
+        density[threshold_mask] += probability * darray[threshold_mask]
+        percent_scaled[threshold_mask] += probability * parray_scaled[threshold_mask]
+        density_scaled[threshold_mask] += probability * darray_scaled[threshold_mask]
 
-        species_percent_occurance_scaled = species_percent_occurance + probability * parray_scaled
-        species_density_scaled = species_density + probability * darray_scaled
+   
 
-        threshold_mask = spl>Threshold
-        threshold_exceeded[threshold_mask] += probability*100#np.flatnonzero(threshold_mask, threshold_time_exceeded+probability, threshold_exceeded)
-        percent_impacted[threshold_mask] += probability * parray[threshold_mask]
-        density_impacted[threshold_mask] += probability * darray[threshold_mask]
-        percent_impacted_scaled[threshold_mask] += probability * parray_scaled[threshold_mask]
-        density_impacted_scaled[threshold_mask] += probability * darray_scaled[threshold_mask]
-
-    Threshold_Exceeded = np.where(stressor > Threshold, 1, 0)
-    Percent_Impacted = np.where(Threshold_Exceeded == 1, species_percent_occurance, 0)
-    Density_Impacted = np.where(Threshold_Exceeded == 1, species_density, 0)
-    Percent_Impacted_scaled = np.where(Threshold_Exceeded == 1, species_percent_occurance_scaled, 0)
-    Density_Impacted_scaled = np.where(Threshold_Exceeded == 1, species_density_scaled, 0)
-
-    listOfFiles = [stressor, Threshold_Exceeded, Percent_Impacted, Density_Impacted, threshold_exceeded, percent_impacted, density_impacted, Percent_Impacted_scaled, Density_Impacted_scaled, percent_impacted_scaled, density_impacted_scaled]
+    listOfFiles = [PARACOUSTI, stressor, threshold_exceeded, percent, density, percent_scaled, density_scaled]
     dx = np.nanmean(np.diff(rx[0,:]))
     dy = np.nanmean(np.diff(ry[:,0]))
     return listOfFiles, rx, ry, dx, dy
@@ -152,41 +166,31 @@ def run_acoustics_stressor(
                                 species_folder=species_folder, #secondary constraint
                                 latlon = crs==4326)
     
-    #numpy_arrays = [0] stressor
-    #               [1] Threshold_Exceeded
-    #               [2] Percent_Impacted
-    #               [3] Density_Impacted
-    #               [4] threshold_exceeded
-    #               [5] percent_impacted
-    #               [6] density_impacted   
-    #               [7] Percent_Impacted_scaled
-    #               [8] Density_Impacted_scaled
-    #               [9] percent_impacted_scaled
-    #               [10] density_impacted_scaled
-
+    #numpy_arrays = [0] PARACOUSTI
+    #               [1] stressor
+    #               [2] threshold_exceeded
+    #               [3] percent
+    #               [4] density
+    #               [9] percent_scaled
+    #               [10] density_scaled
+    
     if not((receptor_filename is None) or (receptor_filename == "")):
-        numpy_array_names = ['calculated_stressor.tif',
-                             'threshold_exceeded_receptor.tif',
-                            'species_percent_impacted_averaged_stresser.tif',
-                            'species_density_impacted_averaged_stresser.tif',
-                            'threshold_exceeded_sum.tif',
-                            'species_percent_impacted_sum.tif',
-                            'species_density_impacted_sum.tif',
-                            'scaled_species_percent_impacted_averaged_stresser.tif',
-                            'scaled_species_density_impacted_averaged_stresser.tif',
-                            'scaled_species_percent_impacted_sum.tif',
-                            'scaled_species_density_impacted_sum.tif']
+        numpy_array_names = ['calculated_paracousti.tif',
+                            'calculated_stressor.tif',
+                            'threshold_exceeded_receptor.tif',
+                            'species_percent.tif',
+                            'species_density.tif',
+                            'sspecies_percent_scaled.tif',
+                            'species_density_scaled.tif']
         use_numpy_arrays = [numpy_arrays[0], numpy_arrays[1], numpy_arrays[2], numpy_arrays[3], numpy_arrays[4], numpy_arrays[5], numpy_arrays[6], numpy_arrays[7], numpy_arrays[8], numpy_arrays[9], numpy_arrays[10]]
     else:
-        numpy_array_names = ['calculated_stressor.tif']
-        use_numpy_arrays = [numpy_arrays[0]]
+        numpy_array_names = ['calculated_paracousti.tif', 'calculated_stressor.tif']
+        use_numpy_arrays = [numpy_arrays[0], numpy_arrays[1]]
     
     output_rasters = []
     for array_name, numpy_array in zip(numpy_array_names, use_numpy_arrays):
 
         numpy_array = np.flip(numpy_array, axis=0)
-        # numpy_array = np.flip(np.transpose(numpy_array), axis=0)
-
 
         cell_resolution = [dx, dy]
         if crs == 4326:
@@ -201,6 +205,7 @@ def run_acoustics_stressor(
             cols,
             rows,
             nbands=1,
+            eType=gdal.GDT_Float64,
         )
 
         # post processing of numpy array to output raster
