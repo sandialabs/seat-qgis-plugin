@@ -731,6 +731,7 @@ class StressorReceptorCalc:
             if svar == "Acoustics":
                 sfilenames = run_acoustics_stressor(
                     dev_present_file = dpresentfname,
+                    dev_notpresent_file=dnotpresentfname,
                     bc_file=bcfname,
                     crs=crs,
                     output_path=output_folder_name,

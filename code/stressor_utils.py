@@ -4,7 +4,6 @@ from matplotlib.tri import LinearTriInterpolator, TriAnalyzer, Triangulation
 from scipy.interpolate import griddata
 from osgeo import gdal, osr
 import os
-from ....Sunset.Find_UTM_srid import find_utm_srid # UTM finder
 
 def estimate_grid_spacing(x,y, nsamples=100):
     import random
@@ -194,12 +193,10 @@ def calculate_grid_square_latlon2m(rx, ry):
     from pyproj import Geod
 
     geod = Geod(ellps="WGS84")
-    rxx = np.where(rx>180, rx-360, rx)
-    lon2D,lat2D = rxx, ry
+    lon2D,lat2D = np.where(rx>180, rx-360, rx), ry
     _,_, distEW = geod.inv(lon2D[:,:-1], lat2D[:,1:], lon2D[:,1:], lat2D[:,1:])
     _,_, distNS = geod.inv(lon2D[1:,:], lat2D[1:,:], lon2D[1:,:], lat2D[:-1,:])
     square_area = distEW[1:,:] * distNS[:,1:]
-    np.nanmean(square_area)
     rxm = np.zeros(square_area.shape)
     rym = np.zeros(square_area.shape)
     for row in range(rx.shape[0]-1):
