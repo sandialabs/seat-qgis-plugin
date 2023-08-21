@@ -50,8 +50,8 @@ def redefine_structured_grid(x,y,z):
     z_new = griddata((x.flatten(), y.flatten()), z.flatten(), (x_new, y_new), method='nearest', fill_value=0)
     return x_new, y_new, z_new
 
-def rescale_structured_grid(x_grid, y_grid, z, X_grid_out, Y_grid_out):
-    return griddata((x_grid.flatten(), y_grid.flatten()), z.flatten(), (X_grid_out,Y_grid_out), method='nearest', fill_value=0)
+def resample_structured_grid(x_grid, y_grid, z, X_grid_out, Y_grid_out, interpmethod='nearest'):
+    return griddata((x_grid.flatten(), y_grid.flatten()), z.flatten(), (X_grid_out,Y_grid_out), method=interpmethod, fill_value=0)
 
 def calc_receptor_array(receptor_filename, x, y, latlon=False):
     # if ((receptor_filename is not None) or (not receptor_filename == "")):
@@ -127,7 +127,6 @@ def numpy_array_to_raster(
     """Create the output raster."""
     # create output raster
     # (upper_left_x, x_resolution, x_skew 0, upper_left_y, y_skew 0, y_resolution).
-    # Need to rotate to go from np array to geo tiff. This can vary depending on the methods used above. Will need to test for this.
     geotransform = (
         bounds[0],
         cell_resolution[0],
@@ -188,19 +187,81 @@ def find_utm_srid(lon, lat, srid):
 
     return out_srid
 
-def calculate_grid_square_latlon2m(rx, ry):
+def calculate_cell_area(rx, ry, latlon=True):
     import numpy as np
     from pyproj import Geod
 
-    geod = Geod(ellps="WGS84")
-    lon2D,lat2D = np.where(rx>180, rx-360, rx), ry
-    _,_, distEW = geod.inv(lon2D[:,:-1], lat2D[:,1:], lon2D[:,1:], lat2D[:,1:])
-    _,_, distNS = geod.inv(lon2D[1:,:], lat2D[1:,:], lon2D[1:,:], lat2D[:-1,:])
-    square_area = distEW[1:,:] * distNS[:,1:]
+    if latlon==True:
+        geod = Geod(ellps="WGS84")
+        lon2D,lat2D = np.where(rx>180, rx-360, rx), ry
+        _,_, distEW = geod.inv(lon2D[:,:-1], lat2D[:,1:], lon2D[:,1:], lat2D[:,1:])
+        _,_, distNS = geod.inv(lon2D[1:,:], lat2D[1:,:], lon2D[1:,:], lat2D[:-1,:])
+        square_area = distEW[1:,:] * distNS[:,1:]
+    else:
+        square_area = np.zeros((rx.shape[0]-1, ry.shape[1]-1))
+        for row in range(rx.shape[0]-1):
+            for col in range(ry.shape[1]-1):
+                dx = rx[row, col+1] - rx[row, col]
+                dy = ry[row+1, col] - ry[row, col]
+                square_area[row,col] = dx*dy
     rxm = np.zeros(square_area.shape)
     rym = np.zeros(square_area.shape)
     for row in range(rx.shape[0]-1):
-        rxm[row,:] = (rx[row,:-1]+ rx[row,1:])/2
+        rxm[row,:] = (rx[row,:-1] + rx[row,1:])/2
     for col in range(ry.shape[1]-1):
-        rym[:,col] = (ry[:-1,col]+ ry[1:,col])/2
+        rym[:,col] = (ry[:-1,col] + ry[1:,col])/2
+
     return rxm, rym, square_area
+
+def bin_data(zm, square_area, nbins=25):
+    hist, bins = np.histogram(zm, bins=nbins)
+    center = (bins[:-1] + bins[1:]) / 2
+    DATA = {}
+    DATA['bin start'] = bins[:-1]
+    DATA['bin end'] = bins[1:]
+    DATA['bin center'] = center
+    DATA['count'] = hist
+    DATA['Area m2'] = np.zeros(hist.shape)
+    for ic, (bin_start, bin_end) in enumerate(zip(bins[:-1], bins[1:])):
+        if ic<len(hist)-1:
+            area_ix = np.flatnonzero((zm>=bin_start) & (zm<bin_end))
+        else:
+            area_ix = np.flatnonzero((zm>=bin_start) & (zm<=bin_end))
+        DATA['Area m2'][ic] = np.sum(square_area[area_ix])
+    return DATA
+
+def bin_receptor(zm, receptor, square_area, receptor_names=None):
+    hist, bins = np.histogram(zm, bins=25)
+    center = (bins[:-1] + bins[1:]) / 2
+    DATA = {}
+    DATA['bin start'] = bins[:-1]
+    DATA['bin end'] = bins[1:]
+    DATA['bin center'] = center
+    receptor_values = np.unique(receptor)
+    for ic, rval in enumerate(receptor_values):
+        zz = zm[receptor == rval]
+        sqa = square_area[receptor == rval]
+        rcolname = f'Area m2, receptor value {rval}' if receptor_names is None else receptor_names[ic]
+        DATA[rcolname] = np.zeros(hist.shape)
+        for ic, (bin_start, bin_end) in enumerate(zip(bins[:-1], bins[1:])):
+            if ic<len(hist)-1:
+                area_ix = np.flatnonzero((zz>=bin_start) & (zz<bin_end))
+            else:
+                area_ix = np.flatnonzero((zz>=bin_start) & (zz<=bin_end))
+            DATA[rcolname][ic] = np.sum(sqa[area_ix])
+            DATA[f'Area percent, receptor value {rval}'] = 100 * DATA[rcolname]/DATA[rcolname].sum()
+    return DATA
+
+def bin_layer(rx, ry, z, receptor=None, receptor_names=None, latlon=True):
+    rxm, rym, square_area = calculate_cell_area(rx, ry, latlon=True)
+    square_area = square_area.flatten()
+    zm = resample_structured_grid(rx, ry, z, rxm, rym, interpmethod='linear').flatten()
+    if receptor is None:
+        DATA = bin_data(zm, square_area, nbins=25)
+        DF = pd.DataFrame(DATA)
+        DF['Area percent'] = 100 * DATA['Area m2']/DATA['Area m2'].sum()
+    else:
+        receptor = resample_structured_grid(rx, ry, receptor, rxm, rym, interpmethod='linear').flatten()
+        DATA = bin_receptor(zm, receptor, square_area, receptor_names=receptor_names)
+        DF = pd.DataFrame(DATA)
+    return DF

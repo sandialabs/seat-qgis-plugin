@@ -26,7 +26,8 @@ from .stressor_utils import (
     calc_receptor_array,
     trim_zeros,
     create_raster,
-    numpy_array_to_raster
+    numpy_array_to_raster,
+    bin_layer
 )
 
 def critical_shear_stress(D_meters, rhow=1024, nu=1e-6, s=2.65, g=9.81):
@@ -294,11 +295,28 @@ def run_shear_stress_stressor(
     #               [3] mobility_parameter_diff
     #               [4] mobility_classification
     #               [5] receptor array   
+    bin_layer(rx, 
+              ry, 
+              numpy_arrays[0], 
+              latlon=True).to_csv(os.path.join(output_path, "calculated_stressor.csv"), index=False)
+    
     if not((receptor_filename is None) or (receptor_filename == "")):
         numpy_array_names = ['calculated_stressor.tif',
                             'calculated_stressor_with_receptor.tif',
                             'calculated_stressor_reclassified.tif']
         use_numpy_arrays = [numpy_arrays[0], numpy_arrays[3], numpy_arrays[4]]
+        bin_layer(rx, 
+                  ry, 
+                  numpy_arrays[0], 
+                  receptor=numpy_arrays[3], 
+                  latlon=True).to_csv(os.path.join(output_path, "calculated_stressor_at_receptor_values.csv"), index=False)
+        
+        bin_layer(rx,
+                ry, 
+                numpy_arrays[0], 
+                receptor = numpy_arrays[4], 
+                receptor_names = ['Increased Deposition', 'Reduced Deposition', 'No Change', 'Reduced Erosion', 'Increased Erosion'],
+                latlon = crs==4326).to_csv(os.path.join(output_path, "calculated_stressor_with_receptor.csv"), index=False)
         DF_classified.to_csv(os.path.join(output_path, 'receptor_percent_change.csv'))
     else:
         numpy_array_names = ['calculated_stressor.tif']
