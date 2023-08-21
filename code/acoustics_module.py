@@ -8,8 +8,9 @@ from .stressor_utils import (
     redefine_structured_grid,
     create_raster,
     numpy_array_to_raster,
-    calculate_grid_square_latlon2m, 
-    rescale_structured_grid
+    calculate_cell_area, 
+    resample_structured_grid,
+    bin_layer
 )
 
 def create_whale_array(species_filename, x, y, variable='percent', latlon=False):
@@ -113,7 +114,7 @@ def calculate_acoustic_stressors(fpath_dev,
 
     for ic, file in enumerate(paracousti_files):
         rx, ry, acoust_var = redefine_structured_grid(XCOR, YCOR, ACOUST_VAR[ic,:]) #paracousti files might not have regular grid spacing.
-        baseline = rescale_structured_grid(XCOR, YCOR,  Baseline[ic,:], rx, ry)
+        baseline = resample_structured_grid(XCOR, YCOR,  Baseline[ic,:], rx, ry)
         
         if ic==0:
             PARACOUSTI = np.zeros(rx.shape)
@@ -133,11 +134,11 @@ def calculate_acoustic_stressors(fpath_dev,
 
         PARACOUSTI = PARACOUSTI + probability * acoust_var
         stressor = stressor + probability * (acoust_var - baseline)
-        if latlon == True:
-            _, _, square_area = calculate_grid_square_latlon2m(rx, ry) #TODO this only applies to lat/lon, add option for already in UTM
-            square_area = np.nanmean(square_area) # square area of each grid cell
-        else:
-            square_area = np.nanmean(np.diff(rx[0,:])) * np.nanmean(np.diff(ry[:,0]))
+        # if latlon == True:
+        _, _, square_area = calculate_cell_area(rx, ry, latlon == True) 
+        square_area = np.nanmean(square_area) # square area of each grid cell
+        # else:
+        #     square_area = np.nanmean(np.diff(rx[0,:])) * np.nanmean(np.diff(ry[:,0]))
         if grid_res_species != 0:
             ratio = square_area / grid_res_species # ratio of grid cell to species averaged, now prob/density per each grid cell
         else:
@@ -230,5 +231,7 @@ def run_acoustics_stressor(
             os.path.join(output_path, array_name),
         )
 
-        #TODO add area impacted and/or summation of not zero
+    bin_layer(rx, ry, numpy_arrays[1], latlon=True).to_csv(os.path.join(output_path, "calculated_stressor.csv"), index=False)
+
+
     return output_rasters

@@ -770,7 +770,7 @@ class StressorReceptorCalc:
                     self.style_layer(sfilenames[2], threshold_stylefile, ranges=True)
                     
                 self.style_layer(sfilenames[0], stressor_stylefile, ranges=True) #paracousti     
-                self.style_layer(sfilenames[1], stressor_stylefile, ranges=True) #stressor                                         
+                self.style_layer(sfilenames[1], stressor_stylefile, ranges=True) #stressor                               
 
             # close and remove the filehandler
             fh.close()

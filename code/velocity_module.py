@@ -25,7 +25,8 @@ from .stressor_utils import (
     calc_receptor_array,
     trim_zeros,
     create_raster,
-    numpy_array_to_raster
+    numpy_array_to_raster,
+    bin_layer
 )
 
 def calculate_receptor_change_percentage(receptor_array, data_diff):
@@ -297,12 +298,20 @@ def run_velocity_stressor(
     #               [2] mobility_dev
     #               [3] mobility_diff
     #               [4] mobility_classification    
+    bin_layer(rx, 
+              ry, 
+              numpy_arrays[0], 
+              receptor=None, 
+              receptor_names=None, 
+              latlon=crs == 4326).to_csv(os.path.join(output_path, "calculated_stressor.csv"), index=False)
+    
     if not((receptor_filename is None) or (receptor_filename == "")):
         numpy_array_names = ['calculated_stressor.tif',
                             'calculated_stressor_with_receptor.tif',
                             'calculated_stressor_reclassified.tif']
         use_numpy_arrays = [numpy_arrays[0], numpy_arrays[3], numpy_arrays[4]]
         DF_classified.to_csv(os.path.join(output_path, 'receptor_percent_change.csv'))
+        # bin_layer(rx, ry, numpy_arrays[0], receptor= numpy_arrays[4], receptor_names=None, latlon=crs == 4326).to_csv(os.path.join(output_path, "calculated_stressor.csv"), index=False)
     else:
         numpy_array_names = ['calculated_stressor.tif']
         use_numpy_arrays = [numpy_arrays[0]]
@@ -339,6 +348,7 @@ def run_velocity_stressor(
             crs,
             os.path.join(output_path, array_name),
         )
+
     # if not((receptor_filename is None) or (receptor_filename == "")):
     #     # print('calculating percentages')
     #     # print(output_path)
