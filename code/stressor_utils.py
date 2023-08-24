@@ -85,8 +85,6 @@ def trim_zeros(x,y,z1, z2):
     #edges of structured array have zeros, not sure if universal issue
     return x[1:-1,1:-1], y[1:-1,1:-1], z1[:, :, 1:-1, 1:-1], z2[:, :, 1:-1, 1:-1]
 
-
-
 def create_raster(
     output_path,
     cols,
@@ -187,6 +185,19 @@ def find_utm_srid(lon, lat, srid):
 
     return out_srid
 
+def read_raster(raster_name):
+    data = gdal.Open(raster_name)
+    img = data.GetRasterBand(1)
+    raster_array = img.ReadAsArray()
+    (upper_left_x, x_size, x_rotation, upper_left_y, y_rotation, y_size) = data.GetGeoTransform()
+    cols = data.RasterXSize
+    rows = data.RasterYSize
+    r_rows = np.arange(rows) * y_size + upper_left_y + (y_size / 2)
+    r_cols = np.arange(cols) * x_size + upper_left_x + (x_size / 2)
+    rx,ry = np.meshgrid(r_cols, r_rows)
+    data = None
+    return rx, ry, raster_array
+
 def calculate_cell_area(rx, ry, latlon=True):
     import numpy as np
     from pyproj import Geod
@@ -237,8 +248,7 @@ def bin_receptor(zm, receptor, square_area, receptor_names=None):
     DATA['bin start'] = bins[:-1]
     DATA['bin end'] = bins[1:]
     DATA['bin center'] = center
-    receptor_values = np.unique(receptor)
-    for ic, rval in enumerate(receptor_values):
+    for ic, rval in enumerate(np.unique(receptor)):
         zz = zm[receptor == rval]
         sqa = square_area[receptor == rval]
         rcolname = f'Area m2, receptor value {rval}' if receptor_names is None else receptor_names[ic]
@@ -249,19 +259,60 @@ def bin_receptor(zm, receptor, square_area, receptor_names=None):
             else:
                 area_ix = np.flatnonzero((zz>=bin_start) & (zz<=bin_end))
             DATA[rcolname][ic] = np.sum(sqa[area_ix])
-            DATA[f'Area percent, receptor value {rval}'] = 100 * DATA[rcolname]/DATA[rcolname].sum()
+        DATA[f'Area percent, receptor value {rval}'] = 100 * DATA[rcolname]/DATA[rcolname].sum()
     return DATA
 
-def bin_layer(rx, ry, z, receptor=None, receptor_names=None, latlon=True):
+def bin_layer(raster_filename, receptor_filename=None, receptor_names=None, limit_receptor_range=None, latlon=True):
+    rx, ry, z = read_raster(raster_filename)
     rxm, rym, square_area = calculate_cell_area(rx, ry, latlon=True)
     square_area = square_area.flatten()
     zm = resample_structured_grid(rx, ry, z, rxm, rym, interpmethod='linear').flatten()
-    if receptor is None:
+    if receptor_filename is None:
         DATA = bin_data(zm, square_area, nbins=25)
-        DF = pd.DataFrame(DATA)
-        DF['Area percent'] = 100 * DATA['Area m2']/DATA['Area m2'].sum()
+        # DF = pd.DataFrame(DATA)
+        DATA['Area percent'] = 100 * DATA['Area m2']/DATA['Area m2'].sum()
     else:
-        receptor = resample_structured_grid(rx, ry, receptor, rxm, rym, interpmethod='linear').flatten()
+        rrx, rry, receptor = read_raster(receptor_filename)
+        if limit_receptor_range is not None:
+            receptor = np.where((receptor>=np.min(limit_receptor_range)) & (receptor<=np.max(limit_receptor_range)), receptor, 0)
+        receptor = resample_structured_grid(rrx, rry, receptor, rxm, rym).flatten()
         DATA = bin_receptor(zm, receptor, square_area, receptor_names=receptor_names)
-        DF = pd.DataFrame(DATA)
-    return DF
+    return pd.DataFrame(DATA)
+
+def classify_layer_area(raster_filename, receptor_filename=None, at_values=None, value_names=None, limit_receptor_range=None, latlon=True):
+    rx, ry, z = read_raster(raster_filename)
+    rxm, rym, square_area = calculate_cell_area(rx, ry, latlon=latlon)
+    square_area = square_area.flatten()
+    zm = resample_structured_grid(rx, ry, z, rxm, rym).flatten()
+    if at_values is None:
+        at_values = np.unique(zm)
+    else:
+        at_values = np.atleast_1d(at_values)
+    DATA = {}
+    DATA['value'] = at_values
+    if value_names is not None:
+        DATA['value name'] = value_names
+    if receptor_filename is None:
+        DATA['Area m2'] = np.zeros(len(at_values))
+        for ic, value in enumerate(at_values):
+            area_ix = np.flatnonzero(zm==value)
+            DATA['Area m2'][ic] = np.sum(square_area[area_ix])
+        DATA['Area percent'] = 100 * DATA['Area m2']/DATA['Area m2'].sum()
+    else:
+        rrx, rry, receptor = read_raster(receptor_filename)
+        if limit_receptor_range is not None:
+            receptor = np.where((receptor>=np.min(limit_receptor_range)) & (receptor<=np.max(limit_receptor_range)), receptor, 0)
+        receptor = resample_structured_grid(rrx, rry, receptor, rxm, rym).flatten()
+        for ic, rval in enumerate(np.unique(receptor)):
+            zz = zm[receptor == rval]
+            sqa = square_area[receptor == rval]
+            rcolname = f'Area m2, receptor value {rval}'
+            ccolname = f'Count, receptor value {rval}'
+            DATA[rcolname] = np.zeros(len(at_values))
+            DATA[ccolname] = np.zeros(len(at_values))
+            for iic, value in enumerate(at_values):
+                area_ix = np.flatnonzero(zz==value)
+                DATA[ccolname] = len(area_ix)
+                DATA[rcolname][iic] = np.sum(sqa[area_ix])
+            DATA[f'Area percent, receptor value {rval}'] = 100 * DATA[rcolname]/DATA[rcolname].sum()
+    return pd.DataFrame(DATA)

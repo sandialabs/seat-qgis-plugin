@@ -20,15 +20,15 @@ from scipy.interpolate import griddata
 from netCDF4 import Dataset
 from osgeo import gdal, osr
 
-from .stressor_utils import (
+from stressor_utils import (
     estimate_grid_spacing,
     create_structured_array_from_unstructured,
     calc_receptor_array,
     trim_zeros,
     create_raster,
     numpy_array_to_raster,
-    classify_layer_area,
-    bin_layer
+    bin_layer,
+    classify_layer_area
 )
 
 def critical_shear_stress(D_meters, rhow=1024, nu=1e-6, s=2.65, g=9.81):
@@ -272,6 +272,7 @@ def calculate_shear_stress_stressors(fpath_nodev,
             receptor_array_struct = np.nan * tau_diff_struct
         mobility_classification = classify_mobility(mobility_parameter_dev_struct, mobility_parameter_nodev_struct)
         DF_classified = calculate_receptor_change_percentage(receptor_array_struct, mobility_classification)
+
         listOfFiles = [tau_diff_struct, mobility_parameter_nodev_struct, mobility_parameter_dev_struct, mobility_parameter_diff_struct, mobility_classification, receptor_array_struct]
 
     return listOfFiles, rx, ry, dx, dy, DF_classified, gridtype
@@ -290,16 +291,18 @@ def run_shear_stress_stressor(
                                                 probabilities_file=bc_file,
                                                 receptor_filename=receptor_filename,
                                                 latlon= crs==4326)
-    #numpy_arrays = [0] tau_diff
+    #numpy_arrays = [0] tau_diff/stressor
     #               [1] mobility_parameter_nodev
     #               [2] mobility_parameter_dev
     #               [3] mobility_parameter_diff
     #               [4] mobility_classification
-    #               [5] receptor array   
+    #               [5] receptor_array
+
+    # [tau_diff_struct, mobility_parameter_nodev_struct, mobility_parameter_dev_struct, mobility_parameter_diff_struct, mobility_classification, receptor_array_struct]
     if not((receptor_filename is None) or (receptor_filename == "")):
         numpy_array_names = ['calculated_stressor.tif',
                             'calculated_stressor_with_receptor.tif',
-                            'calculated_stressor_reclassified.tif',
+                            'calculated_stressor_reclassified2.tif',
                             'receptor.tif']
         use_numpy_arrays = [numpy_arrays[0], numpy_arrays[3], numpy_arrays[4], numpy_arrays[5]]
         DF_classified.to_csv(os.path.join(output_path, 'receptor_percent_change.csv'))
@@ -317,10 +320,11 @@ def run_shear_stress_stressor(
 
         cell_resolution = [dx, dy]
         if crs == 4326:
-            bounds = [rx.min()-360 - dx/2, ry.max() - dy/2]
+            bounds = [np.where(rx.min()>180, rx.min()-360, rx.min()) - dx/2, ry.max() - dy/2]
         else:
             bounds = [rx.min() - dx/2, ry.max() - dy/2]
         rows, cols = numpy_array.shape
+
         # create an ouput raster given the stressor file path
         output_rasters.append(os.path.join(output_path, array_name))
         output_raster = create_raster(
@@ -339,10 +343,6 @@ def run_shear_stress_stressor(
             crs,
             os.path.join(output_path, array_name),
         )
-    # if not((receptor_filename is None) or (receptor_filename == "")):
-    #     # print('calculating percentages')
-    #     # print(output_path)
-    #     calculate_receptor_change_percentage(receptor_filename=receptor_filename, data_diff=numpy_arrays[-1], ofpath=os.path.dirname(output_path))
 
     # Area calculations pull form rasters to ensure uniformity
     bin_layer(os.path.join(output_path, numpy_array_names[0]), 
@@ -373,6 +373,4 @@ def run_shear_stress_stressor(
                 value_names=['Increased Deposition', 'Reduced Deposition','No Change', 'Reduced Erosion','Increased Erosion'], 
                 limit_receptor_range=[0, np.inf],
                 latlon=crs==4326).to_csv(os.path.join(output_path, "calculated_stressor_reclassified_at_receptor.csv"), index=False)
-
-
     return output_rasters
