@@ -232,13 +232,13 @@ def bin_data(zm, square_area, nbins=25):
     DATA['bin end'] = bins[1:]
     DATA['bin center'] = center
     DATA['count'] = hist
-    DATA['Area m2'] = np.zeros(hist.shape)
+    DATA['Area'] = np.zeros(hist.shape)
     for ic, (bin_start, bin_end) in enumerate(zip(bins[:-1], bins[1:])):
         if ic<len(hist)-1:
             area_ix = np.flatnonzero((zm>=bin_start) & (zm<bin_end))
         else:
             area_ix = np.flatnonzero((zm>=bin_start) & (zm<=bin_end))
-        DATA['Area m2'][ic] = np.sum(square_area[area_ix])
+        DATA['Area'][ic] = np.sum(square_area[area_ix])
     return DATA
 
 def bin_receptor(zm, receptor, square_area, receptor_names=None):
@@ -251,7 +251,7 @@ def bin_receptor(zm, receptor, square_area, receptor_names=None):
     for ic, rval in enumerate(np.unique(receptor)):
         zz = zm[receptor == rval]
         sqa = square_area[receptor == rval]
-        rcolname = f'Area m2, receptor value {rval}' if receptor_names is None else receptor_names[ic]
+        rcolname = f'Area, receptor value {rval}' if receptor_names is None else receptor_names[ic]
         DATA[rcolname] = np.zeros(hist.shape)
         for ic, (bin_start, bin_end) in enumerate(zip(bins[:-1], bins[1:])):
             if ic<len(hist)-1:
@@ -270,7 +270,7 @@ def bin_layer(raster_filename, receptor_filename=None, receptor_names=None, limi
     if receptor_filename is None:
         DATA = bin_data(zm, square_area, nbins=25)
         # DF = pd.DataFrame(DATA)
-        DATA['Area percent'] = 100 * DATA['Area m2']/DATA['Area m2'].sum()
+        DATA['Area percent'] = 100 * DATA['Area']/DATA['Area'].sum()
     else:
         rrx, rry, receptor = read_raster(receptor_filename)
         if limit_receptor_range is not None:
@@ -293,11 +293,11 @@ def classify_layer_area(raster_filename, receptor_filename=None, at_values=None,
     if value_names is not None:
         DATA['value name'] = value_names
     if receptor_filename is None:
-        DATA['Area m2'] = np.zeros(len(at_values))
+        DATA['Area'] = np.zeros(len(at_values))
         for ic, value in enumerate(at_values):
             area_ix = np.flatnonzero(zm==value)
-            DATA['Area m2'][ic] = np.sum(square_area[area_ix])
-        DATA['Area percent'] = 100 * DATA['Area m2']/DATA['Area m2'].sum()
+            DATA['Area'][ic] = np.sum(square_area[area_ix])
+        DATA['Area percent'] = 100 * DATA['Area']/DATA['Area'].sum()
     else:
         rrx, rry, receptor = read_raster(receptor_filename)
         if limit_receptor_range is not None:
@@ -306,13 +306,13 @@ def classify_layer_area(raster_filename, receptor_filename=None, at_values=None,
         for ic, rval in enumerate(np.unique(receptor)):
             zz = zm[receptor == rval]
             sqa = square_area[receptor == rval]
-            rcolname = f'Area m2, receptor value {rval}'
+            rcolname = f'Area, receptor value {rval}'
             ccolname = f'Count, receptor value {rval}'
             DATA[rcolname] = np.zeros(len(at_values))
             DATA[ccolname] = np.zeros(len(at_values))
             for iic, value in enumerate(at_values):
                 area_ix = np.flatnonzero(zz==value)
-                DATA[ccolname] = len(area_ix)
+                DATA[ccolname][iic] = len(area_ix)
                 DATA[rcolname][iic] = np.sum(sqa[area_ix])
             DATA[f'Area percent, receptor value {rval}'] = 100 * DATA[rcolname]/DATA[rcolname].sum()
     return pd.DataFrame(DATA)

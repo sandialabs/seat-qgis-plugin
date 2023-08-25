@@ -15,10 +15,7 @@ import os
 
 import numpy as np
 import pandas as pd
-from matplotlib.tri import LinearTriInterpolator, TriAnalyzer, Triangulation
-from scipy.interpolate import griddata
 from netCDF4 import Dataset
-from osgeo import gdal, osr
 
 from .stressor_utils import (
     estimate_grid_spacing,
@@ -42,51 +39,20 @@ def critical_shear_stress(D_meters, rhow=1024, nu=1e-6, s=2.65, g=9.81):
     taucrit = rhow * (s - 1) * g * D_meters * SHcr #in Pascals
     return taucrit
 
-def calculate_receptor_change_percentage(receptor_array, data_diff):
-    #gdal version
-    # data_diff = np.transpose(data_diff)
-    # data = gdal.Open(receptor_filename)
-    # img = data.GetRasterBand(1)
-    # receptor_array = img.ReadAsArray()
-    # transpose to be in same orientation as NetCDF
-    receptor_array[receptor_array < 0] = np.nan
-
-    pct_mobility = {'Receptor_Value': [],
-                        'Increased Deposition': [],
-                        'Reduced Deposition': [],
-                        'Reduced Erosion': [],
-                        'Increased Erosion': [],
-                        'No Change':[]}
-    
-    for unique_val in [i for i in np.unique(receptor_array) if ~np.isnan(i)]:
-        mask = receptor_array==unique_val
-        data_at_val = np.where(mask, data_diff, np.nan)
-        data_at_val = data_at_val.flatten()
-        data_at_val = data_at_val[~np.isnan(data_at_val)]
-        ncells = data_at_val.size
-        pct_mobility['Receptor_Value'].append(unique_val)
-        pct_mobility['Increased Deposition'].append(100 * np.size(np.flatnonzero(data_at_val==-2))/ncells)
-        pct_mobility['Reduced Deposition'].append(100 * np.size(np.flatnonzero(data_at_val==-1))/ncells)
-        pct_mobility['Reduced Erosion'].append(100 * np.size(np.flatnonzero(data_at_val==1))/ncells)
-        pct_mobility['Increased Erosion'].append(100 * np.size(np.flatnonzero(data_at_val==2))/ncells)
-        pct_mobility['No Change'].append(100 * np.size(np.flatnonzero(data_at_val==0))/ncells)
-
-        # print(f" Receptor Value = {unique_val}um | decrease = {pct_decrease}% | increase = {pct_increase}% | no change = {pct_nochange}%")
-    DF = pd.DataFrame(pct_mobility)
-    DF = DF.set_index('Receptor_Value')
-    return DF
-    # DF.to_csv(os.path.join(ofpath, 'receptor_percent_change.csv'))
-
 def classify_mobility(mobility_parameter_dev, mobility_parameter_nodev):
     mobility_classification = np.zeros(mobility_parameter_dev.shape)
+    #New Erosion
+    mobility_classification = np.where(((mobility_parameter_dev < mobility_parameter_nodev) & (mobility_parameter_nodev<1) & (mobility_parameter_dev>=1)), 3, mobility_classification)
     #Reduced Erosion (Tw<Tb) & (Tw-Tb)>1
-    mobility_classification = np.where(((mobility_parameter_dev < mobility_parameter_nodev) & (mobility_parameter_nodev>=1)), 1, mobility_classification)
+    mobility_classification = np.where(((mobility_parameter_dev < mobility_parameter_nodev) & (mobility_parameter_nodev>=1) & (mobility_parameter_dev>=1)), 1, mobility_classification)
     #Increased Erosion (Tw>Tb) & (Tw-Tb)>1
-    mobility_classification = np.where(((mobility_parameter_dev > mobility_parameter_nodev) & (mobility_parameter_nodev>=1)), 2, mobility_classification)
+    mobility_classification = np.where(((mobility_parameter_dev > mobility_parameter_nodev) & (mobility_parameter_nodev>=1) & (mobility_parameter_dev>=1)), 2, mobility_classification)
     #Reduced Deposition (Tw>Tb) & (Tw-Tb)<1
-    mobility_classification = np.where(((mobility_parameter_dev > mobility_parameter_nodev) & (mobility_parameter_nodev<1)), -1, mobility_classification)
+    mobility_classification = np.where(((mobility_parameter_dev > mobility_parameter_nodev) & (mobility_parameter_nodev<1) & (mobility_parameter_dev<1)), -1, mobility_classification)
     #Increased Deposition (Tw>Tb) & (Tw-Tb)>1
-    mobility_classification = np.where(((mobility_parameter_dev < mobility_parameter_nodev) & (mobility_parameter_nodev<1)), -2, mobility_classification)
+    mobility_classification = np.where(((mobility_parameter_dev < mobility_parameter_nodev) & (mobility_parameter_nodev<1) & (mobility_parameter_dev<1)), -2, mobility_classification)
+    #New Deposition
+    mobility_classification = np.where(((mobility_parameter_dev < mobility_parameter_nodev) & (mobility_parameter_nodev>=1) & (mobility_parameter_dev<1)), -3, mobility_classification)
     #NoChange = 0
     return mobility_classification
 
@@ -132,7 +98,7 @@ def calculate_shear_stress_stressors(fpath_nodev,
         # if tau_dev.shape[0] != tau_nodev.shape[0]:
         #     raise Exception(f"Number of device runs ({tau_dev.shape[0]}) must be the same as no device runs ({tau_nodev.shape[0]}).") 
 
-    elif len(files_nodev) == len(files_dev): #same number of files, file name must be formatted with either run number or return interval
+    elif len(files_nodev) == len(files_dev): #same number of files, file name must be formatted with either run number
         #asumes each run is separate with the some_name_RunNum_map.nc, where run number comes at the last underscore before _map.nc
         runorder_nodev = np.zeros((len(files_nodev)))
         for ic, file in enumerate(files_nodev):
@@ -199,7 +165,7 @@ def calculate_shear_stress_stressors(fpath_nodev,
             BC_probability = BC_probability[~((BC_probability['Exclude'] == 'x') | (BC_probability['Exclude'] == 'X'))]
     else: #assume run_order in file name is return interval
         BC_probability = pd.DataFrame()
-        BC_probability['run order'] = np.arange(0,tau_dev.shape[0]) #ignor number and start sequentially from zero
+        BC_probability['run order'] = np.arange(0,tau_dev.shape[0]) #ignore number and start sequentially from zero
         BC_probability["probability"] = 1/DF.run_order_dev.to_numpy() #assumes run order in name is the return interval
 
     # Calculate Stressor and Receptors
@@ -208,11 +174,11 @@ def calculate_shear_stress_stressors(fpath_nodev,
         tau_dev = np.nanmax(tau_dev, axis=1, keepdims=True) #max over time
         tau_nodev = np.nanmax(tau_nodev, axis=1, keepdims=True) #max over time
     elif value_selection == 'MEAN':
-        tau_dev = np.nanmean(tau_dev, axis=1, keepdims=True) #max over time
-        tau_nodev = np.nanmean(tau_nodev, axis=1, keepdims=True) #max over time
+        tau_dev = np.nanmean(tau_dev, axis=1, keepdims=True) #mean over time
+        tau_nodev = np.nanmean(tau_nodev, axis=1, keepdims=True) #mean over time
     elif value_selection == 'LAST':
-        tau_dev = tau_dev[:, -2:-1, :] #max over time
-        tau_nodev = tau_nodev[:, -2:-1, :] #max over time
+        tau_dev = tau_dev[:, -2:-1, :] #bottom bin over time
+        tau_nodev = tau_nodev[:, -2:-1, :] #bottom bin over time
     else:
         tau_dev = np.nanmax(tau_dev, axis=1, keepdims=True) #max over time
         tau_nodev = np.nanmax(tau_nodev, axis=1, keepdims=True) #max over time
@@ -253,7 +219,6 @@ def calculate_shear_stress_stressors(fpath_nodev,
         dy = np.nanmean(np.diff(ycor[0,:]))
         rx = xcor
         ry = ycor
-        DF_classified = calculate_receptor_change_percentage(receptor_array, mobility_classification)
         listOfFiles = [tau_diff, mobility_parameter_nodev, mobility_parameter_dev, mobility_parameter_diff, mobility_classification, receptor_array]
     else: # unstructured
         dxdy = estimate_grid_spacing(xcor,ycor, nsamples=100)
@@ -271,10 +236,9 @@ def calculate_shear_stress_stressors(fpath_nodev,
             mobility_parameter_diff_struct = np.nan * tau_diff_struct
             receptor_array_struct = np.nan * tau_diff_struct
         mobility_classification = classify_mobility(mobility_parameter_dev_struct, mobility_parameter_nodev_struct)
-        DF_classified = calculate_receptor_change_percentage(receptor_array_struct, mobility_classification)
         listOfFiles = [tau_diff_struct, mobility_parameter_nodev_struct, mobility_parameter_dev_struct, mobility_parameter_diff_struct, mobility_classification, receptor_array_struct]
 
-    return listOfFiles, rx, ry, dx, dy, DF_classified, gridtype
+    return listOfFiles, rx, ry, dx, dy, gridtype
 
 def run_shear_stress_stressor(
     dev_present_file,
@@ -285,7 +249,7 @@ def run_shear_stress_stressor(
     receptor_filename=None
 ):
     
-    numpy_arrays, rx, ry, dx, dy, DF_classified, gridtype = calculate_shear_stress_stressors(fpath_nodev=dev_notpresent_file, 
+    numpy_arrays, rx, ry, dx, dy, gridtype = calculate_shear_stress_stressors(fpath_nodev=dev_notpresent_file, 
                                                 fpath_dev=dev_present_file, 
                                                 probabilities_file=bc_file,
                                                 receptor_filename=receptor_filename,
@@ -302,7 +266,6 @@ def run_shear_stress_stressor(
                             'calculated_stressor_reclassified.tif',
                             'receptor.tif']
         use_numpy_arrays = [numpy_arrays[0], numpy_arrays[3], numpy_arrays[4], numpy_arrays[5]]
-        DF_classified.to_csv(os.path.join(output_path, 'receptor_percent_change.csv'))
     else:
         numpy_array_names = ['calculated_stressor.tif']
         use_numpy_arrays = [numpy_arrays[0]]
@@ -339,10 +302,6 @@ def run_shear_stress_stressor(
             crs,
             os.path.join(output_path, array_name),
         )
-    # if not((receptor_filename is None) or (receptor_filename == "")):
-    #     # print('calculating percentages')
-    #     # print(output_path)
-    #     calculate_receptor_change_percentage(receptor_filename=receptor_filename, data_diff=numpy_arrays[-1], ofpath=os.path.dirname(output_path))
 
     # Area calculations pull form rasters to ensure uniformity
     bin_layer(os.path.join(output_path, numpy_array_names[0]), 
@@ -351,28 +310,26 @@ def run_shear_stress_stressor(
               latlon=crs==4326).to_csv(os.path.join(output_path, "calculated_stressor.csv"), index=False)
     if not((receptor_filename is None) or (receptor_filename == "")):
         bin_layer(os.path.join(output_path, numpy_array_names[0]), 
-                receptor_filename=receptor_filename, 
+                receptor_filename=os.path.join(output_path, numpy_array_names[3]), 
                 receptor_names=None, 
                 limit_receptor_range = [0, np.inf],
                 latlon=crs==4326).to_csv(os.path.join(output_path, "calculated_stressor_at_receptor.csv"), index=False)
         bin_layer(os.path.join(output_path, numpy_array_names[1]), 
-                receptor_filename=receptor_filename, 
+                receptor_filename=os.path.join(output_path, numpy_array_names[3]), 
                 receptor_names=None,  
                 limit_receptor_range = [0, np.inf],
                 latlon=crs==4326).to_csv(os.path.join(output_path, "calculated_stressor_with_receptor.csv"), index=False)
         
-
         classify_layer_area(os.path.join(output_path, "calculated_stressor_reclassified.tif"), 
-            at_values=[-2, -1, 0, 1, 2], 
-            value_names=['Increased Deposition', 'Reduced Deposition','No Change', 'Reduced Erosion','Increased Erosion'], 
+            at_values=[-3, -2, -1, 0, 1, 2, 3], 
+            value_names=['New Deposition', 'Increased Deposition', 'Reduced Deposition','No Change', 'Reduced Erosion','Increased Erosion', 'New Erosion'], 
             latlon=crs==4326).to_csv(os.path.join(output_path, "calculated_stressor_reclassified.csv"), index=False)
         
         classify_layer_area(os.path.join(output_path, "calculated_stressor_reclassified.tif"), 
-                receptor_filename=receptor_filename, 
-                at_values=[-2, -1, 0, 1, 2], 
-                value_names=['Increased Deposition', 'Reduced Deposition','No Change', 'Reduced Erosion','Increased Erosion'], 
+                receptor_filename=os.path.join(output_path, numpy_array_names[3]), 
+                at_values=[-3, -2, -1, 0, 1, 2, 3], 
+                value_names=['New Deposition', 'Increased Deposition', 'Reduced Deposition','No Change', 'Reduced Erosion','Increased Erosion', 'New Erosion'], 
                 limit_receptor_range=[0, np.inf],
                 latlon=crs==4326).to_csv(os.path.join(output_path, "calculated_stressor_reclassified_at_receptor.csv"), index=False)
-
 
     return output_rasters

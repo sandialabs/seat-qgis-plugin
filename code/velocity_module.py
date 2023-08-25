@@ -15,10 +15,7 @@ import os
 
 import numpy as np
 import pandas as pd
-from matplotlib.tri import LinearTriInterpolator, TriAnalyzer, Triangulation
-from scipy.interpolate import griddata
 from netCDF4 import Dataset
-from osgeo import gdal, osr
 from .stressor_utils import (
     estimate_grid_spacing,
     create_structured_array_from_unstructured,
@@ -26,56 +23,22 @@ from .stressor_utils import (
     trim_zeros,
     create_raster,
     numpy_array_to_raster,
-    bin_layer
+    bin_layer,
+    classify_layer_area
 )
 
-def calculate_receptor_change_percentage(receptor_array, data_diff):
-    #gdal version
-    # data_diff = np.transpose(data_diff)
-    # data = gdal.Open(receptor_filename)
-    # img = data.GetRasterBand(1)
-    # receptor_array = img.ReadAsArray()
-    # transpose to be in same orientation as NetCDF
-    receptor_array[receptor_array < 0] = np.nan
-
-    pct_mobility = {'Receptor_Value': [],
-                        'Increased Deposition': [],
-                        'Reduced Deposition': [],
-                        'Reduced Mobility': [],
-                        'Increased Mobility': [],
-                        'No Change':[]}
-    
-    for unique_val in [i for i in np.unique(receptor_array) if ~np.isnan(i)]:
-        mask = receptor_array==unique_val
-        data_at_val = np.where(mask, data_diff, np.nan)
-        data_at_val = data_at_val.flatten()
-        data_at_val = data_at_val[~np.isnan(data_at_val)]
-        ncells = data_at_val.size
-        pct_mobility['Receptor_Value'].append(unique_val)
-        pct_mobility['Increased Deposition'].append(100 * np.size(np.flatnonzero(data_at_val==-2))/ncells)
-        pct_mobility['Reduced Deposition'].append(100 * np.size(np.flatnonzero(data_at_val==-1))/ncells)
-        pct_mobility['Reduced Mobility'].append(100 * np.size(np.flatnonzero(data_at_val==1))/ncells)
-        pct_mobility['Increased Mobility'].append(100 * np.size(np.flatnonzero(data_at_val==2))/ncells)
-        pct_mobility['No Change'].append(100 * np.size(np.flatnonzero(data_at_val==0))/ncells)
-
-        # print(f" Receptor Value = {unique_val}um | decrease = {pct_decrease}% | increase = {pct_increase}% | no change = {pct_nochange}%")
-    DF = pd.DataFrame(pct_mobility)
-    DF = DF.set_index('Receptor_Value')
-    return DF
-    # DF.to_csv(os.path.join(ofpath, 'receptor_percent_change.csv'))
-
-def classify_mobility(mobility_parameter_dev, mobility_parameter_nodev):
-    mobility_classification = np.zeros(mobility_parameter_dev.shape)
-    #Reduced Erosion (Tw<Tb) & (Tw-Tb)>1
-    mobility_classification = np.where(((mobility_parameter_dev < mobility_parameter_nodev) & (mobility_parameter_nodev>=1)), 1, mobility_classification)
-    #Increased Erosion (Tw>Tb) & (Tw-Tb)>1
-    mobility_classification = np.where(((mobility_parameter_dev > mobility_parameter_nodev) & (mobility_parameter_nodev>=1)), 2, mobility_classification)
-    #Reduced Deposition (Tw>Tb) & (Tw-Tb)<1
-    mobility_classification = np.where(((mobility_parameter_dev > mobility_parameter_nodev) & (mobility_parameter_nodev<1)), -1, mobility_classification)
-    #Increased Deposition (Tw>Tb) & (Tw-Tb)>1
-    mobility_classification = np.where(((mobility_parameter_dev < mobility_parameter_nodev) & (mobility_parameter_nodev<1)), -2, mobility_classification)
-    #NoChange = 0
-    return mobility_classification
+def classify_motility(motility_parameter_dev, motility_parameter_nodev):
+    motility_classification = np.zeros(motility_parameter_dev.shape)
+    # Motility Stops
+    motility_classification = np.where(((motility_parameter_dev < motility_parameter_nodev) & (motility_parameter_nodev>=1) & (motility_parameter_dev<1)), -1, motility_classification)
+    # Reduced Motility (Tw<Tb) & (Tw-Tb)>1
+    motility_classification = np.where(((motility_parameter_dev < motility_parameter_nodev) & (motility_parameter_nodev>=1) & (motility_parameter_dev>=1)), 1, motility_classification)
+    # Increased Motility (Tw>Tb) & (Tw-Tb)>1
+    motility_classification = np.where(((motility_parameter_dev > motility_parameter_nodev) & (motility_parameter_nodev>=1) & (motility_parameter_dev>=1)), 2, motility_classification)
+    # New Motility
+    motility_classification = np.where(((motility_parameter_dev > motility_parameter_nodev) & (motility_parameter_nodev<1) &  (motility_parameter_dev>=1)), 3, motility_classification)
+    # NoChange or NoMotility = 0
+    return motility_classification
 
 def check_grid_define_vars(dataset):
     vars = list(dataset.variables)
@@ -251,13 +214,12 @@ def calculate_velocity_stressors(fpath_nodev,
 
 
     if gridtype=='structured':
-        mobility_classification = classify_mobility(mobility_dev, mobility_nodev)
+        motility_classification = classify_motility(mobility_dev, mobility_nodev)
         dx = np.nanmean(np.diff(xcor[:,0]))
         dy = np.nanmean(np.diff(ycor[0,:]))
         rx = xcor
         ry = ycor
-        DF_classified = calculate_receptor_change_percentage(velcrit, mobility_classification)
-        listOfFiles = [mag_diff, mobility_nodev, mobility_dev, mobility_diff, mobility_classification, velcrit]
+        listOfFiles = [mag_diff, mobility_nodev, mobility_dev, mobility_diff, motility_classification, velcrit]
     else: # unstructured
         dxdy = estimate_grid_spacing(xcor,ycor, nsamples=100)
         dx = dxdy
@@ -273,11 +235,10 @@ def calculate_velocity_stressors(fpath_nodev,
             mobility_dev_struct = np.nan * mag_diff_struct
             mobility_diff_struct = np.nan * mag_diff_struct
             velcrit_struct = np.nan * mag_diff_struct
-        mobility_classification = classify_mobility(mobility_dev_struct, mobility_nodev_struct)
-        DF_classified = calculate_receptor_change_percentage(velcrit_struct, mobility_classification)
-        listOfFiles = [mag_diff_struct, mobility_nodev_struct, mobility_dev_struct, mobility_diff_struct, mobility_classification, velcrit]
+        motility_classification = classify_motility(mobility_dev_struct, mobility_nodev_struct)
+        listOfFiles = [mag_diff_struct, mobility_nodev_struct, mobility_dev_struct, mobility_diff_struct, motility_classification, velcrit_struct]
 
-    return listOfFiles, rx, ry, dx, dy, DF_classified, gridtype
+    return listOfFiles, rx, ry, dx, dy, gridtype
 
 def run_velocity_stressor(
     dev_present_file,
@@ -288,7 +249,7 @@ def run_velocity_stressor(
     receptor_filename=None
 ):
     
-    numpy_arrays, rx, ry, dx, dy, DF_classified, gridtype = calculate_velocity_stressors(fpath_nodev=dev_notpresent_file, 
+    numpy_arrays, rx, ry, dx, dy, gridtype = calculate_velocity_stressors(fpath_nodev=dev_notpresent_file, 
                                                 fpath_dev=dev_present_file, 
                                                 probabilities_file=bc_file,
                                                 receptor_filename=receptor_filename,
@@ -297,7 +258,8 @@ def run_velocity_stressor(
     #               [1] mobility_nodev
     #               [2] mobility_dev
     #               [3] mobility_diff
-    #               [4] mobility_classification    
+    #               [4] motility_classification    
+    #               [5] receptor - vel_crit
     bin_layer(rx, 
               ry, 
               numpy_arrays[0], 
@@ -308,10 +270,9 @@ def run_velocity_stressor(
     if not((receptor_filename is None) or (receptor_filename == "")):
         numpy_array_names = ['calculated_stressor.tif',
                             'calculated_stressor_with_receptor.tif',
-                            'calculated_stressor_reclassified.tif']
-        use_numpy_arrays = [numpy_arrays[0], numpy_arrays[3], numpy_arrays[4]]
-        DF_classified.to_csv(os.path.join(output_path, 'receptor_percent_change.csv'))
-        # bin_layer(rx, ry, numpy_arrays[0], receptor= numpy_arrays[4], receptor_names=None, latlon=crs == 4326).to_csv(os.path.join(output_path, "calculated_stressor.csv"), index=False)
+                            'calculated_stressor_reclassified.tif',
+                            'receptor.tif']
+        use_numpy_arrays = [numpy_arrays[0], numpy_arrays[3], numpy_arrays[4], numpy_arrays[5]]
     else:
         numpy_array_names = ['calculated_stressor.tif']
         use_numpy_arrays = [numpy_arrays[0]]
@@ -349,10 +310,34 @@ def run_velocity_stressor(
             os.path.join(output_path, array_name),
         )
 
-    # if not((receptor_filename is None) or (receptor_filename == "")):
-    #     # print('calculating percentages')
-    #     # print(output_path)
-    #     calculate_receptor_change_percentage(receptor_filename=receptor_filename, data_diff=numpy_arrays[-1], ofpath=os.path.dirname(output_path))
+    # Area calculations pull form rasters to ensure uniformity
+    bin_layer(os.path.join(output_path, numpy_array_names[0]), 
+              receptor_filename=None, 
+              receptor_names=None, 
+              latlon=crs==4326).to_csv(os.path.join(output_path, "calculated_stressor.csv"), index=False)
+    if not((receptor_filename is None) or (receptor_filename == "")):
+        bin_layer(os.path.join(output_path, numpy_array_names[0]), 
+                receptor_filename=os.path.join(output_path, numpy_array_names[3]), 
+                receptor_names=None, 
+                limit_receptor_range = [0, np.inf],
+                latlon=crs==4326).to_csv(os.path.join(output_path, "calculated_stressor_at_receptor.csv"), index=False)
+        bin_layer(os.path.join(output_path, numpy_array_names[1]), 
+                receptor_filename=os.path.join(output_path, numpy_array_names[3]), 
+                receptor_names=None,  
+                limit_receptor_range = [0, np.inf],
+                latlon=crs==4326).to_csv(os.path.join(output_path, "calculated_stressor_with_receptor.csv"), index=False)
+        
+        classify_layer_area(os.path.join(output_path, "calculated_stressor_reclassified.tif"), 
+            at_values=[-1, 0, 1, 2, 3], 
+            value_names=['No Change', 'Reduced Motility','Increased Motility', 'New Motility'], 
+            latlon=crs==4326).to_csv(os.path.join(output_path, "calculated_stressor_reclassified.csv"), index=False)
+        
+        classify_layer_area(os.path.join(output_path, "calculated_stressor_reclassified.tif"), 
+                receptor_filename=os.path.join(output_path, numpy_array_names[3]), 
+                at_values=[-1, 0, 1, 2, 3], 
+                value_names=['Motility Stops', 'No Change', 'Reduced Motility','Increased Motility', 'New Motility'], 
+                limit_receptor_range=[0, np.inf],
+                latlon=crs==4326).to_csv(os.path.join(output_path, "calculated_stressor_reclassified_at_receptor.csv"), index=False)
 
 
     return output_rasters

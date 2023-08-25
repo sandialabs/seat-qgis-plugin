@@ -9,8 +9,8 @@
                               -------------------
         begin                : 2021-04-19
         git sha              : $Format:%H$
-        copyright            : (C) 2021 by Integral Consultsing
-        email                : cgrant@integral-corp.com
+        copyright            : (C) 2023 by Integral Consultsing
+        email                : tnelson@integral-corp.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -23,12 +23,12 @@
  ***************************************************************************/
 """
 import configparser
-import csv
-import glob
+# import csv
+# import glob
 import logging
 import os.path
-import shutil
-import tempfile
+# import shutil
+# import tempfile
 import xml.etree.ElementTree as ET
 
 # grab the data time
@@ -38,11 +38,11 @@ import numpy as np
 import pandas as pd
 
 # import QGIS processing
-import processing
-from netCDF4 import Dataset
-from osgeo import gdal
-from PyQt5.QtCore import Qt
-from qgis.analysis import QgsRasterCalculator, QgsRasterCalculatorEntry
+# import processing
+# from netCDF4 import Dataset
+# from osgeo import gdal
+# from PyQt5.QtCore import Qt
+# from qgis.analysis import QgsRasterCalculator, QgsRasterCalculatorEntry
 from qgis.core import (
     Qgis,
     QgsApplication,
@@ -53,10 +53,10 @@ from qgis.core import (
     QgsRasterLayer,
     QgsVectorLayer,
 )
-from qgis.gui import QgsLayerTreeView, QgsProjectionSelectionDialog
+from qgis.gui import QgsProjectionSelectionDialog #,QgsLayerTreeView
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction, QFileDialog, QGridLayout, QTableWidgetItem
+from qgis.PyQt.QtWidgets import QAction, QFileDialog#, QGridLayout, QTableWidgetItem
 
 # UTM finder
 # from .Find_UTM_srid import find_utm_srid

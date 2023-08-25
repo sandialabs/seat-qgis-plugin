@@ -4,7 +4,7 @@ from netCDF4 import Dataset
 import pandas as pd
 from osgeo import gdal, osr
 import numpy as np
-from .stressor_utils import (
+from stressor_utils import (
     redefine_structured_grid,
     create_raster,
     numpy_array_to_raster,
@@ -51,7 +51,7 @@ def calculate_acoustic_stressors(fpath_dev,
 ):
     paracousti_files = [os.path.join(fpath_dev, i) for i in os.listdir(fpath_dev) if i.endswith('.nc')]
     boundary_conditions = pd.read_csv(probabilities_file).set_index('Paracousti File').fillna(0)
-    boundary_conditions['Paracousti Percent Occurance'] = 100 * (boundary_conditions['Paracousti Percent Occurance']/ boundary_conditions['Paracousti Percent Occurance'].sum())
+    boundary_conditions['% of yr'] = 100 * (boundary_conditions['% of yr']/ boundary_conditions['% of yr'].sum())
     
     receptor = pd.read_csv(receptor_filename, index_col=0, header=None).T
     Threshold = receptor['Threshold (dB re 1uPa)'].astype(float).to_numpy().item()
@@ -127,7 +127,7 @@ def calculate_acoustic_stressors(fpath_dev,
             percent_scaled = np.zeros(rx.shape)
             density_scaled = np.zeros(rx.shape)
 
-        probability = boundary_conditions.loc[os.path.basename(file)]['Paracousti Percent Occurance'] / 100
+        probability = boundary_conditions.loc[os.path.basename(file)]['% of yr'] / 100
         species_percent_filename = boundary_conditions.loc[os.path.basename(paracousti_file)]['Species Percent Occurance File']
         species_density_filename = boundary_conditions.loc[os.path.basename(paracousti_file)]['Species Density File']
         
@@ -150,14 +150,14 @@ def calculate_acoustic_stressors(fpath_dev,
 
         threshold_mask = acoust_var>Threshold
         threshold_exceeded[threshold_mask] += probability*100
-        percent[threshold_mask] += probability * parray[threshold_mask]
-        density[threshold_mask] += probability * darray[threshold_mask]
+        # percent[threshold_mask] += probability * parray[threshold_mask]
+        # density[threshold_mask] += probability * darray[threshold_mask]
         percent_scaled[threshold_mask] += probability * parray_scaled[threshold_mask]
         density_scaled[threshold_mask] += probability * darray_scaled[threshold_mask]
 
    
 
-    listOfFiles = [PARACOUSTI, stressor, threshold_exceeded, percent, density, percent_scaled, density_scaled]
+    listOfFiles = [PARACOUSTI, stressor, threshold_exceeded, percent_scaled, density_scaled]
     dx = np.nanmean(np.diff(rx[0,:]))
     dy = np.nanmean(np.diff(ry[:,0]))
     return listOfFiles, rx, ry, dx, dy
@@ -182,20 +182,16 @@ def run_acoustics_stressor(
     #numpy_arrays = [0] PARACOUSTI
     #               [1] stressor
     #               [2] threshold_exceeded
-    #               [3] percent
-    #               [4] density
-    #               [5] percent_scaled
-    #               [6] density_scaled
+    #               [3] percent_scaled
+    #               [4] density_scaled
     
     if not((receptor_filename is None) or (receptor_filename == "")):
         numpy_array_names = ['calculated_paracousti.tif',
                             'calculated_stressor.tif',
                             'threshold_exceeded_receptor.tif',
                             'species_percent.tif',
-                            'species_density.tif',
-                            'species_percent_scaled.tif',
-                            'species_density_scaled.tif']
-        use_numpy_arrays = [numpy_arrays[0], numpy_arrays[1], numpy_arrays[2], numpy_arrays[3], numpy_arrays[4], numpy_arrays[5], numpy_arrays[6]]
+                            'species_density.tif']
+        use_numpy_arrays = [numpy_arrays[0], numpy_arrays[1], numpy_arrays[2], numpy_arrays[3], numpy_arrays[4]]
     else:
         numpy_array_names = ['calculated_paracousti.tif', 'calculated_stressor.tif']
         use_numpy_arrays = [numpy_arrays[0], numpy_arrays[1]]
@@ -231,7 +227,35 @@ def run_acoustics_stressor(
             os.path.join(output_path, array_name),
         )
 
-    bin_layer(rx, ry, numpy_arrays[1], latlon=True).to_csv(os.path.join(output_path, "calculated_stressor.csv"), index=False)
+    # Area calculations pull form rasters to ensure uniformity
+    #Stressor Area 
+    # ParAcousti area
+    bin_layer(os.path.join(output_path, numpy_array_names[0]), 
+              receptor_filename=None, 
+              receptor_names=None, 
+              latlon=crs==4326).to_csv(os.path.join(output_path, "calculated_stressor.csv"), index=False)   
+    
+    bin_layer(os.path.join(output_path, numpy_array_names[1]), 
+              receptor_filename=None, 
+              receptor_names=None, 
+              latlon=crs==4326).to_csv(os.path.join(output_path, "calculated_stressor.csv"), index=False)
 
-
+    if not((receptor_filename is None) or (receptor_filename == "")):
+        bin_layer(os.path.join(output_path, numpy_array_names[2]), #threshold
+                receptor_filename=None, 
+                receptor_names=None, 
+                limit_receptor_range = [0, np.inf],
+                latlon=crs==4326).to_csv(os.path.join(output_path, "threshold_exceeded_receptor.csv"), index=False)
+        
+        bin_layer(os.path.join(output_path, numpy_array_names[3]), 
+                receptor_filename=None, 
+                receptor_names=None,  
+                limit_receptor_range = [0, np.inf],
+                latlon=crs==4326).to_csv(os.path.join(output_path, "species_percent.csv"), index=False)
+        
+        bin_layer(os.path.join(output_path, numpy_array_names[4]), 
+                receptor_filename=None, 
+                receptor_names=None,  
+                limit_receptor_range = [0, np.inf],
+                latlon=crs==4326).to_csv(os.path.join(output_path, "species_density.csv"), index=False)
     return output_rasters
