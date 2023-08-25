@@ -1,14 +1,24 @@
-#!/usr/bin/python
+"""
+/***************************************************************************.
 
-# Oregon Coast Delft3D WEC Difference Plotting
+ velocity_module.py
+ Copyright 2023, Integral Consulting Inc. All rights reserved.
+ 
+ PURPOSE: module for calcualting velocity (larval motility) change from a velocity stressor
 
-# Plot normalized comparison of simulations with WECs and without WECS for
-# user selected variable for all boundary conditions
+ PROJECT INFORMATION:
+ Name: SEAT - Spatial and Environmental Assessment Tool
+ Number: C1308
 
-# Usage:
-# python delft_wecs_diff_all_bcs.py
-
-# Output: # of BCs figures saved to run_dir directory
+ AUTHORS
+ Eben Pendelton
+ Timothy Nelson (tnelson@integral-corp.com)
+ Caleb Grant (cgrant@inegral-corp.com)
+ Sam McWilliams (smcwilliams@integral-corp.com)
+ 
+ NOTES (Data descriptions and any script specific notes)
+	1. called by stressor_receptor_calc.py
+"""
 
 import glob
 import os
@@ -280,7 +290,8 @@ def run_shear_stress_stressor(
 
         cell_resolution = [dx, dy]
         if crs == 4326:
-            bounds = [rx.min()-360 - dx/2, ry.max() - dy/2]
+            rxx = np.where(rx>180, rx-360, rx)
+            bounds = [rxx.min() - dx/2, ry.max() - dy/2]
         else:
             bounds = [rx.min() - dx/2, ry.max() - dy/2]
         rows, cols = numpy_array.shape

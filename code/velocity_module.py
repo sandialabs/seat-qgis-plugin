@@ -1,14 +1,25 @@
 #!/usr/bin/python
+"""
+/***************************************************************************.
 
-# Oregon Coast Delft3D WEC Difference Plotting
+ velocity_module.py
+ Copyright 2023, Integral Consulting Inc. All rights reserved.
+ 
+ PURPOSE: module for calcualting velocity (larval motility) change from a velocity stressor
 
-# Plot normalized comparison of simulations with WECs and without WECS for
-# user selected variable for all boundary conditions
+ PROJECT INFORMATION:
+ Name: SEAT - Spatial and Environmental Assessment Tool
+ Number: C1308
 
-# Usage:
-# python delft_wecs_diff_all_bcs.py
-
-# Output: # of BCs figures saved to run_dir directory
+ AUTHORS
+ Eben Pendelton
+ Timothy Nelson (tnelson@integral-corp.com)
+ Caleb Grant (cgrant@inegral-corp.com)
+ Sam McWilliams (smcwilliams@integral-corp.com)
+ 
+ NOTES (Data descriptions and any script specific notes)
+	1. called by stressor_receptor_calc.py
+"""
 
 import glob
 import os
@@ -260,12 +271,6 @@ def run_velocity_stressor(
     #               [3] mobility_diff
     #               [4] motility_classification    
     #               [5] receptor - vel_crit
-    bin_layer(rx, 
-              ry, 
-              numpy_arrays[0], 
-              receptor=None, 
-              receptor_names=None, 
-              latlon=crs == 4326).to_csv(os.path.join(output_path, "calculated_stressor.csv"), index=False)
     
     if not((receptor_filename is None) or (receptor_filename == "")):
         numpy_array_names = ['calculated_stressor.tif',
@@ -287,7 +292,8 @@ def run_velocity_stressor(
 
         cell_resolution = [dx, dy]
         if crs == 4326:
-            bounds = [rx.min()-360 - dx/2, ry.max() - dy/2]
+            rxx = np.where(rx>180, rx-360, rx)
+            bounds = [rxx.min() - dx/2, ry.max() - dy/2]
         else:
             bounds = [rx.min() - dx/2, ry.max() - dy/2]
         rows, cols = numpy_array.shape
@@ -329,7 +335,7 @@ def run_velocity_stressor(
         
         classify_layer_area(os.path.join(output_path, "calculated_stressor_reclassified.tif"), 
             at_values=[-1, 0, 1, 2, 3], 
-            value_names=['No Change', 'Reduced Motility','Increased Motility', 'New Motility'], 
+            value_names=['Motility Stops', 'No Change', 'Reduced Motility','Increased Motility', 'New Motility'], 
             latlon=crs==4326).to_csv(os.path.join(output_path, "calculated_stressor_reclassified.csv"), index=False)
         
         classify_layer_area(os.path.join(output_path, "calculated_stressor_reclassified.tif"), 

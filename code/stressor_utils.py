@@ -1,3 +1,25 @@
+"""
+/***************************************************************************.
+
+ velocity_module.py
+ Copyright 2023, Integral Consulting Inc. All rights reserved.
+ 
+ PURPOSE: module for calcualting velocity (larval motility) change from a velocity stressor
+
+ PROJECT INFORMATION:
+ Name: SEAT - Spatial and Environmental Assessment Tool
+ Number: C1308
+
+ AUTHORS
+ Eben Pendelton
+ Timothy Nelson (tnelson@integral-corp.com)
+ Caleb Grant (cgrant@inegral-corp.com)
+ Sam McWilliams (smcwilliams@integral-corp.com)
+ 
+ NOTES (Data descriptions and any script specific notes)
+	1. called by stressor_receptor_calc.py
+"""
+
 import numpy as np
 import pandas as pd
 from matplotlib.tri import LinearTriInterpolator, TriAnalyzer, Triangulation
@@ -268,7 +290,7 @@ def bin_layer(raster_filename, receptor_filename=None, receptor_names=None, limi
     square_area = square_area.flatten()
     zm = resample_structured_grid(rx, ry, z, rxm, rym, interpmethod='linear').flatten()
     if receptor_filename is None:
-        DATA = bin_data(zm, square_area, nbins=25)
+        DATA = bin_data(zm[np.invert(np.isnan(zm))], square_area[np.invert(np.isnan(zm))], nbins=25)
         # DF = pd.DataFrame(DATA)
         DATA['Area percent'] = 100 * DATA['Area']/DATA['Area'].sum()
     else:
@@ -276,7 +298,7 @@ def bin_layer(raster_filename, receptor_filename=None, receptor_names=None, limi
         if limit_receptor_range is not None:
             receptor = np.where((receptor>=np.min(limit_receptor_range)) & (receptor<=np.max(limit_receptor_range)), receptor, 0)
         receptor = resample_structured_grid(rrx, rry, receptor, rxm, rym).flatten()
-        DATA = bin_receptor(zm, receptor, square_area, receptor_names=receptor_names)
+        DATA = bin_receptor(zm[np.invert(np.isnan(zm))], receptor[np.invert(np.isnan(zm))], square_area[np.invert(np.isnan(zm))], receptor_names=receptor_names)
     return pd.DataFrame(DATA)
 
 def classify_layer_area(raster_filename, receptor_filename=None, at_values=None, value_names=None, limit_receptor_range=None, latlon=True):

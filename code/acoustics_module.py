@@ -1,10 +1,32 @@
+"""
+/***************************************************************************.
+
+ velocity_module.py
+ Copyright 2023, Integral Consulting Inc. All rights reserved.
+ 
+ PURPOSE: module for calcualting velocity (larval motility) change from a velocity stressor
+
+ PROJECT INFORMATION:
+ Name: SEAT - Spatial and Environmental Assessment Tool
+ Number: C1308
+
+ AUTHORS
+ Eben Pendelton
+ Timothy Nelson (tnelson@integral-corp.com)
+ Caleb Grant (cgrant@inegral-corp.com)
+ Sam McWilliams (smcwilliams@integral-corp.com)
+ 
+ NOTES (Data descriptions and any script specific notes)
+	1. called by stressor_receptor_calc.py
+"""
+
 import os
 from scipy.interpolate import griddata
 from netCDF4 import Dataset
 import pandas as pd
 from osgeo import gdal, osr
 import numpy as np
-from stressor_utils import (
+from .stressor_utils import (
     redefine_structured_grid,
     create_raster,
     numpy_array_to_raster,
@@ -119,43 +141,33 @@ def calculate_acoustic_stressors(fpath_dev,
         if ic==0:
             PARACOUSTI = np.zeros(rx.shape)
             stressor = np.zeros(rx.shape)
-            # species_percent_occurance = np.zeros(rx.shape)
-            # species_density = np.zeros(rx.shape)
             threshold_exceeded = np.zeros(rx.shape)
-            percent = np.zeros(rx.shape)
-            density = np.zeros(rx.shape)
             percent_scaled = np.zeros(rx.shape)
             density_scaled = np.zeros(rx.shape)
 
         probability = boundary_conditions.loc[os.path.basename(file)]['% of yr'] / 100
-        species_percent_filename = boundary_conditions.loc[os.path.basename(paracousti_file)]['Species Percent Occurance File']
-        species_density_filename = boundary_conditions.loc[os.path.basename(paracousti_file)]['Species Density File']
-        
+       
 
         PARACOUSTI = PARACOUSTI + probability * acoust_var
         stressor = stressor + probability * (acoust_var - baseline)
-        # if latlon == True:
-        _, _, square_area = calculate_cell_area(rx, ry, latlon == True) 
-        square_area = np.nanmean(square_area) # square area of each grid cell
-        # else:
-        #     square_area = np.nanmean(np.diff(rx[0,:])) * np.nanmean(np.diff(ry[:,0]))
-        if grid_res_species != 0:
-            ratio = square_area / grid_res_species # ratio of grid cell to species averaged, now prob/density per each grid cell
-        else:
-            ratio = 1
-        parray = create_whale_array(os.path.join(species_folder, species_percent_filename), rx, ry, variable='percent', latlon=True)
-        darray = create_whale_array(os.path.join(species_folder, species_density_filename), rx, ry, variable='density', latlon=True)
-        parray_scaled = parray * ratio
-        darray_scaled = darray  * ratio
-
         threshold_mask = acoust_var>Threshold
         threshold_exceeded[threshold_mask] += probability*100
-        # percent[threshold_mask] += probability * parray[threshold_mask]
-        # density[threshold_mask] += probability * darray[threshold_mask]
-        percent_scaled[threshold_mask] += probability * parray_scaled[threshold_mask]
-        density_scaled[threshold_mask] += probability * darray_scaled[threshold_mask]
 
-   
+        if not((species_folder is None) or (species_folder == "")):
+            species_percent_filename = boundary_conditions.loc[os.path.basename(paracousti_file)]['Species Percent Occurance File']
+            species_density_filename = boundary_conditions.loc[os.path.basename(paracousti_file)]['Species Density File']
+            parray = create_whale_array(os.path.join(species_folder, species_percent_filename), rx, ry, variable='percent', latlon=True)
+            darray = create_whale_array(os.path.join(species_folder, species_density_filename), rx, ry, variable='density', latlon=True)
+            _, _, square_area = calculate_cell_area(rx, ry, latlon == True) 
+            square_area = np.nanmean(square_area) # square area of each grid cell
+            if grid_res_species != 0:
+                ratio = square_area / grid_res_species # ratio of grid cell to species averaged, now prob/density per each grid cell
+            else:
+                ratio = 1
+            parray_scaled = parray * ratio
+            darray_scaled = darray  * ratio
+            percent_scaled[threshold_mask] += probability * parray_scaled[threshold_mask]
+            density_scaled[threshold_mask] += probability * darray_scaled[threshold_mask]   
 
     listOfFiles = [PARACOUSTI, stressor, threshold_exceeded, percent_scaled, density_scaled]
     dx = np.nanmean(np.diff(rx[0,:]))
@@ -203,7 +215,8 @@ def run_acoustics_stressor(
 
         cell_resolution = [dx, dy]
         if crs == 4326:
-            bounds = [rx.min()-360 - dx/2, ry.max() - dy/2]
+            rxx = np.where(rx>180, rx-360, rx)
+            bounds = [rxx.min() - dx/2, ry.max() - dy/2]
         else:
             bounds = [rx.min() - dx/2, ry.max() - dy/2]
         rows, cols = numpy_array.shape
@@ -231,31 +244,18 @@ def run_acoustics_stressor(
     #Stressor Area 
     # ParAcousti area
     bin_layer(os.path.join(output_path, numpy_array_names[0]), 
-              receptor_filename=None, 
-              receptor_names=None, 
               latlon=crs==4326).to_csv(os.path.join(output_path, "calculated_stressor.csv"), index=False)   
     
     bin_layer(os.path.join(output_path, numpy_array_names[1]), 
-              receptor_filename=None, 
-              receptor_names=None, 
               latlon=crs==4326).to_csv(os.path.join(output_path, "calculated_stressor.csv"), index=False)
 
     if not((receptor_filename is None) or (receptor_filename == "")):
         bin_layer(os.path.join(output_path, numpy_array_names[2]), #threshold
-                receptor_filename=None, 
-                receptor_names=None, 
-                limit_receptor_range = [0, np.inf],
                 latlon=crs==4326).to_csv(os.path.join(output_path, "threshold_exceeded_receptor.csv"), index=False)
         
         bin_layer(os.path.join(output_path, numpy_array_names[3]), 
-                receptor_filename=None, 
-                receptor_names=None,  
-                limit_receptor_range = [0, np.inf],
                 latlon=crs==4326).to_csv(os.path.join(output_path, "species_percent.csv"), index=False)
         
         bin_layer(os.path.join(output_path, numpy_array_names[4]), 
-                receptor_filename=None, 
-                receptor_names=None,  
-                limit_receptor_range = [0, np.inf],
                 latlon=crs==4326).to_csv(os.path.join(output_path, "species_density.csv"), index=False)
     return output_rasters
