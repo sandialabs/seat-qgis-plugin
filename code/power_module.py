@@ -1,5 +1,5 @@
 # power_module.py
-# Copyright 2022, Integral Consulting Inc. All rights reserved.
+# Copyright 2023, Integral Consulting Inc. All rights reserved.
 #
 # PURPOSE: Calculate power output from device array
 #                                                                                                                                                                      
@@ -10,15 +10,14 @@
 # AUTHORS (Authors to use initals in history)
 #  Timothy R. Nelson - tnelson@integral-corp.com
 # NOTES (Data descriptions and any script specific notes)
-#	1. BC_probability and .OUT files must be in the same folder
+#	1. .OUT files and .pol must be in the same folder
 #	2. .OUT file is format sensitive
 #
-# HISTORY:
 # Date		  Author                Remarks
 # ----------- --------------------- --------------------------------------------
-# 2022-08-0D  TRN - File created
+# 2022-08-01  TRN - File created
+# 2023-08-05  TRN - Comments and slight edits
 #===============================================================================
-# Library & Special Functions --------------------------------------------------
 
 import pandas as pd
 import io
@@ -33,6 +32,20 @@ from matplotlib.ticker import FormatStrFormatter
 
 # %% Obstacle Polygon and Device Positions
 def read_obstacle_polygon_file(power_device_configuration_file):
+    """
+    reads the obstacle polygon file
+
+    Parameters
+    ----------
+    power_device_configuration_file : str
+        filepath of .pol file.
+
+    Returns
+    -------
+    Obstacles : Dict
+        xy of each obstacle.
+
+    """
     inf = io.open(power_device_configuration_file, "r") 
     lines = inf.readlines()
     ic = 0
@@ -58,12 +71,40 @@ def read_obstacle_polygon_file(power_device_configuration_file):
     return Obstacles
 
 def find_mean_point_of_obstacle_polygon(Obstacles):
+    """
+    claculates the center of each obstacle
+
+    Parameters
+    ----------
+    Obstacles : Dict
+        xy of each obstacle.
+
+    Returns
+    -------
+    Centroids : array
+        centroid of each obstacle.
+
+    """
     Centroids=np.empty((0,3), dtype=int)
     for ic, obstacle in enumerate(Obstacles.keys()):
         Centroids = np.vstack((Centroids, [ic, np.nanmean(Obstacles[obstacle][:,0]), np.nanmean(Obstacles[obstacle][:,1])]))
     return Centroids
 
 def plot_test_obstacle_locations(Obstacles):
+    """
+    Creates a plot of the spatial distribution and location of each obstacle.
+
+    Parameters
+    ----------
+    Obstacles : Dict
+        xy of each obstacle.
+
+    Returns
+    -------
+    fig : pyplot figure handle
+        pyplot figure handle.
+
+    """
     fig,ax = plt.subplots(figsize=(10,10))
     for ic, obstacle in enumerate(Obstacles.keys()):
         ax.plot(Obstacles[obstacle][:,0], Obstacles[obstacle][:,1], '.', markersize=3, alpha=0)
@@ -73,13 +114,45 @@ def plot_test_obstacle_locations(Obstacles):
     return fig
 
 def centroid_diffs(Centroids, centroid):
-    # dist = np.sqrt( (Centroids[:,1]-centroid[1])**2 + (Centroids[:,2]-centroid[2])**2)
+    """
+    Determines the closest centroid pair
+
+    Parameters
+    ----------
+    Centroids : Dict
+        DESCRIPTION.
+    centroid : array
+        single x,y.
+
+    Returns
+    -------
+    pair : list
+        index of closest centroid.
+
+    """
+    
     diff = Centroids[:,1:] - centroid[1:]
     min_arg = np.nanargmin(np.abs(diff[:,-1]-diff[:,0]))
     pair = [int(centroid[0]), int(Centroids[min_arg,0])]
     return pair
 
 def extract_device_location(Obstacles, Device_index):
+    """
+    Creates a dictionary summary of each device location
+
+    Parameters
+    ----------
+    Obstacles : TYPE
+        DESCRIPTION.
+    Device_index : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    Devices_DF : TYPE
+        DESCRIPTION.
+
+    """
     Devices = {}
     for device, [ix1, ix2] in enumerate(Device_index):
         key = f'{device+1:03.0f}'
@@ -99,6 +172,20 @@ def extract_device_location(Obstacles, Device_index):
     return Devices_DF
 
 def pair_devices(Centroids):
+    """
+    Determins the two intersecting obstacles to that create a device.
+
+    Parameters
+    ----------
+    Centroids : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    Devices : TYPE
+        DESCRIPTION.
+
+    """
     Devices = np.empty((0,2), dtype=int)
     while len(Centroids) > 0:
         # print(Centroids)
@@ -114,6 +201,20 @@ def pair_devices(Centroids):
 # # This way the plot is array and grid independent, only based on centroid and device size, could make size variable if necessary.
 #
 def create_power_heatmap(DEVICE_POWER):
+    """
+    Creates a heatmap of device location and power as cvalue.
+
+    Parameters
+    ----------
+    DEVICE_POWER : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    fig : TYPE
+        DESCRIPTION.
+
+    """
     fig, ax = plt.subplots(figsize=(6,4))
     lowerx =[]
     lowery = []
@@ -360,9 +461,6 @@ def calculate_power(power_files, bc_file, save_path=None):
         #power per scenario per device
         
     
-    
-    
-    
         #Sum power for the entire years (all datafiles) for each device
         Devices_total = pd.DataFrame({})
         Devices_total['Power [W]'] = device_power_year.sum(axis=1)
@@ -382,61 +480,3 @@ def calculate_power(power_files, bc_file, save_path=None):
         fig.savefig(os.path.join(save_path, 'Device_Power.png'), dpi=150)
         # plt.close(fig)
     return None
-
-#def power_to_shapefile(DEVICE_POWER):
-#    from qgis.core import QgsPointXY,QgsProject, QgsField,QgsFields,QgsFeature,QgsGeometry, QgsVectorFileWriter, QgsWkbTypes
-#    from qgis.PyQt.QtCore import QVariant
-#    fields = QgsFields()
-#    fields.append(QgsField("first", QVariant.Int))
-#    fields.append(QgsField("second", QVariant.String))
-#    """ create an instance of vector file writer, which will create the vector file.
-#    Arguments:
-#    1. path to new file (will fail if exists already)
-#    2. field map
-#    3. geometry type - from WKBTYPE enum
-#    4. layer's spatial reference (instance of QgsCoordinateReferenceSystem)
-#    5. coordinate transform context
-#    6. save options (driver name for the output file, encoding etc.)
-#    """
-#    crs = QgsProject.instance().crs()
-#    transform_context = QgsProject.instance().transformContext()
-#    save_options = QgsVectorFileWriter.SaveVectorOptions()
-#    save_options.driverName = "ESRI Shapefile"
-#    save_options.fileEncoding = "UTF-8"
-#    writer = QgsVectorFileWriter.create(
-#    "testdata/my_new_shapefile.shp",
-#    fields,
-#    QgsWkbTypes.Point,
-#    crs,
-#    transform_context,
-#    save_options
-#    )
-#    if writer.hasError() != QgsVectorFileWriter.NoError:
-#        print("Error when creating shapefile: ",  writer.errorMessage())
-#
-#    # add a feature
-#    fet = QgsFeature()
-#    fet.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(10,10)))
-#    fet.setAttributes([1, "text"])
-#    writer.addFeature(fet)
-#    # delete the writer to flush features to disk
-#    del writer
-
- #%% Example of how to call
-#from power_module import calculate_power as cp
-  # import os
-#power_files = r'H:\Projects\C1308_0107_2_SEAT\seat-qgis-plugin\plugin-input\oregon\power_files_4x4'
-#bc_file = r'H:\Projects\C1308_0107_2_SEAT\seat-qgis-plugin\plugin-input\oregon\boundary-condition\BC_probability_Annual_SETS.csv'
-#save_path = r'H:\Projects\C1308_0107_2_SEAT\seat-qgis-plugin\plugin-output\test_qgis_20230518'
-#
- # power_files = r'H:\Projects\C1308_0107_2_SEAT\seat-qgis-plugin\plugin-input\oregon\power_files_16x6'
- # bc_file = r'H:\Projects\C1308_0107_2_SEAT\seat-qgis-plugin\plugin-input\oregon\boundary-condition\BC_probability_Annual_SETS.csv'
- # save_path = r'H:\Projects\C1308_0107_2_SEAT\seat-qgis-plugin\plugin-output\test_16x6_v2'
-#calculate_power(power_files, bc_file, save_path=save_path)
-# now call the functions
-if __name__ == "__main__":
-    power_files = r'H:\Projects\C1308_0107_2_SEAT\seat-qgis-plugin\plugin-input\oregon\power_files_4x4'
-    bc_file = r'H:\Projects\C1308_0107_2_SEAT\seat-qgis-plugin\plugin-input\oregon\boundary-condition\BC_probability_Annual_SETS.csv'
-    save_path = r'H:\Projects\C1308_0107_2_SEAT\seat-qgis-plugin\plugin-output\test_qgis_20230518'
-
-    calculate_power(power_files, bc_file, save_path=save_path)

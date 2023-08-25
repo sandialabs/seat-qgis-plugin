@@ -4,17 +4,16 @@
  velocity_module.py
  Copyright 2023, Integral Consulting Inc. All rights reserved.
  
- PURPOSE: module for calcualting velocity (larval motility) change from a velocity stressor
+ PURPOSE: module for calcualting acoustic signal change from paracousti files
 
  PROJECT INFORMATION:
  Name: SEAT - Spatial and Environmental Assessment Tool
  Number: C1308
 
  AUTHORS
- Eben Pendelton
- Timothy Nelson (tnelson@integral-corp.com)
- Caleb Grant (cgrant@inegral-corp.com)
- Sam McWilliams (smcwilliams@integral-corp.com)
+  Eben Pendelton
+  Timothy Nelson (tnelson@integral-corp.com)
+  Sam McWilliams (smcwilliams@integral-corp.com)
  
  NOTES (Data descriptions and any script specific notes)
 	1. called by stressor_receptor_calc.py
@@ -35,7 +34,34 @@ from .stressor_utils import (
     bin_layer
 )
 
-def create_whale_array(species_filename, x, y, variable='percent', latlon=False):
+def create_species_array(species_filename, x, y, variable='percent', latlon=False):
+    """
+    Interpolates or creates an array of percent or density of species
+
+    Parameters
+    ----------
+    species_filename : str
+        File path to species files.
+    x : array
+        x-coordinate to interpolate onto.
+    y : array
+       y-coordinate to interpolate onto.
+    variable : str, optional
+        either 'density' or 'percent' column name for csv files. The default is 'percent'.
+    latlon : Bool, optional
+        Coordiante Reference System / EPSG code.
+
+    Raises
+    ------
+    Exception
+        DESCRIPTION.
+
+    Returns
+    -------
+    variable_array : TYPE
+        DESCRIPTION.
+
+    """
     # if ((receptor_filename is not None) or (not receptor_filename == "")):
     if not((species_filename is None) or (species_filename == "")):
         if species_filename.endswith('.tif'):
@@ -66,11 +92,48 @@ def create_whale_array(species_filename, x, y, variable='percent', latlon=False)
 
 def calculate_acoustic_stressors(fpath_dev,
                                 probabilities_file,
+                                receptor_filename,
                                 fpath_nodev=None,
-                                receptor_filename=None,
                                 species_folder=None, #secondary constraint
                                 latlon=True,
 ):
+    """
+    Calculates the stressor layers as arrays from model and parameter input.
+
+    Parameters
+    ----------
+    fpath_dev : str
+        Directory path to the with device model run netcdf files.
+    probabilities_file : str
+        File path to probabilities/bondary condition *.csv file.
+    receptor_filename : str
+        File path to the recetptor file (*.csv or *.tif).
+    fpath_nodev : str, optional
+        Directory path to the baseline/no device model run netcdf files. The default is None.
+    species_folder : str, optional
+        Directory path to the species files in the probabilities_file. The default is None.                              
+    latlon : Bool, optional
+        True is coordinates are lat/lon. The default is True.
+
+    Returns
+    -------
+    listOfFiles : list
+        2D arrays of:
+            [0] weigthed paracousti
+            [1] stressor
+            [2] threshold_exceeded (percent)
+            [3] percent_scaled
+            [4] density_scaled
+    rx : array
+        X-Coordiantes.
+    ry : array
+        Y-Coordinates.
+    dx : scalar
+        x-spacing.
+    dy : scalar
+        y-spacing.
+
+    """
     paracousti_files = [os.path.join(fpath_dev, i) for i in os.listdir(fpath_dev) if i.endswith('.nc')]
     boundary_conditions = pd.read_csv(probabilities_file).set_index('Paracousti File').fillna(0)
     boundary_conditions['% of yr'] = 100 * (boundary_conditions['% of yr']/ boundary_conditions['% of yr'].sum())
@@ -156,8 +219,8 @@ def calculate_acoustic_stressors(fpath_dev,
         if not((species_folder is None) or (species_folder == "")):
             species_percent_filename = boundary_conditions.loc[os.path.basename(paracousti_file)]['Species Percent Occurance File']
             species_density_filename = boundary_conditions.loc[os.path.basename(paracousti_file)]['Species Density File']
-            parray = create_whale_array(os.path.join(species_folder, species_percent_filename), rx, ry, variable='percent', latlon=True)
-            darray = create_whale_array(os.path.join(species_folder, species_density_filename), rx, ry, variable='density', latlon=True)
+            parray = create_species_array(os.path.join(species_folder, species_percent_filename), rx, ry, variable='percent', latlon=True)
+            darray = create_species_array(os.path.join(species_folder, species_density_filename), rx, ry, variable='density', latlon=True)
             _, _, square_area = calculate_cell_area(rx, ry, latlon == True) 
             square_area = np.nanmean(square_area) # square area of each grid cell
             if grid_res_species != 0:
@@ -180,14 +243,47 @@ def run_acoustics_stressor(
     bc_file,
     crs,
     output_path,
-    receptor_filename=None,
+    receptor_filename,
     species_folder=None
 ):
+    """
+    
+
+    Parameters
+    ----------
+    dev_present_file : str
+        Directory path to the baseline/no device model run netcdf files.
+    dev_notpresent_file : str
+        Directory path to the baseline/no device model run netcdf files.
+    bc_file : str
+        File path to probabilities/bondary condition *.csv file..
+    crs : scalar
+        Coordiante Reference System / EPSG code.
+    output_path : str
+        File directory to save output.
+    receptor_filename : str
+        File path to the recetptor file (*.csv or *.tif).
+    species_folder : str, optional
+        Directory path to the species files in the probabilities_file. The default is None.                              
+
+
+    Returns
+    -------
+    output_rasters : list
+        names of output rasters:
+        [0] 'calculated_paracousti.tif'
+        [1] 'calculated_stressor.tif'
+        if species_folder present:
+            [2] 'threshold_exceeded_receptor.tif',
+            [3] 'species_percent.tif',
+            [4] 'species_density.tif'
+
+    """
     
     numpy_arrays, rx, ry, dx, dy = calculate_acoustic_stressors(fpath_dev=dev_present_file, 
                                 probabilities_file=bc_file,
-                                fpath_nodev=dev_notpresent_file,
                                 receptor_filename=receptor_filename,
+                                fpath_nodev=dev_notpresent_file,
                                 species_folder=species_folder, #secondary constraint
                                 latlon = crs==4326)
     
@@ -197,7 +293,7 @@ def run_acoustics_stressor(
     #               [3] percent_scaled
     #               [4] density_scaled
     
-    if not((receptor_filename is None) or (receptor_filename == "")):
+    if not((species_folder is None) or (species_folder == "")):
         numpy_array_names = ['calculated_paracousti.tif',
                             'calculated_stressor.tif',
                             'threshold_exceeded_receptor.tif',
@@ -205,8 +301,8 @@ def run_acoustics_stressor(
                             'species_density.tif']
         use_numpy_arrays = [numpy_arrays[0], numpy_arrays[1], numpy_arrays[2], numpy_arrays[3], numpy_arrays[4]]
     else:
-        numpy_array_names = ['calculated_paracousti.tif', 'calculated_stressor.tif']
-        use_numpy_arrays = [numpy_arrays[0], numpy_arrays[1]]
+        numpy_array_names = ['calculated_paracousti.tif', 'calculated_stressor.tif', 'threshold_exceeded_receptor.tif']
+        use_numpy_arrays = [numpy_arrays[0], numpy_arrays[1], numpy_arrays[2]]
     
     output_rasters = []
     for array_name, numpy_array in zip(numpy_array_names, use_numpy_arrays):
@@ -240,19 +336,20 @@ def run_acoustics_stressor(
             os.path.join(output_path, array_name),
         )
 
-    # Area calculations pull form rasters to ensure uniformity
-    #Stressor Area 
-    # ParAcousti area
+    # Area calculations
+    # ParAcousti Area
     bin_layer(os.path.join(output_path, numpy_array_names[0]), 
-              latlon=crs==4326).to_csv(os.path.join(output_path, "calculated_stressor.csv"), index=False)   
+              latlon=crs==4326).to_csv(os.path.join(output_path, "calculated_paracousti.csv"), index=False)   
     
+    #Stressor Area 
     bin_layer(os.path.join(output_path, numpy_array_names[1]), 
               latlon=crs==4326).to_csv(os.path.join(output_path, "calculated_stressor.csv"), index=False)
-
-    if not((receptor_filename is None) or (receptor_filename == "")):
-        bin_layer(os.path.join(output_path, numpy_array_names[2]), #threshold
-                latlon=crs==4326).to_csv(os.path.join(output_path, "threshold_exceeded_receptor.csv"), index=False)
+    
+    #threshold exeeded Area
+    bin_layer(os.path.join(output_path, numpy_array_names[2]), 
+            latlon=crs==4326).to_csv(os.path.join(output_path, "threshold_exceeded_receptor.csv"), index=False)
         
+    if not((species_folder is None) or (species_folder == "")):
         bin_layer(os.path.join(output_path, numpy_array_names[3]), 
                 latlon=crs==4326).to_csv(os.path.join(output_path, "species_percent.csv"), index=False)
         

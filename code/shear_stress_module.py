@@ -4,17 +4,16 @@
  velocity_module.py
  Copyright 2023, Integral Consulting Inc. All rights reserved.
  
- PURPOSE: module for calcualting velocity (larval motility) change from a velocity stressor
+ PURPOSE: module for calcualting shear stress (sediment mobility) change from a shear stress stressor
 
  PROJECT INFORMATION:
  Name: SEAT - Spatial and Environmental Assessment Tool
  Number: C1308
 
  AUTHORS
- Eben Pendelton
- Timothy Nelson (tnelson@integral-corp.com)
- Caleb Grant (cgrant@inegral-corp.com)
- Sam McWilliams (smcwilliams@integral-corp.com)
+  Timothy Nelson (tnelson@integral-corp.com)
+  Sam McWilliams (smcwilliams@integral-corp.com)
+  Eben Pendelton
  
  NOTES (Data descriptions and any script specific notes)
 	1. called by stressor_receptor_calc.py
@@ -39,17 +38,57 @@ from .stressor_utils import (
 )
 
 def critical_shear_stress(D_meters, rhow=1024, nu=1e-6, s=2.65, g=9.81):
-    # D_meters = grain size in meters, can be array
-    # rhow = density of water in kg/m3
-    # nu = kinematic viscosity of water
-    # s = specific gravity of sediment
-    # g = acceleratin due to gravity
+    """
+    Calculate critical shear stress from grain size.
+
+    Parameters
+    ----------
+    D_meters : Array
+        grain size in meters.
+    rhow : scalar, optional
+        density of water in kg/m3. The default is 1024.
+    nu : scalar, optional
+        kinematic viscosity of water. The default is 1e-6.
+    s : scalar, optional
+        specific gravity of sediment. The default is 2.65.
+    g : scalar, optional
+        acceleratin due to gravity. The default is 9.81.
+
+    Returns
+    -------
+    taucrit : TYPE
+        DESCRIPTION.
+
+    """
     Dstar = ((g * (s-1))/ nu**2)**(1/3) * D_meters
     SHcr = (0.3/(1+1.2*Dstar)) + 0.055*(1-np.exp(-0.02 * Dstar))
     taucrit = rhow * (s - 1) * g * D_meters * SHcr #in Pascals
     return taucrit
 
 def classify_mobility(mobility_parameter_dev, mobility_parameter_nodev):
+    """
+    classifies sediment mobility from device runs to no device runs.
+
+    Parameters
+    ----------
+    mobility_parameter_dev : Array
+        mobility parameter (tau/tau_crit) for with device runs.
+    mobility_parameter_nodev : TYPE
+        mobility parameter (tau/tau_crit) for without (baseline) device runs.
+
+    Returns
+    -------
+    mobility_classification : array
+        Numerically classified array where,
+        3 = New Erosion
+        2 = Increased Erosion
+        1 = Reduced Erosion
+        0 = No Change
+        -1 = Reduced Deposition
+        -2 = Increased Deposition
+        -3 = New Deposition
+    """
+    
     mobility_classification = np.zeros(mobility_parameter_dev.shape)
     #New Erosion
     mobility_classification = np.where(((mobility_parameter_dev < mobility_parameter_nodev) & (mobility_parameter_nodev<1) & (mobility_parameter_dev>=1)), 3, mobility_classification)
@@ -67,6 +106,26 @@ def classify_mobility(mobility_parameter_dev, mobility_parameter_nodev):
     return mobility_classification
 
 def check_grid_define_vars(dataset):
+    """
+    Determins the type of grid and corresponding shear stress variable name and coordiante names
+
+    Parameters
+    ----------
+    dataset : netdcf (.nc) dataset
+        netdcf (.nc) dataset.
+
+    Returns
+    -------
+    gridtype : string
+        "structured" or "unstructured".
+    xvar : str
+        name of x-coordinate variable.
+    yvar : str
+        name of y-coordiante variable.
+    tauvar : str
+        name of shear stress variable.
+
+    """
     vars = list(dataset.variables)
     if 'TAUMAX' in vars:
         gridtype = 'structured'
@@ -84,6 +143,52 @@ def calculate_shear_stress_stressors(fpath_nodev,
                                     latlon=True, 
                                     value_selection='MAX'
 ):
+    """
+    Calculates the stressor layers as arrays from model and parameter input.
+
+    Parameters
+    ----------
+    fpath_nodev : str
+        Directory path to the baseline/no device model run netcdf files.
+    fpath_dev : str
+        Directory path to the with device model run netcdf files.
+    probabilities_file : str
+        File path to probabilities/bondary condition *.csv file.
+    receptor_filename : str, optional
+        File path to the recetptor file (*.csv or *.tif). The default is None.
+    latlon : Bool, optional
+        True is coordinates are lat/lon. The default is True.
+    value_selection : str, optional
+        Temporal selection of shears stress (not currently used). The default is 'MAX'.
+
+    Raises
+    ------
+    Exception
+        "Number of device runs files must be the same as no device runs files".
+
+    Returns
+    -------
+    listOfFiles : list
+        2D arrays of:
+        [0] tau_diff
+        [1] mobility_parameter_nodev
+        [2] mobility_parameter_dev
+        [3] mobility_parameter_diff
+        [4] mobility_classification
+        [5] receptor array  
+    rx : array
+        X-Coordiantes.
+    ry : array
+        Y-Coordinates.
+    dx : scalar
+        x-spacing.
+    dy : scalar
+        y-spacing.
+    gridtype : str
+        grid type [structured or unstructured].
+
+    """
+    
     files_nodev = [i for i in os.listdir(fpath_nodev) if i.endswith('.nc')]
     files_dev = [i for i in os.listdir(fpath_dev) if i.endswith('.nc')]
 
@@ -258,6 +363,35 @@ def run_shear_stress_stressor(
     output_path,
     receptor_filename=None
 ):
+    """
+    creates geotiffs and area change statistics files for shear stress change
+
+    Parameters
+    ----------
+    dev_present_file : str
+        Directory path to the baseline/no device model run netcdf files.
+    dev_notpresent_file : str
+        Directory path to the baseline/no device model run netcdf files.
+    bc_file : str
+        File path to probabilities/bondary condition *.csv file.
+    crs : scalar
+        Coordiante Reference System / EPSG code.
+    output_path : str
+        File directory to save output.
+    receptor_filename : str, optional
+        File path to the recetptor file (*.csv or *.tif). The default is None.
+
+    Returns
+    -------
+    output_rasters : list
+        names of output rasters:
+        [0] 'calculated_stressor.tif'
+        if receptor present:
+            [1] 'calculated_stressor_with_receptor.tif',
+            [2] 'calculated_stressor_reclassified.tif',
+            [3] 'receptor.tif'
+
+    """
     
     numpy_arrays, rx, ry, dx, dy, gridtype = calculate_shear_stress_stressors(fpath_nodev=dev_notpresent_file, 
                                                 fpath_dev=dev_present_file, 

@@ -4,18 +4,18 @@
 
  stressor_receptor_calc.py
  Copyright 2023, Integral Consulting Inc. All rights reserved.
- 
+
  PURPOSE: A QGIS plugin that calculates a probability weighted response layer from stressor and/or receptor layers
 
  PROJECT INFORMATION:
- Name: SEAT - Spatial and Environmental Assessment Tool
+ Name: SEAT - Spatial and Environmental Assessment Tool (https://github.com/IntegralEnvision/seat-qgis-plugin)
  Number: C1308
 
  AUTHORS
  Eben Pendelton
- Timothy Nelson (tnelson@integral-corp.com)
- Caleb Grant (cgrant@inegral-corp.com)
- Sam McWilliams (smcwilliams@integral-corp.com)
+  Timothy Nelson (tnelson@integral-corp.com)
+  Caleb Grant (cgrant@inegral-corp.com)
+  Sam McWilliams (smcwilliams@integral-corp.com)
  
  NOTES (Data descriptions and any script specific notes)
 	1. plugin template from Plugin Builder: http://g-sherman.github.io/Qgis-Plugin-Builder/

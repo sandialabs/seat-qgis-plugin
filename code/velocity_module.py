@@ -12,10 +12,9 @@
  Number: C1308
 
  AUTHORS
- Eben Pendelton
- Timothy Nelson (tnelson@integral-corp.com)
- Caleb Grant (cgrant@inegral-corp.com)
- Sam McWilliams (smcwilliams@integral-corp.com)
+  Timothy Nelson (tnelson@integral-corp.com)
+  Sam McWilliams (smcwilliams@integral-corp.com)
+  Eben Pendelton
  
  NOTES (Data descriptions and any script specific notes)
 	1. called by stressor_receptor_calc.py
@@ -39,6 +38,27 @@ from .stressor_utils import (
 )
 
 def classify_motility(motility_parameter_dev, motility_parameter_nodev):
+    """
+    classifies larval motility from device runs to no device runs.
+
+    Parameters
+    ----------
+    motility_parameter_dev : Array
+        mobility parameter (vel/vel_crit) for with device runs.
+    motility_parameter_nodev : TYPE
+        mobility parameter (vel/vel_crit) for without (baseline) device runs.
+
+    Returns
+    -------
+    motility_classification : array
+        Numerically classified array where,
+        3 = New Motility
+        2 = Increased Motility
+        1 = Reduced Motility
+        0 = No Change
+        -1 = Motility Stops
+    """    
+    
     motility_classification = np.zeros(motility_parameter_dev.shape)
     # Motility Stops
     motility_classification = np.where(((motility_parameter_dev < motility_parameter_nodev) & (motility_parameter_nodev>=1) & (motility_parameter_dev<1)), -1, motility_classification)
@@ -52,6 +72,27 @@ def classify_motility(motility_parameter_dev, motility_parameter_nodev):
     return motility_classification
 
 def check_grid_define_vars(dataset):
+    """
+    Determins the type of grid and corresponding velocity variable name and coordiante names
+
+    Parameters
+    ----------
+    dataset : netdcf (.nc) dataset
+        netdcf (.nc) dataset.
+
+    Returns
+    -------
+    gridtype : string
+        "structured" or "unstructured".
+    xvar : str
+        name of x-coordinate variable.
+    yvar : str
+        name of y-coordiante variable.
+    uvar : str
+        name of x-coordinate velocity variable.
+    vvar : str
+        name of y-coordinate velocity variable.
+    """
     vars = list(dataset.variables)
     if 'U1' in vars:
         gridtype = 'structured'
@@ -76,6 +117,51 @@ def calculate_velocity_stressors(fpath_nodev,
                                     latlon=True, 
                                     value_selection='MAX'
 ):
+    """
+    
+
+    Parameters
+    ----------
+    fpath_nodev : str
+        Directory path to the baseline/no device model run netcdf files.
+    fpath_dev : str
+        Directory path to the with device model run netcdf files.
+    probabilities_file : str
+        File path to probabilities/bondary condition *.csv file.
+    receptor_filename : str, optional
+        File path to the recetptor file (*.csv or *.tif). The default is None.
+    latlon : Bool, optional
+        True is coordinates are lat/lon. The default is True.
+    value_selection : str, optional
+        Temporal selection of shears stress (not currently used). The default is 'MAX'.
+
+    Raises
+    ------
+    Exception
+        "Number of device runs files must be the same as no device runs files".
+
+    Returns
+    -------
+    listOfFiles : list
+        2D arrays of:
+            [0] mag_diff
+            [1] mobility_nodev
+            [2] mobility_dev
+            [3] mobility_diff
+            [4] motility_classification    
+            [5] receptor (vel_crit)
+    rx : array
+        X-Coordiantes.
+    ry : array
+        Y-Coordinates.
+    dx : scalar
+        x-spacing.
+    dy : scalar
+        y-spacing.
+    gridtype : str
+        grid type [structured or unstructured].
+
+    """
     files_nodev = [i for i in os.listdir(fpath_nodev) if i.endswith('.nc')]
     files_dev = [i for i in os.listdir(fpath_dev) if i.endswith('.nc')]
 
@@ -259,7 +345,35 @@ def run_velocity_stressor(
     output_path,
     receptor_filename=None
 ):
-    
+    """
+    creates geotiffs and area change statistics files for velocity change
+
+    Parameters
+    ----------
+    dev_present_file : str
+        Directory path to the baseline/no device model run netcdf files.
+    dev_notpresent_file : str
+        Directory path to the baseline/no device model run netcdf files.
+    bc_file : str
+        File path to probabilities/bondary condition *.csv file.
+    crs : scalar
+        Coordiante Reference System / EPSG code.
+    output_path : str
+        File directory to save output.
+    receptor_filename : str, optional
+        File path to the recetptor file (*.csv or *.tif). The default is None.
+
+    Returns
+    -------
+    output_rasters : list
+        names of output rasters:
+        [0] 'calculated_stressor.tif'
+        if receptor present:
+            [1] 'calculated_stressor_with_receptor.tif',
+            [2] 'calculated_stressor_reclassified.tif',
+            [3] 'receptor.tif'
+
+    """    
     numpy_arrays, rx, ry, dx, dy, gridtype = calculate_velocity_stressors(fpath_nodev=dev_notpresent_file, 
                                                 fpath_dev=dev_present_file, 
                                                 probabilities_file=bc_file,

@@ -4,20 +4,19 @@
  velocity_module.py
  Copyright 2023, Integral Consulting Inc. All rights reserved.
  
- PURPOSE: module for calcualting velocity (larval motility) change from a velocity stressor
+ PURPOSE: definitions used by the stressor modules
 
  PROJECT INFORMATION:
  Name: SEAT - Spatial and Environmental Assessment Tool
  Number: C1308
 
  AUTHORS
- Eben Pendelton
- Timothy Nelson (tnelson@integral-corp.com)
- Caleb Grant (cgrant@inegral-corp.com)
- Sam McWilliams (smcwilliams@integral-corp.com)
+  Timothy Nelson (tnelson@integral-corp.com)
+  Sam McWilliams (smcwilliams@integral-corp.com)
+  Eben Pendelton
  
  NOTES (Data descriptions and any script specific notes)
-	1. called by stressor_receptor_calc.py
+	1. called by shear_stress_module.py, velocity_module.py, acoustics_module.py
 """
 
 import numpy as np
@@ -28,6 +27,24 @@ from osgeo import gdal, osr
 import os
 
 def estimate_grid_spacing(x,y, nsamples=100):
+    """
+    Estimates the grid spacing of an unstructured grid to create a similar resolution structured grid
+
+    Parameters
+    ----------
+    x : array
+        x-coordinates.
+    y : array
+        y-coordiantes.
+    nsamples : scalar, optional
+        number of random points to sample spacing to nearest cell. The default is 100.
+
+    Returns
+    -------
+    dxdy : array
+        estimated median spacing between samples.
+
+    """
     import random
     import sys
     coords = list(set(zip(x,y)))
@@ -47,6 +64,32 @@ def estimate_grid_spacing(x,y, nsamples=100):
     return dxdy
 
 def create_structured_array_from_unstructured(x, y, z, dxdy, flatness=0.2):
+    """
+    Creates a structured grid from an unsructred grid
+
+    Parameters
+    ----------
+    x : array
+        input x-coordinates.
+    y : array
+        input y-coordiantes.
+    z : array
+        input value.
+    dxdy : scalar
+        spacing between x and y.
+    flatness : scalar, optional
+        DESCRIPTION. The default is 0.2.
+
+    Returns
+    -------
+    refxg : array
+        x-coordinate.
+    refyg : array
+        y-coordiante.
+    z : array
+        interpolated z value.
+
+    """
     # flatness is from 0-.5 .5 is equilateral triangle
     refx = np.arange(np.nanmin(x), np.nanmax(x)+dxdy, dxdy)
     refy = np.arange(np.nanmin(y), np.nanmax(y)+dxdy, dxdy)
@@ -59,6 +102,28 @@ def create_structured_array_from_unstructured(x, y, z, dxdy, flatness=0.2):
     return refxg, refyg, z_interp.data
 
 def redefine_structured_grid(x,y,z):
+    """
+    ensures regular structured grid (paracousti grid not regular)
+
+    Parameters
+    ----------
+    x : array
+        x-coordinates.
+    y : array
+        y-coordiantes.
+    z : array
+        input value.
+
+    Returns
+    -------
+    x_new : array
+       x-coordinate.
+    y_new : array
+       y-coordinate.
+    z_new : array
+        interpolated z value..
+
+    """
     min_x = np.nanmin(x)
     min_y = np.nanmin(y)
     max_x = np.nanmax(x)
@@ -73,9 +138,58 @@ def redefine_structured_grid(x,y,z):
     return x_new, y_new, z_new
 
 def resample_structured_grid(x_grid, y_grid, z, X_grid_out, Y_grid_out, interpmethod='nearest'):
+    """
+    interpolates a structured grid onto a new structured grid.
+
+    Parameters
+    ----------
+    x_grid : array
+        x-coordinates.
+    y_grid : array
+        y-coordinates.
+    z : array
+        input value.
+    X_grid_out : array
+        x-coordinates.
+    Y_grid_out : array
+        y-coordinates.
+    interpmethod : str, optional
+        interpolation method to use. The default is 'nearest'.
+
+    Returns
+    -------
+    array
+        interpolated z-value on X/Y _grid_out.
+
+    """
     return griddata((x_grid.flatten(), y_grid.flatten()), z.flatten(), (X_grid_out,Y_grid_out), method=interpmethod, fill_value=0)
 
 def calc_receptor_array(receptor_filename, x, y, latlon=False):
+    """
+    Creates an array from either a .tif or .csv file.
+
+    Parameters
+    ----------
+    receptor_filename : str
+        File path to the recetptor file (*.csv or *.tif).
+    x : array
+        x-coordinates to interpolate at.
+    y : array
+        y-coordiantes to interpolate at.
+    latlon :  Bool, optional
+        True is coordinates are lat/lon. The default is False.
+
+    Raises
+    ------
+    Exception
+        "Invalid Recetpor File Type. Must be of type .tif or .csv".
+
+    Returns
+    -------
+    receptor_array : array
+        interpolated receptor values at input x/y coordinates.
+
+    """
     # if ((receptor_filename is not None) or (not receptor_filename == "")):
     if not((receptor_filename is None) or (receptor_filename == "")):
         if receptor_filename.endswith('.tif'):
@@ -103,7 +217,33 @@ def calc_receptor_array(receptor_filename, x, y, latlon=False):
         receptor_array = 200*1e-6 * np.ones(x.shape)
     return receptor_array
 
-def trim_zeros(x,y,z1, z2):
+def trim_zeros(x, y, z1, z2):
+    """
+    removes zeros from velocity structure array [might not always occur but does for test data]
+
+    Parameters
+    ----------
+    x : array
+        x-coordinates.
+    y : array
+        y-coordiantes.
+    z1 : array
+        first value (e.g. uvar).
+    z2 : array
+        second value (e.g. vvar).
+
+    Returns
+    -------
+    array
+        x-coordinate.
+    array
+        y-coordinate.
+    array
+        z1-value (e.g. uvar).
+    array
+        z2-value (e.g. vvar).
+
+    """
     #edges of structured array have zeros, not sure if universal issue
     return x[1:-1,1:-1], y[1:-1,1:-1], z1[:, :, 1:-1, 1:-1], z2[:, :, 1:-1, 1:-1]
 
@@ -114,8 +254,29 @@ def create_raster(
     nbands,
     eType=gdal.GDT_Float32,
 ):
+    """
+    Create a gdal raster object. 
 
-    """Create a gdal raster object."""
+    Parameters
+    ----------
+    output_path :  str
+        Absolute filepath of geotiff to create.
+    cols : scalar
+        number of columns.
+    rows : scalar
+        number of rows.
+    nbands : scalar
+        number of bads to write.
+    eType : gdal, optional
+        type of geotiff and precision. The default is gdal.GDT_Float32.
+
+    Returns
+    -------
+    output_raster : gdal raster object
+        gdal raster object.
+
+    """
+    
     # create gdal driver - doing this explicitly
     driver = gdal.GetDriverByName(str("GTiff"))
 
@@ -143,6 +304,35 @@ def numpy_array_to_raster(
     spatial_reference_system_wkid,
     output_path,
 ):
+    """
+    
+
+    Parameters
+    ----------
+    output_raster : gdal raster object
+        gdal raster object to write array.
+    numpy_array : array
+        numpy array to save to geotiff.
+    bounds : array
+        [xmin, ymin].
+    cell_resolution : array
+        [dx, dy].
+    spatial_reference_system_wkid : scalar
+        EPSG code.
+    output_path : str
+        Absolute filepath of geotiff to create.
+
+    Raises
+    ------
+    Exception
+        "Failed to create raster: %s" % output_path.
+
+    Returns
+    -------
+    output_path : str
+         filepath of geotiff created.
+
+    """
 
     """Create the output raster."""
     # create output raster
@@ -180,14 +370,22 @@ def numpy_array_to_raster(
     return output_path
 
 def find_utm_srid(lon, lat, srid):
-
     """
     Given a WGS 64 srid calculate the corresponding UTM srid.
 
-    :param lon: WGS 84 (srid 4326) longitude value)
-    :param lat: WGS 84 (srid 4326) latitude value)
-    :param srid: WGS 84 srid 4326 to make sure the function is appropriate
-    :return: out_srid: UTM srid
+    Parameters
+    ----------
+    lon : array
+        WGS 84 (srid 4326) longitude value
+    lat : array
+        WGS 84 (srid 4326) latitude value.
+    srid : scalar
+        WGS 84 srid 4326 to make sure the function is appropriate.
+
+    Returns
+    -------
+    None.
+
     """
 
     assert srid == 4326, f"find_utm_srid: input geometry has wrong SRID {srid}"
@@ -208,6 +406,25 @@ def find_utm_srid(lon, lat, srid):
     return out_srid
 
 def read_raster(raster_name):
+    """
+    Reads a raster to an array.
+
+    Parameters
+    ----------
+    raster_name : str
+        absolute filepath of array.
+
+    Returns
+    -------
+    rx : array
+        x-coordinates.
+    ry : array
+        y-coordinate.
+    raster_array : array
+        value array.
+
+    """
+    
     data = gdal.Open(raster_name)
     img = data.GetRasterBand(1)
     raster_array = img.ReadAsArray()
@@ -221,6 +438,28 @@ def read_raster(raster_name):
     return rx, ry, raster_array
 
 def calculate_cell_area(rx, ry, latlon=True):
+    """
+    Calculates the area of each cell
+
+    Parameters
+    ----------
+    rx : array
+        x-coordinate array.
+    ry : array
+        y-coordinate array.
+    latlon : Bool, optional
+        True is coordinates are lat/lon. The default is True.
+
+    Returns
+    -------
+    rxm : TYPE
+        x-coordinate array at cell center.
+    rym : TYPE
+        y-coordinate array at cell center.
+    square_area : array
+        area of each cell.
+
+    """
     import numpy as np
     from pyproj import Geod
 
@@ -247,6 +486,29 @@ def calculate_cell_area(rx, ry, latlon=True):
     return rxm, rym, square_area
 
 def bin_data(zm, square_area, nbins=25):
+    """
+    Bin statistics and area calculation of binned values.
+
+    Parameters
+    ----------
+    zm : array
+        value array (ensure same dimension as square_area).
+    square_area : array
+        square area array (output of calculate_cell_area).
+    nbins : scalar, optional
+        number of bins to calculate. The default is 25.
+
+    Returns
+    -------
+    DATA : Dictionary
+        Dictionary for each bin contating
+            bin start : the starting value of each bin
+            bin end : the last value of each bin
+            bin center: the center value of each bin
+            count :number of cells in each bin
+            Area : area overwhich the binned values occur
+
+    """
     hist, bins = np.histogram(zm, bins=nbins)
     center = (bins[:-1] + bins[1:]) / 2
     DATA = {}
@@ -263,8 +525,36 @@ def bin_data(zm, square_area, nbins=25):
         DATA['Area'][ic] = np.sum(square_area[area_ix])
     return DATA
 
-def bin_receptor(zm, receptor, square_area, receptor_names=None):
-    hist, bins = np.histogram(zm, bins=25)
+def bin_receptor(zm, receptor, square_area, nbins=25, receptor_names=None):
+    """
+    Bins values into 25 bins and by unique values in the receptor.
+
+    Parameters
+    ----------
+    zm : array
+        value array (ensure same dimension as square_area).
+    receptor : array
+        receptor array values (ensure same dimension as square_area).
+    square_area : array
+        square area array (output of calculate_cell_area).
+    nbins : scalar, optional
+        number of bins to calculate. The default is 25.
+        receptor_names
+    receptor_names : list, opional
+        optional names for each unique value in the receptor. the default is None.
+
+    Returns
+    -------
+    DATA : Dictionary
+        Dictionary contating with keyscorresponding to each unique receptor value each containing for each bin 
+            bin start : the starting value of each bin
+            bin end : the last value of each bin
+            bin center: the center value of each bin
+            count :number of cells in each bin
+            Area : area overwhich the binned values occur.
+
+    """
+    hist, bins = np.histogram(zm, bins=nbins)
     center = (bins[:-1] + bins[1:]) / 2
     DATA = {}
     DATA['bin start'] = bins[:-1]
@@ -285,6 +575,29 @@ def bin_receptor(zm, receptor, square_area, receptor_names=None):
     return DATA
 
 def bin_layer(raster_filename, receptor_filename=None, receptor_names=None, limit_receptor_range=None, latlon=True):
+    """
+    creates a dataframe of binned raster values and associtaed area and percent of array.
+
+    Parameters
+    ----------
+    raster_filename : str
+        file path and name of raster.
+    receptor_filename : str, optional
+        file path and name of raster. The default is None.
+    receptor_names : list, opional
+        optional names for each unique value in the receptor. The default is None.
+    limit_receptor_range : array, optional
+        Range over which to limit uniuqe raster values [start, stop]. The default is None.
+    latlon : Bool, optional
+        True is coordinates are lat/lon. The default is True.
+
+    Returns
+    -------
+    DataFrame
+        DataFrame with bins as rows and statistics values as columns.
+            [bin stats, area, count, percent]
+
+    """
     rx, ry, z = read_raster(raster_filename)
     rxm, rym, square_area = calculate_cell_area(rx, ry, latlon=True)
     square_area = square_area.flatten()
@@ -302,6 +615,32 @@ def bin_layer(raster_filename, receptor_filename=None, receptor_names=None, limi
     return pd.DataFrame(DATA)
 
 def classify_layer_area(raster_filename, receptor_filename=None, at_values=None, value_names=None, limit_receptor_range=None, latlon=True):
+    """
+    Creates a dataframe of raster values and associtaed area and percent of array at specified raster values.
+
+    Parameters
+    ----------
+    raster_filename : str
+        file path and name of raster.
+    receptor_filename : str, optional
+        file path and name of raster. The default is None.
+    at_values : list, optional
+        raster values to sample. The default is None.
+    value_names : list, optional
+        names of unique raster values. The default is None.
+    limit_receptor_range : array, optional
+        Range over which to limit uniuqe raster values [start, stop]. The default is None.
+    latlon : Bool, optional
+        True is coordinates are lat/lon. The default is True.
+
+
+    Returns
+    -------
+    DataFrame
+        DataFrame with sampled values as rows and statistics values as columns.
+            [sampled value, stats, area, count, percent]
+
+    """
     rx, ry, z = read_raster(raster_filename)
     rxm, rym, square_area = calculate_cell_area(rx, ry, latlon=latlon)
     square_area = square_area.flatten()

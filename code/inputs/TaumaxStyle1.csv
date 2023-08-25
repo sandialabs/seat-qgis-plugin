@@ -1,6 +1,0 @@
-Type,Style
-Receptor,receptor_rc.qml
-Stressor,continuous_bar_bwr.qml
-Secondary Constriant,constraint_rc.qml
-Output,continuous_bar_bwr.qml
-Stressor classification break,mobility_classification_bwr
