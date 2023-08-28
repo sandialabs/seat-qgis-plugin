@@ -6,9 +6,9 @@
 name=Spatial Environmental Assessment Tool
 qgisMinimumVersion=3.16
 description=This plugin calculates a response layer from stressor and receptor layers
-version=v0.43
+version=v1.0 Beta 1
 author=Integral Consulting
-email=cgrant@integral-corp.com
+email=tnelson@integral-corp.com
 
 about=This plugin calculates a response layer from stressor and receptor layers.
 
@@ -23,7 +23,7 @@ hasProcessingProvider=no
 # changelog=
 
 # Tags are comma separated with spaces allowed
-tags=python,integral,marine,energy,spatial,stressor,receptor
+tags=python,integral,marine,energy,spatial,stressor,receptor, shear stress, velocity, acoustics
 
 homepage=https://github.com/IntegralEnvision/seat-qgis-plugin
 category=Plugins
