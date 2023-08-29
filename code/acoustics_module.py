@@ -156,7 +156,7 @@ def calculate_acoustic_stressors(fpath_dev,
         if X.shape[0] != acoust_var.shape[0]:
             acoust_var = np.transpose(acoust_var, (1, 2, 0))
         if ic==0:
-            xunits = ds.variables['XCOR'].units
+            xunits = ds.variables[cords[0]].units
             if 'degrees' in xunits:
                 latlon = True
                 XCOR = np.where(X<0, X+360, X)
