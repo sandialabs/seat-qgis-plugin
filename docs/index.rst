@@ -1,15 +1,16 @@
-.. SEAT documentation master file, created by
-   sphinx-quickstart on Fri Sep  1 10:43:16 2023.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. SEAT Documentation 
 
-Welcome to SEAT's documentation!
-================================
+
+
+SEAT Documentation
+===================================================
+Sandia Spatial Environmental Assessment Tool (SEAT)
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
+   overview.rst
+   installation.rst
 
 
 Indices and tables
