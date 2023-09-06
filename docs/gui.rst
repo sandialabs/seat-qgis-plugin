@@ -1,0 +1,66 @@
+.. _gui:
+
+Graphical User Interface
+=============================
+
+- The QGIS Graphic User Interface (GUI) allows the user to select the module/analysis to perform, the inputs, and the customized style files to display (see Appendix A).
+- Upon installation of the SEAT package, an icon will appear in the plugin toolbar.
+
+.. figure:: media/SEAT_Toolbar.png
+   :scale: 125 %
+   :alt: SEAT icon in QGIS toolbar
+
+- Click on the icon to bring up the SEAT GUI Interface
+
+.. figure:: media/SEAT_GUI.png
+   :scale: 90 %
+   :alt: SEAT GUI
+
+Stressor
+--------
+
+- To choose the analysis/data type in the "Select Stressor" Dropdown box.
+- Currently 3 options exist
+
+.. figure:: media/select_stressor.png
+   :scale: 100 %
+   :alt: Selecting the stressor
+
+
+- **Shear Stress Module** – analysis of spatial change in bed mobility
+- **Velocity Module**	- analysis of spatial change in larval motility
+- **ParAcousti Module** – analysis of acoustic propagation and thresholds
+
+Coordinate Reference System
+----------------------------
+
+- The correct display and analysis of the data requires knowledge of the data’s coordinate reference system, sometimes not present in the data structure.
+
+.. figure:: media/coordinate_ref_sys_input.png
+   :scale: 100 %
+   :alt: Click the three dots
+
+- Clicking the the three dots "..." will bring up the CRS selection window
+
+.. figure:: media/coordinate_ref_sys_select.png
+   :scale: 100 %
+   :alt: Coordinate Reference System selector
+
+Model Results Directory
+-----------------------
+
+- There are two model result directories needed for the analysis, the baseline results directory and the model results director.
+
+.. figure:: media/model_results_directory_input.png
+   :scale: 100 %
+   :alt: Model Results Directory
+
+- Select the directory containing the model results with devices and the directory containing the baseline (without devices) model results. These model results must be in netCDF format.
+
+- The model results can have 2 formats.
+  
+  1. A concatenated single \*.nc file with the model run number as the first dimension [RunNo, Depth, X, Y]. (Only one file per directory if this format is used).
+  2. Multiple files with naming format name_RunNum_map.nc, where RunNum must come before the map.nc and be separated by a single underscore on either side.
+
+- The number of baseline model files must match the device model files.
+

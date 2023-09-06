@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Graphical User Interface &mdash; SEAT [1.0.0-beta1] documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=9eba97ea"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SEAT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Graphical User Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#stressor">Stressor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#coordinate-reference-system">Coordinate Reference System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#model-results-directory">Model Results Directory</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SEAT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Graphical User Interface</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/gui.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="graphical-user-interface">
+<span id="gui"></span><h1>Graphical User Interface<a class="headerlink" href="#graphical-user-interface" title="Link to this heading"></a></h1>
+<ul class="simple">
+<li><p>The QGIS Graphic User Interface (GUI) allows the user to select the module/analysis to perform, the inputs, and the customized style files to display (see Appendix A).</p></li>
+<li><p>Upon installation of the SEAT package, an icon will appear in the plugin toolbar.</p></li>
+</ul>
+<figure class="align-default">
+<a class="reference internal image-reference" href="_images/SEAT_Toolbar.png"><img alt="SEAT icon in QGIS toolbar" src="_images/SEAT_Toolbar.png" style="width: 273.75px; height: 46.25px;" /></a>
+</figure>
+<ul class="simple">
+<li><p>Click on the icon to bring up the SEAT GUI Interface</p></li>
+</ul>
+<figure class="align-default">
+<a class="reference internal image-reference" href="_images/SEAT_GUI.png"><img alt="SEAT GUI" src="_images/SEAT_GUI.png" style="width: 717.3000000000001px; height: 558.0px;" /></a>
+</figure>
+<section id="stressor">
+<h2>Stressor<a class="headerlink" href="#stressor" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>To choose the analysis/data type in the “Select Stressor” Dropdown box.</p></li>
+<li><p>Currently 3 options exist</p></li>
+</ul>
+<figure class="align-default">
+<a class="reference internal image-reference" href="_images/select_stressor.png"><img alt="Selecting the stressor" src="_images/select_stressor.png" style="width: 802.0px; height: 623.0px;" /></a>
+</figure>
+<ul class="simple">
+<li><p><strong>Shear Stress Module</strong> – analysis of spatial change in bed mobility</p></li>
+<li><p><strong>Velocity Module</strong>   - analysis of spatial change in larval motility</p></li>
+<li><p><strong>ParAcousti Module</strong> – analysis of acoustic propagation and thresholds</p></li>
+</ul>
+</section>
+<section id="coordinate-reference-system">
+<h2>Coordinate Reference System<a class="headerlink" href="#coordinate-reference-system" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The correct display and analysis of the data requires knowledge of the data’s coordinate reference system, sometimes not present in the data structure.</p></li>
+</ul>
+<figure class="align-default">
+<a class="reference internal image-reference" href="_images/coordinate_ref_sys_input.png"><img alt="Click the three dots" src="_images/coordinate_ref_sys_input.png" style="width: 762.0px; height: 36.0px;" /></a>
+</figure>
+<ul class="simple">
+<li><p>Clicking the the three dots “…” will bring up the CRS selection window</p></li>
+</ul>
+<figure class="align-default">
+<a class="reference internal image-reference" href="_images/coordinate_ref_sys_select.png"><img alt="Coordinate Reference System selector" src="_images/coordinate_ref_sys_select.png" style="width: 608.0px; height: 595.0px;" /></a>
+</figure>
+</section>
+<section id="model-results-directory">
+<h2>Model Results Directory<a class="headerlink" href="#model-results-directory" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>There are two model result directories needed for the analysis, the baseline results directory and the model results director.</p></li>
+</ul>
+<figure class="align-default">
+<a class="reference internal image-reference" href="_images/model_results_directory_input.png"><img alt="Model Results Directory" src="_images/model_results_directory_input.png" style="width: 768.0px; height: 74.0px;" /></a>
+</figure>
+<ul class="simple">
+<li><p>The model results can have 2 formats.</p>
+<ol class="arabic simple">
+<li><p>A concatenated single *.nc file with the model run number as the first dimension [RunNo, Depth, X, Y]. (Only one file per directory if this format is used).</p></li>
+<li><p>Multiple files with naming format name_RunNum_map.nc, where RunNum must come before the map.nc and be separated by a single underscore on either side.</p></li>
+</ol>
+</li>
+<li><p>The number of baseline model files must match the device model files.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Tim Nelson, Caleb Grant, Eben Pendleton, Sterling Olson.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
