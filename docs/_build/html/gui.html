@@ -48,6 +48,21 @@
 <li class="toctree-l2"><a class="reference internal" href="#stressor">Stressor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#coordinate-reference-system">Coordinate Reference System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#model-results-directory">Model Results Directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#probabilities">Probabilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#paracousti">ParAcousti</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#power-files-directory">Power Files Directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#receptor-file">Receptor File</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#shear-stress">Shear Stress</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#velocity">Velocity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">ParAcousti</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#secondary-constraint">Secondary Constraint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output-directory">Output Directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output-style-files">Output Style Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#save-load-input">Save &amp; Load Input</a></li>
 </ul>
 </li>
 </ul>
@@ -130,6 +145,7 @@
 <a class="reference internal image-reference" href="_images/model_results_directory_input.png"><img alt="Model Results Directory" src="_images/model_results_directory_input.png" style="width: 768.0px; height: 74.0px;" /></a>
 </figure>
 <ul class="simple">
+<li><p>Select the directory containing the model results with devices and the directory containing the baseline (without devices) model results. These model results must be in netCDF format.</p></li>
 <li><p>The model results can have 2 formats.</p>
 <ol class="arabic simple">
 <li><p>A concatenated single *.nc file with the model run number as the first dimension [RunNo, Depth, X, Y]. (Only one file per directory if this format is used).</p></li>
@@ -137,6 +153,169 @@
 </ol>
 </li>
 <li><p>The number of baseline model files must match the device model files.</p></li>
+</ul>
+</section>
+<section id="probabilities">
+<h2>Probabilities<a class="headerlink" href="#probabilities" title="Link to this heading"></a></h2>
+<figure class="align-default">
+<a class="reference internal image-reference" href="_images/probabilities_input.png"><img alt="Probablities Input" src="_images/probabilities_input.png" style="width: 715.0px; height: 34.0px;" /></a>
+</figure>
+<ul class="simple">
+<li><p>A single csv file with the run order and probability of each model conditions occurring.</p></li>
+<li><p>This file is optional and will assume the _runorder_ in the naming convention (see device/baseline model slide) in the return interval in years.</p></li>
+<li><p>If a file is provided, it must include the columns ‘run order’ and ‘% of year’. Other columns such as wave height and period can be included but are ignored.</p></li>
+<li><p>An ‘Exclude’ column can be added which will ignore a run in the analysis.</p>
+<ul>
+<li><p>Currently %of year is not rescaled to 100 if Exclude is included.</p></li>
+</ul>
+</li>
+</ul>
+<figure class="align-default">
+<a class="reference internal image-reference" href="_images/probabilities.png"><img alt="Probablities Input Example" src="_images/probabilities.png" style="width: 457.0px; height: 115.0px;" /></a>
+</figure>
+<section id="paracousti">
+<h3>ParAcousti<a class="headerlink" href="#paracousti" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>The paracousti file format differs from shear stress and velocity.</p></li>
+<li><p>This file requires the following columns</p>
+<ol class="arabic simple">
+<li><p>Paracousti File :the name of the paracousti .nc file</p></li>
+<li><p>Species Percent Occurrence File : .csv or .tif file</p></li>
+<li><p>Species Density File : .csv or .tif file</p></li>
+<li><p>% of yr: percent of year value</p></li>
+</ol>
+</li>
+<li><p>Species Percent Occurrence File and Species Density File can be either a csv with required columns “latitude”, “longitude”, and either “percent” and/or “density”. Other columns will be ignored.</p></li>
+<li><p>a geotif with the same epsg</p></li>
+</ul>
+</section>
+</section>
+<section id="power-files-directory">
+<h2>Power Files Directory<a class="headerlink" href="#power-files-directory" title="Link to this heading"></a></h2>
+<figure class="align-default">
+<a class="reference internal image-reference" href="_images/power_files_input.png"><img alt="Power Files Directory" src="_images/power_files_input.png" style="width: 765.0px; height: 33.0px;" /></a>
+</figure>
+<ul class="simple">
+<li><p>The power files directory, contains the .OUT files from the power calculation at each device.  Power is calculated for each obstacle (single plane) unless a *.pol file is included to georeferenced each obstacle.</p></li>
+</ul>
+</section>
+<section id="receptor-file">
+<h2>Receptor File<a class="headerlink" href="#receptor-file" title="Link to this heading"></a></h2>
+<section id="shear-stress">
+<h3>Shear Stress<a class="headerlink" href="#shear-stress" title="Link to this heading"></a></h3>
+<figure class="align-default">
+<a class="reference internal image-reference" href="_images/receptor_file_input.png"><img alt="Receptor File" src="_images/receptor_file_input.png" style="width: 714.0px; height: 26.0px;" /></a>
+</figure>
+<ul class="simple">
+<li><p>A receptor file (.csv, or .tif) allows for additional criterion to be passed to each module.</p>
+<ul>
+<li><p>Shear stress : receptor is a *.csv or geotif (*.tif) of grain size in microns (µm).</p>
+<ul>
+<li><p>Geotif will be interpolated to the same grid points as the model files (structured or unstructured), must have same projection/datum.</p></li>
+<li><p>The csv file currently only takes a single grain size and is formatted as below with no column headers.</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="align-default">
+<a class="reference internal image-reference" href="_images/grain_size.png"><img alt="Grain size" src="_images/grain_size.png" style="width: 204.0px; height: 34.5px;" /></a>
+</figure>
+</section>
+<section id="velocity">
+<h3>Velocity<a class="headerlink" href="#velocity" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Velocity: receptor is a (.csv) or geotif of critical velocity in units of meters per second (m/s).</p>
+<ul>
+<li><p>Geotif will be interpolated to the same grid points as the model files (structured or unstructured), must have same projection/datum.</p></li>
+<li><p>The csv file currently only takes a critical velocity and is formatted as below with no column headers.</p></li>
+</ul>
+</li>
+</ul>
+<figure class="align-default">
+<a class="reference internal image-reference" href="_images/critical_velocity.png"><img alt="Critical velocity" src="_images/critical_velocity.png" style="width: 316.5px; height: 36.0px;" /></a>
+</figure>
+</section>
+<section id="id1">
+<h3>ParAcousti<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>ParAcousti: receptor is a *.csv file with values indicating how to apply thresholds, grid scaling, and variables to use.</p>
+<ul>
+<li><p>species : optional but can be used for output</p></li>
+<li><p>Paracousti Variable: Depending on the species, different variables might be needed and or different weightings.</p></li>
+<li><p>Threshold (db re 1 uPa): threshold above which negative impacts are expected. Units should match Paracousti Variable.</p></li>
+<li><p>Depth Averaging (default DepthMax):</p>
+<ul>
+<li><p>DepthMax: use the maximum value for each vertical column</p></li>
+<li><p>DepthAverage: use the average value for each vertical column</p></li>
+<li><p>Top: use the top/surface bin for each vertical column</p></li>
+<li><p>Bottom: use the bottom/bed bin for each vertical column</p></li>
+</ul>
+</li>
+<li><p>species file averaged area (km2): the cumulative area over which each cell represents species percent and density (used to scale to each paracousti grid cell). Leave blank or set to 0 to prevent scaling.</p></li>
+</ul>
+</li>
+</ul>
+<figure class="align-default">
+<a class="reference internal image-reference" href="_images/paracousti_receptor.png"><img alt="ParAcousti Receptor" src="_images/paracousti_receptor.png" style="width: 289.0px; height: 101.0px;" /></a>
+</figure>
+</section>
+</section>
+<section id="secondary-constraint">
+<h2>Secondary Constraint<a class="headerlink" href="#secondary-constraint" title="Link to this heading"></a></h2>
+<figure class="align-default">
+<a class="reference internal image-reference" href="_images/secondary_constraint_input.png"><img alt="Secondary Constraint" src="_images/secondary_constraint_input.png" style="width: 766.0px; height: 31.0px;" /></a>
+</figure>
+<ul class="simple">
+<li><p>Currently only used for paracousti and will be ignored for shear stress and velocity.</p></li>
+<li><p>For Paracousti, this points to the directory containing species percent and species density files. Both must be present in the same folder. The names of each file and what conditions they apply to is in the Model Probabilities File.</p></li>
+</ul>
+</section>
+<section id="output-directory">
+<h2>Output Directory<a class="headerlink" href="#output-directory" title="Link to this heading"></a></h2>
+<figure class="align-default">
+<a class="reference internal image-reference" href="_images/output_directory_input.png"><img alt="Output Directory" src="_images/output_directory_input.png" style="width: 646.0px; height: 36.0px;" /></a>
+</figure>
+<ul class="simple">
+<li><p>Directory to save all processed analysis files to. This contains both geotifs and csv files.</p></li>
+</ul>
+</section>
+<section id="output-style-files">
+<h2>Output Style Files<a class="headerlink" href="#output-style-files" title="Link to this heading"></a></h2>
+<figure class="align-default">
+<a class="reference internal image-reference" href="_images/output_style_files_input.png"><img alt="Output Style Files" src="_images/output_style_files_input.png" style="width: 674.0px; height: 35.0px;" /></a>
+</figure>
+<ul class="simple">
+<li><p>This is a .csv file pointing to the absolute file path for the QGIS style files to use for each module output.</p>
+<ul>
+<li><p>Stressor and Velocity Style File csv, must include each row.</p></li>
+</ul>
+</li>
+</ul>
+<figure class="align-default">
+<a class="reference internal image-reference" href="_images/output_style_file_eg.png"><img alt="Stressor Style File" src="_images/output_style_file_eg.png" style="width: 543.0px; height: 121.0px;" /></a>
+</figure>
+<blockquote>
+<div><ul class="simple">
+<li><p>ParAcousti</p></li>
+</ul>
+</div></blockquote>
+<figure class="align-default">
+<a class="reference internal image-reference" href="_images/output_style_files_paracousti.png"><img alt="Stressor Style File" src="_images/output_style_files_paracousti.png" style="width: 461.0px; height: 102.0px;" /></a>
+</figure>
+</section>
+<section id="save-load-input">
+<h2>Save &amp; Load Input<a class="headerlink" href="#save-load-input" title="Link to this heading"></a></h2>
+<ul>
+<li><p>Once each desired field is populated, the file locations can be saved to a .ini file which can be reloaded.</p></li>
+<li><p>Several example .ini files exist with the demo data.</p>
+<ul class="simple">
+<li><p><em>FILE PATH MUST BE UPDATED</em></p></li>
+</ul>
+<figure class="align-default">
+<a class="reference internal image-reference" href="_images/SEAT_input_complete_eg.png"><img alt="Save &amp; Load Input" src="_images/SEAT_input_complete_eg.png" style="width: 799.0px; height: 620.0px;" /></a>
+</figure>
+</li>
 </ul>
 </section>
 </section>

@@ -7,7 +7,7 @@ SEAT Documentation
 Sandia Spatial Environmental Assessment Tool (SEAT)
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
    overview.rst
    installation.rst
