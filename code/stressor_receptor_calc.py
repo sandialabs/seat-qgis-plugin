@@ -8,7 +8,7 @@
  PURPOSE: A QGIS plugin that calculates a probability weighted response layer from stressor and/or receptor layers
 
  PROJECT INFORMATION:
- Name: SEAT - Spatial and Environmental Assessment Tool (https://github.com/IntegralEnvision/seat-qgis-plugin)
+ Name: SEAT - Spatial and Environmental Assessment Toolkit (https://github.com/IntegralEnvision/seat-qgis-plugin)
  Number: C1308
 
  AUTHORS
@@ -24,26 +24,26 @@
     4. tested and created using QGIS v3.22
 """
 #!/usr/bin/python
-# Example Script.py (filename in case the script gets renamed) 
+# Example Script.py (filename in case the script gets renamed)
 # Copyright 2021, Integral Consulting Inc. All rights reserved.
 #
 # PURPOSE: Example of a project script
-#                                                                                                                                                                      
+#
 # PROJECT INFORMATION:
-# Name: 
+# Name:
 # Number:
 #
 # AUTHORS (Authors to use initals in history)
-#  
+#
 # NOTES (Data descriptions and any script specific notes)
-#	1. 
-#	2. 
+# 1.
+# 2.
 #
 # HISTORY:
 # Date		  Author                Remarks
 # ----------- --------------------- --------------------------------------------
 # YYYY-MM-DD  Name/initials if using AUTHORS  Don't forget to fill this out
-#===============================================================================
+# ===============================================================================
 import configparser
 # import csv
 # import glob
@@ -75,10 +75,11 @@ from qgis.core import (
     QgsRasterLayer,
     QgsVectorLayer,
 )
-from qgis.gui import QgsProjectionSelectionDialog #,QgsLayerTreeView
+from qgis.gui import QgsProjectionSelectionDialog  # ,QgsLayerTreeView
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction, QFileDialog#, QGridLayout, QTableWidgetItem
+# , QGridLayout, QTableWidgetItem
+from qgis.PyQt.QtWidgets import QAction, QFileDialog
 
 # UTM finder
 # from .Find_UTM_srid import find_utm_srid
@@ -279,9 +280,9 @@ class StressorReceptorCalc:
 
     def select_device_folder(self, presence):
         folder_name = QFileDialog.getExistingDirectory(
-                    self.dlg,
-                    "Select Folder"
-                )
+            self.dlg,
+            "Select Folder"
+        )
         if presence == "not present":
             self.dlg.device_not_present.setText(folder_name)
         else:
@@ -304,9 +305,9 @@ class StressorReceptorCalc:
 
     def select_power_files_folder(self):
         folder_name = QFileDialog.getExistingDirectory(
-                    self.dlg,
-                    "Select Folder"
-                )
+            self.dlg,
+            "Select Folder"
+        )
         self.dlg.power_files.setText(folder_name)
 
     def select_crs(self):
@@ -334,17 +335,17 @@ class StressorReceptorCalc:
     def select_secondary_constraint_folder(self):
         """Select secondary constriant file."""
         folder_name = QFileDialog.getExistingDirectory(
-                    self.dlg,
-                    "Select Folder"
-                )
+            self.dlg,
+            "Select Folder"
+        )
         self.dlg.sc_file.setText(folder_name)
 
     def select_output_folder(self):
         """Select output file picker."""
         folder_name = QFileDialog.getExistingDirectory(
-                            self.dlg,
-                            "Select Folder"
-                        )
+            self.dlg,
+            "Select Folder"
+        )
         self.dlg.output_folder.setText(folder_name)
 
     def select_and_load_in(self):
@@ -367,21 +368,27 @@ class StressorReceptorCalc:
             self.dlg.device_not_present.setText(
                 config.get("Input", "device not present filepath"),
             )
-            self.dlg.bc_prob.setText(config.get("Input", "boundary condition filepath"))
-            self.dlg.power_files.setText(config.get("Input", "power files filepath"))
+            self.dlg.bc_prob.setText(config.get(
+                "Input", "boundary condition filepath"))
+            self.dlg.power_files.setText(
+                config.get("Input", "power files filepath"))
 
-            self.dlg.receptor_file.setText(config.get("Input", "receptor filepath"))
+            self.dlg.receptor_file.setText(
+                config.get("Input", "receptor filepath"))
             self.dlg.sc_file.setText(
                 config.get("Input", "secondary constraint filepath"),
             )
             self.dlg.stressor_comboBox.setCurrentText(
                 config.get("Input", "stressor variable"),
             )
-            self.dlg.crs.setText(config.get("Input", "coordinate reference system"))
+            self.dlg.crs.setText(config.get(
+                "Input", "coordinate reference system"))
 
-            self.dlg.output_folder.setText(config.get("Output", "output filepath"))
+            self.dlg.output_folder.setText(
+                config.get("Output", "output filepath"))
 
-            self.dlg.output_stylefile.setText(config.get("Input", "output style files"))
+            self.dlg.output_stylefile.setText(
+                config.get("Input", "output style files"))
 
     def save_in(self):
         """Select and save an input file."""
@@ -427,7 +434,7 @@ class StressorReceptorCalc:
         # refresh legend entries
         self.iface.layerTreeView().refreshLayerSymbology(layer.id())
 
-        # self.iface.legendInterface().refreshLayerSymbology(layer) 
+        # self.iface.legendInterface().refreshLayerSymbology(layer)
 
         # do we want the layer visible in the map?
         if not checked:
@@ -556,16 +563,16 @@ class StressorReceptorCalc:
             self.dlg.stressor_comboBox.addItems(sfields)
 
             # this connects the input file chooser
-            self.dlg.load_input.clicked.connect(lambda: self.select_and_load_in())
+            self.dlg.load_input.clicked.connect(
+                lambda: self.select_and_load_in())
 
             # this connects the input file creator
             self.dlg.save_input.clicked.connect(lambda: self.save_in())
 
-
             # set the present and not present files. Either .nc files or .tif folders
             self.dlg.device_pushButton.clicked.connect(
-                    lambda: self.select_device_folder("present"),
-                )
+                lambda: self.select_device_folder("present"),
+            )
             self.dlg.no_device_pushButton.clicked.connect(
                 lambda: self.select_device_folder("not present"),
             )
@@ -573,7 +580,8 @@ class StressorReceptorCalc:
             # set the boundary and run order files
             self.dlg.bc_prob_pushButton.clicked.connect(self.select_bc_file)
 
-            self.dlg.power_files_pushButton.clicked.connect(self.select_power_files_folder)
+            self.dlg.power_files_pushButton.clicked.connect(
+                self.select_power_files_folder)
 
             # set the crs file
             self.dlg.crs_button.clicked.connect(self.select_crs)
@@ -582,12 +590,14 @@ class StressorReceptorCalc:
             self.dlg.receptor_button.clicked.connect(self.select_receptor_file)
 
             # set the secondary constraint
-            self.dlg.secondary_constraint_pushButton.clicked.connect(self.select_secondary_constraint_folder)
+            self.dlg.secondary_constraint_pushButton.clicked.connect(
+                self.select_secondary_constraint_folder)
             # set the output
-            self.dlg.output_pushButton.clicked.connect(self.select_output_folder)
+            self.dlg.output_pushButton.clicked.connect(
+                self.select_output_folder)
 
-            self.dlg.select_stylefile_button.clicked.connect(self.select_style_files)
-
+            self.dlg.select_stylefile_button.clicked.connect(
+                self.select_style_files)
 
         self.dlg.device_present.clear()
         self.dlg.device_not_present.clear()
@@ -618,7 +628,8 @@ class StressorReceptorCalc:
             rfilename = self.dlg.receptor_file.text()
             scfilename = self.dlg.sc_file.text()
             output_folder_name = self.dlg.output_folder.text()
-            os.makedirs(output_folder_name, exist_ok=True)#create output directory if it doesn't exist
+            # create output directory if it doesn't exist
+            os.makedirs(output_folder_name, exist_ok=True)
 
             svar = self.dlg.stressor_comboBox.currentText()
 
@@ -629,7 +640,8 @@ class StressorReceptorCalc:
             logger.setLevel(logging.INFO)
 
             # create file handler and set level to info
-            fname = os.path.join(output_folder_name, "_{}.log".format(date.today().strftime("%Y%m%d")))
+            fname = os.path.join(output_folder_name, "_{}.log".format(
+                date.today().strftime("%Y%m%d")))
             fh = logging.FileHandler(fname, mode="a", encoding="utf8")
             fh.setLevel(logging.INFO)
 
@@ -644,7 +656,6 @@ class StressorReceptorCalc:
             # add ch to logger
             logger.addHandler(fh)
 
-
             logger.info("Device present File: {}".format(dpresentfname))
             logger.info("Device not present File: {}".format(dnotpresentfname))
             logger.info("Boundary Condition File: {}".format(bcfname))
@@ -653,7 +664,6 @@ class StressorReceptorCalc:
             logger.info("CRS: {}".format(crs))
             logger.info("Secondary Constraint File: {}".format(scfilename))
             logger.info("Output Folder: {}".format(output_folder_name))
-
 
             # QgsMessageLog.logMessage(min_rc + " , " + max_rc, level =Qgis.MessageLevel.Info)
             # if the output file path is empty display a warning
@@ -666,7 +676,8 @@ class StressorReceptorCalc:
             # Calculate Power Files
             if power_files_folder is not "":
                 logger.info("Power File Folder: {}".format(power_files_folder))
-                calculate_power(power_files_folder, bcfname, save_path=output_folder_name)
+                calculate_power(power_files_folder, bcfname,
+                                save_path=output_folder_name)
 
             if svar == "Shear Stress":
                 sfilenames = run_shear_stress_stressor(
@@ -681,28 +692,38 @@ class StressorReceptorCalc:
                 #  'calculated_stressor_with_receptor.tif',
                 # 'calculated_stressor_reclassified.tif'
 
-                stylefiles_DF = self.read_style_files(self.dlg.output_stylefile.text())
-                
-                sstylefile = stylefiles_DF.loc['Stressor'].values.item().replace("\\", "/")
-                rstylefile = stylefiles_DF.loc['Receptor'].values.item().replace("\\", "/")
-                scstylefile = stylefiles_DF.loc['Secondary Constraint'].values.item().replace("\\", "/")
-                swrstylefile = stylefiles_DF.loc['Stressor with receptor'].values.item().replace("\\", "/")
-                rcstylefile = stylefiles_DF.loc['Reclassificed Stressor with receptor'].values.item().replace("\\", "/")
+                stylefiles_DF = self.read_style_files(
+                    self.dlg.output_stylefile.text())
+
+                sstylefile = stylefiles_DF.loc['Stressor'].values.item().replace(
+                    "\\", "/")
+                rstylefile = stylefiles_DF.loc['Receptor'].values.item().replace(
+                    "\\", "/")
+                scstylefile = stylefiles_DF.loc['Secondary Constraint'].values.item().replace(
+                    "\\", "/")
+                swrstylefile = stylefiles_DF.loc['Stressor with receptor'].values.item(
+                ).replace("\\", "/")
+                rcstylefile = stylefiles_DF.loc['Reclassificed Stressor with receptor'].values.item(
+                ).replace("\\", "/")
 
                 logger.info("Receptor Style File: {}".format(rstylefile))
                 logger.info("Stressor Style File: {}".format(sstylefile))
-                logger.info("Secondary Constraint Style File: {}".format(scstylefile))
-                logger.info("Output Style File: {}".format(swrstylefile)) #stressor with receptor
-                logger.info('Stressor reclassification: {}'.format(rcstylefile))
+                logger.info(
+                    "Secondary Constraint Style File: {}".format(scstylefile))
+                logger.info("Output Style File: {}".format(
+                    swrstylefile))  # stressor with receptor
+                logger.info(
+                    'Stressor reclassification: {}'.format(rcstylefile))
 
-                srfilename = sfilenames[0] #stressor 
+                srfilename = sfilenames[0]  # stressor
                 self.style_layer(srfilename, sstylefile, ranges=True)
                 # self.calc_area_change(srfilename, crs)
-                if not((rfilename is None) or (rfilename == "")): #if receptor present
-                    swrfilename = sfilenames[1] #streessor with receptor
-                    classifiedfilename = sfilenames[2] #reclassified
+                if not ((rfilename is None) or (rfilename == "")):  # if receptor present
+                    swrfilename = sfilenames[1]  # streessor with receptor
+                    classifiedfilename = sfilenames[2]  # reclassified
                     self.style_layer(swrfilename, swrstylefile, ranges=True)
-                    self.style_layer(classifiedfilename, rcstylefile, ranges=True)
+                    self.style_layer(classifiedfilename,
+                                     rcstylefile, ranges=True)
                     if rfilename.endswith('.tif'):
                         self.style_layer(rfilename, rstylefile, checked=False)
                     # crs==4326
@@ -722,28 +743,38 @@ class StressorReceptorCalc:
                 #  'calculated_stressor_with_receptor.tif',
                 # 'calculated_stressor_reclassified.tif']
 
-                stylefiles_DF = self.read_style_files(self.dlg.output_stylefile.text())
-                
-                sstylefile = stylefiles_DF.loc['Stressor'].values.item().replace("\\", "/")
-                rstylefile = stylefiles_DF.loc['Receptor'].values.item().replace("\\", "/")
-                scstylefile = stylefiles_DF.loc['Secondary Constraint'].values.item().replace("\\", "/")
-                swrstylefile = stylefiles_DF.loc['Stressor with receptor'].values.item().replace("\\", "/")
-                rcstylefile = stylefiles_DF.loc['Reclassificed Stressor with receptor'].values.item().replace("\\", "/")
+                stylefiles_DF = self.read_style_files(
+                    self.dlg.output_stylefile.text())
+
+                sstylefile = stylefiles_DF.loc['Stressor'].values.item().replace(
+                    "\\", "/")
+                rstylefile = stylefiles_DF.loc['Receptor'].values.item().replace(
+                    "\\", "/")
+                scstylefile = stylefiles_DF.loc['Secondary Constraint'].values.item().replace(
+                    "\\", "/")
+                swrstylefile = stylefiles_DF.loc['Stressor with receptor'].values.item(
+                ).replace("\\", "/")
+                rcstylefile = stylefiles_DF.loc['Reclassificed Stressor with receptor'].values.item(
+                ).replace("\\", "/")
 
                 logger.info("Receptor Style File: {}".format(rstylefile))
                 logger.info("Stressor Style File: {}".format(sstylefile))
-                logger.info("Secondary Constraint Style File: {}".format(scstylefile))
-                logger.info("Output Style File: {}".format(swrstylefile)) #stressor with receptor
-                logger.info('Stressor reclassification: {}'.format(rcstylefile))
-                
-                srfilename = sfilenames[0] #stressor 
+                logger.info(
+                    "Secondary Constraint Style File: {}".format(scstylefile))
+                logger.info("Output Style File: {}".format(
+                    swrstylefile))  # stressor with receptor
+                logger.info(
+                    'Stressor reclassification: {}'.format(rcstylefile))
+
+                srfilename = sfilenames[0]  # stressor
                 self.style_layer(srfilename, sstylefile, ranges=True)
                 # self.calc_area_change(srfilename, crs)
-                if not((rfilename is None) or (rfilename == "")): #if receptor present
-                    swrfilename = sfilenames[1] #streessor with receptor
-                    classifiedfilename = sfilenames[2] #reclassified
+                if not ((rfilename is None) or (rfilename == "")):  # if receptor present
+                    swrfilename = sfilenames[1]  # streessor with receptor
+                    classifiedfilename = sfilenames[2]  # reclassified
                     self.style_layer(swrfilename, swrstylefile, ranges=True)
-                    self.style_layer(classifiedfilename, rcstylefile, ranges=True)
+                    self.style_layer(classifiedfilename,
+                                     rcstylefile, ranges=True)
                     if rfilename.endswith('.tif'):
                         self.style_layer(rfilename, rstylefile, checked=False)
                     # crs==4326
@@ -752,42 +783,54 @@ class StressorReceptorCalc:
 
             if svar == "Acoustics":
                 sfilenames = run_acoustics_stressor(
-                    dev_present_file = dpresentfname,
+                    dev_present_file=dpresentfname,
                     dev_notpresent_file=dnotpresentfname,
                     bc_file=bcfname,
                     crs=crs,
                     output_path=output_folder_name,
                     receptor_filename=rfilename,
                     species_folder=scfilename
-                    )
-                #numpy_arrays = [0] PARACOUSTI
+                )
+                # numpy_arrays = [0] PARACOUSTI
                 #               [1] stressor
                 #               [2] threshold_exceeded
                 #               [3] percent_scaled
                 #               [4] density_scaled
 
+                stylefiles_DF = self.read_style_files(
+                    self.dlg.output_stylefile.text())
 
-                stylefiles_DF = self.read_style_files(self.dlg.output_stylefile.text())
-                
-                stressor_stylefile = stylefiles_DF.loc['Stressor'].values.item().replace("\\", "/")
-                threshold_stylefile = stylefiles_DF.loc['Threshold'].values.item().replace("\\", "/")
-                percent_stylefile = stylefiles_DF.loc['Species Percent'].values.item().replace("\\", "/")
-                density_stylefile = stylefiles_DF.loc['Species Density'].values.item().replace("\\", "/")
+                stressor_stylefile = stylefiles_DF.loc['Stressor'].values.item().replace(
+                    "\\", "/")
+                threshold_stylefile = stylefiles_DF.loc['Threshold'].values.item().replace(
+                    "\\", "/")
+                percent_stylefile = stylefiles_DF.loc['Species Percent'].values.item().replace(
+                    "\\", "/")
+                density_stylefile = stylefiles_DF.loc['Species Density'].values.item().replace(
+                    "\\", "/")
 
-                logger.info("Stressor Style File: {}".format(stressor_stylefile))
-                logger.info("Threshold Style File: {}".format(threshold_stylefile))
-                logger.info("Species Percent Style File: {}".format(percent_stylefile))
-                logger.info("Species Density Style File: {}".format(density_stylefile))
+                logger.info("Stressor Style File: {}".format(
+                    stressor_stylefile))
+                logger.info("Threshold Style File: {}".format(
+                    threshold_stylefile))
+                logger.info("Species Percent Style File: {}".format(
+                    percent_stylefile))
+                logger.info("Species Density Style File: {}".format(
+                    density_stylefile))
 
-                
                 # self.calc_area_change(srfilename, crs)
-                if not((scfilename is None) or (scfilename == "")): #if specie files present
-                    self.style_layer(sfilenames[4], density_stylefile, ranges=True)
-                    self.style_layer(sfilenames[3], percent_stylefile, ranges=True)
+                if not ((scfilename is None) or (scfilename == "")):  # if specie files present
+                    self.style_layer(
+                        sfilenames[4], density_stylefile, ranges=True)
+                    self.style_layer(
+                        sfilenames[3], percent_stylefile, ranges=True)
 
-                self.style_layer(sfilenames[2], threshold_stylefile, ranges=True)    
-                self.style_layer(sfilenames[0], stressor_stylefile, ranges=True) #paracousti     
-                self.style_layer(sfilenames[1], stressor_stylefile, ranges=True) #stressor                               
+                self.style_layer(
+                    sfilenames[2], threshold_stylefile, ranges=True)
+                self.style_layer(
+                    sfilenames[0], stressor_stylefile, ranges=True)  # paracousti
+                self.style_layer(
+                    sfilenames[1], stressor_stylefile, ranges=True)  # stressor
 
             # close and remove the filehandler
             fh.close()

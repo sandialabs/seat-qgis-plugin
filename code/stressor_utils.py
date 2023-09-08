@@ -7,7 +7,7 @@
  PURPOSE: definitions used by the stressor modules
 
  PROJECT INFORMATION:
- Name: SEAT - Spatial and Environmental Assessment Tool
+ Name: SEAT - Spatial and Environmental Assessment Toolkit
  Number: C1308
 
  AUTHORS
@@ -26,7 +26,8 @@ from scipy.interpolate import griddata
 from osgeo import gdal, osr
 import os
 
-def estimate_grid_spacing(x,y, nsamples=100):
+
+def estimate_grid_spacing(x, y, nsamples=100):
     """
     Estimates the grid spacing of an unstructured grid to create a similar resolution structured grid
 
@@ -47,9 +48,10 @@ def estimate_grid_spacing(x,y, nsamples=100):
     """
     import random
     import sys
-    coords = list(set(zip(x,y)))
+    coords = list(set(zip(x, y)))
     if nsamples != len(x):
-        points = [random.choice(coords) for i in range(nsamples)] # pick N random points
+        points = [random.choice(coords)
+                  for i in range(nsamples)]  # pick N random points
     else:
         points = coords
     MD = []
@@ -57,11 +59,12 @@ def estimate_grid_spacing(x,y, nsamples=100):
         minimum_distance = sys.maxsize
         for px, py in coords:
             distance = np.sqrt((p0x - px) ** 2 + (p0y - py) ** 2)
-            if (distance < minimum_distance) & (distance !=0):
+            if (distance < minimum_distance) & (distance != 0):
                 minimum_distance = distance
         MD.append(minimum_distance)
     dxdy = np.median(MD)
     return dxdy
+
 
 def create_structured_array_from_unstructured(x, y, z, dxdy, flatness=0.2):
     """
@@ -101,7 +104,8 @@ def create_structured_array_from_unstructured(x, y, z, dxdy, flatness=0.2):
     z_interp = tli(refxg, refyg)
     return refxg, refyg, z_interp.data
 
-def redefine_structured_grid(x,y,z):
+
+def redefine_structured_grid(x, y, z):
     """
     ensures regular structured grid (paracousti grid not regular)
 
@@ -133,9 +137,11 @@ def redefine_structured_grid(x,y,z):
     dx = np.nanmin([np.nanmedian(np.diff(xx)), np.nanmedian(np.diff(yy))])
     xx = np.arange(min_x, max_x+dx, dx)
     yy = np.arange(min_y, max_y+dx, dx)
-    x_new, y_new = np.meshgrid(xx,yy)
-    z_new = griddata((x.flatten(), y.flatten()), z.flatten(), (x_new, y_new), method='nearest', fill_value=0)
+    x_new, y_new = np.meshgrid(xx, yy)
+    z_new = griddata((x.flatten(), y.flatten()), z.flatten(),
+                     (x_new, y_new), method='nearest', fill_value=0)
     return x_new, y_new, z_new
+
 
 def resample_structured_grid(x_grid, y_grid, z, X_grid_out, Y_grid_out, interpmethod='nearest'):
     """
@@ -162,7 +168,8 @@ def resample_structured_grid(x_grid, y_grid, z, X_grid_out, Y_grid_out, interpme
         interpolated z-value on X/Y _grid_out.
 
     """
-    return griddata((x_grid.flatten(), y_grid.flatten()), z.flatten(), (X_grid_out,Y_grid_out), method=interpmethod, fill_value=0)
+    return griddata((x_grid.flatten(), y_grid.flatten()), z.flatten(), (X_grid_out, Y_grid_out), method=interpmethod, fill_value=0)
+
 
 def calc_receptor_array(receptor_filename, x, y, latlon=False):
     """
@@ -191,31 +198,36 @@ def calc_receptor_array(receptor_filename, x, y, latlon=False):
 
     """
     # if ((receptor_filename is not None) or (not receptor_filename == "")):
-    if not((receptor_filename is None) or (receptor_filename == "")):
+    if not ((receptor_filename is None) or (receptor_filename == "")):
         if receptor_filename.endswith('.tif'):
             data = gdal.Open(receptor_filename)
             img = data.GetRasterBand(1)
             receptor_array = img.ReadAsArray()
             receptor_array[receptor_array < 0] = 0
-            (upper_left_x, x_size, x_rotation, upper_left_y, y_rotation, y_size) = data.GetGeoTransform()
+            (upper_left_x, x_size, x_rotation, upper_left_y,
+             y_rotation, y_size) = data.GetGeoTransform()
             cols = data.RasterXSize
             rows = data.RasterYSize
             r_rows = np.arange(rows) * y_size + upper_left_y + (y_size / 2)
             r_cols = np.arange(cols) * x_size + upper_left_x + (x_size / 2)
-            if latlon==True:
-                r_cols = np.where(r_cols<0, r_cols+360, r_cols)
+            if latlon == True:
+                r_cols = np.where(r_cols < 0, r_cols+360, r_cols)
             x_grid, y_grid = np.meshgrid(r_cols, r_rows)
-            receptor_array = griddata((x_grid.flatten(), y_grid.flatten()), receptor_array.flatten(), (x,y), method='nearest', fill_value=0)
+            receptor_array = griddata((x_grid.flatten(), y_grid.flatten(
+            )), receptor_array.flatten(), (x, y), method='nearest', fill_value=0)
 
         elif receptor_filename.endswith('.csv'):
-            receptor_array = pd.read_csv(receptor_filename, header=None, index_col=0).to_numpy().item() * np.ones(x.shape)
+            receptor_array = pd.read_csv(
+                receptor_filename, header=None, index_col=0).to_numpy().item() * np.ones(x.shape)
         else:
-            raise Exception("Invalid Recetpor File Type. Must be of type .tif or .csv")
+            raise Exception(
+                "Invalid Recetpor File Type. Must be of type .tif or .csv")
     else:
         # taucrit without a receptor
-        #Assume the following grain sizes and conditions for typical beach sand (Nielsen, 1992 p.108)
+        # Assume the following grain sizes and conditions for typical beach sand (Nielsen, 1992 p.108)
         receptor_array = 200*1e-6 * np.ones(x.shape)
     return receptor_array
+
 
 def trim_zeros(x, y, z1, z2):
     """
@@ -244,8 +256,9 @@ def trim_zeros(x, y, z1, z2):
         z2-value (e.g. vvar).
 
     """
-    #edges of structured array have zeros, not sure if universal issue
-    return x[1:-1,1:-1], y[1:-1,1:-1], z1[:, :, 1:-1, 1:-1], z2[:, :, 1:-1, 1:-1]
+    # edges of structured array have zeros, not sure if universal issue
+    return x[1:-1, 1:-1], y[1:-1, 1:-1], z1[:, :, 1:-1, 1:-1], z2[:, :, 1:-1, 1:-1]
+
 
 def create_raster(
     output_path,
@@ -276,7 +289,7 @@ def create_raster(
         gdal raster object.
 
     """
-    
+
     # create gdal driver - doing this explicitly
     driver = gdal.GetDriverByName(str("GTiff"))
 
@@ -305,7 +318,7 @@ def numpy_array_to_raster(
     output_path,
 ):
     """
-    
+
 
     Parameters
     ----------
@@ -369,6 +382,7 @@ def numpy_array_to_raster(
     output_raster = None
     return output_path
 
+
 def find_utm_srid(lon, lat, srid):
     """
     Given a WGS 64 srid calculate the corresponding UTM srid.
@@ -405,6 +419,7 @@ def find_utm_srid(lon, lat, srid):
 
     return out_srid
 
+
 def read_raster(raster_name):
     """
     Reads a raster to an array.
@@ -424,18 +439,20 @@ def read_raster(raster_name):
         value array.
 
     """
-    
+
     data = gdal.Open(raster_name)
     img = data.GetRasterBand(1)
     raster_array = img.ReadAsArray()
-    (upper_left_x, x_size, x_rotation, upper_left_y, y_rotation, y_size) = data.GetGeoTransform()
+    (upper_left_x, x_size, x_rotation, upper_left_y,
+     y_rotation, y_size) = data.GetGeoTransform()
     cols = data.RasterXSize
     rows = data.RasterYSize
     r_rows = np.arange(rows) * y_size + upper_left_y + (y_size / 2)
     r_cols = np.arange(cols) * x_size + upper_left_x + (x_size / 2)
-    rx,ry = np.meshgrid(r_cols, r_rows)
+    rx, ry = np.meshgrid(r_cols, r_rows)
     data = None
     return rx, ry, raster_array
+
 
 def calculate_cell_area(rx, ry, latlon=True):
     """
@@ -463,27 +480,30 @@ def calculate_cell_area(rx, ry, latlon=True):
     import numpy as np
     from pyproj import Geod
 
-    if latlon==True:
+    if latlon == True:
         geod = Geod(ellps="WGS84")
-        lon2D,lat2D = np.where(rx>180, rx-360, rx), ry
-        _,_, distEW = geod.inv(lon2D[:,:-1], lat2D[:,1:], lon2D[:,1:], lat2D[:,1:])
-        _,_, distNS = geod.inv(lon2D[1:,:], lat2D[1:,:], lon2D[1:,:], lat2D[:-1,:])
-        square_area = distEW[1:,:] * distNS[:,1:]
+        lon2D, lat2D = np.where(rx > 180, rx-360, rx), ry
+        _, _, distEW = geod.inv(
+            lon2D[:, :-1], lat2D[:, 1:], lon2D[:, 1:], lat2D[:, 1:])
+        _, _, distNS = geod.inv(
+            lon2D[1:, :], lat2D[1:, :], lon2D[1:, :], lat2D[:-1, :])
+        square_area = distEW[1:, :] * distNS[:, 1:]
     else:
         square_area = np.zeros((rx.shape[0]-1, ry.shape[1]-1))
         for row in range(rx.shape[0]-1):
             for col in range(ry.shape[1]-1):
                 dx = rx[row, col+1] - rx[row, col]
                 dy = ry[row+1, col] - ry[row, col]
-                square_area[row,col] = dx*dy
+                square_area[row, col] = dx*dy
     rxm = np.zeros(square_area.shape)
     rym = np.zeros(square_area.shape)
     for row in range(rx.shape[0]-1):
-        rxm[row,:] = (rx[row,:-1] + rx[row,1:])/2
+        rxm[row, :] = (rx[row, :-1] + rx[row, 1:])/2
     for col in range(ry.shape[1]-1):
-        rym[:,col] = (ry[:-1,col] + ry[1:,col])/2
+        rym[:, col] = (ry[:-1, col] + ry[1:, col])/2
 
     return rxm, rym, square_area
+
 
 def bin_data(zm, square_area, nbins=25):
     """
@@ -518,12 +538,13 @@ def bin_data(zm, square_area, nbins=25):
     DATA['count'] = hist
     DATA['Area'] = np.zeros(hist.shape)
     for ic, (bin_start, bin_end) in enumerate(zip(bins[:-1], bins[1:])):
-        if ic<len(hist)-1:
-            area_ix = np.flatnonzero((zm>=bin_start) & (zm<bin_end))
+        if ic < len(hist)-1:
+            area_ix = np.flatnonzero((zm >= bin_start) & (zm < bin_end))
         else:
-            area_ix = np.flatnonzero((zm>=bin_start) & (zm<=bin_end))
+            area_ix = np.flatnonzero((zm >= bin_start) & (zm <= bin_end))
         DATA['Area'][ic] = np.sum(square_area[area_ix])
     return DATA
+
 
 def bin_receptor(zm, receptor, square_area, nbins=25, receptor_names=None):
     """
@@ -563,16 +584,19 @@ def bin_receptor(zm, receptor, square_area, nbins=25, receptor_names=None):
     for ic, rval in enumerate(np.unique(receptor)):
         zz = zm[receptor == rval]
         sqa = square_area[receptor == rval]
-        rcolname = f'Area, receptor value {rval}' if receptor_names is None else receptor_names[ic]
+        rcolname = f'Area, receptor value {rval}' if receptor_names is None else receptor_names[
+            ic]
         DATA[rcolname] = np.zeros(hist.shape)
         for ic, (bin_start, bin_end) in enumerate(zip(bins[:-1], bins[1:])):
-            if ic<len(hist)-1:
-                area_ix = np.flatnonzero((zz>=bin_start) & (zz<bin_end))
+            if ic < len(hist)-1:
+                area_ix = np.flatnonzero((zz >= bin_start) & (zz < bin_end))
             else:
-                area_ix = np.flatnonzero((zz>=bin_start) & (zz<=bin_end))
+                area_ix = np.flatnonzero((zz >= bin_start) & (zz <= bin_end))
             DATA[rcolname][ic] = np.sum(sqa[area_ix])
-        DATA[f'Area percent, receptor value {rval}'] = 100 * DATA[rcolname]/DATA[rcolname].sum()
+        DATA[f'Area percent, receptor value {rval}'] = 100 * \
+            DATA[rcolname]/DATA[rcolname].sum()
     return DATA
+
 
 def bin_layer(raster_filename, receptor_filename=None, receptor_names=None, limit_receptor_range=None, latlon=True):
     """
@@ -601,18 +625,24 @@ def bin_layer(raster_filename, receptor_filename=None, receptor_names=None, limi
     rx, ry, z = read_raster(raster_filename)
     rxm, rym, square_area = calculate_cell_area(rx, ry, latlon=True)
     square_area = square_area.flatten()
-    zm = resample_structured_grid(rx, ry, z, rxm, rym, interpmethod='linear').flatten()
+    zm = resample_structured_grid(
+        rx, ry, z, rxm, rym, interpmethod='linear').flatten()
     if receptor_filename is None:
-        DATA = bin_data(zm[np.invert(np.isnan(zm))], square_area[np.invert(np.isnan(zm))], nbins=25)
+        DATA = bin_data(zm[np.invert(np.isnan(zm))],
+                        square_area[np.invert(np.isnan(zm))], nbins=25)
         # DF = pd.DataFrame(DATA)
         DATA['Area percent'] = 100 * DATA['Area']/DATA['Area'].sum()
     else:
         rrx, rry, receptor = read_raster(receptor_filename)
         if limit_receptor_range is not None:
-            receptor = np.where((receptor>=np.min(limit_receptor_range)) & (receptor<=np.max(limit_receptor_range)), receptor, 0)
-        receptor = resample_structured_grid(rrx, rry, receptor, rxm, rym).flatten()
-        DATA = bin_receptor(zm[np.invert(np.isnan(zm))], receptor[np.invert(np.isnan(zm))], square_area[np.invert(np.isnan(zm))], receptor_names=receptor_names)
+            receptor = np.where((receptor >= np.min(limit_receptor_range)) & (
+                receptor <= np.max(limit_receptor_range)), receptor, 0)
+        receptor = resample_structured_grid(
+            rrx, rry, receptor, rxm, rym).flatten()
+        DATA = bin_receptor(zm[np.invert(np.isnan(zm))], receptor[np.invert(np.isnan(
+            zm))], square_area[np.invert(np.isnan(zm))], receptor_names=receptor_names)
     return pd.DataFrame(DATA)
+
 
 def classify_layer_area(raster_filename, receptor_filename=None, at_values=None, value_names=None, limit_receptor_range=None, latlon=True):
     """
@@ -656,14 +686,16 @@ def classify_layer_area(raster_filename, receptor_filename=None, at_values=None,
     if receptor_filename is None:
         DATA['Area'] = np.zeros(len(at_values))
         for ic, value in enumerate(at_values):
-            area_ix = np.flatnonzero(zm==value)
+            area_ix = np.flatnonzero(zm == value)
             DATA['Area'][ic] = np.sum(square_area[area_ix])
         DATA['Area percent'] = 100 * DATA['Area']/DATA['Area'].sum()
     else:
         rrx, rry, receptor = read_raster(receptor_filename)
         if limit_receptor_range is not None:
-            receptor = np.where((receptor>=np.min(limit_receptor_range)) & (receptor<=np.max(limit_receptor_range)), receptor, 0)
-        receptor = resample_structured_grid(rrx, rry, receptor, rxm, rym).flatten()
+            receptor = np.where((receptor >= np.min(limit_receptor_range)) & (
+                receptor <= np.max(limit_receptor_range)), receptor, 0)
+        receptor = resample_structured_grid(
+            rrx, rry, receptor, rxm, rym).flatten()
         for ic, rval in enumerate(np.unique(receptor)):
             zz = zm[receptor == rval]
             sqa = square_area[receptor == rval]
@@ -672,8 +704,9 @@ def classify_layer_area(raster_filename, receptor_filename=None, at_values=None,
             DATA[rcolname] = np.zeros(len(at_values))
             DATA[ccolname] = np.zeros(len(at_values))
             for iic, value in enumerate(at_values):
-                area_ix = np.flatnonzero(zz==value)
+                area_ix = np.flatnonzero(zz == value)
                 DATA[ccolname][iic] = len(area_ix)
                 DATA[rcolname][iic] = np.sum(sqa[area_ix])
-            DATA[f'Area percent, receptor value {rval}'] = 100 * DATA[rcolname]/DATA[rcolname].sum()
+            DATA[f'Area percent, receptor value {rval}'] = 100 * \
+                DATA[rcolname]/DATA[rcolname].sum()
     return pd.DataFrame(DATA)

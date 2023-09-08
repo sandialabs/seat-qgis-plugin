@@ -1,10 +1,10 @@
-# Sandia Spatial Environmental Assessment Tool QGIS Plugin
+# Sandia Spatial Environmental Assessment Toolkit QGIS Plugin
 
 <a href='https://github.com/IntegralEnvision/SEAT-QGIS-Plugin'><img src='code/icon.png' align="right" height="60" /></a>
 
 [![release](https://github.com/IntegralEnvision/seat-qgis-plugin/actions/workflows/release.yaml/badge.svg)](https://github.com/IntegralEnvision/seat-qgis-plugin/actions/workflows/release.yaml)
 
-This repository contains code for the Spatial Environmental Assessment Tool (SEAT) QGIS Plugin. This is a collaboration between [Integral Consulting](https://integral-corp.com) and [Sandia National Laboratories](https://www.sandia.gov/).
+This repository contains code for the Spatial Environmental Assessment Toolkit (SEAT) QGIS Plugin. This is a collaboration between [Integral Consulting](https://integral-corp.com) and [Sandia National Laboratories](https://www.sandia.gov/).
 
 ## Installation
 
