@@ -4,7 +4,7 @@
 
 SEAT Documentation
 ===================================================
-Sandia Spatial Environmental Assessment Tool (SEAT)
+Sandia Spatial Environmental Assessment Toolkit (SEAT)
 
 .. toctree::
    :maxdepth: 4

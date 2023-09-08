@@ -1,4 +1,4 @@
-# Sandia Spatial Environmental Assessment Tool QGIS Plugin
+# Sandia Spatial Environmental Assessment Toolkit QGIS Plugin
 
 This folder contains the documentation source code for SEAT. This README provides instructions on how to build, view, and contribute to the documentation.
 
