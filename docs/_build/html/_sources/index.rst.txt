@@ -14,11 +14,3 @@ Sandia Spatial Environmental Assessment Tool (SEAT)
    data_sources.rst
    gui.rst
    output.rst
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
