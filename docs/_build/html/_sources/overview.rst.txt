@@ -1,5 +1,14 @@
 .. _overview:
 
+.. figure:: media/SEAT_white_full.png
+   :width: 95%
+   :align: left
+   :alt: SEAT Logo
+
+.. raw:: html
+
+   <div style="clear: both;"></div>
+
 Overview
 ========
 
@@ -48,7 +57,6 @@ Paracousti is an underwater sound propagation tool used to investigate changes t
    :align: center
    :alt: Simulation of sound pressure (SP) propagation from a simulated MHK source in Paracousti.
 
-
    Simulation of sound pressure (SP) propagation from a simulated MHK source in Paracousti.
 
 
@@ -64,6 +72,5 @@ The SEAT incorporates device specific parameters, site-specific hydrodynamic con
    :width: 100%
    :align: center
    :alt: Map of risk of benthic disturbance due to presence of WEC array. The SEAT risk mapping can be linked with receptor descriptions to evaluate potential environmental risk.
-
 
    Map of risk of benthic disturbance due to presence of WEC array. The SEAT risk mapping can be linked with receptor descriptions to evaluate potential environmental risk.
