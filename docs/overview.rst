@@ -1,5 +1,14 @@
 .. _overview:
 
+.. figure:: media/SEAT_white_full.png
+   :width: 95%
+   :align: left
+   :alt: SEAT Logo
+
+.. raw:: html
+
+   <div style="clear: both;"></div>
+
 Overview
 ========
 
