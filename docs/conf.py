@@ -34,7 +34,8 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'sphinx_autodoc_typehints',
-    'sphinx_rtd_theme'
+    'sphinx_rtd_theme',
+    'sphinx_rtd_dark_mode'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

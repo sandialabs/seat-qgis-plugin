@@ -3,6 +3,25 @@
 Installation
 =====================
 
+Prerequisites
+-------------
+
+
+SEAT installation
+^^^^^^^^^^^^^^^^^
+
+- QGIS >= 3.16
+- Python for QGIS >= 3.16
+- netCDF >= 3.5.4 
+
+Models
+^^^^^^
+Depending on you application you will need to bring model files and site data to SEAT. Currently, sSEAT has built in support for the following models:
+
+- SNL-Delft3D Structured & Unstructured Grids
+- SNL-SWAN
+- Paracousti
+
 https://github.com/sandialabs/seat-qgis-plugin
 Options:
 - Clone the package (https://github.com/sandialabs/seat-qgis-plugin.git)

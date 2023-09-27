@@ -11,6 +11,7 @@
 
    overview.rst
    installation.rst
+   modules.rst
    data_sources.rst
    gui.rst
    output.rst
@@ -85,23 +86,7 @@ SEAT's primary functionality is to enable users to create risk quantification ma
    
    Results represent influence of arrays energy capture across range of conditions and receptor response
 
-Prerequisites
-=============
 
-SEAT installation
-^^^^^^^^^^^^^^^^^
-
-- QGIS >= 3.16
-- Python for QGIS >= 3.16
-- netCDF >= 3.5.4 
-
-Models
-^^^^^^
-Depending on you application you will need to bring model files and site data to SEAT. Currently, sSEAT has built in support for the following models:
-
-- SNL-Delft3D Structured & Unstructured Grids
-- SNL-SWAN
-- Paracousti
 
 Contribution 
 ============
