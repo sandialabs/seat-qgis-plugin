@@ -5,30 +5,46 @@ Installation
 
 Prerequisites
 -------------
+There is both software and model data that is required to run SEAT. The software requirements are listed below. The model data requirements are listed in the models section.
+
+Model Files
+^^^^^^^^^^^
+Depending on you application you will need to bring model files and site data to SEAT. Currently, SEAT has built in support for the following models:
+
+- `SNL-Delft3D <https://github.com/sandialabs/SNL-Delft3D-CEC>`_ 
+
+  * Structured & Unstructured Grids
+
+- `SNL-SWAN <https://github.com/sandialabs/SNL-SWAN>`_
+- `Paracousti <https://github.com/sandialabs/Paracousti>`_
+
+Software
+^^^^^^^^
+
+- `QGIS <https://www.qgis.org/en/site/forusers/download.html>`_ >= 3.16
 
 
-SEAT installation
-^^^^^^^^^^^^^^^^^
+Download SEAT
+--------------
 
-- QGIS >= 3.16
-- Python for QGIS >= 3.16
-- netCDF >= 3.5.4 
+Option 1: Clone
+^^^^^^^^^^^^^^^
 
-Models
-^^^^^^
-Depending on you application you will need to bring model files and site data to SEAT. Currently, sSEAT has built in support for the following models:
+.. code-block:: sh
 
-- SNL-Delft3D Structured & Unstructured Grids
-- SNL-SWAN
-- Paracousti
+   git clone https://github.com/sandialabs/seat-qgis-plugin.git
+
+Option 2: Download
+^^^^^^^^^^^^^^^^^^
 
 https://github.com/sandialabs/seat-qgis-plugin
-Options:
-- Clone the package (https://github.com/sandialabs/seat-qgis-plugin.git)
 - Download the create_zip.sh
 
+
+
+
 NetCDF4
----------------------
+-------
 
 - run `C:\Program Files\QGIS 3.22.10\OSGeo4W.bat` as administrator.
 
