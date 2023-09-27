@@ -284,7 +284,7 @@ def calculate_shear_stress_stressors(fpath_nodev,
         BC_probability = pd.DataFrame()
         BC_probability['run order'] = np.arange(0,tau_dev.shape[0]) #ignore number and start sequentially from zero
         BC_probability["probability"] = 1/DF.run_order_dev.to_numpy() #assumes run order in name is the return interval
-        BC_probability["probability"] = BC_probability["probability"]/BC_probability["probability"].sum # rescale to ensure = 1
+        BC_probability["probability"] = BC_probability["probability"]/BC_probability["probability"].sum() # rescale to ensure = 1
 
     # Calculate Stressor and Receptors
     # data_dev_max = np.amax(data_dev, axis=1, keepdims=True) #look at maximum shear stress difference change
@@ -344,7 +344,7 @@ def calculate_shear_stress_stressors(fpath_nodev,
         dy = dxdy
         rx, ry, tau_diff_struct = create_structured_array_from_unstructured(xcor, ycor, tau_diff, dxdy, flatness=0.2)
         _, _, tau_combined_dev_struct = create_structured_array_from_unstructured(xcor, ycor, tau_combined_dev, dxdy, flatness=0.2)
-        _, _, tau_combined_nodev_struct = create_structured_array_from_unstructured(xcor, ycor, tau_diff, tau_combined_nodev, flatness=0.2)
+        _, _, tau_combined_nodev_struct = create_structured_array_from_unstructured(xcor, ycor, tau_combined_nodev, dxdy, flatness=0.2)
         if not((receptor_filename is None) or (receptor_filename == "")):
             _, _, mobility_parameter_nodev_struct = create_structured_array_from_unstructured(xcor, ycor, mobility_parameter_nodev, dxdy, flatness=0.2)
             _, _, mobility_parameter_dev_struct = create_structured_array_from_unstructured(xcor, ycor, mobility_parameter_dev, dxdy, flatness=0.2)
@@ -356,6 +356,7 @@ def calculate_shear_stress_stressors(fpath_nodev,
             mobility_parameter_diff_struct = np.nan * tau_diff_struct
             receptor_array_struct = np.nan * tau_diff_struct
         mobility_classification = classify_mobility(mobility_parameter_dev_struct, mobility_parameter_nodev_struct)
+        mobility_classification = np.where(np.isnan(tau_diff_struct), -100, mobility_classification)
         listOfFiles = [tau_diff_struct, mobility_parameter_nodev_struct, mobility_parameter_dev_struct, mobility_parameter_diff_struct, mobility_classification, receptor_array_struct, tau_combined_dev_struct, tau_combined_nodev_struct]
 
     return listOfFiles, rx, ry, dx, dy, gridtype

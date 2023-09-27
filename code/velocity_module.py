@@ -264,7 +264,7 @@ def calculate_velocity_stressors(fpath_nodev,
         BC_probability = pd.DataFrame()
         BC_probability['run order'] = np.arange(0,mag_dev.shape[0]) #ignor number and start sequentially from zero
         BC_probability["probability"] = 1/DF.run_order_dev.to_numpy() #assumes run order in name is the return interval
-        BC_probability["probability"] = BC_probability["probability"]/BC_probability["probability"].sum # rescale to ensure = 1
+        BC_probability["probability"] = BC_probability["probability"]/BC_probability["probability"].sum() # rescale to ensure = 1
 
     #ensure velocity is depth averaged for structured array [run order, time, layer, x, y] and drop dimension
     if np.ndim(mag_nodev) == 5:
@@ -303,9 +303,9 @@ def calculate_velocity_stressors(fpath_nodev,
     mag_diff = mag_combined_dev - mag_combined_nodev
     velcrit = calc_receptor_array(receptor_filename, xcor, ycor, latlon=latlon)
     mobility_nodev = mag_combined_nodev / velcrit
-    mobility_nodev = np.where(velcrit==0, 0, mobility_nodev)
+    mobility_nodev = np.where(velcrit==0, np.nan, mobility_nodev)
     mobility_dev = mag_combined_dev / velcrit
-    mobility_dev = np.where(velcrit==0, 0, mobility_dev)
+    mobility_dev = np.where(velcrit==0, np.nan, mobility_dev)
     # Calculate risk metrics over all runs
 
     mobility_diff = mobility_dev - mobility_nodev
@@ -338,7 +338,7 @@ def calculate_velocity_stressors(fpath_nodev,
             velcrit_struct = np.nan * mag_diff_struct
 
         motility_classification = classify_motility(mobility_dev_struct, mobility_nodev_struct)
-        motility_classification = np.where(np.isnan(mag_diff_struct), np.nan, motility_classification)
+        motility_classification = np.where(np.isnan(mag_diff_struct), -100, motility_classification)
         listOfFiles = [mag_combined_dev_struct, mag_combined_nodev_struct, mag_diff_struct, mobility_nodev_struct, mobility_dev_struct, mobility_diff_struct, motility_classification, velcrit_struct]
 
     return listOfFiles, rx, ry, dx, dy, gridtype
@@ -403,7 +403,7 @@ def run_velocity_stressor(
                             'calculated_stressor.tif',
                             'calculated_stressor_with_receptor.tif',
                             'calculated_stressor_reclassified.tif',
-                            'receptor.tif',]
+                            'receptor.tif']
         use_numpy_arrays = [numpy_arrays[0], numpy_arrays[1], numpy_arrays[2], numpy_arrays[5], numpy_arrays[6], numpy_arrays[7]]
     else:
         numpy_array_names = ['calcualted_velocity_with_devices.tif',
