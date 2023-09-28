@@ -14,3 +14,4 @@ Sandia Spatial Environmental Assessment Toolkit (SEAT)
    data_sources.rst
    gui.rst
    output.rst
+   tutorials.rst
