@@ -7,7 +7,7 @@
  PURPOSE: module for calcualting shear stress (sediment mobility) change from a shear stress stressor
 
  PROJECT INFORMATION:
- Name: SEAT - Spatial and Environmental Assessment Tool
+ Name: SEAT - Spatial and Environmental Assessment Toolkit
  Number: C1308
 
  AUTHORS
