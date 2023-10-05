@@ -186,6 +186,8 @@ def calculate_shear_stress_stressors(fpath_nodev,
         [3] mobility_parameter_diff
         [4] mobility_classification
         [5] receptor array  
+        [6] tau_combined_dev
+        [7] tau_combined_nodev
     rx : array
         X-Coordiantes.
     ry : array
@@ -306,6 +308,8 @@ def calculate_shear_stress_stressors(fpath_nodev,
         BC_probability['run order'] = np.arange(0, tau_dev.shape[0])
         # assumes run order in name is the return interval
         BC_probability["probability"] = 1/DF.run_order_dev.to_numpy()
+        BC_probability["probability"] = BC_probability["probability"] / \
+            BC_probability["probability"].sum()  # rescale to ensure = 1
 
     # Calculate Stressor and Receptors
     # data_dev_max = np.amax(data_dev, axis=1, keepdims=True) #look at maximum shear stress difference change
@@ -365,14 +369,18 @@ def calculate_shear_stress_stressors(fpath_nodev,
         dy = np.nanmean(np.diff(ycor[0, :]))
         rx = xcor
         ry = ycor
-        listOfFiles = [tau_diff, mobility_parameter_nodev, mobility_parameter_dev,
-                       mobility_parameter_diff, mobility_classification, receptor_array]
+        listOfFiles = [tau_diff, mobility_parameter_nodev, mobility_parameter_dev, mobility_parameter_diff,
+                       mobility_classification, receptor_array, tau_combined_dev, tau_combined_nodev]
     else:  # unstructured
         dxdy = estimate_grid_spacing(xcor, ycor, nsamples=100)
         dx = dxdy
         dy = dxdy
         rx, ry, tau_diff_struct = create_structured_array_from_unstructured(
             xcor, ycor, tau_diff, dxdy, flatness=0.2)
+        _, _, tau_combined_dev_struct = create_structured_array_from_unstructured(
+            xcor, ycor, tau_combined_dev, dxdy, flatness=0.2)
+        _, _, tau_combined_nodev_struct = create_structured_array_from_unstructured(
+            xcor, ycor, tau_combined_nodev, dxdy, flatness=0.2)
         if not ((receptor_filename is None) or (receptor_filename == "")):
             _, _, mobility_parameter_nodev_struct = create_structured_array_from_unstructured(
                 xcor, ycor, mobility_parameter_nodev, dxdy, flatness=0.2)
@@ -389,8 +397,10 @@ def calculate_shear_stress_stressors(fpath_nodev,
             receptor_array_struct = np.nan * tau_diff_struct
         mobility_classification = classify_mobility(
             mobility_parameter_dev_struct, mobility_parameter_nodev_struct)
-        listOfFiles = [tau_diff_struct, mobility_parameter_nodev_struct, mobility_parameter_dev_struct,
-                       mobility_parameter_diff_struct, mobility_classification, receptor_array_struct]
+        mobility_classification = np.where(
+            np.isnan(tau_diff_struct), -100, mobility_classification)
+        listOfFiles = [tau_diff_struct, mobility_parameter_nodev_struct, mobility_parameter_dev_struct, mobility_parameter_diff_struct,
+                       mobility_classification, receptor_array_struct, tau_combined_dev_struct, tau_combined_nodev_struct]
 
     return listOfFiles, rx, ry, dx, dy, gridtype
 
@@ -426,9 +436,11 @@ def run_shear_stress_stressor(
     output_rasters : list
         names of output rasters:
         [0] 'calculated_stressor.tif'
+        [1] or [6] 'tau_dev.tif'
+        [2] or [7] 'tau_nodev.tif'
         if receptor present:
-            [1] 'calculated_stressor_with_receptor.tif',
-            [2] 'calculated_stressor_reclassified.tif',
+            [1] 'calculated_stressor_with_receptor.tif'
+            [2] 'calculated_stressor_reclassified.tif'
             [3] 'receptor.tif'
 
     """
@@ -444,16 +456,22 @@ def run_shear_stress_stressor(
     #               [3] mobility_parameter_diff
     #               [4] mobility_classification
     #               [5] receptor array
+    #               [6] tau_combined_dev
+    #               [7] tau_combined_nodev
     if not ((receptor_filename is None) or (receptor_filename == "")):
         numpy_array_names = ['calculated_stressor.tif',
                              'calculated_stressor_with_receptor.tif',
                              'calculated_stressor_reclassified.tif',
-                             'receptor.tif']
-        use_numpy_arrays = [numpy_arrays[0],
-                            numpy_arrays[3], numpy_arrays[4], numpy_arrays[5]]
+                             'receptor.tif',
+                             'tau_with_devices.tif',
+                             'tau_without_devices.tif']
+        use_numpy_arrays = [numpy_arrays[0], numpy_arrays[3],
+                            numpy_arrays[4], numpy_arrays[5], numpy_arrays[6], numpy_arrays[7]]
     else:
-        numpy_array_names = ['calculated_stressor.tif']
-        use_numpy_arrays = [numpy_arrays[0]]
+        numpy_array_names = ['calculated_stressor.tif',
+                             'tau_with_devices.tif',
+                             'tau_without_devices.tif']
+        use_numpy_arrays = [numpy_arrays[0], numpy_arrays[6], numpy_arrays[7]]
 
     output_rasters = []
     for array_name, numpy_array in zip(numpy_array_names, use_numpy_arrays):

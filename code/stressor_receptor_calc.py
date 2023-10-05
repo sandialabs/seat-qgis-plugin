@@ -766,12 +766,12 @@ class StressorReceptorCalc:
                 logger.info(
                     'Stressor reclassification: {}'.format(rcstylefile))
 
-                srfilename = sfilenames[0]  # stressor
+                srfilename = sfilenames[2]  # stressor
                 self.style_layer(srfilename, sstylefile, ranges=True)
                 # self.calc_area_change(srfilename, crs)
                 if not ((rfilename is None) or (rfilename == "")):  # if receptor present
-                    swrfilename = sfilenames[1]  # streessor with receptor
-                    classifiedfilename = sfilenames[2]  # reclassified
+                    swrfilename = sfilenames[3]  # streessor with receptor
+                    classifiedfilename = sfilenames[4]  # reclassified
                     self.style_layer(swrfilename, swrstylefile, ranges=True)
                     self.style_layer(classifiedfilename,
                                      rcstylefile, ranges=True)
