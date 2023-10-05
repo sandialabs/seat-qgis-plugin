@@ -244,7 +244,7 @@ class StressorReceptorCalc:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ":/plugins/seat_qgis_plugin/icon.webp"
+        icon_path = ":/plugins/seat_qgis_plugin/icon.png"
         self.add_action(
             icon_path,
             setText=self.tr(

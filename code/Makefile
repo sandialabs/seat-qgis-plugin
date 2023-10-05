@@ -48,7 +48,7 @@ PY_FILES = \
 
 UI_FILES = stressor_receptor_calc_dialog_base.ui
 
-EXTRAS = metadata.txt icon.webp
+EXTRAS = metadata.txt icon.png
 
 EXTRA_DIRS =
 

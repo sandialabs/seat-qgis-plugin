@@ -27,7 +27,7 @@ tags=python,integral,marine,energy,spatial,stressor,receptor, shear stress, velo
 
 homepage=https://github.com/IntegralEnvision/seat-qgis-plugin
 category=Plugins
-icon=icon.webp
+icon=icon.png
 # experimental flag
 experimental=True
 
