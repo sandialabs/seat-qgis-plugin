@@ -31,7 +31,7 @@ QGIS
 - In QGIS, click on the plugins toolbar and select “Manage and Install Plugins”
 - Select the Install from ZIP option.
 
-.. figure:: media/installPlugin.png
+.. figure:: media/installPlugin.webp
    :scale: 50 %
    :alt: Install from ZIP
 
@@ -39,7 +39,7 @@ QGIS
 - Click Install Plugin.
 - The SEAT icon should appear in the toolbar.
 
-.. figure:: media/SEAT_Toolbar.png
+.. figure:: media/SEAT_Toolbar.webp
    :scale: 125 %
    :alt: SEAT icon in QGIS toolbar
    

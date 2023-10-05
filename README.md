@@ -1,6 +1,6 @@
 # Sandia Spatial Environmental Assessment Toolkit QGIS Plugin
 
-<a href='https://github.com/IntegralEnvision/SEAT-QGIS-Plugin'><img src='code/icon.png' align="right" height="60" /></a>
+<a href='https://github.com/IntegralEnvision/SEAT-QGIS-Plugin'><img src='code/icon.webp' align="right" height="60" /></a>
 
 [![release](https://github.com/IntegralEnvision/seat-qgis-plugin/actions/workflows/release.yaml/badge.svg)](https://github.com/IntegralEnvision/seat-qgis-plugin/actions/workflows/release.yaml)
 
@@ -68,7 +68,7 @@ Below is a brief description of the repository contents.
     - [plugin_upload.py](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/plugin_upload.py): Utility - upload a plugin package to the [QGIS plugin repository](https://plugins.qgis.org/plugins/).
     - [pb_tool.cfg](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/pb_tool.cfg): Configuration file for the plugin builder tool.
     - [metadata.txt](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/metadata.txt): Plugin metadata.
-    - [icon.png](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/icon.png): Plugin icon.
+    - [icon.webp](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/icon.webp): Plugin icon.
     - [compile.bat](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/compile.bat): Compile plugin resources (Windows).
     - [shear_stress_module.py](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/shear_stress_module.py): Calculates and generates the shear stress stressor maps and statistics files.
     - [velocity_module.py](https://github.com/IntegralEnvision/seat-qgis-plugin/blob/main/code/velocity_module.py): Calculates and generates the velocity stressor maps and statistics files.

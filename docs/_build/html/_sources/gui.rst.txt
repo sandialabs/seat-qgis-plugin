@@ -6,13 +6,13 @@ Graphical User Interface
 - The QGIS Graphic User Interface (GUI) allows the user to select the module/analysis to perform, the inputs, and the customized style files to display (see Appendix A).
 - Upon installation of the SEAT package, an icon will appear in the plugin toolbar.
 
-.. figure:: media/SEAT_Toolbar.png
+.. figure:: media/SEAT_Toolbar.webp
    :scale: 125 %
    :alt: SEAT icon in QGIS toolbar
 
 - Click on the icon to bring up the SEAT GUI Interface
 
-.. figure:: media/SEAT_GUI.png
+.. figure:: media/SEAT_GUI.webp
    :scale: 90 %
    :alt: SEAT GUI
 
@@ -22,7 +22,7 @@ Stressor
 - To choose the analysis/data type in the "Select Stressor" Dropdown box.
 - Currently 3 options exist
 
-.. figure:: media/select_stressor.png
+.. figure:: media/select_stressor.webp
    :scale: 100 %
    :alt: Selecting the stressor
 
@@ -36,13 +36,13 @@ Coordinate Reference System
 
 - The correct display and analysis of the data requires knowledge of the data’s coordinate reference system, sometimes not present in the data structure.
 
-.. figure:: media/coordinate_ref_sys_input.png
+.. figure:: media/coordinate_ref_sys_input.webp
    :scale: 100 %
    :alt: Click the three dots
 
 - Clicking the the three dots "..." will bring up the CRS selection window
 
-.. figure:: media/coordinate_ref_sys_select.png
+.. figure:: media/coordinate_ref_sys_select.webp
    :scale: 100 %
    :alt: Coordinate Reference System selector
 
@@ -51,7 +51,7 @@ Model Results Directory
 
 - There are two model result directories needed for the analysis, the baseline results directory and the model results director.
 
-.. figure:: media/model_results_directory_input.png
+.. figure:: media/model_results_directory_input.webp
    :scale: 100 %
    :alt: Model Results Directory
 
@@ -67,7 +67,7 @@ Model Results Directory
 Probabilities
 -------------
 
-.. figure:: media/probabilities_input.png
+.. figure:: media/probabilities_input.webp
    :scale: 100 %
    :alt: Probablities Input
 
@@ -78,7 +78,7 @@ Probabilities
 
   - Currently %of year is not rescaled to 100 if Exclude is included. 
 
-.. figure:: media/probabilities.png
+.. figure:: media/probabilities.webp
    :scale: 100 %
    :alt: Probablities Input Example
 
@@ -99,7 +99,7 @@ ParAcousti
 Power Files Directory
 ---------------------
 
-.. figure:: media/power_files_input.png
+.. figure:: media/power_files_input.webp
    :scale: 100 %
    :alt: Power Files Directory
 
@@ -111,7 +111,7 @@ Receptor File
 Shear Stress
 ^^^^^^^^^^^^
 
-.. figure:: media/receptor_file_input.png
+.. figure:: media/receptor_file_input.webp
    :scale: 100 %
    :alt: Receptor File
 
@@ -122,7 +122,7 @@ Shear Stress
     * Geotif will be interpolated to the same grid points as the model files (structured or unstructured), must have same projection/datum.
     * The csv file currently only takes a single grain size and is formatted as below with no column headers.
 
-.. figure:: media/grain_size.png
+.. figure:: media/grain_size.webp
    :scale: 150 %
    :alt: Grain size
 
@@ -134,7 +134,7 @@ Velocity
   - Geotif will be interpolated to the same grid points as the model files (structured or unstructured), must have same projection/datum.
   - The csv file currently only takes a critical velocity and is formatted as below with no column headers.
 
-.. figure:: media/critical_velocity.png
+.. figure:: media/critical_velocity.webp
    :scale: 150 %
    :alt: Critical velocity
 
@@ -154,14 +154,14 @@ ParAcousti
     * Bottom: use the bottom/bed bin for each vertical column
   - species file averaged area (km2): the cumulative area over which each cell represents species percent and density (used to scale to each paracousti grid cell). Leave blank or set to 0 to prevent scaling. 
 
-.. figure:: media/paracousti_receptor.png
+.. figure:: media/paracousti_receptor.webp
    :scale: 100 %
    :alt: ParAcousti Receptor
 
 Secondary Constraint
 --------------------
 
-.. figure:: media/secondary_constraint_input.png
+.. figure:: media/secondary_constraint_input.webp
    :scale: 100 %
    :alt: Secondary Constraint
 
@@ -171,7 +171,7 @@ Secondary Constraint
 Output Directory
 ----------------
 
-.. figure:: media/output_directory_input.png
+.. figure:: media/output_directory_input.webp
    :scale: 100 %
    :alt: Output Directory
 
@@ -180,7 +180,7 @@ Output Directory
 Output Style Files
 ------------------
 
-.. figure:: media/output_style_files_input.png
+.. figure:: media/output_style_files_input.webp
    :scale: 100 %
    :alt: Output Style Files
 
@@ -188,7 +188,7 @@ Output Style Files
 
   - Stressor and Velocity Style File csv, must include each row.
 
-.. figure:: media/output_style_file_eg.png
+.. figure:: media/output_style_file_eg.webp
    :scale: 100 %
    :alt: Stressor Style File
 
@@ -196,7 +196,7 @@ Output Style Files
 
   - ParAcousti
 
-.. figure:: media/output_style_files_paracousti.png
+.. figure:: media/output_style_files_paracousti.webp
    :scale: 100 %
    :alt: Stressor Style File   
 
@@ -208,6 +208,6 @@ Save & Load Input
   
   - *FILE PATH MUST BE UPDATED*
 
-  .. figure:: media/SEAT_input_complete_eg.png
+  .. figure:: media/SEAT_input_complete_eg.webp
      :scale: 100 %
      :alt: Save & Load Input

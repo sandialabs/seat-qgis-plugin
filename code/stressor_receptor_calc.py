@@ -180,7 +180,7 @@ class StressorReceptorCalc:
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
-            path (e.g. ':/plugins/foo/bar.png') or a normal file system path.
+            path (e.g. ':/plugins/foo/bar.webp') or a normal file system path.
         :type icon_path: str
 
         :param text: Text that should be shown in menu items for this action.
@@ -244,7 +244,7 @@ class StressorReceptorCalc:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ":/plugins/seat_qgis_plugin/icon.png"
+        icon_path = ":/plugins/seat_qgis_plugin/icon.webp"
         self.add_action(
             icon_path,
             setText=self.tr(

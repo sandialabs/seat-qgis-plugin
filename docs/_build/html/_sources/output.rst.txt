@@ -55,11 +55,11 @@ When a directory is specified for the device power the following are generated.
 
 - PNG:
 
-  * Scaled_Power_per_device_per_scenario.png : subplots of bar graph of power generated for each run per device.
-  * Scaled_Power_per_device_per_obstacle.png : subplots of bar graph of power generated for each run per obstacle.
-  * Total_Scaled_Power_Bars_per_Run.png : Bar graph of total power generated for each run scenario (probabilities file).
-  * Total_Scaled_Power_Bars_per_obstacle.png : Bar graph of total power generated for each obstacle.
-  * Total_Scaled_Power_per_Device.png : Bar graph of total power generated for each device
-  * Obstacle_Locations.png : Spatial plot of XY coordinates for each obstacle endpoint.
-  * Device Number Locations.png : Spatial plot of XY coordinates for each device.
-  * Device_Power.png : Spatial heat map of total power generated (mega watts) for each device.
+  * Scaled_Power_per_device_per_scenario.webp : subplots of bar graph of power generated for each run per device.
+  * Scaled_Power_per_device_per_obstacle.webp : subplots of bar graph of power generated for each run per obstacle.
+  * Total_Scaled_Power_Bars_per_Run.webp : Bar graph of total power generated for each run scenario (probabilities file).
+  * Total_Scaled_Power_Bars_per_obstacle.webp : Bar graph of total power generated for each obstacle.
+  * Total_Scaled_Power_per_Device.webp : Bar graph of total power generated for each device
+  * Obstacle_Locations.webp : Spatial plot of XY coordinates for each obstacle endpoint.
+  * Device Number Locations.webp : Spatial plot of XY coordinates for each device.
+  * Device_Power.webp : Spatial heat map of total power generated (mega watts) for each device.
