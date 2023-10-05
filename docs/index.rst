@@ -15,7 +15,7 @@
    data_sources.rst
    gui.rst
    output.rst
-   tutorial.rst
+   tutorials.rst
 
 .. raw:: html
 

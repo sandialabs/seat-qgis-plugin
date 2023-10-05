@@ -24,13 +24,7 @@ Windows
 1. Open the OSGeo4W Shell as Administrator (Searh for OSGeo4W Shell)
 2. Run the following command to install netCDF4:
 
-<<<<<<< HEAD
    .. code-block:: python
-=======
-.. figure:: media/installPlugin.webp
-   :scale: 50 %
-   :alt: Install from ZIP
->>>>>>> 60dca393288571e03ebaf4ff0996ff3e3e2c07f4
 
       py3_env
       python -m pip install netCDF4
@@ -83,7 +77,7 @@ https://github.com/sandialabs/seat-qgis-plugin/releases/
 1. In QGIS, click on the plugins toolbar and select “Manage and Install Plugins...”
 2. Select the Install from ZIP option.
 
-   .. figure:: media/installPlugin.png
+   .. figure:: media/installPlugin.webp
       :scale: 50 %
       :alt: Install from ZIP
 

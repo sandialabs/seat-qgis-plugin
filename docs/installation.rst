@@ -77,7 +77,7 @@ https://github.com/sandialabs/seat-qgis-plugin/releases/
 1. In QGIS, click on the plugins toolbar and select “Manage and Install Plugins...”
 2. Select the Install from ZIP option.
 
-   .. figure:: media/installPlugin.png
+   .. figure:: media/installPlugin.webp
       :scale: 50 %
       :alt: Install from ZIP
 
