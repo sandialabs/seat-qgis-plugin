@@ -103,3 +103,31 @@ https://github.com/sandialabs/seat-qgis-plugin
 
 
 License
+=======
+
+SEAT is distributed under the Revised BSD License. See the LICENSE file in the SEAT repository for the complete license text.
+https://github.com/sandialabs/seat-qgis-plugin/blob/main/LICENSE
+
+
+Acknowledgments
+===============
+SEAT is developed by Sandia National Laboratories and Integral Consulting. The following individuals have contributed to the development of SEAT:
+
+- **Sandia National Laboratories**
+
+  - Sterling Olson
+  - Chris Chartrand
+  - Jesse Roberts
+
+- **Integral**
+  
+  - Tim Nelson
+  - Sam McWilliams
+  - Craig Jones
+
+Funding
+=======
+
+The development of SEAT is funded by the U.S. Department of Energy's Water Power Technologies Office. The copyright of SEAT is held by Sandia National Laboratories. The software is distributed under the Revised BSD License.
+
+Sandia National Laboratories is a multi-mission laboratory managed and operated by National Technology and Engineering Solutions of Sandia, LLC., a wholly-owned subsidiary of Honeywell International, Inc., for the U.S. Department of Energy's National Nuclear Security Administration under contract DE-NA0003525.

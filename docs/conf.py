@@ -10,15 +10,17 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+this_dir = os.path.dirname(os.path.abspath(__file__))
+seat_src_dir = os.path.abspath('../seat/')
+sys.path.insert(0, seat_src_dir)
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'SEAT'
-copyright = '2023, Tim Nelson, Caleb Grant, Eben Pendleton, Sterling Olson'
+copyright = '2023 Sandia National Laboratories'
 author = 'Tim Nelson, Caleb Grant, Eben Pendleton, Sterling Olson'
 
 # The full version, including alpha/beta/rc tags
@@ -32,6 +34,7 @@ release = '[1.0.0-beta1]'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'sphinx_autodoc_typehints',
     'sphinx_rtd_theme',
