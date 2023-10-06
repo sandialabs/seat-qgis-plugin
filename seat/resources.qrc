@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/seat_qgis_plugin" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>
