@@ -40,10 +40,6 @@ It helps in understanding how different devices or conditions affect velocity by
 
 
 
-.. automodule:: seat.velocity_module
-   :members:
-
-
 
 ### 3. **Input Data:**
    - NetCDF files containing velocity data for scenarios with and without devices present.
