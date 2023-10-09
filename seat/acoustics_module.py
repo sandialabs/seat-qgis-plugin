@@ -1,7 +1,7 @@
 """
 /***************************************************************************.
 
- velocity_module.py
+ acoustics_module.py
  Copyright 2023, Integral Consulting Inc. All rights reserved.
  
  PURPOSE: module for calcualting acoustic signal change from paracousti files
