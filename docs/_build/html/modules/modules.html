@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modules &mdash; SEAT [1.0.0-beta1] documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/dark_mode_css/general.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/dark_mode_css/dark.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=9eba97ea"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
+        <script src="../_static/dark_mode_js/default_dark.js?v=fd565c74"></script>
+        <script src="../_static/dark_mode_js/theme_switcher.js?v=358d3910"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Tutorials" href="../tutorials/tutorials.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SEAT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gui.html">Graphical User Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#shear-stress-module">Shear Stress Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#data">Data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#input">Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#output">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sources">Sources</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#core-functions">Core Functions:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#velocity-module">Velocity Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id3">Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id5">Sources</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Core Functions:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#acoustics-module">Acoustics Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id9">Data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id10">Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id11">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id12">Sources</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id15">Core Functions:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#power-module">Power Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id16">Data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id17">Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id18">Output</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id19">Core Functions:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SEAT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Modules</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/modules/modules.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="modules">
+<span id="id1"></span><h1>Modules<a class="headerlink" href="#modules" title="Link to this heading"></a></h1>
+<p>The behavior of the plugin depends on the input and is subdivided into 4 modules:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Module</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Shear Stress Module</strong></p></td>
+<td><p>Analysis of spatial change in bed mobility</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Velocity Module</strong></p></td>
+<td><p>Analysis of spatial change in larval motility</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Acoustics Module</strong></p></td>
+<td><p>Analysis of acoustic propagation and thresholds</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Power Module</strong></p></td>
+<td><p>Analysis of power generated by WEC/CEC array</p></td>
+</tr>
+</tbody>
+</table>
+<section id="shear-stress-module">
+<h2>Shear Stress Module<a class="headerlink" href="#shear-stress-module" title="Link to this heading"></a></h2>
+<p>The <cite>shear_stress_module.py</cite> a component of SEAT. It’s aimed at assessing the impact of shear stressors on sediment mobility in aquatic environments. This module provides insights into how various devices or conditions can affect shear stress by allowing comparison between scenarios with and without these elements present.</p>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading"></a></h3>
+<section id="input">
+<h4>Input<a class="headerlink" href="#input" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>NetCDF files: Contain shear stress data for scenarios with and without devices present.</p></li>
+<li><p>Optional:
+- Receptor file: Contains critical shear stress values.
+- Probability/Boundary Condition file: Used to weight different run scenarios.</p></li>
+</ul>
+</section>
+<section id="output">
+<h4>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>GeoTIFF raster files: Visualize shear stress with and without devices, shear stress changes, and mobility classifications.</p>
+<ul>
+<li><p>Output layers are interpolated onto structured grids.</p></li>
+<li><p><strong>calculated_stressor.tif</strong> : The probability weight difference between with devices and baseline models results.</p></li>
+<li><p><strong>calculated_stressor_with_receptor.tif</strong></p>
+<ul>
+<li><p>Shear Stress: the mobility (Tau/TauCrit) difference using the grain size in the receptor file.</p></li>
+</ul>
+</li>
+<li><p><strong>receptor.tif</strong> : the receptor file interpolated to the same grid as the output</p></li>
+<li><p><strong>calculated_stressor_reclassified.tif</strong> :</p>
+<ul>
+<li><p>Shear Stress: reclassified into increase erosion or deposition compared to the no device model run.</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>CSV files: Contain statistics of area changes and mobility classifications.</p>
+<ul>
+<li><p>The stressor values are binned into 25 bins and the surface area in which that change occurred, the percent of the overall model domain, and number of cells within the stressor is saved to a csv file.
++ Lat/Lon converted to UTM (meter) coordinates for calculation.
++ UTM remains in the original unit of measure</p></li>
+</ul>
+</li>
+<li><p>When a receptor is included, the stressor and stressor with receptor values are further segmented by unique receptor values.</p>
+<ul>
+<li><p>For acoustics, the threshold exceeded, the species percent, and species density are generated.</p></li>
+</ul>
+</li>
+<li><p>For Shear Stress and Velocity, the area of each unique reclassified value is defined and for each unique receptor value when included.</p></li>
+</ul>
+</section>
+<section id="sources">
+<h4>Sources<a class="headerlink" href="#sources" title="Link to this heading"></a></h4>
+<section id="default">
+<h5>Default<a class="headerlink" href="#default" title="Link to this heading"></a></h5>
+<p>SEAT is designed to read Delft3D, DelftFM *.map data files with structured and unstructured grids for shear stress and velocity.</p>
+<ul class="simple">
+<li><p>Shear Stress variables:</p>
+<ul>
+<li><p>Structured : TAUMAX</p></li>
+<li><p>Unstructured : taus</p></li>
+</ul>
+</li>
+<li><p>Velocity variables:</p>
+<ul>
+<li><p>Structured : U1, V1</p></li>
+<li><p>Unstructured : ucxa, ucya</p></li>
+</ul>
+</li>
+</ul>
+<p>Coordinates are determined from the variable attributes</p>
+</section>
+<section id="alternative">
+<h5>Alternative<a class="headerlink" href="#alternative" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p>Structured</p>
+<ul>
+<li><p>Variable name TAUMAX</p></li>
+<li><p>concatenated model runs [run number, depth, xcor, ycor]</p></li>
+<li><p>Individual model runs [depth, xcor, ycor]</p></li>
+</ul>
+</li>
+<li><p>Unstructured</p>
+<ul>
+<li><p>Variable name taus</p></li>
+<li><p>concatenated model runs [run number, depth, xcor, ycor]</p></li>
+<li><p>Individual model runs [depth, xcor, ycor]</p></li>
+</ul>
+</li>
+<li><p>Coordinate variable names must be in the variable attributes such that:</p>
+<ul>
+<li><p>xcor, ycor = netcdf_dataset.variables[variable].coordinates.split()</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+</section>
+<section id="core-functions">
+<h3>Core Functions:<a class="headerlink" href="#core-functions" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Function</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">critical_shear_stress()</span></code></p></td>
+<td><p>Calculates critical shear stress from grain size.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">classify_mobility()</span></code></p></td>
+<td><p>Classifies sediment mobility from device runs to no device runs.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">check_grid_define_vars()</span></code></p></td>
+<td><p>Determines the type of grid and corresponding shear stress
+variable name and coordinate names.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">calculate_shear_stress_stressors()</span></code></p></td>
+<td><p>Calculates the stressor layers as arrays from model and parameter
+input.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">run_shear_stress_stressor()</span></code></p></td>
+<td><p>Creates GeoTIFFs and area change statistics files for shear
+stress change.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="velocity-module">
+<h2>Velocity Module<a class="headerlink" href="#velocity-module" title="Link to this heading"></a></h2>
+<p>The <cite>velocity_module.py</cite> is a component of SEAT aimed at assessing the impact of velocity stressors on larval motility in aquatic environments. This module provides insights into how various devices or conditions can affect velocity by allowing comparison between scenarios with and without these elements present.</p>
+<section id="id2">
+<h3>Data<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<section id="id3">
+<h4>Input<a class="headerlink" href="#id3" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>NetCDF files: Contain velocity data for scenarios with and without devices present.</p></li>
+<li><p>Optional:</p>
+<ul>
+<li><p>Receptor file: Contains critical velocity values.</p></li>
+<li><p>Probability/Boundary Condition file: Used to weight different run scenarios.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id4">
+<h4>Output<a class="headerlink" href="#id4" title="Link to this heading"></a></h4>
+<ul>
+<li><p>GeoTIFF raster files: Visualize velocity with and without devices, velocity changes, and motility classifications.</p>
+<blockquote>
+<div><ul>
+<li><p>Output layers are interpolated onto structured grids.</p></li>
+<li><p><strong>calculated_stressor.tif</strong> : The probability weight difference between with devices and baseline models results.</p></li>
+<li><p><strong>calculated_stressor_with_receptor.tif</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Velocity: the motility (Vel/VelCrit) difference using the critical velocity in the receptor file.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><strong>receptor.tif</strong> : the receptor file interpolated to the same grid as the output</p></li>
+<li><p><strong>calculated_stressor_reclassified.tif</strong> :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Velocity : reclassified into increase motility or no change compared to the no device model run.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>CSV files: Contain statistics of area changes and motility classifications.</p>
+<ul class="simple">
+<li><p>The stressor values are binned into 25 bins and the surface area in which that change occurred, the percent of the overall model domain, and number of cells within the stressor is saved to a csv file.
++ Lat/Lon converted to UTM (meter) coordinates for calculation.
++ UTM remains in the original unit of measure</p></li>
+</ul>
+</li>
+<li><p>When a receptor is included, the stressor and stressor with receptor values are further segmented by unique receptor values.</p></li>
+<li><p>For Velocity, the area of each unique reclassified value is defined and for each unique receptor value when included.</p></li>
+</ul>
+</section>
+<section id="id5">
+<h4>Sources<a class="headerlink" href="#id5" title="Link to this heading"></a></h4>
+<section id="id6">
+<h5>Default<a class="headerlink" href="#id6" title="Link to this heading"></a></h5>
+<p>The acoustics module is designed for paracousti data sources (<a class="reference external" href="https://sandialabs.github.io/Paracousti/">https://sandialabs.github.io/Paracousti/</a>).</p>
+<p>Acoustics variables:</p>
+<ul class="simple">
+<li><p>The variable is specified in the receptor file to allow for various weighting, sound pressure level, or sound exposure level thresholds.</p></li>
+</ul>
+<p>Coordinates are determined from the variable attributes</p>
+</section>
+<section id="id7">
+<h5>Alternative<a class="headerlink" href="#id7" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p>Structured</p>
+<ul>
+<li><p>Variable names : U1, V1</p></li>
+<li><p>concatenated model runs [run number, time, depth, xcor, ycor]</p></li>
+<li><p>Individual model runs [time, depth, xcor, ycor]</p></li>
+</ul>
+</li>
+<li><p>Unstructured</p>
+<ul>
+<li><p>Variable names : ucxa, ucya</p></li>
+<li><p>concatenated model runs [run number, time, depth, xcor, ycor]</p></li>
+<li><p>Individual model runs [time, depth, xcor, ycor]</p></li>
+</ul>
+</li>
+<li><p>Coordinate variable names must be in the variable attributes such that:</p>
+<ul>
+<li><p>xcor, ycor = netcdf_dataset.variables[variable].coordinates.split()</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+</section>
+<section id="id8">
+<h3>Core Functions:<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Function</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">classify_motility()</span></code></p></td>
+<td><p>This function classifies larval motility into various categories such
+as Reduced, Increased, or New Motility based on the comparison of
+device runs and baseline (no device) runs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">check_grid_define_vars()</span></code></p></td>
+<td><p>Determines the type of grid (structured/unstructured) and defines
+corresponding velocity and coordinate variable names.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">calculate_velocity_stressors()</span></code></p></td>
+<td><p>Main function that loads data, performs calculations, and computes
+various metrics including velocity differences and motility
+classifications.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">run_velocity_stressor()</span></code></p></td>
+<td><p>Creates GeoTIFFs and CSV files to visualize and quantify velocity
+changes and motility classifications.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="acoustics-module">
+<h2>Acoustics Module<a class="headerlink" href="#acoustics-module" title="Link to this heading"></a></h2>
+<p>The <cite>acoustics_module.py</cite> is a component of the SEAT aimed at assessing the impact of acoustic signal changes from paracoustic files. This module facilitates the understanding and visualization of how different acoustic variables alter in aquatic environments, especially when devices are present.</p>
+<section id="id9">
+<h3>Data<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<section id="id10">
+<h4>Input<a class="headerlink" href="#id10" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>NetCDF files: Contain acoustic data for scenarios with and without devices present.</p></li>
+<li><p>Optional:
+- Receptor file: Contains threshold values for acoustic variables.
+- Probability/Boundary Condition file: Used to weight different run scenarios.
+- Species files: Contains density or percent data of species.</p></li>
+</ul>
+</section>
+<section id="id11">
+<h4>Output<a class="headerlink" href="#id11" title="Link to this heading"></a></h4>
+<ul>
+<li><p>GeoTIFF raster files: Visualize calculated paracoustic, calculated stressor, threshold exceeded receptor, species percent and species density.</p>
+<blockquote>
+<div><ul>
+<li><p>Output layers are interpolated onto structured grids.</p></li>
+<li><p><strong>calculated_stressor.tif</strong> : The probability weight difference between with devices and baseline models results.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>for acoustics assumes baseline=0 if no baseline model files provided.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><strong>receptor.tif</strong> : the receptor file interpolated to the same grid as the output</p></li>
+</ul>
+<ul class="simple">
+<li><p><strong>calculate_paracousti.tif</strong> : the calculated with device probability weighted paracousti file.</p></li>
+<li><p><strong>Threshold_exceeded_receptor.tif</strong> : the percent of time the acoustic threshold was exceeded.</p></li>
+<li><p><strong>species_percent.tif</strong> : the threshold exceeded and weighted species percent.</p></li>
+<li><p><strong>species_density.tif</strong> : the threshold exceeded and weighted species density.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>CSV files: Contain statistics of area calculations for various layers.</p>
+<ul class="simple">
+<li><p>The stressor values are binned into 25 bins and the surface area in which that change occurred, the percent of the overall model domain, and number of cells within the stressor is saved to a csv file.
++ Lat/Lon converted to UTM (meter) coordinates for calculation.
++ UTM remains in the original unit of measure</p></li>
+</ul>
+</li>
+<li><p>When a receptor is included, the stressor and stressor with receptor values are further segmented by unique receptor values.</p>
+<ul class="simple">
+<li><p>For acoustics, the threshold exceeded, the species percent, and species density are generated.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id12">
+<h4>Sources<a class="headerlink" href="#id12" title="Link to this heading"></a></h4>
+<section id="id13">
+<h5>Default<a class="headerlink" href="#id13" title="Link to this heading"></a></h5>
+<p>The acoustics module is designed for paracousti data sources (<a class="reference external" href="https://sandialabs.github.io/Paracousti/">https://sandialabs.github.io/Paracousti/</a>).</p>
+<p>Acoustics variables:</p>
+<ul class="simple">
+<li><p>The variable is specified in the receptor file to allow for various weighting, sound pressure level, or sound exposure level thresholds.</p></li>
+</ul>
+<p>Coordinates are determined from the variable attributes</p>
+</section>
+<section id="id14">
+<h5>Alternative<a class="headerlink" href="#id14" title="Link to this heading"></a></h5>
+<p>The Acoustics module can utilize alternate datasets with the following requirements:</p>
+<ul class="simple">
+<li><p>Variable name must be specified in the receptor file.</p></li>
+<li><p>Variable attributes must include the coordinates variable names, such that:</p>
+<ul>
+<li><p>xcor, ycor = netcdf_dataset.variables[variable].coordinates.split()</p></li>
+</ul>
+</li>
+<li><p>The coordinates units attribute must include “degrees” if the coordinates are lat/lon such that:</p>
+<ul>
+<li><p>‘degrees’ in ds.variables[&lt;xcor variable&gt;].units is True for lat/lon</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+</section>
+<section id="id15">
+<h3>Core Functions:<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Function</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">create_species_array()</span></code></p></td>
+<td><p>Interpolates or creates an array of percent or density of species
+from input files and coordinates.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">calculate_acoustic_stressors()</span></code></p></td>
+<td><p>Calculates the stressor layers as arrays from model and parameter
+input.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">run_acoustics_stressor()</span></code></p></td>
+<td><p>Creates GeoTIFFs and area change statistics files for acoustic
+stressor change.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">redefine_structured_grid()</span></code></p></td>
+<td><p>(From <cite>stressor_utils</cite>) Redefines grids to regular spacing, used
+in <cite>calculate_acoustic_stressors</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">resample_structured_grid()</span></code></p></td>
+<td><p>(From <cite>stressor_utils</cite>) Resamples grids, used in
+<cite>calculate_acoustic_stressors</cite>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="power-module">
+<h2>Power Module<a class="headerlink" href="#power-module" title="Link to this heading"></a></h2>
+<p>The <cite>power_module.py</cite> is a component of SEAT crafted to calculate the power output from a device array, providing a systematic means of evaluating and visualizing the spatial distribution, location, and power output from the devices in a specific marine environment.</p>
+<section id="id16">
+<h3>Data<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
+<section id="id17">
+<h4>Input<a class="headerlink" href="#id17" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>.OUT files: Contain power data for different scenarios.</p></li>
+<li><p>.pol file: Contains information on the obstacle polygon configurations.</p></li>
+<li><p>Optional:
+- Probability/Boundary Condition file: Used to weight different run scenarios.</p></li>
+</ul>
+</section>
+<section id="id18">
+<h4>Output<a class="headerlink" href="#id18" title="Link to this heading"></a></h4>
+<p>When a directory is specified for the device power the following are generated.</p>
+<ul class="simple">
+<li><p>CSV:</p>
+<ul>
+<li><p>BC_probability_wPower.csv : probabilities input file with appended power generated for each scenario</p></li>
+<li><p>Obstacle_Matching.csv : Obstacle pairs corresponding to a single device and centroid X,Y.</p></li>
+<li><p>Power_per_device_annual.csv : Total power generated (Watts) per device over the annual timespan (probabilities file).</p></li>
+<li><p>Power_per_device_per_scenario.csv : Table of total power generated (Watts) with device (row), and power file (column).</p></li>
+</ul>
+</li>
+<li><p>PNG:</p>
+<ul>
+<li><p>Scaled_Power_per_device_per_scenario.png : subplots of bar graph of power generated for each run per device.</p></li>
+<li><p>Scaled_Power_per_device_per_obstacle.png : subplots of bar graph of power generated for each run per obstacle.</p></li>
+<li><p>Total_Scaled_Power_Bars_per_Run.png : Bar graph of total power generated for each run scenario (probabilities file).</p></li>
+<li><p>Total_Scaled_Power_Bars_per_obstacle.png : Bar graph of total power generated for each obstacle.</p></li>
+<li><p>Total_Scaled_Power_per_Device.png : Bar graph of total power generated for each device</p></li>
+<li><p>Obstacle_Locations.png : Spatial plot of XY coordinates for each obstacle endpoint.</p></li>
+<li><p>Device Number Locations.png : Spatial plot of XY coordinates for each device.</p></li>
+<li><p>Device_Power.png : Spatial heat map of total power generated (mega watts) for each device.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="id19">
+<h3>Core Functions:<a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Function</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">read_obstacle_polygon_file()</span></code></p></td>
+<td><p>Reads the obstacle polygon file to obtain xy coordinates of each
+obstacle.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">find_mean_point_of_obstacle_polygon()</span></code></p></td>
+<td><p>Calculates the center of each obstacle based on xy coordinates.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">plot_test_obstacle_locations()</span></code></p></td>
+<td><p>Creates a plot showing the spatial distribution and location of
+each obstacle.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">centroid_diffs()</span></code></p></td>
+<td><p>Determines the closest centroid pair among obstacles.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">extract_device_location()</span></code></p></td>
+<td><p>Creates a dictionary summary of each device location.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pair_devices()</span></code></p></td>
+<td><p>Determines the two intersecting obstacles that create a device.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">create_power_heatmap()</span></code></p></td>
+<td><p>Creates a heatmap visualizing device location and power output.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">read_power_file()</span></code></p></td>
+<td><p>Reads power file and extracts final set of converged data.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sort_data_files_by_runorder()</span></code></p></td>
+<td><p>Sorts data files by run order based on boundary conditions data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sort_bc_data_by_runorder()</span></code></p></td>
+<td><p>Sorts boundary condition data by run order.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">reset_bc_data_order()</span></code></p></td>
+<td><p>Resets the order of boundary condition data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">calculate_power()</span></code></p></td>
+<td><p>Reads the power files, calculates the total annual power based
+on hydrodynamic probabilities, and saves data and visualizations.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../tutorials/tutorials.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023 Sandia National Laboratories.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

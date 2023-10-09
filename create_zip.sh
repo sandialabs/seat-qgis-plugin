@@ -14,9 +14,9 @@ TIMESLOT=`date +%Y_%m_%d.%H_%M`
 
 printf "[$TIMESLOT] START ...................... create_zip\n"
 
-printf "[$TIMESLOT] COPY ....................... ./code -> ./seat_qgis_plugin\n"
+printf "[$TIMESLOT] COPY ....................... ./seat -> ./seat_qgis_plugin\n"
 
-cp -r ./code ./seat_qgis_plugin
+cp -r ./seat ./seat_qgis_plugin
 
 RELEASE=`date +%Y%m%d`
 

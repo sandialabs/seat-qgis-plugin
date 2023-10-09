@@ -4,9 +4,12 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SEAT Documentation &mdash; SEAT [1.0.0-beta1] documentation</title>
+  <title>Spatial Environmental Assessment Toolkit (SEAT) &mdash; SEAT [1.0.0-beta1] documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="_static/dark_mode_css/general.css" type="text/css" />
+      <link rel="stylesheet" href="_static/dark_mode_css/dark.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -16,6 +19,10 @@
         <script src="_static/documentation_options.js?v=9eba97ea"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="_static/copybutton.js?v=f281be69"></script>
+        <script src="_static/dark_mode_js/default_dark.js?v=fd565c74"></script>
+        <script src="_static/dark_mode_js/theme_switcher.js?v=358d3910"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -44,9 +51,9 @@
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data_sources.html">Data Sources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gui.html">Graphical User Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="output.html">Output maps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/modules.html">Modules</a></li>
 </ul>
 
         </div>
@@ -63,7 +70,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">SEAT Documentation</li>
+      <li class="breadcrumb-item active">Spatial Environmental Assessment Toolkit (SEAT)</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -73,60 +80,100 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="seat-documentation">
-<h1>SEAT Documentation<a class="headerlink" href="#seat-documentation" title="Link to this heading"></a></h1>
-<p>Sandia Spatial Environmental Assessment Toolkit (SEAT)</p>
+  <figure class="align-left" id="index">
+<a class="reference internal image-reference" href="_images/SEAT_white.png"><img alt="SEAT Logo" src="_images/SEAT_white.png" style="width: 95%;" /></a>
+</figure>
 <div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#netcdf4">NetCDF4</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#qgis">QGIS</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="data_sources.html">Data Sources</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="data_sources.html#default-data-sources">Default Data Sources</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="data_sources.html#shear-stress-and-velocity-modules">Shear Stress and Velocity Modules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="data_sources.html#acoustics-module">Acoustics Module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="data_sources.html#alternative-data-sources">Alternative Data Sources</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="data_sources.html#shear-stress">Shear Stress</a></li>
-<li class="toctree-l3"><a class="reference internal" href="data_sources.html#velocity">Velocity</a></li>
-<li class="toctree-l3"><a class="reference internal" href="data_sources.html#acoustics">Acoustics</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="gui.html">Graphical User Interface</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="gui.html#stressor">Stressor</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gui.html#coordinate-reference-system">Coordinate Reference System</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gui.html#model-results-directory">Model Results Directory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gui.html#probabilities">Probabilities</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="gui.html#paracousti">ParAcousti</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="gui.html#power-files-directory">Power Files Directory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gui.html#receptor-file">Receptor File</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="gui.html#shear-stress">Shear Stress</a></li>
-<li class="toctree-l3"><a class="reference internal" href="gui.html#velocity">Velocity</a></li>
-<li class="toctree-l3"><a class="reference internal" href="gui.html#id1">ParAcousti</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="gui.html#secondary-constraint">Secondary Constraint</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gui.html#output-directory">Output Directory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gui.html#output-style-files">Output Style Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gui.html#save-load-input">Save &amp; Load Input</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="output.html">Output maps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="output.html#output-files">Output Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="output.html#stressor-area-change">Stressor Area Change</a></li>
-<li class="toctree-l2"><a class="reference internal" href="output.html#power-module">Power Module</a></li>
-</ul>
-</li>
-</ul>
 </div>
+<div style="clear: both;"></div><section id="spatial-environmental-assessment-toolkit-seat">
+<h1>Spatial Environmental Assessment Toolkit (SEAT)<a class="headerlink" href="#spatial-environmental-assessment-toolkit-seat" title="Link to this heading"></a></h1>
+<p>The Spatial Environmental Assessment Toolkit (SEAT) is a specialized plugin for QGIS, designed to produce spatial assessment maps and generate statistical CSV files. It offers users the capability to craft risk quantification maps by merging numerical model outcomes with unique site-specific data. This empowers providers with a robust tool to refine array layouts and minimize adverse environmental impacts.</p>
+<section id="objective">
+<h2>Objective<a class="headerlink" href="#objective" title="Link to this heading"></a></h2>
+<p>SEAT’s primary goal is to offer a simplified method for pinpointing areas susceptible to alterations due to marine energy developments. To realize this objective, SEAT harnesses open-source models to simulate device parameters within the environment. The analysis of the results is carried out by incorporating site-specific data into a GIS platform. This platform not only renders spatial risk maps but also quantifies, classifies, and facilitates a direct comparison of potential array configurations.</p>
+</section>
+<section id="how-it-works">
+<h2>How It Works<a class="headerlink" href="#how-it-works" title="Link to this heading"></a></h2>
+<p>SEAT operates as an extension to the open-source spatial analysis tool, QGIS. It processes risk metrics derived from model results, site-specific receptor maps, and user-set thresholds.</p>
+</section>
+<section id="functionality">
+<h2>Functionality<a class="headerlink" href="#functionality" title="Link to this heading"></a></h2>
+<p>SEAT’s primary functionality is to enable users to create risk quantification maps. This is achieved by integrating numerical model results with site-specific information. Below, we delve into specific applications of SEAT using Wave Energy Converters (WEC) and Current Energy Converters (CEC) as examples.</p>
+<section id="current-energy-converters-cecs">
+<h3>1. Current Energy Converters (CECs)<a class="headerlink" href="#current-energy-converters-cecs" title="Link to this heading"></a></h3>
+<p><strong>Risk Computation</strong>: The risk of environmental change is determined by comparing conditions with marine energy (ME) devices to conditions without them.</p>
+<p><strong>Example Application</strong>: Consider the Tanana River Test Site at Nenana, AK. Here, SEAT visualizes the spatial distribution of shear stress derived from the Dflow-FM model. Using these distributions, the risk to the environment from CECs is computed. This risk assessment leverages the CEC power matrix and the spatial metrics of shear stress and velocity. The cumulative risk for each CEC is then aggregated to present a comprehensive spatial risk distribution.</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="_images/CEC_SEAT.png"><img alt="SEAT Application to the Tanana River Test Site at Nenana, AK" src="_images/CEC_SEAT.png" style="width: 100%;" /></a>
+<figcaption>
+<p><span class="caption-text">SEAT Application to the Tanana River Test Site at Nenana, AK</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="wave-energy-converters-wecs">
+<h3>2. Wave Energy Converters (WECs)<a class="headerlink" href="#wave-energy-converters-wecs" title="Link to this heading"></a></h3>
+<p><strong>Risk Computation:</strong> Changes in environmental conditions, termed as the “stressor layer,” are matched with site-specific receptors to compute risk. This change is then scaled by the probability of the forcing condition and aggregated across all considered conditions.</p>
+<p><strong>Example Application</strong>: Consider the PacWave testsite off the coast of Newport, OR. Here, SEAT visualizes the spatial distribution of wave energy flux derived from the SWAN model. Using these distributions, the risk to the environment from WECs is computed. This risk assessment leverages the WEC power matrix and the spatial metrics of wave energy flux, wave height, and wave period. The cumulative risk for each WEC is then aggregated to present a comprehensive spatial risk distribution.</p>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="_images/WEC_power_matrix.png"><img alt="WEC devices represented with Power Matrix relative to HS, TP." src="_images/WEC_power_matrix.png" style="width: 80%;" /></a>
+<figcaption>
+<p><span class="caption-text">WEC devices represented with Power Matrix relative to HS, TP.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="_images/WEC_spatial.png"><img alt="Spatial data such as sediment grainsize, species density, etc." src="_images/WEC_spatial.png" style="width: 80%;" /></a>
+<figcaption>
+<p><span class="caption-text">Spatial data such as sediment grainsize, species density, etc.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id4">
+<a class="reference internal image-reference" href="_images/WEC_risk.png"><img alt="Results represent influence of arrays energy capture across range of conditions and receptor response" src="_images/WEC_risk.png" style="width: 80%;" /></a>
+<figcaption>
+<p><span class="caption-text">Results represent influence of arrays energy capture across range of conditions and receptor response</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+</section>
+<section id="contribution">
+<h1>Contribution<a class="headerlink" href="#contribution" title="Link to this heading"></a></h1>
+<p>We welcome contributions to SEAT. Please visit our GitHub repository and open an issue or pull request.
+<a class="reference external" href="https://github.com/sandialabs/seat-qgis-plugin">https://github.com/sandialabs/seat-qgis-plugin</a></p>
+</section>
+<section id="contact-support">
+<h1>Contact &amp; Support<a class="headerlink" href="#contact-support" title="Link to this heading"></a></h1>
+<p>Please contact us by opening an issue on GitHub.
+<a class="reference external" href="https://github.com/sandialabs/seat-qgis-plugin">https://github.com/sandialabs/seat-qgis-plugin</a></p>
+</section>
+<section id="license">
+<h1>License<a class="headerlink" href="#license" title="Link to this heading"></a></h1>
+<p>SEAT is distributed under the Revised BSD License. See the LICENSE file in the SEAT repository for the complete license text.
+<a class="reference external" href="https://github.com/sandialabs/seat-qgis-plugin/blob/main/LICENSE">https://github.com/sandialabs/seat-qgis-plugin/blob/main/LICENSE</a></p>
+</section>
+<section id="acknowledgments">
+<h1>Acknowledgments<a class="headerlink" href="#acknowledgments" title="Link to this heading"></a></h1>
+<p>SEAT is developed by Sandia National Laboratories and Integral Consulting. The following individuals have contributed to the development of SEAT:</p>
+<ul class="simple">
+<li><p><strong>Sandia National Laboratories</strong></p>
+<ul>
+<li><p>Sterling Olson</p></li>
+<li><p>Chris Chartrand</p></li>
+<li><p>Jesse Roberts</p></li>
+</ul>
+</li>
+<li><p><strong>Integral</strong></p>
+<ul>
+<li><p>Tim Nelson</p></li>
+<li><p>Sam McWilliams</p></li>
+<li><p>Craig Jones</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="funding">
+<h1>Funding<a class="headerlink" href="#funding" title="Link to this heading"></a></h1>
+<p>The development of SEAT is funded by the U.S. Department of Energy’s Water Power Technologies Office. The copyright of SEAT is held by Sandia National Laboratories. The software is distributed under the Revised BSD License.</p>
+<p>Sandia National Laboratories is a multi-mission laboratory managed and operated by National Technology and Engineering Solutions of Sandia, LLC., a wholly-owned subsidiary of Honeywell International, Inc., for the U.S. Department of Energy’s National Nuclear Security Administration under contract DE-NA0003525.</p>
 </section>
 
 
@@ -139,7 +186,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Tim Nelson, Caleb Grant, Eben Pendleton, Sterling Olson.</p>
+    <p>&#169; Copyright 2023 Sandia National Laboratories.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

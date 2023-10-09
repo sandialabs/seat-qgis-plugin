@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Power Module &mdash; SEAT [1.0.0-beta1] documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/dark_mode_css/general.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/dark_mode_css/dark.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=9eba97ea"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
+        <script src="../_static/dark_mode_js/default_dark.js?v=fd565c74"></script>
+        <script src="../_static/dark_mode_js/theme_switcher.js?v=358d3910"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SEAT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gui.html">Graphical User Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SEAT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Power Module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/modules/power.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="power-module">
+<h1>Power Module<a class="headerlink" href="#power-module" title="Link to this heading"></a></h1>
+<p>The <cite>power_module.py</cite> is a component of SEAT crafted to calculate the power output from a device array, providing a systematic means of evaluating and visualizing the spatial distribution, location, and power output from the devices in a specific marine environment.</p>
+<section id="data">
+<h2>Data<a class="headerlink" href="#data" title="Link to this heading"></a></h2>
+<section id="input">
+<h3>Input<a class="headerlink" href="#input" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>.OUT files: Contain power data for different scenarios.</p></li>
+<li><p>.pol file: Contains information on the obstacle polygon configurations.</p></li>
+<li><p>Optional:
+- Probability/Boundary Condition file: Used to weight different run scenarios.</p></li>
+</ul>
+</section>
+<section id="output">
+<h3>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h3>
+<p>When a directory is specified for the device power the following are generated.</p>
+<ul class="simple">
+<li><p>CSV:</p>
+<ul>
+<li><p>BC_probability_wPower.csv : probabilities input file with appended power generated for each scenario</p></li>
+<li><p>Obstacle_Matching.csv : Obstacle pairs corresponding to a single device and centroid X,Y.</p></li>
+<li><p>Power_per_device_annual.csv : Total power generated (Watts) per device over the annual timespan (probabilities file).</p></li>
+<li><p>Power_per_device_per_scenario.csv : Table of total power generated (Watts) with device (row), and power file (column).</p></li>
+</ul>
+</li>
+<li><p>PNG:</p>
+<ul>
+<li><p>Scaled_Power_per_device_per_scenario.png : subplots of bar graph of power generated for each run per device.</p></li>
+<li><p>Scaled_Power_per_device_per_obstacle.png : subplots of bar graph of power generated for each run per obstacle.</p></li>
+<li><p>Total_Scaled_Power_Bars_per_Run.png : Bar graph of total power generated for each run scenario (probabilities file).</p></li>
+<li><p>Total_Scaled_Power_Bars_per_obstacle.png : Bar graph of total power generated for each obstacle.</p></li>
+<li><p>Total_Scaled_Power_per_Device.png : Bar graph of total power generated for each device</p></li>
+<li><p>Obstacle_Locations.png : Spatial plot of XY coordinates for each obstacle endpoint.</p></li>
+<li><p>Device Number Locations.png : Spatial plot of XY coordinates for each device.</p></li>
+<li><p>Device_Power.png : Spatial heat map of total power generated (mega watts) for each device.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="core-functions">
+<h2>Core Functions:<a class="headerlink" href="#core-functions" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Function</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">read_obstacle_polygon_file()</span></code></p></td>
+<td><p>Reads the obstacle polygon file to obtain xy coordinates of each
+obstacle.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">find_mean_point_of_obstacle_polygon()</span></code></p></td>
+<td><p>Calculates the center of each obstacle based on xy coordinates.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">plot_test_obstacle_locations()</span></code></p></td>
+<td><p>Creates a plot showing the spatial distribution and location of
+each obstacle.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">centroid_diffs()</span></code></p></td>
+<td><p>Determines the closest centroid pair among obstacles.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">extract_device_location()</span></code></p></td>
+<td><p>Creates a dictionary summary of each device location.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pair_devices()</span></code></p></td>
+<td><p>Determines the two intersecting obstacles that create a device.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">create_power_heatmap()</span></code></p></td>
+<td><p>Creates a heatmap visualizing device location and power output.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">read_power_file()</span></code></p></td>
+<td><p>Reads power file and extracts final set of converged data.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sort_data_files_by_runorder()</span></code></p></td>
+<td><p>Sorts data files by run order based on boundary conditions data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sort_bc_data_by_runorder()</span></code></p></td>
+<td><p>Sorts boundary condition data by run order.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">reset_bc_data_order()</span></code></p></td>
+<td><p>Resets the order of boundary condition data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">calculate_power()</span></code></p></td>
+<td><p>Reads the power files, calculates the total annual power based
+on hydrodynamic probabilities, and saves data and visualizations.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023 Sandia National Laboratories.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
