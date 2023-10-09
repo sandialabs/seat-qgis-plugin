@@ -379,7 +379,7 @@ def calculate_power(power_files, bc_file, save_path=None):
     ax.set_title('Total Power Annual')
     fig.tight_layout()
     fig.savefig(os.path.join(
-        save_path, 'Total_Scaled_Power_Bars_per_Run.webp'))
+        save_path, 'Total_Scaled_Power_Bars_per_Run.png'))
 
     foo = np.sqrt(np.shape(Power_Scaled)[1])
     fig, AX = plt.subplots(np.round(foo).astype(int), np.ceil(
@@ -405,7 +405,7 @@ def calculate_power(power_files, bc_file, save_path=None):
         ax.set_xlabel('Obstacle')
     fig.tight_layout()
     fig.savefig(os.path.join(
-        save_path, 'Scaled_Power_Bars_per_run_obstacle.webp'))
+        save_path, 'Scaled_Power_Bars_per_run_obstacle.png'))
 
     fig, ax = plt.subplots(figsize=(9, 6))
     ax.bar(np.arange(np.shape(Power_Scaled)[
@@ -415,7 +415,7 @@ def calculate_power(power_files, bc_file, save_path=None):
     ax.set_title('Total Obstacle Power for all Runs')
     fig.tight_layout()
     fig.savefig(os.path.join(
-        save_path, 'Total_Scaled_Power_Bars_per_obstacle.webp'))
+        save_path, 'Total_Scaled_Power_Bars_per_obstacle.png'))
 
     power_device_configuration_file = [s for s in os.listdir(power_files) if (
         s.endswith('.pol') | s.endswith('.Pol') | s.endswith('.POL'))]
@@ -428,7 +428,7 @@ def calculate_power(power_files, bc_file, save_path=None):
         Obstacles = read_obstacle_polygon_file(os.path.join(
             power_files, power_device_configuration_file[0]))
         fig = plot_test_obstacle_locations(Obstacles)
-        fig.savefig(os.path.join(save_path, 'Obstacle_Locations.webp'))
+        fig.savefig(os.path.join(save_path, 'Obstacle_Locations.png'))
 
         Centroids = find_mean_point_of_obstacle_polygon(Obstacles)
         Centroids_DF = pd.DataFrame(
@@ -451,7 +451,7 @@ def calculate_power(power_files, bc_file, save_path=None):
                     DeviceindexDF.loc[device, 'Y'], '.', alpha=0)
             ax.text(DeviceindexDF.loc[device, 'X'],
                     DeviceindexDF.loc[device, 'Y'], device, fontsize=8)
-        fig.savefig(os.path.join(save_path, 'Device Number Location.webp'))
+        fig.savefig(os.path.join(save_path, 'Device Number Location.png'))
 
         device_power = np.empty((0, np.shape(Power)[1]), dtype=float)
         for ic0, ic1 in Device_index:
@@ -494,7 +494,7 @@ def calculate_power(power_files, bc_file, save_path=None):
         AX = AX.flatten()
         fig.tight_layout()
         fig.savefig(os.path.join(
-            save_path, 'Scaled_Power_per_device_per_scenario.webp'))
+            save_path, 'Scaled_Power_per_device_per_scenario.png'))
 
         # power per scenario per device
 
@@ -512,11 +512,11 @@ def calculate_power(power_files, bc_file, save_path=None):
         ax. set_ylabel('Power [$log_{10}(Watts)$]')
         ax.set_xlabel('Device')
         fig.savefig(os.path.join(
-            save_path, 'Total_Scaled_Power_per_Device_.webp'))
+            save_path, 'Total_Scaled_Power_per_Device_.png'))
 
         DEVICE_POWER = extract_device_location(Obstacles, Device_index)
         DEVICE_POWER['Power [W]'] = Devices_total['Power [W]'].values
         fig = create_power_heatmap(DEVICE_POWER)
-        fig.savefig(os.path.join(save_path, 'Device_Power.webp'), dpi=150)
+        fig.savefig(os.path.join(save_path, 'Device_Power.png'), dpi=150)
         # plt.close(fig)
     return None
