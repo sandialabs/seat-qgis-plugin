@@ -18,7 +18,29 @@ Input
 Output 
 """"""
 - GeoTIFF raster files: Visualize calculated paracoustic, calculated stressor, threshold exceeded receptor, species percent and species density.
+    
+    - Output layers are interpolated onto structured grids.
+    - **calculated_stressor.tif** : The probability weight difference between with devices and baseline models results. 
+
+        * for acoustics assumes baseline=0 if no baseline model files provided.
+
+    - **receptor.tif** : the receptor file interpolated to the same grid as the output
+
+    * **calculate_paracousti.tif** : the calculated with device probability weighted paracousti file.
+    * **Threshold_exceeded_receptor.tif** : the percent of time the acoustic threshold was exceeded.
+    * **species_percent.tif** : the threshold exceeded and weighted species percent.
+    * **species_density.tif** : the threshold exceeded and weighted species density.
+
 - CSV files: Contain statistics of area calculations for various layers.
+
+  * The stressor values are binned into 25 bins and the surface area in which that change occurred, the percent of the overall model domain, and number of cells within the stressor is saved to a csv file.   
+    + Lat/Lon converted to UTM (meter) coordinates for calculation.
+    + UTM remains in the original unit of measure
+
+- When a receptor is included, the stressor and stressor with receptor values are further segmented by unique receptor values.
+  
+  * For acoustics, the threshold exceeded, the species percent, and species density are generated.
+
 
 Sources
 """""""

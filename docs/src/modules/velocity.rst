@@ -18,7 +18,29 @@ Input
 Output 
 """"""
 - GeoTIFF raster files: Visualize velocity with and without devices, velocity changes, and motility classifications.
+
+    - Output layers are interpolated onto structured grids.
+    - **calculated_stressor.tif** : The probability weight difference between with devices and baseline models results. 
+
+
+    - **calculated_stressor_with_receptor.tif**
+    
+        * Velocity: the motility (Vel/VelCrit) difference using the critical velocity in the receptor file.
+
+    - **receptor.tif** : the receptor file interpolated to the same grid as the output
+    - **calculated_stressor_reclassified.tif** : 
+    
+        * Velocity : reclassified into increase motility or no change compared to the no device model run.
+
 - CSV files: Contain statistics of area changes and motility classifications.
+
+  * The stressor values are binned into 25 bins and the surface area in which that change occurred, the percent of the overall model domain, and number of cells within the stressor is saved to a csv file.   
+    + Lat/Lon converted to UTM (meter) coordinates for calculation.
+    + UTM remains in the original unit of measure
+
+- When a receptor is included, the stressor and stressor with receptor values are further segmented by unique receptor values.
+
+- For Velocity, the area of each unique reclassified value is defined and for each unique receptor value when included. 
 
 Sources
 """""""

@@ -5,28 +5,29 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tutorials &mdash; SEAT [1.0.0-beta1] documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="_static/dark_mode_css/general.css" type="text/css" />
-      <link rel="stylesheet" href="_static/dark_mode_css/dark.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/dark_mode_css/general.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/dark_mode_css/dark.css" type="text/css" />
   <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
+    <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=9eba97ea"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="_static/clipboard.min.js?v=a7894cd8"></script>
-        <script src="_static/copybutton.js?v=f281be69"></script>
-        <script src="_static/dark_mode_js/default_dark.js?v=fd565c74"></script>
-        <script src="_static/dark_mode_js/theme_switcher.js?v=358d3910"></script>
-    <script src="_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Output maps" href="output.html" /> 
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=9eba97ea"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
+        <script src="../_static/dark_mode_js/default_dark.js?v=fd565c74"></script>
+        <script src="../_static/dark_mode_js/theme_switcher.js?v=358d3910"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Modules" href="../modules/modules.html" />
+    <link rel="prev" title="Graphical User Interface" href="../gui.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -37,11 +38,11 @@
 
           
           
-          <a href="index.html" class="icon icon-home">
+          <a href="../index.html" class="icon icon-home">
             SEAT
           </a>
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -49,23 +50,24 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gui.html">Graphical User Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="output.html">Output maps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gui.html">Graphical User Interface</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorials</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#tutorial-files-access">Tutorial Files Access</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#tanana-river">Tanana River</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#sedimentation-analysis">Sedimentation Analysis</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#larval-transport-analysis">Larval Transport Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tanana-river">Tanana River</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sedimentation-analysis">Sedimentation Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#larval-transport-analysis">Larval Transport Analysis</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#pmec-site">PMEC Site</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#sedimentation-analysis-and-power-generation">Sedimentation Analysis and Power Generation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#acoustic-effects">Acoustic Effects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pmec-site">PMEC Site</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sedimentation-analysis-and-power-generation">Sedimentation Analysis and Power Generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#acoustic-effects">Acoustic Effects</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/modules.html">Modules</a></li>
 </ul>
 
         </div>
@@ -74,17 +76,17 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">SEAT</a>
+          <a href="../index.html">SEAT</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Tutorials</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/tutorials.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/tutorials/tutorials.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -101,9 +103,8 @@
 <section id="tanana-river">
 <h2>Tanana River<a class="headerlink" href="#tanana-river" title="Link to this heading"></a></h2>
 <p>The Tanana River located in central Alaska is being considered as a viable site for current energy capture. The town of Nenana, located on the inner bank of a bend in the river, could benefit from locally generated energy rather than diesel generators. A current energy capture device has been tested on site and ongoing data collection events, related to local fish populations and benthic characteristics, could allow for a robust characterization of the impact a long-term deployment could have on the system. A model was developed on an unstructured grid in DFlow-FM to simulate a range of flow return periods with device arrays present. The flow cases are applied to both baseline (no devices present) conditions and with devices present.</p>
-</section>
 <section id="sedimentation-analysis">
-<h2>Sedimentation Analysis<a class="headerlink" href="#sedimentation-analysis" title="Link to this heading"></a></h2>
+<h3>Sedimentation Analysis<a class="headerlink" href="#sedimentation-analysis" title="Link to this heading"></a></h3>
 <ul>
 <li><p>Example model input can be found in “./DEMO unstructured/shear_stress_with_receptor_demo.ini”</p>
 <p>The model data consists of individual .nc files for each flow return period. The flow period within .nc filename is used to determine the probability of occurrence.</p>
@@ -114,15 +115,15 @@
 </ul>
 <p>For this case the probability weighted shear stress for model runs with devices is compared to the probability weighted shear stress without devices.</p>
 <figure class="align-default">
-<a class="reference internal image-reference" href="_images/cec_tutorial_shear_inputs.webp"><img alt="Tanana sedimentation example input" src="_images/cec_tutorial_shear_inputs.webp" style="width: 1000.0px; height: 228.0px;" /></a>
+<a class="reference internal image-reference" href="../_images/cec_tutorial_shear_inputs.webp"><img alt="Tanana sedimentation example input" src="../_images/cec_tutorial_shear_inputs.webp" style="width: 1000.0px; height: 228.0px;" /></a>
 </figure>
 <p>The calculated stressor (change in shear stress difference), stressor with receptor (change in sediment mobility), and the reclassified stressor from the analysis are shown below.</p>
 <figure class="align-default">
-<img alt="Tanana sedimentation example risk" src="_images/cec_tutorial_shear_risk.webp" />
+<img alt="Tanana sedimentation example risk" src="../_images/cec_tutorial_shear_risk.webp" />
 </figure>
 </section>
 <section id="larval-transport-analysis">
-<h2>Larval Transport Analysis<a class="headerlink" href="#larval-transport-analysis" title="Link to this heading"></a></h2>
+<h3>Larval Transport Analysis<a class="headerlink" href="#larval-transport-analysis" title="Link to this heading"></a></h3>
 <ul>
 <li><p>Example model input can be found in “DEMO unstructured/velocity_with_receptor_demo.ini”</p>
 <ul class="simple">
@@ -132,15 +133,15 @@
 </li>
 </ul>
 <figure class="align-default">
-<a class="reference internal image-reference" href="_images/cec_tutorial_velocity_risk.webp"><img alt="Tanana velocity example risk" src="_images/cec_tutorial_velocity_risk.webp" style="width: 1000.0px; height: 228.0px;" /></a>
+<a class="reference internal image-reference" href="../_images/cec_tutorial_velocity_risk.webp"><img alt="Tanana velocity example risk" src="../_images/cec_tutorial_velocity_risk.webp" style="width: 1000.0px; height: 228.0px;" /></a>
 </figure>
 </section>
 </section>
 <section id="pmec-site">
-<h1>PMEC Site<a class="headerlink" href="#pmec-site" title="Link to this heading"></a></h1>
+<h2>PMEC Site<a class="headerlink" href="#pmec-site" title="Link to this heading"></a></h2>
 <p>The Pacific Marine Energy Center (PMEC) is a designated area for marine energy testing on the coast of Oregon. This site has been the focus of model development and SEAT application. A coupled hydrodynamic and wave model was developed using SNL-SWAN and Delft3D-Flow. A range of site conditions is listed in the Model Probabilities File. This site includes information regarding sediment grain size, device power generation, and acoustic effects.</p>
 <section id="sedimentation-analysis-and-power-generation">
-<h2>Sedimentation Analysis and Power Generation<a class="headerlink" href="#sedimentation-analysis-and-power-generation" title="Link to this heading"></a></h2>
+<h3>Sedimentation Analysis and Power Generation<a class="headerlink" href="#sedimentation-analysis-and-power-generation" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Example model input can be found in “DEMO structured/shear_stress_with_receptor.ini”</p></li>
 </ul>
@@ -149,31 +150,32 @@
 <li><p>The sedimentation analysis indicates a predominant decrease in sediment erosion and increase in sediment deposition in the lee of the array, with less mobility occurring over larger sediment size classes.</p></li>
 </ul>
 <figure class="align-default">
-<a class="reference internal image-reference" href="_images/wec_shear_tutorial.webp"><img alt="PMEC shear stress example risk" src="_images/wec_shear_tutorial.webp" style="width: 1000.0px; height: 226.0px;" /></a>
+<a class="reference internal image-reference" href="../_images/wec_shear_tutorial.webp"><img alt="PMEC shear stress example risk" src="../_images/wec_shear_tutorial.webp" style="width: 1000.0px; height: 226.0px;" /></a>
 </figure>
 <ul class="simple">
 <li><p>The power generation is saved as individual images and tables in the selected output folder</p></li>
 </ul>
 <figure class="align-default">
-<a class="reference internal image-reference" href="_images/Total_Scaled_Power_per_Device_.webp"><img alt="PMEC power generated per device bar plots" src="_images/Total_Scaled_Power_per_Device_.webp" style="width: 1000.0px; height: 666.0px;" /></a>
+<a class="reference internal image-reference" href="../_images/Total_Scaled_Power_per_Device_.webp"><img alt="PMEC power generated per device bar plots" src="../_images/Total_Scaled_Power_per_Device_.webp" style="width: 1000.0px; height: 666.0px;" /></a>
 </figure>
 <figure class="align-default">
-<a class="reference internal image-reference" href="_images/Device_Power.webp"><img alt="PMEC power generated per device heat map" src="_images/Device_Power.webp" style="width: 1000.0px; height: 666.0px;" /></a>
+<a class="reference internal image-reference" href="../_images/Device_Power.webp"><img alt="PMEC power generated per device heat map" src="../_images/Device_Power.webp" style="width: 1000.0px; height: 666.0px;" /></a>
 </figure>
 <figure class="align-default">
-<a class="reference internal image-reference" href="_images/power_output_csv.webp"><img alt="PMEC power generated per hydrodynamic scenario" src="_images/power_output_csv.webp" style="width: 1000.0px; height: 726.0px;" /></a>
+<a class="reference internal image-reference" href="../_images/power_output_csv.webp"><img alt="PMEC power generated per hydrodynamic scenario" src="../_images/power_output_csv.webp" style="width: 1000.0px; height: 726.0px;" /></a>
 </figure>
 </section>
 <section id="acoustic-effects">
-<h2>Acoustic Effects<a class="headerlink" href="#acoustic-effects" title="Link to this heading"></a></h2>
+<h3>Acoustic Effects<a class="headerlink" href="#acoustic-effects" title="Link to this heading"></a></h3>
 <p>The acoustic effects from the WEC array at PMEC can be evaluated using the Acoustic module in the SEAT GUI. This module reads in individual Paracousti model .nc files that correspond to wave conditions.
 For a given probability of occurrence of each wave condition the combined annual acoustic effects can be estimated. SEAT generates a similar stressor layer consisting of the difference between the acoustic effects with and without the array. With a provided receptor file which consists of information regarding the species, threshold value, weighting, and variable used, a threshold map is generated as a percentage of time (based on the probability distribution) that a threshold will be exceeded. For demonstration purposes, an artificially low threshold is used to generate the percent exceeded threshold figure below.</p>
 <figure class="align-default">
-<a class="reference internal image-reference" href="_images/paracousti_stressor.webp"><img alt="PMEC sound pressure level stressor" src="_images/paracousti_stressor.webp" style="width: 1000.0px; height: 707.0px;" /></a>
+<a class="reference internal image-reference" href="../_images/paracousti_stressor.webp"><img alt="PMEC sound pressure level stressor" src="../_images/paracousti_stressor.webp" style="width: 1000.0px; height: 707.0px;" /></a>
 </figure>
 <figure class="align-default">
-<a class="reference internal image-reference" href="_images/paracousti_percent.webp"><img alt="PMEC acoustic threshold exceedance percentage" src="_images/paracousti_percent.webp" style="width: 1000.0px; height: 707.0px;" /></a>
+<a class="reference internal image-reference" href="../_images/paracousti_percent.webp"><img alt="PMEC acoustic threshold exceedance percentage" src="../_images/paracousti_percent.webp" style="width: 1000.0px; height: 707.0px;" /></a>
 </figure>
+</section>
 </section>
 </section>
 
@@ -181,7 +183,8 @@ For a given probability of occurrence of each wave condition the combined annual
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="output.html" class="btn btn-neutral float-left" title="Output maps" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../gui.html" class="btn btn-neutral float-left" title="Graphical User Interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../modules/modules.html" class="btn btn-neutral float-right" title="Modules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

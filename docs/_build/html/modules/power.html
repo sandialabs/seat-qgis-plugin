@@ -50,11 +50,9 @@
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../modules.html">Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../gui.html">Graphical User Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../output.html">Output maps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials.html#pmec-site">PMEC Site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
 </ul>
 
         </div>
@@ -97,9 +95,28 @@
 </section>
 <section id="output">
 <h3>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h3>
+<p>When a directory is specified for the device power the following are generated.</p>
 <ul class="simple">
-<li><p>CSV files: Contain power data, obstacle matching data, and annual power per device.</p></li>
-<li><p>PNG files: Visualizations of obstacle locations, device number locations, total scaled power bars per run, scaled power per device per scenario, total scaled power per device, and device power heatmap.</p></li>
+<li><p>CSV:</p>
+<ul>
+<li><p>BC_probability_wPower.csv : probabilities input file with appended power generated for each scenario</p></li>
+<li><p>Obstacle_Matching.csv : Obstacle pairs corresponding to a single device and centroid X,Y.</p></li>
+<li><p>Power_per_device_annual.csv : Total power generated (Watts) per device over the annual timespan (probabilities file).</p></li>
+<li><p>Power_per_device_per_scenario.csv : Table of total power generated (Watts) with device (row), and power file (column).</p></li>
+</ul>
+</li>
+<li><p>PNG:</p>
+<ul>
+<li><p>Scaled_Power_per_device_per_scenario.png : subplots of bar graph of power generated for each run per device.</p></li>
+<li><p>Scaled_Power_per_device_per_obstacle.png : subplots of bar graph of power generated for each run per obstacle.</p></li>
+<li><p>Total_Scaled_Power_Bars_per_Run.png : Bar graph of total power generated for each run scenario (probabilities file).</p></li>
+<li><p>Total_Scaled_Power_Bars_per_obstacle.png : Bar graph of total power generated for each obstacle.</p></li>
+<li><p>Total_Scaled_Power_per_Device.png : Bar graph of total power generated for each device</p></li>
+<li><p>Obstacle_Locations.png : Spatial plot of XY coordinates for each obstacle endpoint.</p></li>
+<li><p>Device Number Locations.png : Spatial plot of XY coordinates for each device.</p></li>
+<li><p>Device_Power.png : Spatial heat map of total power generated (mega watts) for each device.</p></li>
+</ul>
+</li>
 </ul>
 </section>
 </section>

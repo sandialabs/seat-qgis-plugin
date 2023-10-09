@@ -11,10 +11,9 @@
 
    overview.rst
    installation.rst
-   modules.rst
    gui.rst
-   output.rst
-   tutorials.rst
+   tutorials/tutorials.rst
+   modules/modules.rst
 
 .. raw:: html
 

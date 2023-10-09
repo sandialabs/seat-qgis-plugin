@@ -18,10 +18,10 @@ The behavior of the plugin depends on the input and is subdivided into 4 modules
 +-------------------------+---------------------------------------------------+
 
 
-.. include:: modules/shear_stress.rst
+.. include:: shear_stress.rst
 
-.. include:: modules/velocity.rst
+.. include:: velocity.rst
 
-.. include:: modules/acoustics.rst
+.. include:: acoustics.rst
 
-.. include:: modules/power.rst
+.. include:: power.rst

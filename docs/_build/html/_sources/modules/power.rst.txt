@@ -15,8 +15,26 @@ Input
 
 Output 
 """"""
-- CSV files: Contain power data, obstacle matching data, and annual power per device.
-- PNG files: Visualizations of obstacle locations, device number locations, total scaled power bars per run, scaled power per device per scenario, total scaled power per device, and device power heatmap.
+When a directory is specified for the device power the following are generated.
+
+- CSV:
+
+  * BC_probability_wPower.csv : probabilities input file with appended power generated for each scenario
+  * Obstacle_Matching.csv : Obstacle pairs corresponding to a single device and centroid X,Y.
+  * Power_per_device_annual.csv : Total power generated (Watts) per device over the annual timespan (probabilities file).
+  * Power_per_device_per_scenario.csv : Table of total power generated (Watts) with device (row), and power file (column).
+
+- PNG:
+
+  * Scaled_Power_per_device_per_scenario.png : subplots of bar graph of power generated for each run per device.
+  * Scaled_Power_per_device_per_obstacle.png : subplots of bar graph of power generated for each run per obstacle.
+  * Total_Scaled_Power_Bars_per_Run.png : Bar graph of total power generated for each run scenario (probabilities file).
+  * Total_Scaled_Power_Bars_per_obstacle.png : Bar graph of total power generated for each obstacle.
+  * Total_Scaled_Power_per_Device.png : Bar graph of total power generated for each device
+  * Obstacle_Locations.png : Spatial plot of XY coordinates for each obstacle endpoint.
+  * Device Number Locations.png : Spatial plot of XY coordinates for each device.
+  * Device_Power.png : Spatial heat map of total power generated (mega watts) for each device.
+
 
 Core Functions:
 ^^^^^^^^^^^^^^^

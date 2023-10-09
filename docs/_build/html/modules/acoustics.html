@@ -50,11 +50,9 @@
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../modules.html">Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../gui.html">Graphical User Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../output.html">Output maps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials.html#pmec-site">PMEC Site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
 </ul>
 
         </div>
@@ -98,9 +96,40 @@
 </section>
 <section id="output">
 <h3>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h3>
+<ul>
+<li><p>GeoTIFF raster files: Visualize calculated paracoustic, calculated stressor, threshold exceeded receptor, species percent and species density.</p>
+<blockquote>
+<div><ul>
+<li><p>Output layers are interpolated onto structured grids.</p></li>
+<li><p><strong>calculated_stressor.tif</strong> : The probability weight difference between with devices and baseline models results.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>for acoustics assumes baseline=0 if no baseline model files provided.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><strong>receptor.tif</strong> : the receptor file interpolated to the same grid as the output</p></li>
+</ul>
 <ul class="simple">
-<li><p>GeoTIFF raster files: Visualize calculated paracoustic, calculated stressor, threshold exceeded receptor, species percent and species density.</p></li>
-<li><p>CSV files: Contain statistics of area calculations for various layers.</p></li>
+<li><p><strong>calculate_paracousti.tif</strong> : the calculated with device probability weighted paracousti file.</p></li>
+<li><p><strong>Threshold_exceeded_receptor.tif</strong> : the percent of time the acoustic threshold was exceeded.</p></li>
+<li><p><strong>species_percent.tif</strong> : the threshold exceeded and weighted species percent.</p></li>
+<li><p><strong>species_density.tif</strong> : the threshold exceeded and weighted species density.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>CSV files: Contain statistics of area calculations for various layers.</p>
+<ul class="simple">
+<li><p>The stressor values are binned into 25 bins and the surface area in which that change occurred, the percent of the overall model domain, and number of cells within the stressor is saved to a csv file.
++ Lat/Lon converted to UTM (meter) coordinates for calculation.
++ UTM remains in the original unit of measure</p></li>
+</ul>
+</li>
+<li><p>When a receptor is included, the stressor and stressor with receptor values are further segmented by unique receptor values.</p>
+<ul class="simple">
+<li><p>For acoustics, the threshold exceeded, the species percent, and species density are generated.</p></li>
+</ul>
+</li>
 </ul>
 </section>
 <section id="sources">
