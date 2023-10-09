@@ -12,7 +12,6 @@
    overview.rst
    installation.rst
    modules.rst
-   data_sources.rst
    gui.rst
    output.rst
    tutorials.rst
