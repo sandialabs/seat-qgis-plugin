@@ -215,26 +215,30 @@ def pair_devices(Centroids):
 #
 
 
-def create_power_heatmap(DEVICE_POWER):
+def create_power_heatmap(DEVICE_POWER, crs=None):
     """
     Creates a heatmap of device location and power as cvalue.
 
     Parameters
     ----------
-    DEVICE_POWER : TYPE
-        DESCRIPTION.
+    DEVICE_POWER : dataframe
+        DEVICE_POWER dataframe.
+    crs : int
+        Coordinate Reverence Systems EPSG number
 
     Returns
     -------
-    fig : TYPE
-        DESCRIPTION.
+    fig : matplotlib figure handle
+        matplotlib figure handle.
 
     """
+    adjust_x = -360 if crs==4326 else 0
+
     fig, ax = plt.subplots(figsize=(6, 4))
-    lowerx = []
-    lowery = []
-    upperx = []
-    uppery = []
+    lowerx = np.inf
+    lowery = np.inf
+    upperx = -np.inf
+    uppery = -np.inf
     # cmap = ListedColormap(plt.get_cmap('Greens')(np.linspace(0.1, 1, 256)))  # skip too light colors
     cmap = ListedColormap(plt.get_cmap('turbo')(
         np.linspace(0.1, 1, 256)))  # skip too light colors
@@ -244,13 +248,13 @@ def create_power_heatmap(DEVICE_POWER):
     for device_number, device in DEVICE_POWER.iterrows():
         # print(device)
         ax.add_patch(
-            Rectangle((device.lower_left[0]-360, device.lower_left[1]),
+            Rectangle((device.lower_left[0]+adjust_x, device.lower_left[1]),
                       np.nanmax([device.width, device.height]),
                       np.nanmax([device.width, device.height]),
                       color=cmap(norm(device['Power [W]']*1e-6))))
-        lowerx = np.nanmin([lowerx, device.lower_left[0]-360])
+        lowerx = np.nanmin([lowerx, device.lower_left[0]+adjust_x])
         lowery = np.nanmin([lowery, device.lower_left[1]])
-        upperx = np.nanmax([upperx, device.lower_left[0]-360 + device.width])
+        upperx = np.nanmax([upperx, device.lower_left[0]+adjust_x + device.width])
         uppery = np.nanmax([uppery, device.lower_left[1] + device.height])
     xr = np.abs(np.max([lowerx, upperx]) - np.min([lowerx, upperx]))
     yr = np.abs(np.max([lowery, uppery]) - np.min([lowery, uppery]))
@@ -318,7 +322,7 @@ def roundup(x, base=5):
     return base * round(x/base)
 
 
-def calculate_power(power_files, bc_file, save_path=None):
+def calculate_power(power_files, bc_file, save_path=None, crs=None):
     """
     Reads the power files and calculates the total annual power based on hydrdynamic probabilities in bc_file. Data are saved as a csv files.
     Three files are output:
@@ -346,8 +350,9 @@ def calculate_power(power_files, bc_file, save_path=None):
     datafiles_o = [s for s in os.listdir(power_files) if s.endswith('.OUT')]
     bc_data = pd.read_csv(bc_file)
     datafiles = sort_data_files_by_runorder(bc_data, datafiles_o)
+
+    assert save_path is not None, "Specify an output directory"
     os.makedirs(save_path, exist_ok=True)
-    # fpath = r'C:\Projects\C1308_0107_2_SEAT\Input\Power\power_files_4x4'
 
     Total_Power = []
     ic = 0
@@ -516,7 +521,7 @@ def calculate_power(power_files, bc_file, save_path=None):
 
         DEVICE_POWER = extract_device_location(Obstacles, Device_index)
         DEVICE_POWER['Power [W]'] = Devices_total['Power [W]'].values
-        fig = create_power_heatmap(DEVICE_POWER)
+        fig = create_power_heatmap(DEVICE_POWER, crs=crs)
         fig.savefig(os.path.join(save_path, 'Device_Power.png'), dpi=150)
         # plt.close(fig)
     return None
