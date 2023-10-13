@@ -8,7 +8,7 @@
  PURPOSE: A QGIS plugin that calculates a probability weighted response layer from stressor and/or receptor layers
 
  PROJECT INFORMATION:
- Name: SEAT - Spatial and Environmental Assessment Toolkit (https://github.com/IntegralEnvision/seat-qgis-plugin)
+ Name: SEAT - Spatial and Environmental Assessment Toolkit (https://github.com/sandialabs/seat-qgis-plugin)
  Number: C1308
 
  AUTHORS
