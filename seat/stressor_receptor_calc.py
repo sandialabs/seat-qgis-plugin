@@ -677,7 +677,8 @@ class StressorReceptorCalc:
             if power_files_folder is not "":
                 logger.info("Power File Folder: {}".format(power_files_folder))
                 calculate_power(power_files_folder, bcfname,
-                                save_path=output_folder_name)
+                                save_path=output_folder_name,
+                                crs=crs)
 
             if svar == "Shear Stress":
                 sfilenames = run_shear_stress_stressor(
