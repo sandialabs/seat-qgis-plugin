@@ -11,7 +11,6 @@
 
    overview.rst
    installation.rst
-   gui.rst
    tutorials/tutorials.rst
    modules/modules.rst
 

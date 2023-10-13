@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tanana River &mdash; SEAT [1.0.0-beta1] documentation</title>
+  <title>Tutorial Files Access &mdash; SEAT [1.0.0-beta1] documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -26,8 +26,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="PMEC Site" href="pmec.html" />
-    <link rel="prev" title="Graphical User Interface" href="gui.html" /> 
+    <link rel="next" title="Graphical User Interface" href="gui.html" />
+    <link rel="prev" title="Tutorials" href="tutorials.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -53,13 +53,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="file_access.html">Tutorial Files Access</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Tutorial Files Access</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gui.html">Graphical User Interface</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Tanana River</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#sedimentation-analysis">Sedimentation Analysis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#larval-transport-analysis">Larval Transport Analysis</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="tanana.html">Tanana River</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pmec.html">PMEC Site</a></li>
 </ul>
 </li>
@@ -81,9 +77,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="tutorials.html">Tutorials</a></li>
-      <li class="breadcrumb-item active">Tanana River</li>
+      <li class="breadcrumb-item active">Tutorial Files Access</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/tutorials/tanana.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/tutorials/file_access.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -91,50 +87,37 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="tanana-river">
-<h1>Tanana River<a class="headerlink" href="#tanana-river" title="Link to this heading"></a></h1>
-<p>The Tanana River located in central Alaska is being considered as a viable site for current energy capture. The town of Nenana, located on the inner bank of a bend in the river, could benefit from locally generated energy rather than diesel generators. A current energy capture device has been tested on site and ongoing data collection events, related to local fish populations and benthic characteristics, could allow for a robust characterization of the impact a long-term deployment could have on the system. A model was developed on an unstructured grid in DFlow-FM to simulate a range of flow return periods with device arrays present. The flow cases are applied to both baseline (no devices present) conditions and with devices present.</p>
-<section id="sedimentation-analysis">
-<h2>Sedimentation Analysis<a class="headerlink" href="#sedimentation-analysis" title="Link to this heading"></a></h2>
-<ul>
-<li><p>Example model input can be found in “./DEMO unstructured/shear_stress_with_receptor_demo.ini”</p>
-<p>The model data consists of individual .nc files for each flow return period. The flow period within .nc filename is used to determine the probability of occurrence.</p>
+  <section id="tutorial-files-access">
+<h1>Tutorial Files Access<a class="headerlink" href="#tutorial-files-access" title="Link to this heading"></a></h1>
+<p>Access to the tutorial files is available upon request. Please send an email as directed in the instructions below:</p>
 <ul class="simple">
-<li><p>This set of inputs evaluates the impact on sediment mobility given a single median grain size receptor in a CSV file.</p></li>
+<li><p>Email to both:</p>
+<ul>
+<li><p><cite>tnelson&#64;integral-corp.com</cite></p></li>
+<li><p><cite>smcwilliams&#64;integral-corp.com</cite></p></li>
+</ul>
+</li>
+<li><p>Subject:</p>
+<ul>
+<li><p>SEAT Tutorial File Access</p></li>
+</ul>
+</li>
+<li><p>Body</p>
+<ul>
+<li><p>Name</p></li>
+<li><p>Company/institution</p></li>
+<li><p>Intended use</p></li>
 </ul>
 </li>
 </ul>
-<p>For this case the probability weighted shear stress for model runs with devices is compared to the probability weighted shear stress without devices.</p>
-<figure class="align-default">
-<a class="reference internal image-reference" href="../_images/cec_tutorial_shear_inputs.webp"><img alt="Tanana sedimentation example input" src="../_images/cec_tutorial_shear_inputs.webp" style="width: 1000.0px; height: 228.0px;" /></a>
-</figure>
-<p>The calculated stressor (change in shear stress difference), stressor with receptor (change in sediment mobility), and the reclassified stressor from the analysis are shown below.</p>
-<figure class="align-default">
-<img alt="Tanana sedimentation example risk" src="../_images/cec_tutorial_shear_risk.webp" />
-</figure>
-</section>
-<section id="larval-transport-analysis">
-<h2>Larval Transport Analysis<a class="headerlink" href="#larval-transport-analysis" title="Link to this heading"></a></h2>
-<ul>
-<li><p>Example model input can be found in “DEMO unstructured/velocity_with_receptor_demo.ini”</p>
-<ul class="simple">
-<li><p>This set of inputs evaluates the impact on larval motility given a single critical velocity receptor in a CSV file.</p></li>
-</ul>
-<p>For this case the velocity with devices is compared to the velocity without devices and a difference (stressor) is calculated.</p>
-</li>
-</ul>
-<figure class="align-default">
-<a class="reference internal image-reference" href="../_images/cec_tutorial_velocity_risk.webp"><img alt="Tanana velocity example risk" src="../_images/cec_tutorial_velocity_risk.webp" style="width: 1000.0px; height: 228.0px;" /></a>
-</figure>
-</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="gui.html" class="btn btn-neutral float-left" title="Graphical User Interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="pmec.html" class="btn btn-neutral float-right" title="PMEC Site" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tutorials.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gui.html" class="btn btn-neutral float-right" title="Graphical User Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -12,8 +12,8 @@ jobs:
       - name: Create Archive Release
         run: |
           git clone . ./seat_qgis_plugin/
-          mv ./seat_qgis_plugin/code/* ./seat_qgis_plugin
-          rm -rf ./seat_qgis_plugin/code create_zip.sh
+          mv ./seat_qgis_plugin/seat/* ./seat_qgis_plugin
+          rm -rf ./seat_qgis_plugin/seat create_zip.sh
           ls ./seat_qgis_plugin
       - name: Archive Release
         run: zip -qq -r ./seat_qgis_plugin.zip ./seat_qgis_plugin/
