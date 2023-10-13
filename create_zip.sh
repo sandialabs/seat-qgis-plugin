@@ -22,7 +22,7 @@ RELEASE=`date +%Y%m%d`
 
 printf "[$TIMESLOT] ZIP ........................ ${PWD}/seat_qgis_plugin_$RELEASE.zip\n"
 
-zip -r ./seat_qgis_plugin_$RELEASE.zip ./seat_qgis_plugin > /dev/null 2>&1
+zip -r ./seat_qgis_plugin_$RELEASE.zip ./seat_qgis_plugin #> /dev/null 2>&1
 
 printf "[$TIMESLOT] RM ......................... ./seat_qgis_plugin\n"
 
