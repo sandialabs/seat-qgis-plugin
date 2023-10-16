@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Probabilities (optional) &mdash; SEAT [1.0.0-beta1] documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/dark_mode_css/general.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/dark_mode_css/dark.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=9eba97ea"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../_static/copybutton.js?v=f281be69"></script>
+        <script src="../../_static/dark_mode_js/default_dark.js?v=fd565c74"></script>
+        <script src="../../_static/dark_mode_js/theme_switcher.js?v=358d3910"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="ParAcousti" href="paracousti.html" />
+    <link rel="prev" title="Model Results Directory" href="model_results_dir.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            SEAT
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../file_access.html">Tutorial Files Access</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="gui.html">Graphical User Interface</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="stressor.html">Stressor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="coordinate_ref_sys.html">Coordinate Reference System</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_results_dir.html">Model Results Directory</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Probabilities (optional)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="paracousti.html">ParAcousti</a></li>
+<li class="toctree-l3"><a class="reference internal" href="power_dir.html">Power Files Directory (optional)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="receptor.html">Receptor (optional)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="secondary_constraint.html">Secondary Constraint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="output_dir.html">Output Directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="output_style_files.html">Output Style Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="save_load_inputs.html">Save &amp; Load Input</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../tanana.html">Tanana River</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pmec.html">PMEC Site</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/modules.html">Modules</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SEAT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorials.html">Tutorials</a></li>
+          <li class="breadcrumb-item"><a href="gui.html">Graphical User Interface</a></li>
+      <li class="breadcrumb-item active">Probabilities (optional)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/tutorials/gui/probabilities.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="probabilities-optional">
+<h1>Probabilities (optional)<a class="headerlink" href="#probabilities-optional" title="Link to this heading"></a></h1>
+<p>This section explains the optional probability file, which provides information about the run order and the probability of each model condition occurring. The probability file is not required but can enhance the analysis if provided. It follows a specific naming convention (see the device/baseline model section) and corresponds to the return interval in years.</p>
+<p>If you choose to include a probability file, it must contain the following columns:</p>
+<ul class="simple">
+<li><p><cite>run order</cite>: The run order of each condition.</p></li>
+<li><p><cite>% of year`</cite>: The probability of the condition occurring within a year.</p></li>
+<li><p>Other columns, such as <cite>wave height</cite> and <cite>period</cite>, can be included but will be ignored.</p></li>
+</ul>
+<p>You also have the option to include an ‘Exclude’ column, which allows you to specify runs that should be excluded from the analysis.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Currently <cite>% of year</cite> is not rescaled to 100 if Exclude is included.</p>
+</div>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/probabilities_input.webp"><img alt="Probablities Input" src="../../_images/probabilities_input.webp" style="width: 1000.0px; height: 47.0px;" /></a>
+</figure>
+<p><strong>Probabilities Input Example</strong></p>
+<p>Here’s an example of the probability input file:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Hs[m]</p></td>
+<td><p>Tp[s]</p></td>
+<td><p>Dp[deg]</p></td>
+<td><p>% of dir bin</p></td>
+<td><p>% of yr</p></td>
+<td><p>run order</p></td>
+<td><p>Exclude</p></td>
+</tr>
+<tr class="row-even"><td><p>1.76</p></td>
+<td><p>6.6</p></td>
+<td><p>221.8</p></td>
+<td><p>15.41</p></td>
+<td><p>0.39</p></td>
+<td><p>6</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>2.67</p></td>
+<td><p>8.62</p></td>
+<td><p>220.8</p></td>
+<td><p>40.68</p></td>
+<td><p>1.029</p></td>
+<td><p>16</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>4.06</p></td>
+<td><p>10.16</p></td>
+<td><p>221.3</p></td>
+<td><p>23.47</p></td>
+<td><p>0.593</p></td>
+<td><p>20</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>1.37</p></td>
+<td><p>15.33</p></td>
+<td><p>224</p></td>
+<td><p>8.06</p></td>
+<td><p>0.204</p></td>
+<td><p>2</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>7.05</p></td>
+<td><p>12.6</p></td>
+<td><p>223.6</p></td>
+<td><p>3.42</p></td>
+<td><p>0.086</p></td>
+<td><p>24</p></td>
+<td><p>x</p></td>
+</tr>
+</tbody>
+</table>
+<p>In this table, ‘Hs’ represents wave height, ‘Tp’ represents wave period, ‘Dp’ represents direction, ‘% of dir bin’ is the percentage of direction bin, ‘% of yr’ is the percentage of the year, ‘run order’ is the order of the run, and ‘Exclude’ is used to mark runs for exclusion.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="model_results_dir.html" class="btn btn-neutral float-left" title="Model Results Directory" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="paracousti.html" class="btn btn-neutral float-right" title="ParAcousti" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023 Sandia National Laboratories.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

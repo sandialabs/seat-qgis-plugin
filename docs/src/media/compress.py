@@ -1,8 +1,6 @@
 import os
+import sys
 from PIL import Image
-
-# Directory containing the images
-image_directory = '.'
 
 # Desired maximum file size in kB
 max_file_size_kb = 0.1
@@ -24,11 +22,27 @@ def compress_image(image_path, output_path, quality=100):
     resized_img.save(output_path, 'WEBP', quality=quality)
 
 
-def main():
-    for filename in os.listdir(image_directory):
+def process_single_png(filename):
+    if not filename.endswith('.png'):
+        print(f"{filename} is not a .png file.")
+        return
+
+    print(f"Processing {filename}...")
+    file_path = filename
+    output_path = os.path.splitext(file_path)[0] + '.webp'
+
+    # Convert PNG to WEBP without compressing, just for the format change
+    image = Image.open(file_path).convert('RGB')
+    image.save(output_path, 'WEBP')
+
+    print(f"{filename} converted to {os.path.basename(output_path)}\n")
+
+
+def process_webp_files():
+    for filename in os.listdir('.'):
         if filename.endswith('.webp'):
             print(f"Processing {filename}...")
-            file_path = os.path.join(image_directory, filename)
+            file_path = os.path.join('.', filename)
             output_path = os.path.splitext(file_path)[0] + '.webp'
 
             # Get initial file size in kB
@@ -42,6 +56,14 @@ def main():
                 final_file_size_kb = os.path.getsize(output_path) / 1024
                 print(
                     f"{os.path.basename(output_path)}: Final Size: {final_file_size_kb:.2f} kB\n")
+
+
+def main():
+    if len(sys.argv) > 1:
+        filename = sys.argv[1]
+        process_single_png(filename)
+    else:
+        process_webp_files()
 
 
 if __name__ == "__main__":
