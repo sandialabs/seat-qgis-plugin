@@ -1,19 +1,23 @@
-Model Results Directory
------------------------
+Model Results Directories
+--------------------------------------
 
-There are two model result directories needed for the analysis:
-  1. Baseline results directory 
-  2. Model results directory
+For a comprehensive analysis, you'll need to specify two distinct directories from your model results:
+  1. **Baseline Results Directory**: Contains the model results without any devices.
+  2. **Model Results Directory**: Houses the model results with devices incorporated.
 
 .. figure:: ../../media/model_results_directory_input.webp
    :scale: 100 %
-   :alt: Model Results Directory
+   :alt: Interface to choose the Model Results Directory in SEAT's GUI.
 
-Select the directory containing the model results with devices and the directory containing the baseline (without devices) model results. These model results must be in netCDF format.
+To proceed:
 
-The model results can have 2 formats.
-  
-  1. A concatenated single \*.nc file with the model run number as the first dimension [RunNum, Depth, X, Y]. (Only one file per directory if this format is used).
-  2. Multiple files with naming format name_RunNum_map.nc, where RunNum must come before the map.nc and be separated by a single underscore on either side.
+- Ensure you select the directory that contains the model results with devices, and another for the baseline results without devices.
+- It's crucial that all model results are in the `netCDF` format.
 
-The number of baseline model files must match the device model files.
+There are two accepted formats for the model results:
+
+  1. A single concatenated `*.nc` file with the model run number as its first dimension, arranged as [RunNum, Depth, X, Y]. Ensure there's only one file per directory when using this format.
+  2. Multiple files, each named in the format: `name_RunNum_map.nc`. Here, `RunNum` should precede `map.nc` and be flanked by a single underscore on each side.
+
+.. note::    
+   The number of baseline model files should be identical to the number of device model files to maintain consistency in your analysis.

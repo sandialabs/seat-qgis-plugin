@@ -1,64 +1,70 @@
-Receptor (optional)
--------------------
+Receptor File Input (Optional)
+--------------------------------
 
-The receptor file, which can be either a .csv or .tif, provides supplementary criteria to be input into each module.
-
-Shear Stress Receptor:
-
-- **File Type**: The receptor can be either a .csv file or a geotiff (\*.tif) file.
-
-- **Content**: This file represents grain size, measured in microns (µm).
-
-  - **Geotif Details**: If using a geotif file, it will be interpolated to align with the grid points of the model files, whether they are structured or unstructured. It is crucial that the geotif has the same projection and datum as the model files.
-
-  - **CSV Details**: The CSV version of the receptor currently supports only a single grain size value and doesn't require any column headers. The file is structured simply, with the grain size value given directly.
-
-
-Shear Stress
-^^^^^^^^^^^^
+The receptor file serves as an additional input to each module, which can either be in .csv or .tif format. 
 
 .. figure:: ../../media/receptor_file_input.webp
    :scale: 100 %
    :alt: Receptor File
 
-- A receptor file (.csv, or .tif) allows for additional criterion to be passed to each module. 
+1. Shear Stress Receptor
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-  - Shear stress : receptor is a \*.csv or geotif (\*.tif) of grain size in microns (µm). 
+- **File Type**: Supports .csv or geotiff (.tif) file formats.
   
-    * Geotif will be interpolated to the same grid points as the model files (structured or unstructured), must have same projection/datum.
-    * The csv file currently only takes a single grain size and is formatted as below with no column headers.
+- **Content**: Represents grain size, measured in microns (µm).
+
+  - **Geotiff Details**:
+    - Interpolated to align with the model files' grid points (structured/unstructured).
+    - Must have the same projection and datum as the model files.
+
+  - **CSV Details**:
+    - Supports only a single grain size value.
+    - No column headers required; the file should contain the grain size value directly.
 
 .. figure:: ../../media/grain_size.webp
-   :scale: 150 %
+   :scale: 50 %
    :alt: Grain size
 
-Velocity
-^^^^^^^^
+2. Velocity Receptor
+^^^^^^^^^^^^^^^^^^^^
 
-- Velocity: receptor is a (.csv) or geotif of critical velocity in units of meters per second (m/s).
-  
-  - Geotif will be interpolated to the same grid points as the model files (structured or unstructured), must have same projection/datum.
-  - The csv file currently only takes a critical velocity and is formatted as below with no column headers.
+Represents critical velocity, measured in meters per second (m/s).
+
+- **File Type**: Supports .csv or geotiff (.tif) file formats.
+
+  - **Geotiff Details**:
+    
+    - Interpolated to align with the model files' grid points (structured/unstructured).
+    - Must have the same projection and datum as the model files.
+
+  - **CSV Details**:
+    
+    - Supports only a single critical velocity value.
+    - No column headers required; the file should contain the critical velocity value directly.
 
 .. figure:: ../../media/critical_velocity.webp
-   :scale: 150 %
+   :scale: 50 %
    :alt: Critical velocity
 
-ParAcousti
-^^^^^^^^^^
+3. ParAcousti Receptor
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-- ParAcousti: receptor is a \*.csv file with values indicating how to apply thresholds, grid scaling, and variables to use. 
+Contains values indicating thresholds, grid scaling, and variable selections. 
 
-  - species : optional but can be used for output
-  - Paracousti Variable: Depending on the species, different variables might be needed and or different weightings. 
-  - Threshold (db re 1 uPa): threshold above which negative impacts are expected. Units should match Paracousti Variable.
-  - Depth Averaging (default DepthMax): 	
+- **File Type**: Supports only .csv file format.
 
-    * DepthMax: use the maximum value for each vertical column
-    * DepthAverage: use the average value for each vertical column
-    * Top: use the top/surface bin for each vertical column
-    * Bottom: use the bottom/bed bin for each vertical column
-  - species file averaged area (km2): the cumulative area over which each cell represents species percent and density (used to scale to each paracousti grid cell). Leave blank or set to 0 to prevent scaling. 
+  - **Species**: Optional; can be used for output.
+  - **ParAcousti Variable**: Variables and weightings may vary depending on species.
+  - **Threshold (db re 1 uPa)**: Threshold above which negative impacts are expected. Units should match Paracousti Variable.
+  - **Depth Averaging** (Default: DepthMax):
+
+    - DepthMax: Use the maximum value for each vertical column.
+    - DepthAverage: Use the average value for each vertical column.
+    - Top: Use the top/surface bin for each vertical column.
+    - Bottom: Use the bottom/bed bin for each vertical column.
+  
+  - **Species File Averaged Area (km²)**: Represents cumulative area for each cell regarding species percent and density; used for scaling to each paracousti grid cell. Leave blank or set to 0 to prevent scaling. 
 
 .. figure:: ../../media/paracousti_receptor.webp
    :scale: 100 %

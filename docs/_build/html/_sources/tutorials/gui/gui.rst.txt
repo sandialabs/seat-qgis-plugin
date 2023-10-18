@@ -1,32 +1,40 @@
 .. _gui:
 
-Graphical User Interface
-=============================
+Graphical User Interface 
+=========================
 
-This section will walk uses through the use of SEAT's graphical user interface (GUI). The GUI is a QGIS plugin that allows users to select the analysis to perform, the inputs, and the customized style files to display. Upon installation of the SEAT package, an icon will appear in the plugin toolbar.
+Welcome to the guide on how to navigate and utilize the SEAT's graphical user interface (GUI). SEAT's GUI is designed as a QGIS plugin, making your analysis and visualization in QGIS both efficient and user-friendly. 
+
+Upon successfully installing the SEAT package in QGIS, you'll notice a new icon representing SEAT on your plugin toolbar.
 
 .. figure:: ../../media/SEAT_Toolbar.webp
-   :scale: 125 %
-   :alt: SEAT icon in QGIS toolbar
+   :scale: 50 %
+   :alt: SEAT icon located on the QGIS toolbar
 
-- Click on the icon to bring up the SEAT GUI Interface
+To launch the SEAT GUI simply click on the SEAT icon.
+
+You'll then be presented with the SEAT GUI Interface.
 
 .. figure:: ../../media/SEAT_GUI.webp
    :scale: 90 %
-   :alt: SEAT GUI
+   :alt: SEAT's main GUI window
+
+
+This documentation is organized into various sections to help you quickly navigate to specific functionalities and settings within the GUI. Below is a brief overview:
 
 .. toctree::
    :maxdepth: 1
-   :hidden:
-   
-   stressor.rst
-   coordinate_ref_sys.rst
-   model_results_dir.rst
-   probabilities.rst
-   paracousti.rst
-   power_dir.rst
-   receptor.rst
-   secondary_constraint.rst
-   output_dir.rst
-   output_style_files.rst
-   save_load_inputs.rst
+
+   stressor.rst                 
+   coordinate_ref_sys.rst       
+   model_results_dir.rst        
+   probabilities.rst            
+   power_dir.rst                
+   receptor.rst                 
+   secondary_constraint.rst     
+   output_dir.rst               
+   output_style_files.rst       
+   save_load_inputs.rst  
+     
+
+Feel free to navigate to the respective sections for detailed information and step-by-step instructions. Or click the next button below to step through the guide in order.

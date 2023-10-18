@@ -26,8 +26,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Model Results Directory" href="model_results_dir.html" />
-    <link rel="prev" title="Stressor" href="stressor.html" /> 
+    <link rel="next" title="Model Results Directories" href="model_results_dir.html" />
+    <link rel="prev" title="Stressor Selection" href="stressor.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -55,13 +55,12 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../file_access.html">Tutorial Files Access</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="gui.html">Graphical User Interface</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="stressor.html">Stressor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stressor.html">Stressor Selection</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Coordinate Reference System</a></li>
-<li class="toctree-l3"><a class="reference internal" href="model_results_dir.html">Model Results Directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_results_dir.html">Model Results Directories</a></li>
 <li class="toctree-l3"><a class="reference internal" href="probabilities.html">Probabilities (optional)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="paracousti.html">ParAcousti</a></li>
 <li class="toctree-l3"><a class="reference internal" href="power_dir.html">Power Files Directory (optional)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="receptor.html">Receptor (optional)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="receptor.html">Receptor File Input (Optional)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="secondary_constraint.html">Secondary Constraint</a></li>
 <li class="toctree-l3"><a class="reference internal" href="output_dir.html">Output Directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="output_style_files.html">Output Style Files</a></li>
@@ -103,22 +102,28 @@
              
   <section id="coordinate-reference-system">
 <h1>Coordinate Reference System<a class="headerlink" href="#coordinate-reference-system" title="Link to this heading"></a></h1>
-<p>The correct display and analysis of the data requires knowledge of the data’s coordinate reference system.</p>
+<p>For accurate display and analysis, it’s essential to specify the coordinate reference system (CRS) of your data.</p>
+<ol class="arabic simple">
+<li><p>To set or change the CRS, look for the input box with three adjacent dots (”…”) as shown below:</p></li>
+</ol>
 <figure class="align-default">
-<a class="reference internal image-reference" href="../../_images/coordinate_ref_sys_input.webp"><img alt="Click the three dots" src="../../_images/coordinate_ref_sys_input.webp" style="width: 1000.0px; height: 47.0px;" /></a>
+<a class="reference internal image-reference" href="../../_images/coordinate_ref_sys_input.webp"><img alt="Input box with the three dots icon indicating CRS setting." src="../../_images/coordinate_ref_sys_input.webp" style="width: 1000.0px; height: 47.0px;" /></a>
 </figure>
-<p>Clicking the the three dots “…” will bring up the CRS selection window</p>
+<ol class="arabic simple" start="2">
+<li><p>Once inside the selection window, you can choose the appropriate CRS from the list. For instance, if you’re working with data from the United States, you might consider selecting “WGS 84”. Additionally, if you know the name or code of the CRS, use the search bar for quicker access. After selecting the desired CRS, click “OK” to confirm your choice. You should then see the CRS ID reflected in the input box.</p></li>
+</ol>
 <figure class="align-default">
-<a class="reference internal image-reference" href="../../_images/coordinate_ref_sys_select.webp"><img alt="Coordinate Reference System selector" src="../../_images/coordinate_ref_sys_select.webp" style="width: 1000.0px; height: 978.0px;" /></a>
+<a class="reference internal image-reference" href="../../_images/coordinate_ref_sys_select.webp"><img alt="The Coordinate Reference System selection window in SEAT's GUI." src="../../_images/coordinate_ref_sys_select.webp" style="width: 1000.0px; height: 978.0px;" /></a>
 </figure>
+<p>By setting the correct CRS, you ensure your data aligns properly with other geographic data layers in QGIS, guaranteeing spatial accuracy throughout your analysis.</p>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="stressor.html" class="btn btn-neutral float-left" title="Stressor" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="model_results_dir.html" class="btn btn-neutral float-right" title="Model Results Directory" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="stressor.html" class="btn btn-neutral float-left" title="Stressor Selection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="model_results_dir.html" class="btn btn-neutral float-right" title="Model Results Directories" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

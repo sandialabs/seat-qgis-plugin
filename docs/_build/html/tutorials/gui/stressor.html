@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Stressor &mdash; SEAT [1.0.0-beta1] documentation</title>
+  <title>Stressor Selection &mdash; SEAT [1.0.0-beta1] documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
@@ -55,13 +55,12 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../file_access.html">Tutorial Files Access</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="gui.html">Graphical User Interface</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Stressor</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Stressor Selection</a></li>
 <li class="toctree-l3"><a class="reference internal" href="coordinate_ref_sys.html">Coordinate Reference System</a></li>
-<li class="toctree-l3"><a class="reference internal" href="model_results_dir.html">Model Results Directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_results_dir.html">Model Results Directories</a></li>
 <li class="toctree-l3"><a class="reference internal" href="probabilities.html">Probabilities (optional)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="paracousti.html">ParAcousti</a></li>
 <li class="toctree-l3"><a class="reference internal" href="power_dir.html">Power Files Directory (optional)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="receptor.html">Receptor (optional)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="receptor.html">Receptor File Input (Optional)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="secondary_constraint.html">Secondary Constraint</a></li>
 <li class="toctree-l3"><a class="reference internal" href="output_dir.html">Output Directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="output_style_files.html">Output Style Files</a></li>
@@ -91,7 +90,7 @@
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../tutorials.html">Tutorials</a></li>
           <li class="breadcrumb-item"><a href="gui.html">Graphical User Interface</a></li>
-      <li class="breadcrumb-item active">Stressor</li>
+      <li class="breadcrumb-item active">Stressor Selection</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/tutorials/gui/stressor.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -101,17 +100,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="stressor">
-<h1>Stressor<a class="headerlink" href="#stressor" title="Link to this heading"></a></h1>
-<p>To choose the analysis/data type in the “Select Stressor” Dropdown box. Currently 3 options exist</p>
-<ul class="simple">
-<li><p><strong>Shear Stress Module</strong> – analysis of spatial change in bed mobility</p></li>
-<li><p><strong>Velocity Module</strong>   - analysis of spatial change in larval motility</p></li>
-<li><p><strong>ParAcousti Module</strong> – analysis of acoustic propagation and thresholds</p></li>
-</ul>
-<p>Only one stressor model cand be run at a time this makes saving the inputs in the bottom left important before running starting a model analysis.</p>
+  <section id="stressor-selection">
+<h1>Stressor Selection<a class="headerlink" href="#stressor-selection" title="Link to this heading"></a></h1>
+<p>In SEAT, the stressor determines the type of analysis or data to be used. You can select your desired stressor from the “Select Stressor” dropdown menu. There are three available options:</p>
+<ol class="arabic simple">
+<li><p><strong>Shear Stress Module</strong>: Analyzes the spatial changes in bed mobility.</p></li>
+<li><p><strong>Velocity Module</strong>: Investigates the spatial changes in larval motility.</p></li>
+<li><p><strong>ParAcousti Module</strong>: Examines acoustic propagation and its thresholds.</p></li>
+</ol>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Remember, only one stressor model can be run at a time. Therefore, it’s crucial to save your inputs (using the save option in the bottom left) before initiating a model analysis.</p>
+</div>
 <figure class="align-default">
-<a class="reference internal image-reference" href="../../_images/select_stressor.webp"><img alt="Selecting the stressor" src="../../_images/select_stressor.webp" style="width: 1000.0px; height: 776.0px;" /></a>
+<a class="reference internal image-reference" href="../../_images/select_stressor.webp"><img alt="Dropdown menu for selecting the stressor in SEAT's GUI." src="../../_images/select_stressor.webp" style="width: 800.0px; height: 620.0px;" /></a>
 </figure>
 </section>
 

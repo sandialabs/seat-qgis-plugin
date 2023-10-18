@@ -1,16 +1,16 @@
-Stressor
---------
+Stressor Selection
+------------------
 
-To choose the analysis/data type in the "Select Stressor" Dropdown box. Currently 3 options exist
+In SEAT, the stressor determines the type of analysis or data to be used. You can select your desired stressor from the "Select Stressor" dropdown menu. There are three available options:
 
-- **Shear Stress Module** – analysis of spatial change in bed mobility
-- **Velocity Module**	- analysis of spatial change in larval motility
-- **ParAcousti Module** – analysis of acoustic propagation and thresholds
+1. **Shear Stress Module**: Analyzes the spatial changes in bed mobility.
+2. **Velocity Module**: Investigates the spatial changes in larval motility.
+3. **ParAcousti Module**: Examines acoustic propagation and its thresholds.
 
-Only one stressor model cand be run at a time this makes saving the inputs in the bottom left important before running starting a model analysis.
+.. important::
+   Remember, only one stressor model can be run at a time. Therefore, it's crucial to save your inputs (using the save option in the bottom left) before initiating a model analysis.
 
 .. figure:: ../../media/select_stressor.webp
    :scale: 100 %
-   :alt: Selecting the stressor
-
+   :alt: Dropdown menu for selecting the stressor in SEAT's GUI.
 

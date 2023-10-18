@@ -26,8 +26,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="ParAcousti" href="paracousti.html" />
-    <link rel="prev" title="Model Results Directory" href="model_results_dir.html" /> 
+    <link rel="next" title="Power Files Directory (optional)" href="power_dir.html" />
+    <link rel="prev" title="Model Results Directories" href="model_results_dir.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -55,13 +55,16 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../file_access.html">Tutorial Files Access</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="gui.html">Graphical User Interface</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="stressor.html">Stressor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stressor.html">Stressor Selection</a></li>
 <li class="toctree-l3"><a class="reference internal" href="coordinate_ref_sys.html">Coordinate Reference System</a></li>
-<li class="toctree-l3"><a class="reference internal" href="model_results_dir.html">Model Results Directory</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Probabilities (optional)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="paracousti.html">ParAcousti</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_results_dir.html">Model Results Directories</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Probabilities (optional)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#shear-stress-velocity">Shear Stress &amp; Velocity</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#paracousti">ParAcousti</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="power_dir.html">Power Files Directory (optional)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="receptor.html">Receptor (optional)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="receptor.html">Receptor File Input (Optional)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="secondary_constraint.html">Secondary Constraint</a></li>
 <li class="toctree-l3"><a class="reference internal" href="output_dir.html">Output Directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="output_style_files.html">Output Style Files</a></li>
@@ -103,23 +106,25 @@
              
   <section id="probabilities-optional">
 <h1>Probabilities (optional)<a class="headerlink" href="#probabilities-optional" title="Link to this heading"></a></h1>
-<p>This section explains the optional probability file, which provides information about the run order and the probability of each model condition occurring. The probability file is not required but can enhance the analysis if provided. It follows a specific naming convention (see the device/baseline model section) and corresponds to the return interval in years.</p>
-<p>If you choose to include a probability file, it must contain the following columns:</p>
+<p>The probabilities file, while optional, serves to enhance your analysis, providing insights into the run order and the likelihood of each model condition unfolding. Adhere to the prescribed naming convention (as delineated in the device/baseline model section). Note that this file correlates with the return interval in years.</p>
+<section id="shear-stress-velocity">
+<h2>Shear Stress &amp; Velocity<a class="headerlink" href="#shear-stress-velocity" title="Link to this heading"></a></h2>
+<p>For these types of analyses:</p>
 <ul class="simple">
-<li><p><cite>run order</cite>: The run order of each condition.</p></li>
-<li><p><cite>% of year`</cite>: The probability of the condition occurring within a year.</p></li>
-<li><p>Other columns, such as <cite>wave height</cite> and <cite>period</cite>, can be included but will be ignored.</p></li>
+<li><p><cite>run order</cite>: Represents the sequence of each condition.</p></li>
+<li><p><cite>% of year</cite>: Indicates the probability of a given condition arising within a year.</p></li>
+<li><p>While you may include optional columns such as <cite>wave height</cite> or <cite>period</cite>, they won’t impact the analysis.</p></li>
 </ul>
-<p>You also have the option to include an ‘Exclude’ column, which allows you to specify runs that should be excluded from the analysis.</p>
+<p>For added flexibility, you can incorporate an ‘Exclude’ column, enabling you to earmark certain runs for omission.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Currently <cite>% of year</cite> is not rescaled to 100 if Exclude is included.</p>
+<p>If you include the ‘Exclude’ column, the <cite>% of year</cite> won’t adjust to total 100%.</p>
 </div>
 <figure class="align-default">
-<a class="reference internal image-reference" href="../../_images/probabilities_input.webp"><img alt="Probablities Input" src="../../_images/probabilities_input.webp" style="width: 1000.0px; height: 47.0px;" /></a>
+<a class="reference internal image-reference" href="../../_images/probabilities_input.webp"><img alt="Interface depicting the Probabilities Input in SEAT's GUI." src="../../_images/probabilities_input.webp" style="width: 1000.0px; height: 47.0px;" /></a>
 </figure>
-<p><strong>Probabilities Input Example</strong></p>
-<p>Here’s an example of the probability input file:</p>
+<p><strong>Example of a Probabilities Input</strong></p>
+<p>Below is an illustrative table:</p>
 <table class="docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p>Hs[m]</p></td>
@@ -172,15 +177,80 @@
 </tr>
 </tbody>
 </table>
-<p>In this table, ‘Hs’ represents wave height, ‘Tp’ represents wave period, ‘Dp’ represents direction, ‘% of dir bin’ is the percentage of direction bin, ‘% of yr’ is the percentage of the year, ‘run order’ is the order of the run, and ‘Exclude’ is used to mark runs for exclusion.</p>
+<p>Key:</p>
+<ul class="simple">
+<li><p>‘Hs’: Wave height.</p></li>
+<li><p>‘Tp’: Wave period.</p></li>
+<li><p>‘Dp’: Direction.</p></li>
+<li><p>‘% of dir bin’: Proportion within a direction bin.</p></li>
+<li><p>‘% of yr’: Percentage of the year.</p></li>
+<li><p>‘run order’: Execution sequence.</p></li>
+<li><p>‘Exclude’: Designation for excluding runs.</p></li>
+</ul>
+</section>
+<section id="paracousti">
+<h2>ParAcousti<a class="headerlink" href="#paracousti" title="Link to this heading"></a></h2>
+<p>For ParAcousti analyses, the file format differs from that of shear stress and velocity.</p>
+<p><strong>Required Columns</strong>:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>ParAcousti File: Name of the ParAcousti .nc file.</p></li>
+<li><p>Species Percent Occurrence File: Accepts either a .csv or .tif format.</p></li>
+<li><p>Species Density File: Also, either a .csv or .tif format.</p></li>
+<li><p>% of yr: Denotes the percentage of the year.</p></li>
+</ol>
+</div></blockquote>
+<p><strong>File Specifications</strong>:</p>
+<ul class="simple">
+<li><p>If you’re using .csv for the Species Percent Occurrence and Species Density Files, they must contain the essential columns: “latitude”, “longitude”, and either “percent” and/or “density”. All supplementary columns will be overlooked.</p></li>
+<li><p>If you opt for a .tif format for the aforementioned files, ensure consistency in the EPSG code across them.</p></li>
+</ul>
+<p><strong>Example of a ParAcousti Input</strong></p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>ParAcousti File</p></td>
+<td><p>Species % Occurrence File</p></td>
+<td><p>Species Density File</p></td>
+<td><p>% of yr</p></td>
+</tr>
+<tr class="row-even"><td><p>paracousti_data1.nc</p></td>
+<td><p>species_occurrence1.csv</p></td>
+<td><p>species_density1.csv</p></td>
+<td><p>0.25</p></td>
+</tr>
+<tr class="row-odd"><td><p>paracousti_data2.nc</p></td>
+<td><p>species_occurrence2.tif</p></td>
+<td><p>species_density2.tif</p></td>
+<td><p>0.50</p></td>
+</tr>
+<tr class="row-even"><td><p>paracousti_data3.nc</p></td>
+<td><p>species_occurrence3.csv</p></td>
+<td><p>species_density3.csv</p></td>
+<td><p>0.10</p></td>
+</tr>
+<tr class="row-odd"><td><p>paracousti_data4.nc</p></td>
+<td><p>species_occurrence4.tif</p></td>
+<td><p>species_density4.tif</p></td>
+<td><p>0.15</p></td>
+</tr>
+</tbody>
+</table>
+<p>Key:</p>
+<ul class="simple">
+<li><p><cite>ParAcousti File</cite>: The name of the ParAcousti .nc file.</p></li>
+<li><p><cite>Species % Occurrence File</cite>: Either a .csv or .tif file indicating species percent occurrence.</p></li>
+<li><p><cite>Species Density File</cite>: Either a .csv or .tif file detailing species density.</p></li>
+<li><p><cite>% of yr</cite>: Represents the percentage of the year.</p></li>
+</ul>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="model_results_dir.html" class="btn btn-neutral float-left" title="Model Results Directory" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="paracousti.html" class="btn btn-neutral float-right" title="ParAcousti" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="model_results_dir.html" class="btn btn-neutral float-left" title="Model Results Directories" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="power_dir.html" class="btn btn-neutral float-right" title="Power Files Directory (optional)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

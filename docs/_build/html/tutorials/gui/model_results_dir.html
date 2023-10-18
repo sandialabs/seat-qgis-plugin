@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Model Results Directory &mdash; SEAT [1.0.0-beta1] documentation</title>
+  <title>Model Results Directories &mdash; SEAT [1.0.0-beta1] documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
@@ -55,13 +55,12 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../file_access.html">Tutorial Files Access</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="gui.html">Graphical User Interface</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="stressor.html">Stressor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stressor.html">Stressor Selection</a></li>
 <li class="toctree-l3"><a class="reference internal" href="coordinate_ref_sys.html">Coordinate Reference System</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Model Results Directory</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Model Results Directories</a></li>
 <li class="toctree-l3"><a class="reference internal" href="probabilities.html">Probabilities (optional)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="paracousti.html">ParAcousti</a></li>
 <li class="toctree-l3"><a class="reference internal" href="power_dir.html">Power Files Directory (optional)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="receptor.html">Receptor (optional)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="receptor.html">Receptor File Input (Optional)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="secondary_constraint.html">Secondary Constraint</a></li>
 <li class="toctree-l3"><a class="reference internal" href="output_dir.html">Output Directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="output_style_files.html">Output Style Files</a></li>
@@ -91,7 +90,7 @@
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../tutorials.html">Tutorials</a></li>
           <li class="breadcrumb-item"><a href="gui.html">Graphical User Interface</a></li>
-      <li class="breadcrumb-item active">Model Results Directory</li>
+      <li class="breadcrumb-item active">Model Results Directories</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/tutorials/gui/model_results_dir.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -101,27 +100,34 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="model-results-directory">
-<h1>Model Results Directory<a class="headerlink" href="#model-results-directory" title="Link to this heading"></a></h1>
+  <section id="model-results-directories">
+<h1>Model Results Directories<a class="headerlink" href="#model-results-directories" title="Link to this heading"></a></h1>
 <dl class="simple">
-<dt>There are two model result directories needed for the analysis:</dt><dd><ol class="arabic simple">
-<li><p>Baseline results directory</p></li>
-<li><p>Model results directory</p></li>
+<dt>For a comprehensive analysis, you’ll need to specify two distinct directories from your model results:</dt><dd><ol class="arabic simple">
+<li><p><strong>Baseline Results Directory</strong>: Contains the model results without any devices.</p></li>
+<li><p><strong>Model Results Directory</strong>: Houses the model results with devices incorporated.</p></li>
 </ol>
 </dd>
 </dl>
 <figure class="align-default">
-<a class="reference internal image-reference" href="../../_images/model_results_directory_input.webp"><img alt="Model Results Directory" src="../../_images/model_results_directory_input.webp" style="width: 1000.0px; height: 96.0px;" /></a>
+<a class="reference internal image-reference" href="../../_images/model_results_directory_input.webp"><img alt="Interface to choose the Model Results Directory in SEAT's GUI." src="../../_images/model_results_directory_input.webp" style="width: 1000.0px; height: 96.0px;" /></a>
 </figure>
-<p>Select the directory containing the model results with devices and the directory containing the baseline (without devices) model results. These model results must be in netCDF format.</p>
-<p>The model results can have 2 formats.</p>
+<p>To proceed:</p>
+<ul class="simple">
+<li><p>Ensure you select the directory that contains the model results with devices, and another for the baseline results without devices.</p></li>
+<li><p>It’s crucial that all model results are in the <cite>netCDF</cite> format.</p></li>
+</ul>
+<p>There are two accepted formats for the model results:</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li><p>A concatenated single *.nc file with the model run number as the first dimension [RunNum, Depth, X, Y]. (Only one file per directory if this format is used).</p></li>
-<li><p>Multiple files with naming format name_RunNum_map.nc, where RunNum must come before the map.nc and be separated by a single underscore on either side.</p></li>
+<li><p>A single concatenated <cite>*.nc</cite> file with the model run number as its first dimension, arranged as [RunNum, Depth, X, Y]. Ensure there’s only one file per directory when using this format.</p></li>
+<li><p>Multiple files, each named in the format: <cite>name_RunNum_map.nc</cite>. Here, <cite>RunNum</cite> should precede <cite>map.nc</cite> and be flanked by a single underscore on each side.</p></li>
 </ol>
 </div></blockquote>
-<p>The number of baseline model files must match the device model files.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The number of baseline model files should be identical to the number of device model files to maintain consistency in your analysis.</p>
+</div>
 </section>
 
 
