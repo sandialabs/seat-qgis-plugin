@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tutorial Files Access &mdash; SEAT [1.0.0-beta1] documentation</title>
+  <title>Accessing Tutorial Files &mdash; SEAT [1.0.0-beta1] documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -26,7 +26,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Graphical User Interface" href="gui/gui.html" />
+    <link rel="next" title="Setting Up Style Files" href="prepare_style_files.html" />
     <link rel="prev" title="Tutorials" href="tutorials.html" /> 
 </head>
 
@@ -52,10 +52,11 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gui/gui.html">Graphical User Interface</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Tutorial Files Access</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gui/gui.html">Graphical User Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tanana.html">Tanana River</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Accessing Tutorial Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prepare_style_files.html">Setting Up Style Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tanana.html">Tanana River Analysis</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pmec.html">PMEC Site</a></li>
 </ul>
 </li>
@@ -77,7 +78,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="tutorials.html">Tutorials</a></li>
-      <li class="breadcrumb-item active">Tutorial Files Access</li>
+      <li class="breadcrumb-item active">Accessing Tutorial Files</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/tutorials/file_access.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -87,29 +88,62 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="tutorial-files-access">
-<h1>Tutorial Files Access<a class="headerlink" href="#tutorial-files-access" title="Link to this heading"></a></h1>
-<p>Access to the tutorial files is available upon request. Please send an email as directed in the instructions below:</p>
+  <section id="accessing-tutorial-files">
+<span id="tutorial-files-access"></span><h1>Accessing Tutorial Files<a class="headerlink" href="#accessing-tutorial-files" title="Link to this heading"></a></h1>
+<p>Tutorial files are available upon request. To gain access, please follow the email instructions provided below:</p>
 <ul class="simple">
-<li><p>Email to both:</p>
+<li><p><strong>Recipient</strong>: Send your email to both:
+- <cite>tnelson&#64;integral-corp.com</cite>
+- <cite>smcwilliams&#64;integral-corp.com</cite></p></li>
+<li><p><strong>Subject</strong>:</p>
 <ul>
-<li><p><cite>tnelson&#64;integral-corp.com</cite></p></li>
-<li><p><cite>smcwilliams&#64;integral-corp.com</cite></p></li>
+<li><p><cite>SEAT Tutorial File Access</cite></p></li>
 </ul>
 </li>
-<li><p>Subject:</p>
+<li><p><strong>Email Body</strong>:</p>
 <ul>
-<li><p>SEAT Tutorial File Access</p></li>
-</ul>
-</li>
-<li><p>Body</p>
+<li><p>Provide the following information:</p>
 <ul>
-<li><p>Name</p></li>
-<li><p>Company/institution</p></li>
-<li><p>Intended use</p></li>
+<li><p>Your Name</p></li>
+<li><p>Your Company/Institution</p></li>
+<li><p>Intended Use of the Tutorial Files</p></li>
 </ul>
 </li>
 </ul>
+</li>
+</ul>
+<p>Upon approval, you will receive access to a collection of folders containing the tutorial files. The directory structure is outlined below. Each of the four provided fodlers is highlighted for emphasis, namely <cite>DEMO paracousti</cite>, <cite>DEMO structured</cite>, <cite>DEMO unstructured</cite>, and <cite>style_files</cite>.</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<span id="demo-files"></span><div class="code-block-caption"><span class="caption-text">DEMO Directory</span><a class="headerlink" href="#id1" title="Link to this code"></a></div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>  DEMO
+<span class="hll">  ├───DEMO paracousti
+</span>  │   ├───paracousti_files
+  │   ├───probability
+  │   ├───receptor
+  │   └───species
+<span class="hll">  ├───DEMO structured
+</span>  │   ├───boundary-condition
+  │   ├───devices-not-present
+  │   ├───devices-present
+  │   ├───Outputs
+  │   ├───power_files
+  │   │   ├───16x6
+  │   │   └───4x4
+  │   ├───receptor
+  │   ├───run-order
+  │   └───_plugin-config-files
+<span class="hll">  ├───DEMO unstructured
+</span>  │   ├───boundary-condition
+  │   ├───Outputs
+  │   ├───receptor
+  │   ├───tanana_dev_1
+  │   ├───tanana_dev_9
+  │   └───tanana_nodev
+<span class="hll">  └───style_files
+</span>      └───Layer Style
+</pre></div>
+</div>
+</div>
 </section>
 
 
@@ -117,7 +151,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="tutorials.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="gui/gui.html" class="btn btn-neutral float-right" title="Graphical User Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="prepare_style_files.html" class="btn btn-neutral float-right" title="Setting Up Style Files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

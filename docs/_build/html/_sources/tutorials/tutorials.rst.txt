@@ -10,7 +10,7 @@ This section covers tutorials put together by the SEAT team to help users quickl
    :hidden:
    
    file_access.rst
-   gui/gui.rst
+   prepare_style_files.rst
    tanana.rst
    pmec.rst
 

@@ -1,6 +1,6 @@
 .. _index:
 
-.. figure:: media/SEAT_white.png
+.. figure:: media/SEAT_white.webp
    :width: 95%
    :align: left
    :alt: SEAT Logo
@@ -11,6 +11,7 @@
 
    overview.rst
    installation.rst
+   gui/gui.rst
    tutorials/tutorials.rst
    modules/modules.rst
 
@@ -46,7 +47,7 @@ SEAT's primary functionality is to enable users to create risk quantification ma
 
 **Example Application**: Consider the Tanana River Test Site at Nenana, AK. Here, SEAT visualizes the spatial distribution of shear stress derived from the Dflow-FM model. Using these distributions, the risk to the environment from CECs is computed. This risk assessment leverages the CEC power matrix and the spatial metrics of shear stress and velocity. The cumulative risk for each CEC is then aggregated to present a comprehensive spatial risk distribution.
 
-.. figure:: media/CEC_SEAT.png
+.. figure:: media/CEC_SEAT.webp
    :width: 100%
    :align: center
    :alt: SEAT Application to the Tanana River Test Site at Nenana, AK
@@ -61,7 +62,7 @@ SEAT's primary functionality is to enable users to create risk quantification ma
 
 **Example Application**: Consider the PacWave testsite off the coast of Newport, OR. Here, SEAT visualizes the spatial distribution of wave energy flux derived from the SWAN model. Using these distributions, the risk to the environment from WECs is computed. This risk assessment leverages the WEC power matrix and the spatial metrics of wave energy flux, wave height, and wave period. The cumulative risk for each WEC is then aggregated to present a comprehensive spatial risk distribution.
 
-.. figure:: media/WEC_power_matrix.png
+.. figure:: media/WEC_power_matrix.webp
    :width: 80%
    :align: center
    :alt: WEC devices represented with Power Matrix relative to HS, TP. 
@@ -69,7 +70,7 @@ SEAT's primary functionality is to enable users to create risk quantification ma
    WEC devices represented with Power Matrix relative to HS, TP.    
 
 
-.. figure:: media/WEC_spatial.png
+.. figure:: media/WEC_spatial.webp
   :width: 80%
   :align: center
   :alt: Spatial data such as sediment grainsize, species density, etc.
@@ -77,7 +78,7 @@ SEAT's primary functionality is to enable users to create risk quantification ma
   Spatial data such as sediment grainsize, species density, etc.   
 
 
-.. figure:: media/WEC_risk.png
+.. figure:: media/WEC_risk.webp
    :width: 80%
    :align: center
    :alt: Results represent influence of arrays energy capture across range of conditions and receptor response
