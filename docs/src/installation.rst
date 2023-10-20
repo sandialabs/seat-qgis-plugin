@@ -78,7 +78,7 @@ https://github.com/sandialabs/seat-qgis-plugin/releases/
 2. Select the Install from ZIP option.
 
    .. figure:: media/installPlugin.webp
-      :scale: 50 %
+      :scale: 60 %
       :alt: Install from ZIP
 
 3. Navigate to the SEAT zip package.
@@ -86,7 +86,7 @@ https://github.com/sandialabs/seat-qgis-plugin/releases/
 5. The SEAT icon should appear in the toolbar and as a Plugin menu option.
 
 .. figure:: media/SEAT_Toolbar.webp
-   :scale: 125 %
+   :scale: 50 %
    :alt: SEAT icon in QGIS toolbar 
    
    If you see the SEAT icon you have succesfully install SEAT.
