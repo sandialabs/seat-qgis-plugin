@@ -26,8 +26,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Modules" href="../modules/modules.html" />
-    <link rel="prev" title="Graphical User Interface" href="../gui.html" /> 
+    <link rel="next" title="Accessing Tutorial Files" href="file_access.html" />
+    <link rel="prev" title="Save &amp; Load Configuration" href="../gui/save_load_config.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -52,19 +52,12 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../gui.html">Graphical User Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gui/gui.html">Graphical User Interface</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorials</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#tutorial-files-access">Tutorial Files Access</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#tanana-river">Tanana River</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#sedimentation-analysis">Sedimentation Analysis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#larval-transport-analysis">Larval Transport Analysis</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#pmec-site">PMEC Site</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#sedimentation-analysis-and-power-generation">Sedimentation Analysis and Power Generation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#acoustic-effects">Acoustic Effects</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="file_access.html">Accessing Tutorial Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prepare_style_files.html">Setting Up Style Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tanana.html">Tanana River Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pmec.html">PMEC Site</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../modules/modules.html">Modules</a></li>
@@ -96,95 +89,17 @@
              
   <section id="tutorials">
 <span id="id1"></span><h1>Tutorials<a class="headerlink" href="#tutorials" title="Link to this heading"></a></h1>
-<section id="tutorial-files-access">
-<h2>Tutorial Files Access<a class="headerlink" href="#tutorial-files-access" title="Link to this heading"></a></h2>
-<p>Access to the tutorial files is available upon request. Please send an email to <cite>Tim Nelson &lt;tnelson&#64;integral-corp.com&gt;</cite> and <cite>Sam McWilliams &lt;smcwilliams&#64;integral-corp.com&gt;</cite>. Use Subject: SEAT Tutorial File Access. Include your name, company/institution, and intended use in the body of the email. If you have a suggestions please enter the comment on the GitHub page.</p>
-</section>
-<section id="tanana-river">
-<h2>Tanana River<a class="headerlink" href="#tanana-river" title="Link to this heading"></a></h2>
-<p>The Tanana River located in central Alaska is being considered as a viable site for current energy capture. The town of Nenana, located on the inner bank of a bend in the river, could benefit from locally generated energy rather than diesel generators. A current energy capture device has been tested on site and ongoing data collection events, related to local fish populations and benthic characteristics, could allow for a robust characterization of the impact a long-term deployment could have on the system. A model was developed on an unstructured grid in DFlow-FM to simulate a range of flow return periods with device arrays present. The flow cases are applied to both baseline (no devices present) conditions and with devices present.</p>
-<section id="sedimentation-analysis">
-<h3>Sedimentation Analysis<a class="headerlink" href="#sedimentation-analysis" title="Link to this heading"></a></h3>
-<ul>
-<li><p>Example model input can be found in “./DEMO unstructured/shear_stress_with_receptor_demo.ini”</p>
-<p>The model data consists of individual .nc files for each flow return period. The flow period within .nc filename is used to determine the probability of occurrence.</p>
-<ul class="simple">
-<li><p>This set of inputs evaluates the impact on sediment mobility given a single median grain size receptor in a CSV file.</p></li>
-</ul>
-</li>
-</ul>
-<p>For this case the probability weighted shear stress for model runs with devices is compared to the probability weighted shear stress without devices.</p>
-<figure class="align-default">
-<a class="reference internal image-reference" href="../_images/cec_tutorial_shear_inputs.webp"><img alt="Tanana sedimentation example input" src="../_images/cec_tutorial_shear_inputs.webp" style="width: 1000.0px; height: 228.0px;" /></a>
-</figure>
-<p>The calculated stressor (change in shear stress difference), stressor with receptor (change in sediment mobility), and the reclassified stressor from the analysis are shown below.</p>
-<figure class="align-default">
-<img alt="Tanana sedimentation example risk" src="../_images/cec_tutorial_shear_risk.webp" />
-</figure>
-</section>
-<section id="larval-transport-analysis">
-<h3>Larval Transport Analysis<a class="headerlink" href="#larval-transport-analysis" title="Link to this heading"></a></h3>
-<ul>
-<li><p>Example model input can be found in “DEMO unstructured/velocity_with_receptor_demo.ini”</p>
-<ul class="simple">
-<li><p>This set of inputs evaluates the impact on larval motility given a single critical velocity receptor in a CSV file.</p></li>
-</ul>
-<p>For this case the velocity with devices is compared to the velocity without devices and a difference (stressor) is calculated.</p>
-</li>
-</ul>
-<figure class="align-default">
-<a class="reference internal image-reference" href="../_images/cec_tutorial_velocity_risk.webp"><img alt="Tanana velocity example risk" src="../_images/cec_tutorial_velocity_risk.webp" style="width: 1000.0px; height: 228.0px;" /></a>
-</figure>
-</section>
-</section>
-<section id="pmec-site">
-<h2>PMEC Site<a class="headerlink" href="#pmec-site" title="Link to this heading"></a></h2>
-<p>The Pacific Marine Energy Center (PMEC) is a designated area for marine energy testing on the coast of Oregon. This site has been the focus of model development and SEAT application. A coupled hydrodynamic and wave model was developed using SNL-SWAN and Delft3D-Flow. A range of site conditions is listed in the Model Probabilities File. This site includes information regarding sediment grain size, device power generation, and acoustic effects.</p>
-<section id="sedimentation-analysis-and-power-generation">
-<h3>Sedimentation Analysis and Power Generation<a class="headerlink" href="#sedimentation-analysis-and-power-generation" title="Link to this heading"></a></h3>
-<ul class="simple">
-<li><p>Example model input can be found in “DEMO structured/shear_stress_with_receptor.ini”</p></li>
-</ul>
-<p>This set of inputs includes a GeoTiff of grain sizes as a receptor layer, power generation files at .OUT files with georeferencing in .pol files. The model files are concatenated into a single .nc file.</p>
-<ul class="simple">
-<li><p>The sedimentation analysis indicates a predominant decrease in sediment erosion and increase in sediment deposition in the lee of the array, with less mobility occurring over larger sediment size classes.</p></li>
-</ul>
-<figure class="align-default">
-<a class="reference internal image-reference" href="../_images/wec_shear_tutorial.webp"><img alt="PMEC shear stress example risk" src="../_images/wec_shear_tutorial.webp" style="width: 1000.0px; height: 226.0px;" /></a>
-</figure>
-<ul class="simple">
-<li><p>The power generation is saved as individual images and tables in the selected output folder</p></li>
-</ul>
-<figure class="align-default">
-<a class="reference internal image-reference" href="../_images/Total_Scaled_Power_per_Device_.webp"><img alt="PMEC power generated per device bar plots" src="../_images/Total_Scaled_Power_per_Device_.webp" style="width: 1000.0px; height: 666.0px;" /></a>
-</figure>
-<figure class="align-default">
-<a class="reference internal image-reference" href="../_images/Device_Power.webp"><img alt="PMEC power generated per device heat map" src="../_images/Device_Power.webp" style="width: 1000.0px; height: 666.0px;" /></a>
-</figure>
-<figure class="align-default">
-<a class="reference internal image-reference" href="../_images/power_output_csv.webp"><img alt="PMEC power generated per hydrodynamic scenario" src="../_images/power_output_csv.webp" style="width: 1000.0px; height: 726.0px;" /></a>
-</figure>
-</section>
-<section id="acoustic-effects">
-<h3>Acoustic Effects<a class="headerlink" href="#acoustic-effects" title="Link to this heading"></a></h3>
-<p>The acoustic effects from the WEC array at PMEC can be evaluated using the Acoustic module in the SEAT GUI. This module reads in individual Paracousti model .nc files that correspond to wave conditions.
-For a given probability of occurrence of each wave condition the combined annual acoustic effects can be estimated. SEAT generates a similar stressor layer consisting of the difference between the acoustic effects with and without the array. With a provided receptor file which consists of information regarding the species, threshold value, weighting, and variable used, a threshold map is generated as a percentage of time (based on the probability distribution) that a threshold will be exceeded. For demonstration purposes, an artificially low threshold is used to generate the percent exceeded threshold figure below.</p>
-<figure class="align-default">
-<a class="reference internal image-reference" href="../_images/paracousti_stressor.webp"><img alt="PMEC sound pressure level stressor" src="../_images/paracousti_stressor.webp" style="width: 1000.0px; height: 707.0px;" /></a>
-</figure>
-<figure class="align-default">
-<a class="reference internal image-reference" href="../_images/paracousti_percent.webp"><img alt="PMEC acoustic threshold exceedance percentage" src="../_images/paracousti_percent.webp" style="width: 1000.0px; height: 707.0px;" /></a>
-</figure>
-</section>
-</section>
+<p>This section covers tutorials put together by the SEAT team to help users quickly get started with SEAT. To run SEAT multiple model files and detailed receptor information about a site is needed. As such to gain access to the file please follow the directions in the <cite>Tutorial File Access</cite> section.</p>
+<div class="toctree-wrapper compound">
+</div>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../gui.html" class="btn btn-neutral float-left" title="Graphical User Interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../modules/modules.html" class="btn btn-neutral float-right" title="Modules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../gui/save_load_config.html" class="btn btn-neutral float-left" title="Save &amp; Load Configuration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="file_access.html" class="btn btn-neutral float-right" title="Accessing Tutorial Files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

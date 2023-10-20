@@ -3,12 +3,18 @@
 Tutorials
 ==========
 
-Tutorial Files Access
----------------------
+This section covers tutorials put together by the SEAT team to help users quickly get started with SEAT. To run SEAT multiple model files and detailed receptor information about a site is needed. As such to gain access to the file please follow the directions in the `Tutorial File Access` section.
 
-Access to the tutorial files is available upon request. Please send an email to `Tim Nelson <tnelson@integral-corp.com>` and `Sam McWilliams <smcwilliams@integral-corp.com>`. Use Subject: SEAT Tutorial File Access. Include your name, company/institution, and intended use in the body of the email. If you have a suggestions please enter the comment on the GitHub page.
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   
+   file_access.rst
+   prepare_style_files.rst
+   tanana.rst
+   pmec.rst
 
 
-.. include:: tanana.rst
 
-.. include:: pmec.rst
+
+

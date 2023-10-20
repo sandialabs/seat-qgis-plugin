@@ -1,6 +1,6 @@
 .. _overview:
 
-.. figure:: media/SEAT_white_full.png
+.. figure:: media/SEAT_white_full.webp
    :width: 95%
    :align: left
    :alt: SEAT Logo
@@ -25,7 +25,7 @@ SNL-SWAN
 ^^^^^^^^
 SNL-SWAN is a modification of the open source	SWAN (Simulating WAves Nearshore) code developed by	TU Delft and includes the addition of a WEC Module which improves how SWAN accounts for power performance of Wave Energy Converters (WECs) and their effect on wave fields.
 
-.. figure:: media/SNL_SWAN_Hs_diff.jpeg
+.. figure:: media/SNL_SWAN_Hs_diff.webp
    :width: 100%
    :align: center
    :alt: Simulation of a WEC array in SNL-SWAN showing the difference in wave heights due to the presence of the array.
@@ -38,7 +38,7 @@ SNL-Delft3D-CEC
 
 SNL-Delft3D-CEC incorporates a state-of-the-art current energy conversion (CEC) module within both the structured grid and flexible mesh versions of the open-source Delft3D-FLOW software developed by Deltares. In partnership with Deltares, Sandia modifications include a CEC Module that simulates energy conversion (momentum withdrawal) by marine hydrokinetic (MHK) turbine or turbine-like devices including commensurate changes in turbulent kinetic energy and turbulent kinetic energy dissipation rate. SNL-Delft3D-CEC can be coupled to SNL-SWAN to simulate coastal circulation and evaluate the effects of wave energy converters (WEC) on the marine environment.
 
-.. figure:: media/SNL_Delft3D_SFBay.jpeg
+.. figure:: media/SNL_Delft3D_SFBay.webp
    :width: 100%
    :align: center
    :alt: Turbine array in the San Francisco Bay inlet simulated with SNL-Delft3D.
@@ -52,7 +52,7 @@ Paracousti
 
 Paracousti is an underwater sound propagation tool used to investigate changes to the pressures and particle velocities within the marine environment from arrays of current- and wave-energy converters. Paracousti solves the governing equations with a finite-difference, time-domain scheme that can be massively parallelized for use on high performance computing clusters.
 
-.. figure:: media/paracousti_SP_propagation.jpg
+.. figure:: media/paracousti_SP_propagation.webp
    :width: 100%
    :align: center
    :alt: Simulation of sound pressure (SP) propagation from a simulated MHK source in Paracousti.
@@ -68,7 +68,7 @@ To accurately understand physical processes and their potential relationship to 
 The SEAT incorporates device specific parameters, site-specific hydrodynamic conditions, and local receptor information to assess the potential for environmental change within a system. Results from a successful SEAT application informs developers and regulators on the risk of environmental change associated with deploying a device or array in a site of interest. The Sandia developed state-of-the-science numerical models (SNL-SWAN, SNL-Delft3D-CEC, Paracousti) leveraged in the SEAT analysis can account for the effects of device size, shape, power extraction, sound generation, and, in the case of CEC devices, turbulence generation on hydrodynamics and interrelated processes. By assessing the changes to the system on multiple time scales, risk metrics specific to receptors of interest are developed and communicated on a range of spatial scales. Application of the tool has and continues to help address regulatory concerns about site-specific environmental responses to user-defined MHK array designs, thereby accelerating environmentally responsible deployment for power generation.
 
 
-.. figure:: media/SEAT_benthic_risk.jpeg
+.. figure:: media/SEAT_benthic_risk.webp
    :width: 100%
    :align: center
    :alt: Map of risk of benthic disturbance due to presence of WEC array. The SEAT risk mapping can be linked with receptor descriptions to evaluate potential environmental risk.
