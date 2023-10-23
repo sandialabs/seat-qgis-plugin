@@ -27,7 +27,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="PMEC Site" href="pmec.html" />
-    <link rel="prev" title="Setting Up Style Files" href="prepare_style_files.html" /> 
+    <link rel="prev" title="Quick Map Services" href="quick_map_services.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -56,6 +56,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="file_access.html">Accessing Tutorial Files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="prepare_style_files.html">Setting Up Style Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_map_services.html">Quick Map Services</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Tanana River Analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#accessing-demonstration-files">Accessing Demonstration Files</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#sedimentation-analysis-shear-stress">Sedimentation Analysis (Shear Stress)</a><ul>
@@ -110,7 +111,9 @@
 <p>Evaluate the impact of CEC devices on sediment mobility considering a single median grain size receptor in a CSV file.</p>
 <section id="input">
 <h3>Input<a class="headerlink" href="#input" title="Link to this heading"></a></h3>
-<p>To begin, use the <strong>Load GUI Inputs</strong> button located at the bottom left of the SEAT GUI, navigate to <code class="file docutils literal notranslate"><span class="pre">DEMO/unstructured</span> <span class="pre">DEMO/shear_stress_with_receptor_demo.ini</span></code>, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the <a class="reference internal" href="../gui/save_load_config.html#save-load-config"><span class="std std-ref">Save &amp; Load Configuration</span></a> section in the <a class="reference internal" href="../gui/gui.html#gui"><span class="std std-ref">Graphical User Interface</span></a> documention.</p>
+<p>If you have not done so before naviage to <code class="file docutils literal notranslate"><span class="pre">DEMO/unstructured</span> <span class="pre">DEMO/</span></code>. In that folder you will find a number of .default files. You need to open these and replace <cite>&lt;input_folder&gt;</cite> with the path to the DEMO unstructured folder on your machine and <code class="docutils literal notranslate"><span class="pre">&lt;style_folder&gt;</span></code> with the path to the style_files folder on your machine. If you use python a script titled <code class="docutils literal notranslate"><span class="pre">localize_input_files.py</span></code> will do this for you. You can run this script by navigating to the DEMO unstructured folder in a terminal and typing <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">localize_input_files.py</span></code>. If you do not have python you can open the files in a text editor and replace the text manually.</p>
+<p>Example use of the script is shown below. After running the script .ini files will appear in the DEMO unstructured folder. These are the files you will use to load the inputs into the SEAT GUI.</p>
+<p>With the <em>ini files created, use the **Load GUI Inputs*</em> button located at the bottom left of the SEAT GUI, navigate to <code class="file docutils literal notranslate"><span class="pre">DEMO/unstructured</span> <span class="pre">DEMO/shear_stress_with_receptor_demo.ini</span></code>, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the <a class="reference internal" href="../gui/save_load_config.html#save-load-config"><span class="std std-ref">Save &amp; Load Configuration</span></a> section in the <a class="reference internal" href="../gui/gui.html#gui"><span class="std std-ref">Graphical User Interface</span></a> documention.</p>
 <p>Refer to <a class="reference internal" href="#unstructured-files"><span class="std std-ref">DEMO unstructured Directory</span></a> for details on the model data which consists of individual .nc files for each flow return period. The period within the .nc filename determines the probability of occurrence.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
@@ -118,7 +121,7 @@
 </div>
 <p>Create an Output folder corresponding to the path you have set, as this is where the analysis outputs will be saved.</p>
 <figure class="align-default">
-<a class="reference internal image-reference" href="../_images/tanana_shear_stress_with_receptor_input.png"><img alt="Tanana sedimentation example input" src="../_images/tanana_shear_stress_with_receptor_input.png" style="width: 801.0px; height: 623.0px;" /></a>
+<a class="reference internal image-reference" href="../_images/tanana_shear_stress_with_receptor_input.webp"><img alt="Tanana sedimentation example input" src="../_images/tanana_shear_stress_with_receptor_input.webp" style="width: 801.0px; height: 623.0px;" /></a>
 </figure>
 </section>
 <section id="output">
@@ -152,66 +155,43 @@
 <div class="literal-block-wrapper docutils container" id="id1">
 <span id="unstructured-files"></span><div class="code-block-caption"><span class="caption-text">DEMO unstructured Directory</span><a class="headerlink" href="#id1" title="Link to this code"></a></div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span> DEMO
- ├───DEMO unstructured
- │   │   shear_stress_no_receptor_demo.ini
- │   │   shear_stress_with_receptor_demo.ini
- │   │   velocity_no_receptor_demo.ini
- │   │   velocity_with_receptor_demo.ini
- │   │
- │   ├───boundary-condition
- │   │       boundar_condition.csv
- │   │
- │   ├───receptor
- │   │       grain_size_receptor.csv
- │   │       velocity_receptor.csv
- │   │
- │   ├───tanana_dev_1
- │   │       1_tanana_100_map.nc
- │   │       1_tanana_10_map.nc
- │   │       1_tanana_1_map.nc
- │   │       1_tanana_25_map.nc
- │   │       1_tanana_50_map.nc
- │   │       1_tanana_5_map.nc
- │   │
- │   ├───tanana_dev_9
- │   │       9_tanana_100_map.nc
- │   │       9_tanana_10_map.nc
- │   │       9_tanana_1_map.nc
- │   │       9_tanana_25_map.nc
- │   │       9_tanana_50_map.nc
- │   │       9_tanana_5_map.nc
- │   │
- │   └───tanana_nodev
- │           0_tanana_100_map.nc
- │           0_tanana_10_map.nc
- │           0_tanana_1_map.nc
- │           0_tanana_25_map.nc
- │           0_tanana_50_map.nc
- │           0_tanana_5_map.nc
- │
- └───style_files
-    │   Acoustics_blue_whale - Copy.csv
-    │   Acoustics_blue_whale.csv
-    │   Acoustics_fake_whale.csv
-    │   Shear_Stress - Structured.csv
-<span class="hll">    │   Shear_Stress - Unstructured.csv
-</span><span class="hll">    │   Velocity.csv
-</span>    │
-    └───Layer Style
-             acoustics_density_demo.qml
-             acoustics_percent_demo.qml
-             acoustics_stressor_bluewhale.qml
-             acoustics_stressor_demo.qml
-             acoustics_threshold_demo.qml
-             receptor_blues.qml
-             shear_stress_continuous.qml
-             shear_stress_continuous_unstructured.qml
-             shear_stress_receptor_classified.qml
-             shear_stress_receptor_continuous.qml
-             shear_stress_reclass.qml
-             velocity_continuous_stressor_vik.qml
-             velocity_continuous_stressor_with_receptor.qml
-             velocity_motility_classification_vik.qml
+ └───DEMO unstructured
+       │   shear_stress_no_receptor_demo.default
+       │   shear_stress_no_receptor_demo.ini
+       │   shear_stress_with_receptor_demo.default
+       │   shear_stress_with_receptor_demo.ini
+       │   velocity_no_receptor_demo.default
+       │   velocity_no_receptor_demo.ini
+       │   velocity_with_receptor_demo.default
+       │   velocity_with_receptor_demo.ini
+       │
+       ├───receptor
+       │       grain_size_receptor.csv
+       │       velocity_receptor.csv
+       │
+       ├───tanana_dev_1
+       │       1_tanana_100_map.nc
+       │       1_tanana_10_map.nc
+       │       1_tanana_1_map.nc
+       │       1_tanana_25_map.nc
+       │       1_tanana_50_map.nc
+       │       1_tanana_5_map.nc
+       │
+       ├───tanana_dev_9
+       │       9_tanana_100_map.nc
+       │       9_tanana_10_map.nc
+       │       9_tanana_1_map.nc
+       │       9_tanana_25_map.nc
+       │       9_tanana_50_map.nc
+       │       9_tanana_5_map.nc
+       │
+       └───tanana_nodev
+             0_tanana_100_map.nc
+             0_tanana_10_map.nc
+             0_tanana_1_map.nc
+             0_tanana_25_map.nc
+             0_tanana_50_map.nc
+             0_tanana_5_map.nc
 </pre></div>
 </div>
 </div>
@@ -222,7 +202,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="prepare_style_files.html" class="btn btn-neutral float-left" title="Setting Up Style Files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="quick_map_services.html" class="btn btn-neutral float-left" title="Quick Map Services" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="pmec.html" class="btn btn-neutral float-right" title="PMEC Site" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
