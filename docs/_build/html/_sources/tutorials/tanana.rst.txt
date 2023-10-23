@@ -16,7 +16,18 @@ Evaluate the impact of CEC devices on sediment mobility considering a single med
 Input
 """"""
 
-To begin, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO/unstructured DEMO/shear_stress_with_receptor_demo.ini`, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the :ref:`save_load_config` section in the :ref:`gui` documention.
+If you have not done so before naviage to :file:`DEMO/unstructured DEMO/`. In that folder you will find a number of .default files. You need to open these and replace `<input_folder>` with the path to the DEMO unstructured folder on your machine and ``<style_folder>`` with the path to the style_files folder on your machine. If you use python a script titled ``localize_input_files.py`` will do this for you. You can run this script by navigating to the DEMO unstructured folder in a terminal and typing ``python localize_input_files.py``. If you do not have python you can open the files in a text editor and replace the text manually.
+
+Example use of the script is shown below. After running the script .ini files will appear in the DEMO unstructured folder. These are the files you will use to load the inputs into the SEAT GUI.
+
+.. code_block::bash
+   
+   $ python localize_input_files.py 
+   Where are your input files? C:\\Users\\sterl\\OneDrive\\Desktop\\DEMO\\DEMO unstructured
+   Where is your style_files folder? C:\\Users\\sterl\\OneDrive\\Desktop\\DEMO\\style_files
+
+
+With the *ini files created, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO/unstructured DEMO/shear_stress_with_receptor_demo.ini`, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the :ref:`save_load_config` section in the :ref:`gui` documention.
 
 Refer to :ref:`unstructured_files` for details on the model data which consists of individual .nc files for each flow return period. The period within the .nc filename determines the probability of occurrence.
 
@@ -25,7 +36,7 @@ Refer to :ref:`unstructured_files` for details on the model data which consists 
 
 Create an Output folder corresponding to the path you have set, as this is where the analysis outputs will be saved.
 
-.. figure:: ../media/tanana_shear_stress_with_receptor_input.png
+.. figure:: ../media/tanana_shear_stress_with_receptor_input.webp
    :scale: 100 %
    :alt: Tanana sedimentation example input
 
@@ -66,66 +77,42 @@ List of Files
 
 ..  code-block:: none
   :caption: DEMO unstructured Directory 
-  :emphasize-lines: 44, 45
 
    DEMO
-   ├───DEMO unstructured
-   │   │   shear_stress_no_receptor_demo.ini
-   │   │   shear_stress_with_receptor_demo.ini
-   │   │   velocity_no_receptor_demo.ini
-   │   │   velocity_with_receptor_demo.ini
-   │   │
-   │   ├───boundary-condition
-   │   │       boundar_condition.csv
-   │   │
-   │   ├───receptor
-   │   │       grain_size_receptor.csv
-   │   │       velocity_receptor.csv
-   │   │
-   │   ├───tanana_dev_1
-   │   │       1_tanana_100_map.nc
-   │   │       1_tanana_10_map.nc
-   │   │       1_tanana_1_map.nc
-   │   │       1_tanana_25_map.nc
-   │   │       1_tanana_50_map.nc
-   │   │       1_tanana_5_map.nc
-   │   │
-   │   ├───tanana_dev_9
-   │   │       9_tanana_100_map.nc
-   │   │       9_tanana_10_map.nc
-   │   │       9_tanana_1_map.nc
-   │   │       9_tanana_25_map.nc
-   │   │       9_tanana_50_map.nc
-   │   │       9_tanana_5_map.nc
-   │   │
-   │   └───tanana_nodev
-   │           0_tanana_100_map.nc
-   │           0_tanana_10_map.nc
-   │           0_tanana_1_map.nc
-   │           0_tanana_25_map.nc
-   │           0_tanana_50_map.nc
-   │           0_tanana_5_map.nc
-   │
-   └───style_files
-      │   Acoustics_blue_whale - Copy.csv
-      │   Acoustics_blue_whale.csv
-      │   Acoustics_fake_whale.csv
-      │   Shear_Stress - Structured.csv
-      │   Shear_Stress - Unstructured.csv
-      │   Velocity.csv
-      │
-      └───Layer Style
-               acoustics_density_demo.qml
-               acoustics_percent_demo.qml
-               acoustics_stressor_bluewhale.qml
-               acoustics_stressor_demo.qml
-               acoustics_threshold_demo.qml
-               receptor_blues.qml
-               shear_stress_continuous.qml
-               shear_stress_continuous_unstructured.qml
-               shear_stress_receptor_classified.qml
-               shear_stress_receptor_continuous.qml
-               shear_stress_reclass.qml
-               velocity_continuous_stressor_vik.qml
-               velocity_continuous_stressor_with_receptor.qml
-               velocity_motility_classification_vik.qml
+   └───DEMO unstructured
+         │   shear_stress_no_receptor_demo.default
+         │   shear_stress_no_receptor_demo.ini
+         │   shear_stress_with_receptor_demo.default
+         │   shear_stress_with_receptor_demo.ini
+         │   velocity_no_receptor_demo.default
+         │   velocity_no_receptor_demo.ini
+         │   velocity_with_receptor_demo.default
+         │   velocity_with_receptor_demo.ini
+         │
+         ├───receptor
+         │       grain_size_receptor.csv
+         │       velocity_receptor.csv
+         │
+         ├───tanana_dev_1
+         │       1_tanana_100_map.nc
+         │       1_tanana_10_map.nc
+         │       1_tanana_1_map.nc
+         │       1_tanana_25_map.nc
+         │       1_tanana_50_map.nc
+         │       1_tanana_5_map.nc
+         │
+         ├───tanana_dev_9
+         │       9_tanana_100_map.nc
+         │       9_tanana_10_map.nc
+         │       9_tanana_1_map.nc
+         │       9_tanana_25_map.nc
+         │       9_tanana_50_map.nc
+         │       9_tanana_5_map.nc
+         │
+         └───tanana_nodev
+               0_tanana_100_map.nc
+               0_tanana_10_map.nc
+               0_tanana_1_map.nc
+               0_tanana_25_map.nc
+               0_tanana_50_map.nc
+               0_tanana_5_map.nc

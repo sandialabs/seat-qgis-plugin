@@ -31,9 +31,60 @@ This set of inputs includes a GeoTiff of grain sizes as a receptor layer, power 
    :scale: 100 %
    :alt: PMEC power generated per device heat map
 
-.. figure:: ../media/power_output_csv.webp
-   :scale: 100 %
-   :alt: PMEC power generated per hydrodynamic scenario
+
+PMEC power generated per hydrodynamic scenario
+
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| Hs    | Tp    | Dp      | % of dir bin | % of yr | run order | Exclude | Power_Run_Name      | Power [W]    |
+| [m]   | [s]   | [deg]   |              |         |           |         |                     |              |
++=======+=======+=========+==============+=========+===========+=========+=====================+==============+
+| 1.76  | 6.6   | 221.8   | 15.41        | 0.39    | 6         |         | POWER_ABS_010.OUT   | 95268714.111 |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 2.67  | 8.2   | 223.0   | 40.68        | 1.029   | 16        |         | POWER_ABS_004.OUT   | 7461469.758  |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 4.06  | 10.16 | 223.1   | 3.75         | 0.095   | 24 x      | X       | POWER_ABS_021.OUT   | 5567445.958  |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 7.05  | 12.33 | 223.6   | 23.04        | 0.586   | 2         |         | POWER_ABS_013.OUT   | 7447026.758  |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 2.11  | 11.6  | 223.9   | 8.06         | 0.203   | 20 x      | X       | POWER_ABS_016.OUT   | 10581894.4   |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 4.91  | 13.62 | 251.2   | 11.99        | 1.764   | 23        |         | POWER_ABS_019.OUT   | 10851884.9   |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 1.7   | 7.73  | 244.8   | 15.03        | 2.212   | 5         |         | POWER_ABS_017.OUT   | 6136127.46   |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 2.69  | 9.8   | 248.5   | 26.75        | 3.937   | 17        |         | POWER_ABS_018.OUT   | 16078901.8   |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 1.23  | 14.62 | 248.8   | 18.54        | 2.729   | 1         |         | POWER_ABS_023.OUT   | 2841905.7    |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 2.31  | 17.54 | 249.4   | 2.72         | 0.584   | 14        |         | POWER_ABS_003.OUT   | 4375975.52   |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 2.94  | 11.77 | 250.6   | 23.72        | 3.49    | 7         |         | POWER_ABS_015.OUT   | 7369018.41   |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 4.9   | 14.43 | 275.8   | 8.78         | 4.698   | 22 x      | X       | POWER_ABS_020.OUT   | 274670833    |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 1.54  | 8.62  | 278     | 11.188       |         | 4         |         | POWER_ABS_011.OUT   | 206397678.2  |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 3.66  | 12    | 277.2   | 20.95        | 11.121  | 19 x      | X       | POWER_ABS_022.OUT   | 1149464816   |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 2.16  | 10.71 | 277.5   | 25.39        | 13.589  | 12        |         | POWER_ABS_014.OUT   | 138944163.6  |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 1.85  | 13.54 | 277.2   | 16.21        | 8.674   | 8         |         | POWER_ABS_009.OUT   | 234556568.9  |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 2.05  | 16.51 | 276.4   | 7.77         | 4.159   | 9 x       | X       | POWER_ABS_012.OUT   | 76652472.5   |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 2.81  | 11.9  | 298.8   | 18.07        | 8.297   | 7         |         | POWER_ABS_005.OUT   | 275272215.2  |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 2.16  | 13.35 | 301.2   | 10.7         | 3.12    | 3         |         | POWER_ABS_006.OUT   | 2934573.29   |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 1.81  | 10.22 | 302.6   | 22.06        | 6.664   | 18        |         | POWER_ABS_008.OUT   | 191651685.6  |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 2.66  | 11.02 | 297.2   | 26.48        | 7.72    | 15        |         | POWER_ABS_013.OUT   | 161280626.8  |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 2.08  | 16.53 | 295.6   | 5.28         | 1.54    | 10        |         | POWER_ABS_007.OUT   | 13757051.64  |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+| 4.65  | 13.23 | 296.2   | 6.22         | 1.813   | 21        |         | POWER_ABS_005.OUT   | 15581540.52  |
++-------+-------+---------+--------------+---------+-----------+---------+---------------------+--------------+
+
 
 
 Acoustic Effects
@@ -59,13 +110,13 @@ List of Files
 
 ..  code-block:: none
   :caption: DEMO unstructured Directory 
-  :emphasize-lines: 2, 45
 
    DEMO
    ├───DEMO paracousti
+   │   │   demo_paracousti_without_species.default
    │   │   demo_paracousti_without_species.ini
+   │   │   demo_paracousti_with_receptor.default
    │   │   demo_paracousti_with_receptor.ini
-   │   │   demo_paracousti_with_receptor_FakeWhale - Copy.ini
    │   │
    │   ├───paracousti_files
    │   │       PacWave_3DSPLs_Hw0.5.nc
@@ -87,79 +138,12 @@ List of Files
    │   │       boundary_conditions.csv
    │   │
    │   ├───receptor
+   │   │       Acoustic_Receptor - BlueWhale - Copy.csv
    │   │       Acoustic_Receptor - BlueWhale.csv
-   │   │       Acoustic_Receptor - FakeWhale.csv
+   │   │       Acoustic_Receptor - Harassment _Whale-IA-AVD-10.csv
+   │   │       Acoustic_Receptor - Harassment _Whale.csv
    │   │
    │   └───species
-   │           WhaleWatchPredictions_2009_1.csv
-   │           WhaleWatchPredictions_2009_9.csv
-   │           WhaleWatchPredictions_2015_04.csv
-   │           WhaleWatchPredictions_2015_05.csv
-   │           WhaleWatchPredictions_2015_06.csv
-   │           WhaleWatchPredictions_2015_08.csv
-   │           WhaleWatchPredictions_2015_09.csv
-   │           WhaleWatchPredictions_2015_10.csv
-   │           WhaleWatchPredictions_2015_11.csv
-   │           WhaleWatchPredictions_2015_12.csv
-   │           WhaleWatchPredictions_2016_01.csv
-   │           WhaleWatchPredictions_2016_02.csv
-   │           WhaleWatchPredictions_2016_03.csv
-   │           WhaleWatchPredictions_2016_04.csv
-   │           WhaleWatchPredictions_2016_05.csv
-   │           WhaleWatchPredictions_2016_06.csv
-   │           WhaleWatchPredictions_2016_07.csv
-   │           WhaleWatchPredictions_2016_08.csv
-   │           WhaleWatchPredictions_2016_09.csv
-   │           WhaleWatchPredictions_2016_10.csv
-   │           WhaleWatchPredictions_2016_11.csv
-   │           WhaleWatchPredictions_2016_12.csv
-   │           WhaleWatchPredictions_2017_01.csv
-   │           WhaleWatchPredictions_2017_02.csv
-   │           WhaleWatchPredictions_2017_03.csv
-   │           WhaleWatchPredictions_2017_04.csv
-   │           WhaleWatchPredictions_2017_05.csv
-   │           WhaleWatchPredictions_2017_06.csv
-   │           WhaleWatchPredictions_2017_07.csv
-   │           WhaleWatchPredictions_2017_08.csv
-   │           WhaleWatchPredictions_2017_09.csv
-   │           WhaleWatchPredictions_2017_10.csv
-   │           WhaleWatchPredictions_2017_11.csv
-   │           WhaleWatchPredictions_2017_12.csv
-   │           WhaleWatchPredictions_2018_01.csv
-   │           WhaleWatchPredictions_2018_02.csv
-   │           WhaleWatchPredictions_2018_03.csv
-   │           WhaleWatchPredictions_2018_04.csv
-   │           WhaleWatchPredictions_2018_05.csv
-   │           WhaleWatchPredictions_2018_06.csv
-   │           WhaleWatchPredictions_2018_07.csv
-   │           WhaleWatchPredictions_2018_08.csv
-   │           WhaleWatchPredictions_2018_09.csv
-   │           WhaleWatchPredictions_2018_10.csv
-   │           WhaleWatchPredictions_2018_11.csv
-   │           WhaleWatchPredictions_2018_12.csv
-   │           WhaleWatchPredictions_2019_01.csv
-   │           WhaleWatchPredictions_2019_02.csv
-   │           WhaleWatchPredictions_2019_03.csv
-   │           WhaleWatchPredictions_2019_04.csv
-   │           WhaleWatchPredictions_2019_05.csv
-   │           WhaleWatchPredictions_2019_06.csv
-   │           WhaleWatchPredictions_2019_07.csv
-   │           WhaleWatchPredictions_2019_08.csv
-   │           WhaleWatchPredictions_2019_09.csv
-   │           WhaleWatchPredictions_2019_10.csv
-   │           WhaleWatchPredictions_2019_11.csv
-   │           WhaleWatchPredictions_2019_12.csv
-   │           WhaleWatchPredictions_2020_01.csv
-   │           WhaleWatchPredictions_2020_02.csv
-   │           WhaleWatchPredictions_2020_03.csv
-   │           WhaleWatchPredictions_2020_04.csv
-   │           WhaleWatchPredictions_2020_05.csv
-   │           WhaleWatchPredictions_2020_06.csv
-   │           WhaleWatchPredictions_2020_07.csv
-   │           WhaleWatchPredictions_2020_09.csv
-   │           WhaleWatchPredictions_2020_10.csv
-   │           WhaleWatchPredictions_2020_11.csv
-   │           WhaleWatchPredictions_2020_12.csv
    │           WhaleWatchPredictions_2021_01.csv
    │           WhaleWatchPredictions_2021_02.csv
    │           WhaleWatchPredictions_2021_03.csv
@@ -172,123 +156,98 @@ List of Files
    │           WhaleWatchPredictions_2021_10.csv
    │           WhaleWatchPredictions_2021_11.csv
    │           WhaleWatchPredictions_2021_12.csv
-   │           WhaleWatchPredictions_2022_01.csv
-   │           WhaleWatchPredictions_2022_02.csv
-   │           WhaleWatchPredictions_2022_03.csv
-   │           WhaleWatchPredictions_2022_04.csv
-   │           WhaleWatchPredictions_2022_05.csv
-   │           WhaleWatchPredictions_2022_06.csv
-   │           WhaleWatchPredictions_2022_07.csv
-   │           WhaleWatchPredictions_2022_08.csv
-   │           WhaleWatchPredictions_2022_09.csv
-   │           WhaleWatchPredictions_2022_10.csv
-   │           WhaleWatchPredictions_2022_11.csv
-   │           WhaleWatchPredictions_2023_01.csv
-   │           WhaleWatchPredictions_2023_02.csv
-   │           WhaleWatchPredictions_2023_03.csv
-   │           WhaleWatchPredictions_2023_04.csv
    │
-   ├───DEMO structured
-   │   │   shear_stress_without_receptor.ini
-   │   │   shear_stress_with_receptor.ini
-   │   │   velocity_without_receptor.ini
-   │   │   velocity_with_receptor.ini
-   │   │
-   │   ├───boundary-condition
-   │   │       boundary-conditions.csv
-   │   │
-   │   ├───devices-not-present
-   │   │       trim_sets_flow_inset_allruns.nc
-   │   │       trim_sets_flow_inset_allruns.nc.aux.xml
-   │   │
-   │   ├───devices-present
-   │   │       trim_sets_flow_inset_allruns.nc
-   |   |
-   │   ├───power_files
-   │   │   ├───16x6
-   │   │   │       POWER_ABS_001.OUT
-   │   │   │       POWER_ABS_002.OUT
-   │   │   │       POWER_ABS_003.OUT
-   │   │   │       POWER_ABS_004.OUT
-   │   │   │       POWER_ABS_005.OUT
-   │   │   │       POWER_ABS_006.OUT
-   │   │   │       POWER_ABS_007.OUT
-   │   │   │       POWER_ABS_008.OUT
-   │   │   │       POWER_ABS_009.OUT
-   │   │   │       POWER_ABS_010.OUT
-   │   │   │       POWER_ABS_011.OUT
-   │   │   │       POWER_ABS_012.OUT
-   │   │   │       POWER_ABS_013.OUT
-   │   │   │       POWER_ABS_014.OUT
-   │   │   │       POWER_ABS_015.OUT
-   │   │   │       POWER_ABS_016.OUT
-   │   │   │       POWER_ABS_017.OUT
-   │   │   │       POWER_ABS_018.OUT
-   │   │   │       POWER_ABS_019.OUT
-   │   │   │       POWER_ABS_020.OUT
-   │   │   │       POWER_ABS_021.OUT
-   │   │   │       POWER_ABS_022.OUT
-   │   │   │       POWER_ABS_023.OUT
-   │   │   │       POWER_ABS_024.OUT
-   │   │   │       rect_16x6.obt
-   │   │   │       rect_16x6.pol
-   │   │   │
-   │   │   └───4x4
-   │   │           POWER_ABS_001.OUT
-   │   │           POWER_ABS_002.OUT
-   │   │           POWER_ABS_003.OUT
-   │   │           POWER_ABS_004.OUT
-   │   │           POWER_ABS_005.OUT
-   │   │           POWER_ABS_006.OUT
-   │   │           POWER_ABS_007.OUT
-   │   │           POWER_ABS_008.OUT
-   │   │           POWER_ABS_009.OUT
-   │   │           POWER_ABS_010.OUT
-   │   │           POWER_ABS_011.OUT
-   │   │           POWER_ABS_012.OUT
-   │   │           POWER_ABS_013.OUT
-   │   │           POWER_ABS_014.OUT
-   │   │           POWER_ABS_015.OUT
-   │   │           POWER_ABS_016.OUT
-   │   │           POWER_ABS_017.OUT
-   │   │           POWER_ABS_018.OUT
-   │   │           POWER_ABS_019.OUT
-   │   │           POWER_ABS_020.OUT
-   │   │           POWER_ABS_021.OUT
-   │   │           POWER_ABS_022.OUT
-   │   │           POWER_ABS_023.OUT
-   │   │           POWER_ABS_024.OUT
-   │   │           rect_4x4.obt
-   │   │           rect_4x4.pol
-   │   │
-   │   ├───receptor
-   │   │       grainsize_receptor.tif
-   │   │       grainsize_receptor.tif.aux.xml
-   │   │       grain_size_receptor.csv
-   │   │       velocity_receptor.csv
-   │   │
-   │   ├───run-order
-   │   │       run_order_wecs.csv
-   │   │
-   │   └───_plugin-config-files
-   │           cgrant_4x4.ini
-   │           cgrant_test.ini
-   │           oregon_wec_config.ini
-   │           oregon_wec_config_16x6.ini
-   │           oregon_wec_config_4x4.ini
-   │
-   └───style_files
-      │   Acoustics_blue_whale - Copy.csv
-      │   Acoustics_blue_whale.csv
-      │   Acoustics_fake_whale.csv
-      │   Shear_Stress - Structured.csv
-      │   Shear_Stress - Unstructured.csv
-      │   Velocity.csv
+   └───DEMO structured
+      │   shear_stress_without_receptor.default
+      │   shear_stress_without_receptor.ini    
+      │   shear_stress_with_receptor.default   
+      │   shear_stress_with_receptor.ini       
+      │   velocity_without_receptor.default    
+      │   velocity_without_receptor.ini        
+      │   velocity_with_receptor.default       
+      │   velocity_with_receptor.ini
       │
-      └───Layer Style
-               acoustics_density_demo.qml
-               acoustics_percent_demo.qml
-               acoustics_stressor_bluewhale.qml
-               ...
-               velocity_continuous_stressor_with_receptor.qml
-               velocity_motility_classification_vik.qml
+      ├───devices-not-present
+      │       trim_sets_flow_inset_allruns.nc  
+      │       trim_sets_flow_inset_allruns.nc.aux.xml
+      │
+      ├───devices-present
+      │       trim_sets_flow_inset_allruns.nc
+      │
+      ├───Output
+      │   └───ShearStress_with_receptor
+      │           _20231023.log
+      │
+      ├───power_files
+      │   ├───16x6
+      │   │       POWER_ABS_001.OUT
+      │   │       POWER_ABS_002.OUT
+      │   │       POWER_ABS_003.OUT
+      │   │       POWER_ABS_004.OUT
+      │   │       POWER_ABS_005.OUT
+      │   │       POWER_ABS_006.OUT
+      │   │       POWER_ABS_007.OUT
+      │   │       POWER_ABS_008.OUT
+      │   │       POWER_ABS_009.OUT
+      │   │       POWER_ABS_010.OUT
+      │   │       POWER_ABS_011.OUT
+      │   │       POWER_ABS_012.OUT
+      │   │       POWER_ABS_013.OUT
+      │   │       POWER_ABS_014.OUT
+      │   │       POWER_ABS_015.OUT
+      │   │       POWER_ABS_016.OUT
+      │   │       POWER_ABS_017.OUT
+      │   │       POWER_ABS_018.OUT
+      │   │       POWER_ABS_019.OUT
+      │   │       POWER_ABS_020.OUT
+      │   │       POWER_ABS_021.OUT
+      │   │       POWER_ABS_022.OUT
+      │   │       POWER_ABS_023.OUT
+      │   │       POWER_ABS_024.OUT
+      │   │       rect_16x6.obt
+      │   │       rect_16x6.pol
+      │   │
+      │   └───4x4
+      │           POWER_ABS_001.OUT
+      │           POWER_ABS_002.OUT
+      │           POWER_ABS_003.OUT
+      │           POWER_ABS_004.OUT
+      │           POWER_ABS_005.OUT
+      │           POWER_ABS_006.OUT
+      │           POWER_ABS_007.OUT
+      │           POWER_ABS_008.OUT
+      │           POWER_ABS_009.OUT
+      │           POWER_ABS_010.OUT
+      │           POWER_ABS_011.OUT
+      │           POWER_ABS_012.OUT
+      │           POWER_ABS_013.OUT
+      │           POWER_ABS_014.OUT
+      │           POWER_ABS_015.OUT
+      │           POWER_ABS_016.OUT
+      │           POWER_ABS_017.OUT
+      │           POWER_ABS_018.OUT
+      │           POWER_ABS_019.OUT
+      │           POWER_ABS_020.OUT
+      │           POWER_ABS_021.OUT
+      │           POWER_ABS_022.OUT
+      │           POWER_ABS_023.OUT
+      │           POWER_ABS_024.OUT
+      │           rect_4x4.obt
+      │           rect_4x4.pol
+      │
+      ├───probabilities
+      │       probabilities.csv
+      │
+      ├───receptor
+      │       grainsize_receptor.tif
+      │       grainsize_receptor.tif.aux.xml
+      │       grain_size_receptor.csv
+      │       velocity_receptor.csv
+      │
+      └───_plugin-config-files
+            cgrant_4x4.ini
+            cgrant_test.ini
+            oregon_wec_config.ini
+            oregon_wec_config_16x6.ini
+            oregon_wec_config_4x4.ini
+            
