@@ -1,28 +1,25 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tanana River Site &mdash; SEAT [1.0.0-beta1] documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <title>Tanana River Site &mdash; SEAT [1.0.0-beta1] documentation</title><link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/dark_mode_css/general.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/dark_mode_css/dark.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=9eba97ea"></script>
-        <script src="../../_static/doctools.js?v=888ff710"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
-        <script src="../../_static/copybutton.js?v=f281be69"></script>
-        <script src="../../_static/dark_mode_js/default_dark.js?v=fd565c74"></script>
-        <script src="../../_static/dark_mode_js/theme_switcher.js?v=358d3910"></script>
+  <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+        <script src="../../_static/dark_mode_js/default_dark.js"></script>
+        <script src="../../_static/dark_mode_js/theme_switcher.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -93,8 +90,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="tanana-river-site">
-<h1>Tanana River Site<a class="headerlink" href="#tanana-river-site" title="Link to this heading"></a></h1>
+  <div class="section" id="tanana-river-site">
+<h1>Tanana River Site<a class="headerlink" href="#tanana-river-site" title="Permalink to this headline"></a></h1>
 <div class="toctree-wrapper compound">
 </div>
 <p>The Tanana River, situated in central Alaska, is being evaluated as a potential site for harnessing current energy. The nearby town of Nenana, nestled on the inner bank of a river bend, could significantly benefit from local energy generation as opposed to relying on diesel generators. A current energy capture device has undergone testing on-site, and ongoing data collection pertaining to local fish populations and benthic characteristics is expected to provide a robust understanding of the long-term impact of device deployment on the ecosystem. A model was created on an unstructured grid using DFlow-FM to simulate various flow return periods with device arrays. The flow scenarios are examined both under baseline conditions (no devices present) and with devices deployed.</p>
@@ -103,7 +100,7 @@
 <p class="rubric" id="preparing-input-files">Preparing Demo Input Files</p>
 <p>If you have not done so before you will need to create input files for the default files provided. To do so naviage to <code class="file docutils literal notranslate"><span class="pre">DEMO/unstructured</span> <span class="pre">DEMO/</span></code>. In that folder you will find a number of .default files. You need to open these and replace <cite>&lt;input_folder&gt;</cite> with the path to the DEMO unstructured folder on your machine and <code class="docutils literal notranslate"><span class="pre">&lt;style_folder&gt;</span></code> with the path to the style_files folder on your machine. If you use python a script titled <code class="docutils literal notranslate"><span class="pre">localize_input_files.py</span></code> will do this for you. You can run this script by navigating to the DEMO unstructured folder in a terminal and typing <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">localize_input_files.py</span></code>. If you do not have python you can open the files in a text editor and replace the text manually or with a find and replace feature. If changing via a text editor save the file as a .ini file.</p>
 <p>Example use of the script is shown below. After running the script .ini files will appear in the DEMO unstructured folder. These are the files you will use to load the inputs into the SEAT GUI.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python<span class="w"> </span>localize_input_files.py
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python localize_input_files.py
 </pre></div>
 </div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Where are your input files? C:\\Users\\sterl\\OneDrive\\Desktop\\DEMO\\DEMO unstructured
@@ -112,7 +109,7 @@ Where is your style_files folder? C:\\Users\\sterl\\OneDrive\\Desktop\\DEMO\\sty
 </div>
 <p><strong>List of Files</strong></p>
 <div class="literal-block-wrapper docutils container" id="id1">
-<span id="unstructured-files"></span><div class="code-block-caption"><span class="caption-text">Tanana River Demo Files</span><a class="headerlink" href="#id1" title="Link to this code"></a></div>
+<span id="unstructured-files"></span><div class="code-block-caption"><span class="caption-text">Tanana River Demo Files</span><a class="headerlink" href="#id1" title="Permalink to this code"></a></div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span> DEMO
  └───DEMO unstructured
        │   shear_stress_no_receptor_demo.default
@@ -154,7 +151,7 @@ Where is your style_files folder? C:\\Users\\sterl\\OneDrive\\Desktop\\DEMO\\sty
 </pre></div>
 </div>
 </div>
-</section>
+</div>
 
 
            </div>

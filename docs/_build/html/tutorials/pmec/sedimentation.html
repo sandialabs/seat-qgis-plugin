@@ -1,28 +1,25 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sedimentation &amp; Power Generation &mdash; SEAT [1.0.0-beta1] documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <title>Sedimentation &amp; Power Generation &mdash; SEAT [1.0.0-beta1] documentation</title><link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/dark_mode_css/general.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/dark_mode_css/dark.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=9eba97ea"></script>
-        <script src="../../_static/doctools.js?v=888ff710"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
-        <script src="../../_static/copybutton.js?v=f281be69"></script>
-        <script src="../../_static/dark_mode_js/default_dark.js?v=fd565c74"></script>
-        <script src="../../_static/dark_mode_js/theme_switcher.js?v=358d3910"></script>
+  <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+        <script src="../../_static/dark_mode_js/default_dark.js"></script>
+        <script src="../../_static/dark_mode_js/theme_switcher.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -98,10 +95,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="sedimentation-power-generation">
-<h1>Sedimentation &amp; Power Generation<a class="headerlink" href="#sedimentation-power-generation" title="Link to this heading"></a></h1>
-<section id="input">
-<h2>Input<a class="headerlink" href="#input" title="Link to this heading"></a></h2>
+  <div class="section" id="sedimentation-power-generation">
+<h1>Sedimentation &amp; Power Generation<a class="headerlink" href="#sedimentation-power-generation" title="Permalink to this headline"></a></h1>
+<div class="section" id="input">
+<h2>Input<a class="headerlink" href="#input" title="Permalink to this headline"></a></h2>
 <p>If you have not done so before you will need to create input files for the default files provided. To do so naviage to <code class="file docutils literal notranslate"><span class="pre">DEMO/structured</span> <span class="pre">DEMO/</span></code>. In that folder you will find a number of .default files. You need to open these and replace <code class="docutils literal notranslate"><span class="pre">&lt;input_folder&gt;</span></code> with the path to the DEMO unstructured folder on your machine and <code class="docutils literal notranslate"><span class="pre">&lt;style_folder&gt;</span></code> with the path to the style_files folder on your machine. If you use python a script titled <code class="docutils literal notranslate"><span class="pre">localize_input_files.py</span></code> will do this for you. You can run this script by navigating to the DEMO unstructured folder in a terminal and typing <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">localize_input_files.py</span></code>. If you do not have python you can open the files in a text editor and replace the text manually or with a find and replace feature. If changing via a text editor save the file as a .ini file.</p>
 <p>Example use of the script is shown below. After running the script .ini files will appear in the DEMO unstructured folder. These are the files you will use to load the inputs into the SEAT GUI.</p>
 <p>With the <em>ini files created, use the **Load GUI Inputs*</em> button located at the bottom left of the SEAT GUI, navigate to <code class="file docutils literal notranslate"><span class="pre">DEMO/unstructured</span> <span class="pre">DEMO/shear_stress_with_receptor_demo.ini</span></code>, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the <a class="reference internal" href="../../gui/save_load_config.html#save-load-config"><span class="std std-ref">Save &amp; Load Configuration</span></a> section in the <a class="reference internal" href="../../gui/gui.html#gui"><span class="std std-ref">Graphical User Interface</span></a> documention.</p>
@@ -111,19 +108,19 @@
 <li><p>power generation files at .OUT files with georeferencing in .pol files</p></li>
 <li><p>The SWAN model files are concatenated into a single .nc file</p></li>
 </ul>
-<figure class="align-default">
+<div class="figure align-default">
 <a class="reference internal image-reference" href="../../_images/PMEC_case_input.webp"><img alt="PMEC SWAN Shear Stress input" src="../../_images/PMEC_case_input.webp" style="width: 802.0px; height: 619.0px;" /></a>
-</figure>
+</div>
 <p>To start the analysis click OK. The analysis will take a few minutes to run. If an error occurs a yellow bar will appear at the top of the QGIS window. Click Show Stack Trace to see the error message. Most likely the error is due to a missing input file or incorrect file path. Make sure you have created the .csv files in the style_files folder and that the paths in the .ini files are correct. If you are still having trouble please contact the SEAT team by creating an issue on the SEAT GitHub page detailing how you arrived at the error, what the error is, and what you have checked so far.</p>
-</section>
-<section id="output">
-<h2>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h2>
+</div>
+<div class="section" id="output">
+<h2>Output<a class="headerlink" href="#output" title="Permalink to this headline"></a></h2>
 <p>If you are using the Deafult QGIS layout after succesfully running SEAT you will see four layers added to the Layers Panel.</p>
-<figure class="align-default">
+<div class="figure align-default">
 <a class="reference internal image-reference" href="../../_images/PMEC_layers.webp"><img alt="PMEC Result Layers" src="../../_images/PMEC_layers.webp" style="width: 222.75px; height: 502.5px;" /></a>
-</figure>
+</div>
 <p>Each layer will look as shown below. To add the map layer see the <a class="reference internal" href="../quick_map_services.html#map"><span class="std std-ref">Quick Map Services</span></a> section. The sedimentation analysis indicates a predominant decrease in sediment erosion and increase in sediment deposition in the lee of the array, with less mobility occurring over larger sediment size classes.</p>
-<table class="image-matrix docutils align-default">
+<table class="colwidths-given image-matrix docutils align-default">
 <colgroup>
 <col style="width: 50%" />
 <col style="width: 50%" />
@@ -143,39 +140,65 @@
 </table>
 <p>The specified output folder contains the following files. Highlighted lines will be shown below.</p>
 <div class="literal-block-wrapper docutils container" id="id1">
-<div class="code-block-caption"><span class="caption-text">Output Files created</span><a class="headerlink" href="#id1" title="Link to this code"></a></div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span> Output
-<span class="linenos"> 2</span> └───ShearStress_with_receptor
-<span class="hll"><span class="linenos"> 3</span>       BC_probability_wPower.csv
-</span><span class="linenos"> 4</span>       calculated_stressor.csv
-<span class="linenos"> 5</span>       calculated_stressor.tif
-<span class="linenos"> 6</span>       calculated_stressor_at_receptor.csv
-<span class="linenos"> 7</span>       calculated_stressor_reclassified.csv
-<span class="linenos"> 8</span>       calculated_stressor_reclassified.tif
-<span class="linenos"> 9</span>       calculated_stressor_reclassified_at_receptor.csv
-<span class="linenos">10</span>       calculated_stressor_with_receptor.csv
-<span class="linenos">11</span>       calculated_stressor_with_receptor.tif
-<span class="linenos">12</span>       Device Number Location.png
-<span class="hll"><span class="linenos">13</span>       Device_Power.png
-</span><span class="linenos">14</span>       Obstacle_Locations.png
-<span class="linenos">15</span>       Obstacle_Matching.csv
-<span class="linenos">16</span>       Power_per_device_annual.csv
-<span class="linenos">17</span>       Power_per_device_per_scenario.csv
-<span class="linenos">18</span>       receptor.tif
-<span class="linenos">19</span>       Scaled_Power_Bars_per_run_obstacle.png
-<span class="linenos">20</span>       Scaled_Power_per_device_per_scenario.png
-<span class="linenos">21</span>       tau_without_devices.tif
-<span class="linenos">22</span>       tau_with_devices.tif
-<span class="linenos">23</span>       Total_Scaled_Power_Bars_per_obstacle.png
-<span class="linenos">24</span>       Total_Scaled_Power_Bars_per_Run.png
-<span class="hll"><span class="linenos">25</span>       Total_Scaled_Power_per_Device_.png
-</span><span class="linenos">26</span>       _20231023.log
-<span class="linenos">27</span>       _20231024.log
+<div class="code-block-caption"><span class="caption-text">Output Files created</span><a class="headerlink" href="#id1" title="Permalink to this code"></a></div>
+<div class="highlight-default notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27</pre></div></td><td class="code"><div class="highlight"><pre><span></span> Output
+ └───ShearStress_with_receptor
+<span class="hll">       BC_probability_wPower.csv
+</span>       calculated_stressor.csv
+       calculated_stressor.tif
+       calculated_stressor_at_receptor.csv
+       calculated_stressor_reclassified.csv
+       calculated_stressor_reclassified.tif
+       calculated_stressor_reclassified_at_receptor.csv
+       calculated_stressor_with_receptor.csv
+       calculated_stressor_with_receptor.tif
+       Device Number Location.png
+<span class="hll">       Device_Power.png
+</span>       Obstacle_Locations.png
+       Obstacle_Matching.csv
+       Power_per_device_annual.csv
+       Power_per_device_per_scenario.csv
+       receptor.tif
+       Scaled_Power_Bars_per_run_obstacle.png
+       Scaled_Power_per_device_per_scenario.png
+       tau_without_devices.tif
+       tau_with_devices.tif
+       Total_Scaled_Power_Bars_per_obstacle.png
+       Total_Scaled_Power_Bars_per_Run.png
+<span class="hll">       Total_Scaled_Power_per_Device_.png
+</span>       _20231023.log
+       _20231024.log
 </pre></div>
-</div>
+</td></tr></table></div>
 </div>
 <p>The power generation is saved as individual images and tables in the selected output folder.</p>
-<table class="image-side-by-side docutils align-default">
+<table class="colwidths-given image-side-by-side docutils align-default">
 <colgroup>
 <col style="width: 50%" />
 <col style="width: 50%" />
@@ -190,6 +213,17 @@
 </table>
 <p>PMEC power generated per hydrodynamic scenario</p>
 <table class="docutils align-default">
+<colgroup>
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 15%" />
+<col style="width: 7%" />
+<col style="width: 10%" />
+<col style="width: 8%" />
+<col style="width: 20%" />
+<col style="width: 19%" />
+</colgroup>
 <tbody>
 <tr class="row-odd"><td><p>Hs
 [m]</p></td>
@@ -448,8 +482,8 @@ order</p></td>
 </tr>
 </tbody>
 </table>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>

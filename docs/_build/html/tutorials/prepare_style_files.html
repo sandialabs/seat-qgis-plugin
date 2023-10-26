@@ -1,28 +1,25 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Setting Up Style Files &mdash; SEAT [1.0.0-beta1] documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <title>Setting Up Style Files &mdash; SEAT [1.0.0-beta1] documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../_static/dark_mode_css/general.css" type="text/css" />
       <link rel="stylesheet" href="../_static/dark_mode_css/dark.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=9eba97ea"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
-        <script src="../_static/copybutton.js?v=f281be69"></script>
-        <script src="../_static/dark_mode_js/default_dark.js?v=fd565c74"></script>
-        <script src="../_static/dark_mode_js/theme_switcher.js?v=358d3910"></script>
+  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/dark_mode_js/default_dark.js"></script>
+        <script src="../_static/dark_mode_js/theme_switcher.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -89,22 +86,22 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="setting-up-style-files">
-<span id="prepare-style-files"></span><h1>Setting Up Style Files<a class="headerlink" href="#setting-up-style-files" title="Link to this heading"></a></h1>
+  <div class="section" id="setting-up-style-files">
+<span id="prepare-style-files"></span><h1>Setting Up Style Files<a class="headerlink" href="#setting-up-style-files" title="Permalink to this headline"></a></h1>
 <p>In the demo we have provided style files fou you to use. Before you can use them you need to place the full file path to the style files in the csv files. To do this you must replace <code class="docutils literal notranslate"><span class="pre">&lt;style_folder&gt;</span></code> with the path to the style_folder on your machine. For example if you have placed the style files in <code class="docutils literal notranslate"><span class="pre">C:\Users\USER\Desktop\DEMO\style_files</span></code> you would replace <code class="docutils literal notranslate"><span class="pre">&lt;style_folder&gt;</span></code> with <code class="docutils literal notranslate"><span class="pre">C:\Users\USER\OneDrive\Desktop\DEMO\style_files</span></code>. There is a script provided to do this for you is you have python you can call <cite>localize_style_path.py</cite> from the command line. If you do not have python you can open the csv files in a text editor and replace <code class="docutils literal notranslate"><span class="pre">&lt;style_folder&gt;</span></code> with the path to the style_folder on your machine.</p>
 <div class="literal-block-wrapper docutils container" id="id1">
-<div class="code-block-caption"><span class="caption-text">localize_style_path.py</span><a class="headerlink" href="#id1" title="Link to this code"></a></div>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>localize_style_files.py
-Please<span class="w"> </span>enter<span class="w"> </span>the<span class="w"> </span>path<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>directory<span class="w"> </span>containing<span class="w"> </span>default<span class="w"> </span>files:
+<div class="code-block-caption"><span class="caption-text">localize_style_path.py</span><a class="headerlink" href="#id1" title="Permalink to this code"></a></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python localize_style_files.py
+Please enter the path to the directory containing default files:
 C:<span class="se">\U</span>sers<span class="se">\s</span>terl<span class="se">\O</span>neDrive<span class="se">\D</span>esktop<span class="se">\D</span>EMO<span class="se">\s</span>tyle_files
 
-Paths<span class="w"> </span><span class="k">in</span><span class="w"> </span>default<span class="w"> </span>files<span class="w"> </span><span class="k">in</span><span class="w"> </span>directory<span class="w"> </span>C:<span class="se">\U</span>sers<span class="se">\s</span>terl<span class="se">\O</span>neDrive<span class="se">\D</span>esktop<span class="se">\D</span>EMO<span class="se">\s</span>tyle_files<span class="w"> </span>have<span class="w"> </span>been<span class="w"> </span>updated<span class="w"> </span>and<span class="w"> </span>saved<span class="w"> </span>as<span class="w"> </span>CSV.
+Paths in default files in directory C:<span class="se">\U</span>sers<span class="se">\s</span>terl<span class="se">\O</span>neDrive<span class="se">\D</span>esktop<span class="se">\D</span>EMO<span class="se">\s</span>tyle_files have been updated and saved as CSV.
 </pre></div>
 </div>
 </div>
 <p>The below shows the initial contents of the style_files folder. You will need to convert each of these to  csv files as described above to use them in the demo.</p>
 <div class="literal-block-wrapper docutils container" id="id2">
-<div class="code-block-caption"><span class="caption-text">style_files Folder Contents</span><a class="headerlink" href="#id2" title="Link to this code"></a></div>
+<div class="code-block-caption"><span class="caption-text">style_files Folder Contents</span><a class="headerlink" href="#id2" title="Permalink to this code"></a></div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>DEMO
 └───style_files
     │   Acoustics_blue_whale.default
@@ -131,7 +128,7 @@ Paths<span class="w"> </span><span class="k">in</span><span class="w"> </span>de
 </pre></div>
 </div>
 </div>
-</section>
+</div>
 
 
            </div>

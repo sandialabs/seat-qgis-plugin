@@ -1,28 +1,25 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Installation &mdash; SEAT [1.0.0-beta1] documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <title>Installation &mdash; SEAT [1.0.0-beta1] documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="_static/dark_mode_css/general.css" type="text/css" />
       <link rel="stylesheet" href="_static/dark_mode_css/dark.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=9eba97ea"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="_static/clipboard.min.js?v=a7894cd8"></script>
-        <script src="_static/copybutton.js?v=f281be69"></script>
-        <script src="_static/dark_mode_js/default_dark.js?v=fd565c74"></script>
-        <script src="_static/dark_mode_js/theme_switcher.js?v=358d3910"></script>
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/clipboard.min.js"></script>
+        <script src="_static/copybutton.js"></script>
+        <script src="_static/dark_mode_js/default_dark.js"></script>
+        <script src="_static/dark_mode_js/theme_switcher.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -92,21 +89,21 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="installation">
-<span id="installtion"></span><h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
+  <div class="section" id="installation">
+<span id="installtion"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h1>
 <p>To successfully install the SEAT QGIS plugin follow this guide through the process of installing the software required for running SEAT and SEAT itself. It should be noted that outside of software requirements, SEAT requires model data to be brought into the QGIS environment. This is covered in the models section. The software requirements are listed below. The model data requirements are listed in the models section.</p>
-<section id="software-requirements">
-<h2>1. Software Requirements<a class="headerlink" href="#software-requirements" title="Link to this heading"></a></h2>
+<div class="section" id="software-requirements">
+<h2>1. Software Requirements<a class="headerlink" href="#software-requirements" title="Permalink to this headline"></a></h2>
 <p>QGIS software (version 3.16 or later) is mandatory for installing SEAT. It serves as the platform on which SEAT operates, enabling users to interact with various model files and execute environmental analysis tasks.</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://www.qgis.org/en/site/forusers/download.html">QGIS</a> &gt;= 3.16</p></li>
 </ul>
-</section>
-<section id="install-netcdf4-in-qgis">
-<h2>2. Install NetCDF4 In QGIS<a class="headerlink" href="#install-netcdf4-in-qgis" title="Link to this heading"></a></h2>
+</div>
+<div class="section" id="install-netcdf4-in-qgis">
+<h2>2. Install NetCDF4 In QGIS<a class="headerlink" href="#install-netcdf4-in-qgis" title="Permalink to this headline"></a></h2>
 <p>After acquiring the necessary software and models, users must then install netCDF4 within QGIS. Note that QGIS uses its own python library seperate from any other python environments you may use. As such the following will guide you through installing NetCDF4 in the QGIS python environment. The process varies between Windows and macOS/Linux. The following are the detailed steps for both Operating Systems:</p>
-<section id="windows">
-<h3>Windows<a class="headerlink" href="#windows" title="Link to this heading"></a></h3>
+<div class="section" id="windows">
+<h3>Windows<a class="headerlink" href="#windows" title="Permalink to this headline"></a></h3>
 <ol class="arabic">
 <li><p>Open the OSGeo4W Shell as Administrator (Searh for OSGeo4W Shell)</p></li>
 <li><p>Run the following command to install netCDF4:</p>
@@ -116,9 +113,9 @@
 </div>
 </li>
 </ol>
-</section>
-<section id="macos-linux">
-<h3>macOS/Linux<a class="headerlink" href="#macos-linux" title="Link to this heading"></a></h3>
+</div>
+<div class="section" id="macos-linux">
+<h3>macOS/Linux<a class="headerlink" href="#macos-linux" title="Permalink to this headline"></a></h3>
 <ol class="arabic">
 <li><p>Open QGIS.</p></li>
 <li><p>Open the Python Console within QGIS. You can do this by going to <cite>Plugins</cite> &gt; <cite>Python Console</cite>, or by pressing <cite>Ctrl + Alt + P</cite>.</p></li>
@@ -129,19 +126,19 @@
 </div>
 </li>
 <li><p>Open a system terminal and navigate to the Python path printed in the previous step.</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/path/to/python
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /path/to/python
 </pre></div>
 </div>
 </li>
 <li><p>Install <cite>netCDF4</cite> using <cite>pip</cite>:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>netCDF4
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>python -m pip install netCDF4
 </pre></div>
 </div>
 </li>
 </ol>
-</section>
-<section id="check-netcdf4-installation-optional">
-<h3>Check NetCDF4 Installation (Optional)<a class="headerlink" href="#check-netcdf4-installation-optional" title="Link to this heading"></a></h3>
+</div>
+<div class="section" id="check-netcdf4-installation-optional">
+<h3>Check NetCDF4 Installation (Optional)<a class="headerlink" href="#check-netcdf4-installation-optional" title="Permalink to this headline"></a></h3>
 <p>Check that the above worked in QGIS by running the following in the Python Console:</p>
 <blockquote>
 <div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">netCDF4</span>
@@ -150,34 +147,32 @@
 </div>
 </div></blockquote>
 <p>If the above worked, you should see the version of netCDF4 printed in the console. If you see an error, try closing and reopening QGIS and trying again. If you still see an error open an issue on the GitHub.</p>
-</section>
-</section>
-<section id="download-seat">
-<h2>3. Download SEAT<a class="headerlink" href="#download-seat" title="Link to this heading"></a></h2>
+</div>
+</div>
+<div class="section" id="download-seat">
+<h2>3. Download SEAT<a class="headerlink" href="#download-seat" title="Permalink to this headline"></a></h2>
 <p>Download the <strong>seat_qgis_plugin.zip</strong> from the latest release</p>
 <p><a class="reference external" href="https://github.com/sandialabs/seat-qgis-plugin/releases/">https://github.com/sandialabs/seat-qgis-plugin/releases/</a></p>
-</section>
-<section id="install-seat-in-qgis">
-<h2>4. Install SEAT in QGIS<a class="headerlink" href="#install-seat-in-qgis" title="Link to this heading"></a></h2>
+</div>
+<div class="section" id="install-seat-in-qgis">
+<h2>4. Install SEAT in QGIS<a class="headerlink" href="#install-seat-in-qgis" title="Permalink to this headline"></a></h2>
 <ol class="arabic">
 <li><p>In QGIS, click on the plugins toolbar and select “Manage and Install Plugins…”</p></li>
 <li><p>Select the Install from ZIP option.</p>
-<figure class="align-default">
+<div class="figure align-default">
 <a class="reference internal image-reference" href="_images/installPlugin.webp"><img alt="Install from ZIP" src="_images/installPlugin.webp" style="width: 600.0px; height: 343.8px;" /></a>
-</figure>
+</div>
 </li>
 <li><p>Navigate to the SEAT zip package.</p></li>
 <li><p>Click Install Plugin.</p></li>
 <li><p>The SEAT icon should appear in the toolbar and as a Plugin menu option.</p></li>
 </ol>
-<figure class="align-default" id="id1">
-<a class="reference internal image-reference" href="_images/SEAT_Toolbar.webp"><img alt="SEAT icon in QGIS toolbar" src="_images/SEAT_Toolbar.webp" style="width: 500.0px; height: 84.0px;" /></a>
-<figcaption>
-<p><span class="caption-text">If you see the SEAT icon you have succesfully install SEAT.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-</section>
-</section>
+<div class="figure align-default" id="id1">
+<a class="reference internal image-reference" href="_images/SEAT_Toolbar1.webp"><img alt="SEAT icon in QGIS toolbar" src="_images/SEAT_Toolbar1.webp" style="width: 500.0px; height: 84.0px;" /></a>
+<p class="caption"><span class="caption-text">If you see the SEAT icon you have succesfully install SEAT.</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+</div>
+</div>
+</div>
 
 
            </div>
