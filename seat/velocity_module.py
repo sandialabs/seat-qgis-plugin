@@ -175,7 +175,7 @@ def calculate_velocity_stressors(fpath_nodev,
     # Load and sort files
     if len(files_nodev) == 1 & len(files_dev) == 1:
         # asumes a concatonated files with shape
-        # [run_num, time, rows, cols]
+        # [run_order, time, rows, cols]
 
         file_dev_present = Dataset(os.path.join(fpath_dev, files_dev[0]))
         gridtype, xvar, yvar, uvar, vvar = check_grid_define_vars(
@@ -203,26 +203,26 @@ def calculate_velocity_stressors(fpath_nodev,
     # same number of files, file name must be formatted with either run number or return interval
     elif len(files_nodev) == len(files_dev):
         # asumes each run is separate with the some_name_RunNum_map.nc, where run number comes at the last underscore before _map.nc
-        run_num_nodev = np.zeros((len(files_nodev)))
+        runorder_nodev = np.zeros((len(files_nodev)))
         for ic, file in enumerate(files_nodev):
-            run_num_nodev[ic] = int(file.split('.')[0].split('_')[-2])
-        run_num_dev = np.zeros((len(files_dev)))
+            runorder_nodev[ic] = int(file.split('.')[0].split('_')[-2])
+        runorder_dev = np.zeros((len(files_dev)))
         for ic, file in enumerate(files_dev):
-            run_num_dev[ic] = int(file.split('.')[0].split('_')[-2])
+            runorder_dev[ic] = int(file.split('.')[0].split('_')[-2])
 
         # ensure run oder for nodev matches dev files
-        if np.any(run_num_nodev != run_num_dev):
+        if np.any(runorder_nodev != runorder_dev):
             adjust_dev_order = []
-            for ri in run_num_nodev:
+            for ri in runorder_nodev:
                 adjust_dev_order = np.append(
-                    adjust_dev_order, np.flatnonzero(run_num_dev == ri))
+                    adjust_dev_order, np.flatnonzero(runorder_dev == ri))
             files_dev = [files_dev[int(i)] for i in adjust_dev_order]
-            run_num_dev = [run_num_dev[int(i)] for i in adjust_dev_order]
+            runorder_dev = [runorder_dev[int(i)] for i in adjust_dev_order]
         DF = pd.DataFrame({'files_nodev': files_nodev,
-                           'run_num_nodev': run_num_nodev,
+                           'run_order_nodev': runorder_nodev,
                            'files_dev': files_dev,
-                           'run_num_dev': run_num_dev})
-        DF = DF.sort_values(by='run_num_dev')
+                           'run_order_dev': runorder_dev})
+        DF = DF.sort_values(by='run_order_dev')
 
         first_run = True
         ir = 0
@@ -273,23 +273,23 @@ def calculate_velocity_stressors(fpath_nodev,
     if not (probabilities_file == ""):
         # Load BC file with probabilities and find appropriate probability
         BC_probability = pd.read_csv(probabilities_file, delimiter=",")
-        BC_probability['run_num'] = BC_probability['run number']-1
-        BC_probability = BC_probability.sort_values(by='run number')
+        BC_probability['run order'] = BC_probability['run order']-1
+        BC_probability = BC_probability.sort_values(by='run order')
         BC_probability["probability"] = BC_probability["% of yr"].values/100
         # BC_probability
         if 'Exclude' in BC_probability.columns:
             BC_probability = BC_probability[~(
                 (BC_probability['Exclude'] == 'x') | (BC_probability['Exclude'] == 'X'))]
-    else:  # assume run_num in file name is return interval
+    else:  # assume run_order in file name is return interval
         BC_probability = pd.DataFrame()
         # ignor number and start sequentially from zero
-        BC_probability['run_num'] = np.arange(0, mag_dev.shape[0])
-        # assumes run_num in name is the return interval
-        BC_probability["probability"] = 1/DF.run_num_dev.to_numpy()
+        BC_probability['run order'] = np.arange(0, mag_dev.shape[0])
+        # assumes run order in name is the return interval
+        BC_probability["probability"] = 1/DF.run_order_dev.to_numpy()
         BC_probability["probability"] = BC_probability["probability"] / \
             BC_probability["probability"].sum()  # rescale to ensure = 1
 
-    # ensure velocity is depth averaged for structured array [run_num, time, layer, x, y] and drop dimension
+    # ensure velocity is depth averaged for structured array [run order, time, layer, x, y] and drop dimension
     if np.ndim(mag_nodev) == 5:
         mag_dev = np.nanmean(mag_dev, axis=2)
         mag_nodev = np.nanmean(mag_nodev, axis=2)
@@ -317,7 +317,7 @@ def calculate_velocity_stressors(fpath_nodev,
         mag_combined_nodev = np.zeros(np.shape(mag_nodev)[-1])
         mag_combined_dev = np.zeros(np.shape(mag_dev)[-1])
 
-    for run_number, prob in zip(BC_probability['run_num'].values,
+    for run_number, prob in zip(BC_probability['run order'].values,
                                 BC_probability["probability"].values):
 
         mag_combined_nodev = mag_combined_nodev + \
@@ -382,7 +382,7 @@ def calculate_velocity_stressors(fpath_nodev,
 def run_velocity_stressor(
     dev_present_file,
     dev_notpresent_file,
-    probabilities_file,
+    bc_file,
     crs,
     output_path,
     receptor_filename=None
@@ -396,7 +396,7 @@ def run_velocity_stressor(
         Directory path to the baseline/no device model run netcdf files.
     dev_notpresent_file : str
         Directory path to the baseline/no device model run netcdf files.
-    probabilities_file : str
+    bc_file : str
         File path to probabilities/bondary condition *.csv file.
     crs : scalar
         Coordiante Reference System / EPSG code.
@@ -420,7 +420,7 @@ def run_velocity_stressor(
     """
     numpy_arrays, rx, ry, dx, dy, gridtype = calculate_velocity_stressors(fpath_nodev=dev_notpresent_file,
                                                                           fpath_dev=dev_present_file,
-                                                                          probabilities_file=probabilities_file,
+                                                                          probabilities_file=bc_file,
                                                                           receptor_filename=receptor_filename,
                                                                           latlon=crs == 4326)
     # numpy_arrays = [0] velocity_magnitude with devices

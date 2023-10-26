@@ -265,7 +265,7 @@ def calculate_acoustic_stressors(fpath_dev,
 def run_acoustics_stressor(
     dev_present_file,
     dev_notpresent_file,
-    probabilities_file,
+    bc_file,
     crs,
     output_path,
     receptor_filename,
@@ -280,7 +280,7 @@ def run_acoustics_stressor(
         Directory path to the baseline/no device model run netcdf files.
     dev_notpresent_file : str
         Directory path to the baseline/no device model run netcdf files.
-    probabilities_file : str
+    bc_file : str
         File path to probabilities/bondary condition *.csv file..
     crs : scalar
         Coordiante Reference System / EPSG code.
@@ -306,7 +306,7 @@ def run_acoustics_stressor(
     """
 
     numpy_arrays, rx, ry, dx, dy = calculate_acoustic_stressors(fpath_dev=dev_present_file,
-                                                                probabilities_file=probabilities_file,
+                                                                probabilities_file=bc_file,
                                                                 receptor_filename=receptor_filename,
                                                                 fpath_nodev=dev_notpresent_file,
                                                                 species_folder=species_folder,  # secondary constraint

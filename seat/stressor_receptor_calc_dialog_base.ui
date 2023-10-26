@@ -247,10 +247,10 @@
      </widget>
     </item>
     <item row="4" column="1">
-     <widget class="QLineEdit" name="probabilities_file"/>
+     <widget class="QLineEdit" name="bc_prob"/>
     </item>
     <item row="4" column="2">
-     <widget class="QPushButton" name="probabilities_pushButton">
+     <widget class="QPushButton" name="bc_prob_pushButton">
       <property name="text">
        <string>...</string>
       </property>
