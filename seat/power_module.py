@@ -304,14 +304,14 @@ def read_power_file(datafile):
     return Power, Total_Power
 
 
-def sort_data_files_by_runorder(bc_data, datafiles):
-    bc_data_sorted = sort_bc_data_by_runorder(bc_data.copy())
+def sort_data_files_by_runnumber(bc_data, datafiles):
+    bc_data_sorted = sort_bc_data_by_runnumber(bc_data.copy())
     return [datafiles[i] for i in bc_data_sorted.original_order.to_numpy()]
 
 
-def sort_bc_data_by_runorder(bc_data):
+def sort_bc_data_by_runnumber(bc_data):
     bc_data['original_order'] = range(0, len(bc_data))
-    return bc_data.sort_values(by='run order')
+    return bc_data.sort_values(by='run number')
 
 
 def reset_bc_data_order(bc_data):
@@ -323,20 +323,20 @@ def roundup(x, base=5):
     return base * round(x/base)
 
 
-def calculate_power(power_files, bc_file, save_path=None, crs=None):
+def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
     """
-    Reads the power files and calculates the total annual power based on hydrdynamic probabilities in bc_file. Data are saved as a csv files.
+    Reads the power files and calculates the total annual power based on hydrdynamic probabilities in probabilities_file. Data are saved as a csv files.
     Three files are output:
         1) Total Power among all devices for each hydrodynamic conditions BC_probability_Annual_SETS_wPower.csv
         2) Power per device per hydordynamic scenario. Power_per_device_per_scenario.csv
-        3) Total power per device during a year, scaled by $ of year in bc_file
+        3) Total power per device during a year, scaled by $ of year in probabilities_file
 
     Parameters
     ----------
     fpath : file path
         Path to bc_file and power output files.
-    bc_file : file name
-        bc file name with extension.
+    probabilities_file : file name
+        probabilities file name with extension.
     save_path: file path
         save directory 
 
@@ -349,8 +349,8 @@ def calculate_power(power_files, bc_file, save_path=None, crs=None):
 
     """
     datafiles_o = [s for s in os.listdir(power_files) if s.endswith('.OUT')]
-    bc_data = pd.read_csv(bc_file)
-    datafiles = sort_data_files_by_runorder(bc_data, datafiles_o)
+    bc_data = pd.read_csv(probabilities_file)
+    datafiles = sort_data_files_by_runnumber(bc_data, datafiles_o)
 
     assert save_path is not None, "Specify an output directory"
     os.makedirs(save_path, exist_ok=True)
