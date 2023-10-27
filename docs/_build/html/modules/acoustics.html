@@ -1,25 +1,28 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Acoustics Module &mdash; SEAT [1.0.0-beta1] documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <title>Acoustics Module &mdash; SEAT [1.0.0-beta1] documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../_static/dark_mode_css/general.css" type="text/css" />
       <link rel="stylesheet" href="../_static/dark_mode_css/dark.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
-        <script src="../_static/clipboard.min.js"></script>
-        <script src="../_static/copybutton.js"></script>
-        <script src="../_static/dark_mode_js/default_dark.js"></script>
-        <script src="../_static/dark_mode_js/theme_switcher.js"></script>
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=9eba97ea"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
+        <script src="../_static/dark_mode_js/default_dark.js?v=fd565c74"></script>
+        <script src="../_static/dark_mode_js/theme_switcher.js?v=358d3910"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
@@ -76,13 +79,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="acoustics-module">
-<h1>Acoustics Module<a class="headerlink" href="#acoustics-module" title="Permalink to this headline"></a></h1>
+  <section id="acoustics-module">
+<h1>Acoustics Module<a class="headerlink" href="#acoustics-module" title="Link to this heading"></a></h1>
 <p>The <cite>acoustics_module.py</cite> is a component of the SEAT aimed at assessing the impact of acoustic signal changes from paracoustic files. This module facilitates the understanding and visualization of how different acoustic variables alter in aquatic environments, especially when devices are present.</p>
-<div class="section" id="data">
-<h2>Data<a class="headerlink" href="#data" title="Permalink to this headline"></a></h2>
-<div class="section" id="input">
-<h3>Input<a class="headerlink" href="#input" title="Permalink to this headline"></a></h3>
+<section id="data">
+<h2>Data<a class="headerlink" href="#data" title="Link to this heading"></a></h2>
+<section id="input">
+<h3>Input<a class="headerlink" href="#input" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>NetCDF files: Contain acoustic data for scenarios with and without devices present.</p></li>
 <li><p>Optional:
@@ -90,9 +93,9 @@
 - Probability/Boundary Condition file: Used to weight different run scenarios.
 - Species files: Contains density or percent data of species.</p></li>
 </ul>
-</div>
-<div class="section" id="output">
-<h3>Output<a class="headerlink" href="#output" title="Permalink to this headline"></a></h3>
+</section>
+<section id="output">
+<h3>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h3>
 <ul>
 <li><p>GeoTIFF raster files: Visualize calculated paracoustic, calculated stressor, threshold exceeded receptor, species percent and species density.</p>
 <blockquote>
@@ -128,20 +131,20 @@
 </ul>
 </li>
 </ul>
-</div>
-<div class="section" id="sources">
-<h3>Sources<a class="headerlink" href="#sources" title="Permalink to this headline"></a></h3>
-<div class="section" id="default">
-<h4>Default<a class="headerlink" href="#default" title="Permalink to this headline"></a></h4>
+</section>
+<section id="sources">
+<h3>Sources<a class="headerlink" href="#sources" title="Link to this heading"></a></h3>
+<section id="default">
+<h4>Default<a class="headerlink" href="#default" title="Link to this heading"></a></h4>
 <p>The acoustics module is designed for paracousti data sources (<a class="reference external" href="https://sandialabs.github.io/Paracousti/">https://sandialabs.github.io/Paracousti/</a>).</p>
 <p>Acoustics variables:</p>
 <ul class="simple">
 <li><p>The variable is specified in the receptor file to allow for various weighting, sound pressure level, or sound exposure level thresholds.</p></li>
 </ul>
 <p>Coordinates are determined from the variable attributes</p>
-</div>
-<div class="section" id="alternative">
-<h4>Alternative<a class="headerlink" href="#alternative" title="Permalink to this headline"></a></h4>
+</section>
+<section id="alternative">
+<h4>Alternative<a class="headerlink" href="#alternative" title="Link to this heading"></a></h4>
 <p>The Acoustics module can utilize alternate datasets with the following requirements:</p>
 <ul class="simple">
 <li><p>Variable name must be specified in the receptor file.</p></li>
@@ -156,16 +159,12 @@
 </ul>
 </li>
 </ul>
-</div>
-</div>
-</div>
-<div class="section" id="core-functions">
-<h2>Core Functions:<a class="headerlink" href="#core-functions" title="Permalink to this headline"></a></h2>
+</section>
+</section>
+</section>
+<section id="core-functions">
+<h2>Core Functions:<a class="headerlink" href="#core-functions" title="Link to this heading"></a></h2>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 40%" />
-<col style="width: 60%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Function</p></th>
 <th class="head"><p>Description</p></th>
@@ -194,8 +193,8 @@ in <cite>calculate_acoustic_stressors</cite>.</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

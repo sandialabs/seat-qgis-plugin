@@ -1,25 +1,28 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Probabilities (optional) &mdash; SEAT [1.0.0-beta1] documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <title>Probabilities (optional) &mdash; SEAT [1.0.0-beta1] documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../_static/dark_mode_css/general.css" type="text/css" />
       <link rel="stylesheet" href="../_static/dark_mode_css/dark.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
-        <script src="../_static/clipboard.min.js"></script>
-        <script src="../_static/copybutton.js"></script>
-        <script src="../_static/dark_mode_js/default_dark.js"></script>
-        <script src="../_static/dark_mode_js/theme_switcher.js"></script>
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=9eba97ea"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
+        <script src="../_static/dark_mode_js/default_dark.js?v=fd565c74"></script>
+        <script src="../_static/dark_mode_js/theme_switcher.js?v=358d3910"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -95,11 +98,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="probabilities-optional">
-<h1>Probabilities (optional)<a class="headerlink" href="#probabilities-optional" title="Permalink to this headline"></a></h1>
+  <section id="probabilities-optional">
+<h1>Probabilities (optional)<a class="headerlink" href="#probabilities-optional" title="Link to this heading"></a></h1>
 <p>The probabilities file, while optional, serves to enhance your analysis, providing insights into the run order and the likelihood of each model condition unfolding. Adhere to the prescribed naming convention (as delineated in the device/baseline model section). Note that this file correlates with the return interval in years.</p>
-<div class="section" id="shear-stress-velocity">
-<h2>Shear Stress &amp; Velocity<a class="headerlink" href="#shear-stress-velocity" title="Permalink to this headline"></a></h2>
+<section id="shear-stress-velocity">
+<h2>Shear Stress &amp; Velocity<a class="headerlink" href="#shear-stress-velocity" title="Link to this heading"></a></h2>
 <p>For these types of analyses:</p>
 <ul class="simple">
 <li><p><cite>run order</cite>: Represents the sequence of each condition.</p></li>
@@ -111,20 +114,11 @@
 <p class="admonition-title">Note</p>
 <p>If you include the ‘Exclude’ column, the <cite>% of year</cite> won’t adjust to total 100%.</p>
 </div>
-<div class="figure align-default">
+<figure class="align-default">
 <a class="reference internal image-reference" href="../_images/probabilities_input.webp"><img alt="Interface depicting the Probabilities Input in SEAT's GUI." src="../_images/probabilities_input.webp" style="width: 1000.0px; height: 47.0px;" /></a>
-</div>
+</figure>
 <p><strong>Example of a Probabilities Input</strong></p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 9%" />
-<col style="width: 13%" />
-<col style="width: 13%" />
-<col style="width: 20%" />
-<col style="width: 14%" />
-<col style="width: 17%" />
-<col style="width: 14%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p>Hs[m]</p></td>
 <td><p>Tp[s]</p></td>
@@ -186,9 +180,9 @@
 <li><p>‘run order’: Execution sequence.</p></li>
 <li><p>‘Exclude’: Designation for excluding runs.</p></li>
 </ul>
-</div>
-<div class="section" id="paracousti">
-<h2>ParAcousti<a class="headerlink" href="#paracousti" title="Permalink to this headline"></a></h2>
+</section>
+<section id="paracousti">
+<h2>ParAcousti<a class="headerlink" href="#paracousti" title="Link to this heading"></a></h2>
 <p>For ParAcousti analyses, the file format differs from that of shear stress and velocity.</p>
 <p><strong>Required Columns</strong>:</p>
 <blockquote>
@@ -206,12 +200,6 @@
 </ul>
 <p><strong>Example of a ParAcousti Input</strong></p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 30%" />
-<col style="width: 33%" />
-<col style="width: 27%" />
-<col style="width: 10%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p>ParAcousti File</p></td>
 <td><p>Species % Occurrence File</p></td>
@@ -247,8 +235,8 @@
 <li><p><cite>Species Density File</cite>: Either a .csv or .tif file detailing species density.</p></li>
 <li><p><cite>% of yr</cite>: Represents the percentage of the year.</p></li>
 </ul>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

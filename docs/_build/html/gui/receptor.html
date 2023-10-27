@@ -1,25 +1,28 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Receptor File Input (Optional) &mdash; SEAT [1.0.0-beta1] documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <title>Receptor File Input (Optional) &mdash; SEAT [1.0.0-beta1] documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../_static/dark_mode_css/general.css" type="text/css" />
       <link rel="stylesheet" href="../_static/dark_mode_css/dark.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
-        <script src="../_static/clipboard.min.js"></script>
-        <script src="../_static/copybutton.js"></script>
-        <script src="../_static/dark_mode_js/default_dark.js"></script>
-        <script src="../_static/dark_mode_js/theme_switcher.js"></script>
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=9eba97ea"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
+        <script src="../_static/dark_mode_js/default_dark.js?v=fd565c74"></script>
+        <script src="../_static/dark_mode_js/theme_switcher.js?v=358d3910"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -96,14 +99,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="receptor-file-input-optional">
-<h1>Receptor File Input (Optional)<a class="headerlink" href="#receptor-file-input-optional" title="Permalink to this headline"></a></h1>
+  <section id="receptor-file-input-optional">
+<h1>Receptor File Input (Optional)<a class="headerlink" href="#receptor-file-input-optional" title="Link to this heading"></a></h1>
 <p>The receptor file serves as an additional input to each module, which can either be in .csv or .tif format.</p>
-<div class="figure align-default">
+<figure class="align-default">
 <a class="reference internal image-reference" href="../_images/receptor_file_input.webp"><img alt="Receptor File" src="../_images/receptor_file_input.webp" style="width: 1000.0px; height: 36.0px;" /></a>
-</div>
-<div class="section" id="shear-stress-receptor">
-<h2>1. Shear Stress Receptor<a class="headerlink" href="#shear-stress-receptor" title="Permalink to this headline"></a></h2>
+</figure>
+<section id="shear-stress-receptor">
+<h2>1. Shear Stress Receptor<a class="headerlink" href="#shear-stress-receptor" title="Link to this heading"></a></h2>
 <p>Represents grain size, measured in microns (µm).</p>
 <ul>
 <li><p><strong>File Type</strong>: Supports .csv or geotiff (.tif) file formats.</p>
@@ -121,10 +124,6 @@
 <li><p>E.g.:</p></li>
 </ul>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 65%" />
-<col style="width: 35%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p>grain size</p></td>
 <td><p>250</p></td>
@@ -135,9 +134,9 @@
 </ul>
 </li>
 </ul>
-</div>
-<div class="section" id="velocity-receptor">
-<h2>2. Velocity Receptor<a class="headerlink" href="#velocity-receptor" title="Permalink to this headline"></a></h2>
+</section>
+<section id="velocity-receptor">
+<h2>2. Velocity Receptor<a class="headerlink" href="#velocity-receptor" title="Link to this heading"></a></h2>
 <p>Represents critical velocity, measured in meters per second (m/s).</p>
 <ul>
 <li><p><strong>File Type</strong>: Supports .csv or geotiff (.tif) file formats.</p>
@@ -155,10 +154,6 @@
 <li><p>E.g.:</p></li>
 </ul>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 79%" />
-<col style="width: 21%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p>critical_velocity (m/s)</p></td>
 <td><p>0.05</p></td>
@@ -169,9 +164,9 @@
 </ul>
 </li>
 </ul>
-</div>
-<div class="section" id="paracousti-receptor">
-<h2>3. ParAcousti Receptor<a class="headerlink" href="#paracousti-receptor" title="Permalink to this headline"></a></h2>
+</section>
+<section id="paracousti-receptor">
+<h2>3. ParAcousti Receptor<a class="headerlink" href="#paracousti-receptor" title="Link to this heading"></a></h2>
 <p>Contains values indicating thresholds, grid scaling, and variable selections.</p>
 <ul>
 <li><p><strong>File Type</strong>: Supports only .csv file format.</p>
@@ -191,10 +186,6 @@
 <li><p>E.g.:</p></li>
 </ul>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 74%" />
-<col style="width: 26%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p>species</p></td>
 <td><p>Blue Whale</p></td>
@@ -215,8 +206,8 @@
 </table>
 </li>
 </ul>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

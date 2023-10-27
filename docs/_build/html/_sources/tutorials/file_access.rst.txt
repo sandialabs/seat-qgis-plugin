@@ -26,28 +26,24 @@ Upon approval, you will receive access to a collection of folders containing the
 .. _DEMO_files:
 
 ..  code-block:: none
-    :caption: DEMO Directory 
+    :caption: DEMO Directory Structure
 
       DEMO
       ├───DEMO paracousti
       │   ├───paracousti_files
-      │   ├───probability
+      │   ├───probabilities
       │   ├───receptor
       │   └───species
       ├───DEMO structured
       │   ├───devices-not-present
       │   ├───devices-present
-      │   ├───Output
-      │   │   └───ShearStress_with_receptor
       │   ├───power_files
       │   │   ├───16x6
       │   │   └───4x4
       │   ├───probabilities
-      │   ├───receptor
-      │   └───_plugin-config-files
+      │   └───receptor
       ├───DEMO unstructured
       │   ├───receptor
-      │   ├───tanana_dev_1
       │   ├───tanana_dev_9
       │   └───tanana_nodev
       └───style_files

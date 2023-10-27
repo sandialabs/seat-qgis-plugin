@@ -1,25 +1,28 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PacWave Site &mdash; SEAT [1.0.0-beta1] documentation</title><link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <title>PacWave Site &mdash; SEAT [1.0.0-beta1] documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/dark_mode_css/general.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/dark_mode_css/dark.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/language_data.js"></script>
-        <script src="../../_static/clipboard.min.js"></script>
-        <script src="../../_static/copybutton.js"></script>
-        <script src="../../_static/dark_mode_js/default_dark.js"></script>
-        <script src="../../_static/dark_mode_js/theme_switcher.js"></script>
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=9eba97ea"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../_static/copybutton.js?v=f281be69"></script>
+        <script src="../../_static/dark_mode_js/default_dark.js?v=fd565c74"></script>
+        <script src="../../_static/dark_mode_js/theme_switcher.js?v=358d3910"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -90,22 +93,22 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="pacwave-site">
-<h1>PacWave Site<a class="headerlink" href="#pacwave-site" title="Permalink to this headline"></a></h1>
+  <section id="pacwave-site">
+<h1>PacWave Site<a class="headerlink" href="#pacwave-site" title="Link to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 </div>
 <p>The PacWave is a designated area for marine energy testing on the coast of Oregon. This site has been the focus of model development and SEAT application. A coupled hydrodynamic and wave model was developed using SNL-SWAN and Delft3D-Flow. A range of site conditions is listed in the Model Probabilities File. This site includes information regarding sediment grain size, device power generation, and acoustic effects.</p>
 <p><strong>Accessing Demonstration Files</strong></p>
-<p>To access the demonstration files relevant to this analysis, please refer to the section <a class="reference internal" href="../file_access.html#tutorial-files-access"><span class="std std-ref">Accessing Tutorial Files</span></a>. This demonstration utilizes the <code class="file docutils literal notranslate"><span class="pre">DEMO</span> <span class="pre">unstructured</span></code> and <code class="file docutils literal notranslate"><span class="pre">style_files</span></code> folders as detailed in <a class="reference internal" href="../file_access.html#demo-files"><span class="std std-ref">DEMO Directory</span></a>. A comprehensive list of files contained in the unstructured folder is available in <a class="reference internal" href="#pmec-files"><span class="std std-ref">DEMO PMEC Tutorial Files</span></a>.</p>
+<p>To access the demonstration files relevant to this analysis, please refer to the section <a class="reference internal" href="../file_access.html#tutorial-files-access"><span class="std std-ref">Accessing Tutorial Files</span></a>. This demonstration utilizes the <code class="file docutils literal notranslate"><span class="pre">DEMO</span> <span class="pre">unstructured</span></code> and <code class="file docutils literal notranslate"><span class="pre">style_files</span></code> folders as detailed in <a class="reference internal" href="../file_access.html#demo-files"><span class="std std-ref">DEMO Directory Structure</span></a>. A comprehensive list of files contained in the unstructured folder is available in <a class="reference internal" href="#pmec-files"><span class="std std-ref">DEMO PMEC Tutorial Files</span></a>.</p>
 <p><strong>List of Tutorial Files</strong></p>
 <div class="literal-block-wrapper docutils container" id="id1">
-<span id="pmec-files"></span><div class="code-block-caption"><span class="caption-text">DEMO PMEC Tutorial Files</span><a class="headerlink" href="#id1" title="Permalink to this code"></a></div>
+<span id="pmec-files"></span><div class="code-block-caption"><span class="caption-text">DEMO PMEC Tutorial Files</span><a class="headerlink" href="#id1" title="Link to this code"></a></div>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>DEMO
 ├───DEMO paracousti
 │   │   demo_paracousti_without_species.default
-│   │   demo_paracousti_without_species.ini
-│   │   demo_paracousti_with_receptor.default
-│   │   demo_paracousti_with_receptor.ini
+│   │   demo_paracousti_with_receptor_100.default
+│   │   demo_paracousti_with_receptor_120.default
+│   │   demo_paracousti_with_receptor_219.default
 │   │
 │   ├───paracousti_files
 │   │       PacWave_3DSPLs_Hw0.5.nc
@@ -123,14 +126,13 @@
 │   │       PacWave_3DSPLs_Hw6.5.nc
 │   │       PacWave_3DSPLs_Hw7.0.nc
 │   │
-│   ├───probability
-│   │       boundary_conditions.csv
+│   ├───probabilities
+│   │       probabilities.csv
 │   │
 │   ├───receptor
-│   │       Acoustic_Receptor - BlueWhale - Copy.csv
-│   │       Acoustic_Receptor - BlueWhale.csv
-│   │       Acoustic_Receptor - Harassment _Whale-IA-AVD-10.csv
-│   │       Acoustic_Receptor - Harassment _Whale.csv
+│   │       Acoustic_Receptor - threshold_100.csv
+│   │       Acoustic_Receptor - threshold_120.csv
+│   │       Acoustic_Receptor - threshold_219.csv
 │   │
 │   └───species
 │           WhaleWatchPredictions_2021_01.csv
@@ -148,13 +150,9 @@
 │
 └───DEMO structured
    │   shear_stress_without_receptor.default
-   │   shear_stress_without_receptor.ini
    │   shear_stress_with_receptor.default
-   │   shear_stress_with_receptor.ini
    │   velocity_without_receptor.default
-   │   velocity_without_receptor.ini
    │   velocity_with_receptor.default
-   │   velocity_with_receptor.ini
    │
    ├───devices-not-present
    │       trim_sets_flow_inset_allruns.nc
@@ -162,10 +160,6 @@
    │
    ├───devices-present
    │       trim_sets_flow_inset_allruns.nc
-   │
-   ├───Output
-   │   └───ShearStress_with_receptor
-   │           _20231023.log
    │
    ├───power_files
    │   ├───16x6
@@ -227,22 +221,15 @@
    ├───probabilities
    │       probabilities.csv
    │
-   ├───receptor
-   │       grainsize_receptor.tif
-   │       grainsize_receptor.tif.aux.xml
-   │       grain_size_receptor.csv
-   │       velocity_receptor.csv
-   │
-   └───_plugin-config-files
-         cgrant_4x4.ini
-         cgrant_test.ini
-         oregon_wec_config.ini
-         oregon_wec_config_16x6.ini
-         oregon_wec_config_4x4.ini
+   └───receptor
+         grainsize_receptor.tif
+         grainsize_receptor.tif.aux.xml
+         grain_size_receptor.csv
+         velocity_receptor.csv
 </pre></div>
 </div>
 </div>
-</div>
+</section>
 
 
            </div>

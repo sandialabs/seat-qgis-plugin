@@ -1,25 +1,28 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Secondary Constraint Input &mdash; SEAT [1.0.0-beta1] documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <title>Secondary Constraint Input &mdash; SEAT [1.0.0-beta1] documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../_static/dark_mode_css/general.css" type="text/css" />
       <link rel="stylesheet" href="../_static/dark_mode_css/dark.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
-        <script src="../_static/clipboard.min.js"></script>
-        <script src="../_static/copybutton.js"></script>
-        <script src="../_static/dark_mode_js/default_dark.js"></script>
-        <script src="../_static/dark_mode_js/theme_switcher.js"></script>
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=9eba97ea"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
+        <script src="../_static/dark_mode_js/default_dark.js?v=fd565c74"></script>
+        <script src="../_static/dark_mode_js/theme_switcher.js?v=358d3910"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -91,8 +94,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="secondary-constraint-input">
-<h1>Secondary Constraint Input<a class="headerlink" href="#secondary-constraint-input" title="Permalink to this headline"></a></h1>
+  <section id="secondary-constraint-input">
+<h1>Secondary Constraint Input<a class="headerlink" href="#secondary-constraint-input" title="Link to this heading"></a></h1>
 <p>The secondary constraint input is currently applicable only for the ParAcousti module. It is not utilized in the Shear Stress and Velocity modules. In ParAcousti, this input specifies the directory containing the essential data files: Species Percent and Species Density. Both files must be located within the same directory.</p>
 <ul class="simple">
 <li><p><strong>Directory Structure</strong>:
@@ -100,13 +103,13 @@
 <li><p><strong>File Naming</strong>:
 - Detailed information regarding the naming conventions of these files and the conditions they pertain to can be found in the Model Probabilities File.</p></li>
 </ul>
-<div class="figure align-default">
+<figure class="align-default">
 <a class="reference internal image-reference" href="../_images/secondary_constraint_input.webp"><img alt="Secondary Constraint" src="../_images/secondary_constraint_input.webp" style="width: 1000.0px; height: 40.0px;" /></a>
-</div>
+</figure>
 <p>Example</p>
 <p>Below is example probabilites file from the ParAcousti DEMO Files. The first column is the ParAcousti results file name, the second column is the Species Percent file name, the third column is the Species Density file name, and the fourth column is the percent of the year that the ParAcousti file is applicable. In this example the Species Percent and Species Density files are the same for all ParAcousti files.</p>
 <div class="literal-block-wrapper docutils container" id="id1">
-<div class="code-block-caption"><span class="caption-text">boundary_conditions.csv</span><a class="headerlink" href="#id1" title="Permalink to this code"></a></div>
+<div class="code-block-caption"><span class="caption-text">boundary_conditions.csv</span><a class="headerlink" href="#id1" title="Link to this code"></a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Paracousti File,Species Percent Occurance File,Species Density File,% of yr
 PacWave_3DSPLs_Hw0.5.nc,WhaleWatchPredictions_2021_01.csv,WhaleWatchPredictions_2021_01.csv,0
 PacWave_3DSPLs_Hw1.0.nc,WhaleWatchPredictions_2021_02.csv,WhaleWatchPredictions_2021_02.csv,2.729
@@ -127,7 +130,7 @@ PacWave_3DSPLs_Hw7.0.nc,WhaleWatchPredictions_2021_02.csv,WhaleWatchPredictions_
 </div>
 <p>The Species Percent and Species Density files are located in the directory as specified by the “Secondary Constraint”. For example in the Paracousti Demo files there is a directory call “species” that contains the Species Percent and Species Density files. The Species Percent and Species Density files have the names as specifed above e.g. “WhaleWatchPredictions_2021_01.csv”. Opening one of these files in a text editor shows the following:</p>
 <div class="literal-block-wrapper docutils container" id="id2">
-<div class="code-block-caption"><span class="caption-text">WhaleWatchPredictions_2021_01.csv</span><a class="headerlink" href="#id2" title="Permalink to this code"></a></div>
+<div class="code-block-caption"><span class="caption-text">WhaleWatchPredictions_2021_01.csv</span><a class="headerlink" href="#id2" title="Link to this code"></a></div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&quot;&quot;,&quot;longitude&quot;,&quot;latitude&quot;,&quot;bathy&quot;,&quot;bathyrms&quot;,&quot;sst&quot;,&quot;chl&quot;,&quot;ssh&quot;,&quot;sshrms&quot;,&quot;month&quot;,&quot;year&quot;,&quot;fitmean&quot;,&quot;sdfit&quot;,&quot;percent&quot;,&quot;density&quot;,&quot;sddens&quot;,&quot;upper&quot;,&quot;lower&quot;
 &quot;1&quot;,225,30,-4878.5,145.013092041,19.3042380721481,0.131973730461833,0.10315625,NA,1,2021,NA,NA,NA,NA,NA,NA,NA
 &quot;2&quot;,225,30.25,-4845.25,94.5832061768,19.1984631521385,0.139408998412115,0.1158875,NA,1,2021,NA,NA,NA,NA,NA,NA,NA
@@ -139,7 +142,7 @@ PacWave_3DSPLs_Hw7.0.nc,WhaleWatchPredictions_2021_02.csv,WhaleWatchPredictions_
 </pre></div>
 </div>
 </div>
-</div>
+</section>
 
 
            </div>
