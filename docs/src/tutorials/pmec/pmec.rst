@@ -1,5 +1,5 @@
 
-PMEC Site
+PacWave Site
 ----------
 
 .. toctree::
@@ -9,7 +9,7 @@ PMEC Site
    sedimentation.rst
    acoustics.rst 
 
-The Pacific Marine Energy Center (PMEC) is a designated area for marine energy testing on the coast of Oregon. This site has been the focus of model development and SEAT application. A coupled hydrodynamic and wave model was developed using SNL-SWAN and Delft3D-Flow. A range of site conditions is listed in the Model Probabilities File. This site includes information regarding sediment grain size, device power generation, and acoustic effects.
+The PacWave is a designated area for marine energy testing on the coast of Oregon. This site has been the focus of model development and SEAT application. A coupled hydrodynamic and wave model was developed using SNL-SWAN and Delft3D-Flow. A range of site conditions is listed in the Model Probabilities File. This site includes information regarding sediment grain size, device power generation, and acoustic effects.
 
 **Accessing Demonstration Files**
 

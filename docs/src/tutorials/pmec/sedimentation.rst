@@ -4,7 +4,7 @@ Sedimentation & Power Generation
 Input
 """"""
 
-If you have not done so before you will need to create input files for the default files provided. To do so naviage to :file:`DEMO/structured DEMO/`. In that folder you will find a number of .default files. You need to open these and replace ``<input_folder>`` with the path to the DEMO unstructured folder on your machine and ``<style_folder>`` with the path to the style_files folder on your machine. If you use python a script titled ``localize_input_files.py`` will do this for you. You can run this script by navigating to the DEMO unstructured folder in a terminal and typing ``python localize_input_files.py``. If you do not have python you can open the files in a text editor and replace the text manually or with a find and replace feature. If changing via a text editor save the file as a .ini file.
+If you have not done so before you will need to create input files for the default files provided. To do so naviage to :file:`DEMO/DEMO structured/`. In that folder you will find a number of .default files. You need to open these and replace ``<input_folder>`` with the path to the DEMO unstructured folder on your machine and ``<style_folder>`` with the path to the style_files folder on your machine. If you use python a script titled ``localize_input_files.py`` will do this for you. You can run this script by navigating to the DEMO unstructured folder in a terminal and typing ``python localize_input_files.py``. If you do not have python you can open the files in a text editor and replace the text manually or with a find and replace feature. If changing via a text editor save the file as a .ini file.
 
 Example use of the script is shown below. After running the script .ini files will appear in the DEMO unstructured folder. These are the files you will use to load the inputs into the SEAT GUI.
 
@@ -15,7 +15,7 @@ Example use of the script is shown below. After running the script .ini files wi
    Where is your style_files folder? C:\\Users\\sterl\\OneDrive\\Desktop\\DEMO\\style_files
 
 
-With the *ini files created, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO/unstructured DEMO/shear_stress_with_receptor_demo.ini`, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the :ref:`save_load_config` section in the :ref:`gui` documention.
+With the *ini files created, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO/DEMO unstructured/shear_stress_with_receptor_demo.ini`, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the :ref:`save_load_config` section in the :ref:`gui` documention.
 
 
 For this case we will use ``DEMO structured/shear_stress_with_receptor.ini``. This file contains the following inputs:

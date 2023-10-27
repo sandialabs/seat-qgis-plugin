@@ -3,7 +3,7 @@
 Setting Up Style Files
 ======================
 
-In the demo we have provided style files fou you to use. Before you can use them you need to place the full file path to the style files in the csv files. To do this you must replace ``<style_folder>`` with the path to the style_folder on your machine. For example if you have placed the style files in ``C:\Users\USER\Desktop\DEMO\style_files`` you would replace ``<style_folder>`` with ``C:\Users\USER\OneDrive\Desktop\DEMO\style_files``. There is a script provided to do this for you is you have python you can call `localize_style_path.py` from the command line. If you do not have python you can open the csv files in a text editor and replace ``<style_folder>`` with the path to the style_folder on your machine.
+In the demo we have provided style files for you to use. Before you can use them you need to place the full file path to the style files in the csv files. To do this you must replace ``<style_folder>`` with the path to the style_folder on your machine. For example if you have placed the style files in ``C:\Users\USER\Desktop\DEMO\style_files`` you would replace ``<style_folder>`` with ``C:\Users\USER\OneDrive\Desktop\DEMO\style_files``. There is a script provided to do this for you if you have python you can call `localize_style_path.py` from the command line. If you do not have python you can open the csv files in a text editor and replace ``<style_folder>`` with the path to the style_folder on your machine.
 
 .. code-block:: bash
     :caption: localize_style_path.py
