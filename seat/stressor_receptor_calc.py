@@ -269,7 +269,7 @@ class StressorReceptorCalc:
     # End mostly boilerplate code ------
 
     def select_style_files(self):
-        """Input the bc file dialog."""
+        """Input the styles_file file dialog."""
         filename, _filter = QFileDialog.getOpenFileName(
             self.dlg,
             "Select Style Files CSV file",
@@ -293,15 +293,15 @@ class StressorReceptorCalc:
         data = data.set_index('Type')
         return data
 
-    def select_bc_file(self):
-        """Input the bc file dialog."""
+    def select_probabilities_file(self):
+        """Input the probabilities file dialog."""
         filename, _filter = QFileDialog.getOpenFileName(
             self.dlg,
-            "Select Boundary Condition",
+            "Select Probabilities File",
             "",
             "*.csv",
         )
-        self.dlg.bc_prob.setText(filename)
+        self.dlg.probabilities_file.setText(filename)
 
     def select_power_files_folder(self):
         folder_name = QFileDialog.getExistingDirectory(
@@ -368,8 +368,8 @@ class StressorReceptorCalc:
             self.dlg.device_not_present.setText(
                 config.get("Input", "device not present filepath"),
             )
-            self.dlg.bc_prob.setText(config.get(
-                "Input", "boundary condition filepath"))
+            self.dlg.probabilities_file.setText(config.get(
+                "Input", "probabilities filepath"))
             self.dlg.power_files.setText(
                 config.get("Input", "power files filepath"))
 
@@ -405,7 +405,7 @@ class StressorReceptorCalc:
         config["Input"] = {
             "device present filepath": self.dlg.device_present.text(),
             "device not present filepath": self.dlg.device_not_present.text(),
-            "boundary condition filepath": self.dlg.bc_prob.text(),
+            "probabilities filepath": self.dlg.probabilities_file.text(),
             "power files filepath": self.dlg.power_files.text(),
             "receptor filepath": self.dlg.receptor_file.text(),
             "secondary constraint filepath": self.dlg.sc_file.text(),
@@ -577,8 +577,8 @@ class StressorReceptorCalc:
                 lambda: self.select_device_folder("not present"),
             )
 
-            # set the boundary and run order files
-            self.dlg.bc_prob_pushButton.clicked.connect(self.select_bc_file)
+            # set the probabilities
+            self.dlg.probabilities_pushButton.clicked.connect(self.select_probabilities_file)
 
             self.dlg.power_files_pushButton.clicked.connect(
                 self.select_power_files_folder)
@@ -601,7 +601,7 @@ class StressorReceptorCalc:
 
         self.dlg.device_present.clear()
         self.dlg.device_not_present.clear()
-        self.dlg.bc_prob.clear()
+        self.dlg.probabilities_file.clear()
         self.dlg.power_files.clear()
         self.dlg.crs.clear()
         self.dlg.receptor_file.clear()
@@ -622,7 +622,7 @@ class StressorReceptorCalc:
             # ADD in an ini file here?
             # if '.ini' not in dpresentfname:
             dnotpresentfname = self.dlg.device_not_present.text()
-            bcfname = self.dlg.bc_prob.text()
+            probabilities_fname = self.dlg.probabilities_file.text()
             power_files_folder = self.dlg.power_files.text()
 
             rfilename = self.dlg.receptor_file.text()
@@ -658,14 +658,13 @@ class StressorReceptorCalc:
 
             logger.info("Device present File: {}".format(dpresentfname))
             logger.info("Device not present File: {}".format(dnotpresentfname))
-            logger.info("Boundary Condition File: {}".format(bcfname))
+            logger.info("Probabilities File: {}".format(probabilities_fname))
             logger.info("Power Files: {}".format(power_files_folder))
             logger.info("Stressor: {}".format(svar))
             logger.info("CRS: {}".format(crs))
             logger.info("Secondary Constraint File: {}".format(scfilename))
             logger.info("Output Folder: {}".format(output_folder_name))
-
-            # QgsMessageLog.logMessage(min_rc + " , " + max_rc, level =Qgis.MessageLevel.Info)
+            
             # if the output file path is empty display a warning
             if output_folder_name == "":
                 QgsMessageLog.logMessage(
@@ -676,7 +675,7 @@ class StressorReceptorCalc:
             # Calculate Power Files
             if power_files_folder is not "":
                 logger.info("Power File Folder: {}".format(power_files_folder))
-                calculate_power(power_files_folder, bcfname,
+                calculate_power(power_files_folder, probabilities_fname,
                                 save_path=output_folder_name,
                                 crs=crs)
 
@@ -684,7 +683,7 @@ class StressorReceptorCalc:
                 sfilenames = run_shear_stress_stressor(
                     dev_present_file=dpresentfname,
                     dev_notpresent_file=dnotpresentfname,
-                    bc_file=bcfname,
+                    probabilities_file=probabilities_fname,
                     crs=crs,
                     output_path=output_folder_name,
                     receptor_filename=rfilename,
@@ -727,15 +726,13 @@ class StressorReceptorCalc:
                                      rcstylefile, ranges=True)
                     if rfilename.endswith('.tif'):
                         self.style_layer(rfilename, rstylefile, checked=False)
-                    # crs==4326
-                    # self.calc_area_change(swrfilename, crs)
-                    # self.calc_area_change(classifiedfilename, crs)
+
 
             if svar == "Velocity":
                 sfilenames = run_velocity_stressor(
                     dev_present_file=dpresentfname,
                     dev_notpresent_file=dnotpresentfname,
-                    bc_file=bcfname,
+                    probabilities_file=probabilities_fname,
                     crs=crs,
                     output_path=output_folder_name,
                     receptor_filename=rfilename,
@@ -786,7 +783,7 @@ class StressorReceptorCalc:
                 sfilenames = run_acoustics_stressor(
                     dev_present_file=dpresentfname,
                     dev_notpresent_file=dnotpresentfname,
-                    bc_file=bcfname,
+                    probabilities_file=probabilities_fname,
                     crs=crs,
                     output_path=output_folder_name,
                     receptor_filename=rfilename,
