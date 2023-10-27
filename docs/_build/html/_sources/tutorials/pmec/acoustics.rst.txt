@@ -1,7 +1,7 @@
 Acoustic Effects
 ^^^^^^^^^^^^^^^^
 
-The acoustic effects from the WEC array at PMEC can be evaluated using the Acoustic module in the SEAT GUI. This module reads in individual Paracousti model .nc files that correspond to wave conditions. 
+The acoustic effects from the WEC array at PacWave can be evaluated using the Acoustic module in the SEAT GUI. This module reads in individual Paracousti model .nc files that correspond to wave conditions. 
 
 Input
 """"""
