@@ -91,7 +91,7 @@
              
   <div class="section" id="installation">
 <span id="installtion"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h1>
-<p>To successfully install the SEAT QGIS plugin follow this guide through the process of installing the software required for running SEAT and SEAT itself. It should be noted that outside of software requirements, SEAT requires model data to be brought into the QGIS environment. This is covered in the models section. The software requirements are listed below. The model data requirements are listed in the models section.</p>
+<p>To successfully install the SEAT QGIS plugin follow this guide through the process of installing the software required for running SEAT and SEAT itself. It should be noted that outside of software requirements, SEAT requires model data to be brought into the QGIS environment. This is covered in the models section and examples are provided in the tutorial section which users can use to get started with SEAT. The software requirements are listed below. The model data requirements are listed in the modules section.</p>
 <div class="section" id="software-requirements">
 <h2>1. Software Requirements<a class="headerlink" href="#software-requirements" title="Permalink to this headline"></a></h2>
 <p>QGIS software (version 3.16 or later) is mandatory for installing SEAT. It serves as the platform on which SEAT operates, enabling users to interact with various model files and execute environmental analysis tasks.</p>
@@ -101,14 +101,13 @@
 </div>
 <div class="section" id="install-netcdf4-in-qgis">
 <h2>2. Install NetCDF4 In QGIS<a class="headerlink" href="#install-netcdf4-in-qgis" title="Permalink to this headline"></a></h2>
-<p>After acquiring the necessary software and models, users must then install netCDF4 within QGIS. Note that QGIS uses its own python library seperate from any other python environments you may use. As such the following will guide you through installing NetCDF4 in the QGIS python environment. The process varies between Windows and macOS/Linux. The following are the detailed steps for both Operating Systems:</p>
+<p>After acquiring the necessary software, users must then install netCDF4 within QGIS. Note that QGIS uses its own python library seperate from any other python environments you may use. As such the following will guide you through installing NetCDF4 in the QGIS python environment. The process varies between Windows and macOS/Linux. The following are the detailed steps for both Operating Systems:</p>
 <div class="section" id="windows">
 <h3>Windows<a class="headerlink" href="#windows" title="Permalink to this headline"></a></h3>
 <ol class="arabic">
 <li><p>Open the OSGeo4W Shell as Administrator (Searh for OSGeo4W Shell)</p></li>
 <li><p>Run the following command to install netCDF4:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">py3_env</span>
-<span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">netCDF4</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">netCDF4</span>
 </pre></div>
 </div>
 </li>
