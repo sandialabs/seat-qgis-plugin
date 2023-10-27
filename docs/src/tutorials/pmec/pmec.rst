@@ -1,6 +1,6 @@
 
 PacWave Site
-----------
+------------
 
 .. toctree::
    :maxdepth: 1
@@ -17,7 +17,6 @@ To access the demonstration files relevant to this analysis, please refer to the
 
 
 
-
 **List of Tutorial Files**
 
 .. _pmec_files:
@@ -28,9 +27,9 @@ To access the demonstration files relevant to this analysis, please refer to the
    DEMO
    ├───DEMO paracousti
    │   │   demo_paracousti_without_species.default
-   │   │   demo_paracousti_without_species.ini
-   │   │   demo_paracousti_with_receptor.default
-   │   │   demo_paracousti_with_receptor.ini
+   │   │   demo_paracousti_with_receptor_100.default
+   │   │   demo_paracousti_with_receptor_120.default
+   │   │   demo_paracousti_with_receptor_219.default
    │   │
    │   ├───paracousti_files
    │   │       PacWave_3DSPLs_Hw0.5.nc
@@ -48,14 +47,13 @@ To access the demonstration files relevant to this analysis, please refer to the
    │   │       PacWave_3DSPLs_Hw6.5.nc
    │   │       PacWave_3DSPLs_Hw7.0.nc
    │   │
-   │   ├───probability
-   │   │       boundary_conditions.csv
+   │   ├───probabilities
+   │   │       probabilities.csv
    │   │
    │   ├───receptor
-   │   │       Acoustic_Receptor - BlueWhale - Copy.csv
-   │   │       Acoustic_Receptor - BlueWhale.csv
-   │   │       Acoustic_Receptor - Harassment _Whale-IA-AVD-10.csv
-   │   │       Acoustic_Receptor - Harassment _Whale.csv
+   │   │       Acoustic_Receptor - threshold_100.csv
+   │   │       Acoustic_Receptor - threshold_120.csv
+   │   │       Acoustic_Receptor - threshold_219.csv
    │   │
    │   └───species
    │           WhaleWatchPredictions_2021_01.csv
@@ -73,24 +71,16 @@ To access the demonstration files relevant to this analysis, please refer to the
    │
    └───DEMO structured
       │   shear_stress_without_receptor.default
-      │   shear_stress_without_receptor.ini    
-      │   shear_stress_with_receptor.default   
-      │   shear_stress_with_receptor.ini       
-      │   velocity_without_receptor.default    
-      │   velocity_without_receptor.ini        
-      │   velocity_with_receptor.default       
-      │   velocity_with_receptor.ini
+      │   shear_stress_with_receptor.default
+      │   velocity_without_receptor.default
+      │   velocity_with_receptor.default
       │
       ├───devices-not-present
-      │       trim_sets_flow_inset_allruns.nc  
+      │       trim_sets_flow_inset_allruns.nc
       │       trim_sets_flow_inset_allruns.nc.aux.xml
       │
       ├───devices-present
       │       trim_sets_flow_inset_allruns.nc
-      │
-      ├───Output
-      │   └───ShearStress_with_receptor
-      │           _20231023.log
       │
       ├───power_files
       │   ├───16x6
@@ -152,15 +142,8 @@ To access the demonstration files relevant to this analysis, please refer to the
       ├───probabilities
       │       probabilities.csv
       │
-      ├───receptor
-      │       grainsize_receptor.tif
-      │       grainsize_receptor.tif.aux.xml
-      │       grain_size_receptor.csv
-      │       velocity_receptor.csv
-      │
-      └───_plugin-config-files
-            cgrant_4x4.ini
-            cgrant_test.ini
-            oregon_wec_config.ini
-            oregon_wec_config_16x6.ini
-            oregon_wec_config_4x4.ini
+      └───receptor
+            grainsize_receptor.tif
+            grainsize_receptor.tif.aux.xml
+            grain_size_receptor.csv
+            velocity_receptor.csv

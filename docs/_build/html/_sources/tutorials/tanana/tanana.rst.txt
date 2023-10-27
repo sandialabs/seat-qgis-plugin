@@ -44,39 +44,27 @@ Example use of the script is shown below. After running the script .ini files wi
 
    DEMO
    └───DEMO unstructured
-         │   shear_stress_no_receptor_demo.default
-         │   shear_stress_no_receptor_demo.ini
-         │   shear_stress_with_receptor_demo.default
-         │   shear_stress_with_receptor_demo.ini
-         │   velocity_no_receptor_demo.default
-         │   velocity_no_receptor_demo.ini
-         │   velocity_with_receptor_demo.default
-         │   velocity_with_receptor_demo.ini
-         │
-         ├───receptor
-         │       grain_size_receptor.csv
-         │       velocity_receptor.csv
-         │
-         ├───tanana_dev_1
-         │       1_tanana_100_map.nc
-         │       1_tanana_10_map.nc
-         │       1_tanana_1_map.nc
-         │       1_tanana_25_map.nc
-         │       1_tanana_50_map.nc
-         │       1_tanana_5_map.nc
-         │
-         ├───tanana_dev_9
-         │       9_tanana_100_map.nc
-         │       9_tanana_10_map.nc
-         │       9_tanana_1_map.nc
-         │       9_tanana_25_map.nc
-         │       9_tanana_50_map.nc
-         │       9_tanana_5_map.nc
-         │
-         └───tanana_nodev
-               0_tanana_100_map.nc
-               0_tanana_10_map.nc
-               0_tanana_1_map.nc
-               0_tanana_25_map.nc
-               0_tanana_50_map.nc
-               0_tanana_5_map.nc
+      │   shear_stress_no_receptor_demo.default
+      │   shear_stress_with_receptor_demo.default
+      │   velocity_no_receptor_demo.default
+      │   velocity_with_receptor_demo.default
+      │
+      ├───receptor
+      │       grain_size_receptor.csv
+      │       velocity_receptor.csv
+      │
+      ├───tanana_dev_9
+      │       9_tanana_100_map.nc
+      │       9_tanana_10_map.nc
+      │       9_tanana_1_map.nc
+      │       9_tanana_25_map.nc
+      │       9_tanana_50_map.nc
+      │       9_tanana_5_map.nc
+      │
+      └───tanana_nodev
+            0_tanana_100_map.nc
+            0_tanana_10_map.nc
+            0_tanana_1_map.nc
+            0_tanana_25_map.nc
+            0_tanana_50_map.nc
+            0_tanana_5_map.nc
