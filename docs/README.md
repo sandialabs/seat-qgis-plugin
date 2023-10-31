@@ -4,12 +4,11 @@ This folder contains the documentation source code for SEAT. This README provide
 
 ## Prerequisites
 
-Ensure you have the following installed:
+Please see requirements.txt for a list of required packages. You can install them with:
 
-- Python (>=3.6)
-- pip
-- Sphinx (>=3.0.0)
-- sphinx-rtd-theme (>=0.4.3)
+```bash
+pip install -r requirements.txt
+```
 
 ## Building the Documentation
 
@@ -17,38 +16,30 @@ Ensure you have the following installed:
 
 ```bash
 cd docs
+make clean
 make html
 ```
 
 or in Windows
 
 ```bash
-./make.bat html
+./make.bat clean && ./make.bat html
 ```
-
-The generated documentation can be found in `docs/_build/html`.
 
 ## Viewing the Documentation Locally
 
-After building the docs, you can view the documentation in your browser:
+The generated documentation can be found in `docs/_build/html`.
 
-```bash
-open docs/_build/html/index.html  # For macOS
-# OR
-xdg-open docs/_build/html/index.html  # For Linux
-# OR
-start docs/_build/html/index.html  # For Windows
-```
+To view in your browser open `docs/_build/html/index.html`.
 
 ## Contributing to the Documentation
 
 1. Making Changes:
 
-- Edit the .rst files in the docs/ directory.
-- You can add new .rst files if you want to create new sections/pages.
+- Edit the .rst files in the docs/src directory.
 
 2. Reviewing Changes Locally:
    After making changes, rebuild the documentation (as mentioned above) and view it in your browser to ensure your changes appear as expected.
 
 3. Pushing Changes:
-   Once you're satisfied with your changes, commit and push them to your fork branch, and create a pull request.
+   Once you're satisfied with your changes, commit and push the commit to your fork feature branch, and create a pull request.
