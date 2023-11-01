@@ -2,3 +2,6 @@
 *.tif
 *cache*
 *env*
+
+# Sphinx documentation html
+docs/_build/*
