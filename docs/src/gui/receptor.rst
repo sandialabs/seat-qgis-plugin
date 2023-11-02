@@ -69,7 +69,7 @@ Contains values indicating thresholds, grid scaling, and variable selections.
     - Top: Use the top/surface bin for each vertical column.
     - Bottom: Use the bottom/bed bin for each vertical column.
   
-  - **Species File Averaged Area (km²)**: Represents cumulative area for each cell regarding species percent and density; used for scaling to each paracousti grid cell. Leave blank or set to 0 to prevent scaling. 
+  - **Species File Averaged Area (km²)**: Represents cumulative area for each cell regarding species percent and density; used for scaling to each ParAcousti grid cell. Leave blank or set to 0 to prevent scaling. 
   - E.g.:
 
   +----------------------------------+------------+

@@ -4,18 +4,20 @@ Secondary Constraint Input
 The secondary constraint input is currently applicable only for the ParAcousti module. It is not utilized in the Shear Stress and Velocity modules. In ParAcousti, this input specifies the directory containing the essential data files: Species Percent and Species Density. Both files must be located within the same directory.
 
 - **Directory Structure**:
+
   - The designated directory should contain both the Species Percent and Species Density files.
 
 - **File Naming**:
+
   - Detailed information regarding the naming conventions of these files and the conditions they pertain to can be found in the Model Probabilities File.
 
 .. figure:: ../media/secondary_constraint_input.webp
    :scale: 100 %
    :alt: Secondary Constraint
 
-Example
+**Example:**
 
-Below is example probabilites file from the ParAcousti DEMO Files. The first column is the ParAcousti results file name, the second column is the Species Percent file name, the third column is the Species Density file name, and the fourth column is the percent of the year that the ParAcousti file is applicable. In this example the Species Percent and Species Density files are the same for all ParAcousti files. 
+Below is example probabilites file from the ParAcousti DEMO Files. The first column is the ParAcousti results file name, the second column is the Species Percent file name, the third column is the Species Density file name, and the fourth column is the percent of the year that the ParAcousti file is applicable. In this example, the Species Percent and Species Density files are the same for all ParAcousti files. 
 
 .. code-block:: text
    :caption: boundary_conditions.csv
@@ -37,7 +39,7 @@ Below is example probabilites file from the ParAcousti DEMO Files. The first col
    PacWave_3DSPLs_Hw7.0.nc,WhaleWatchPredictions_2021_02.csv,WhaleWatchPredictions_2021_02.csv,0.086
 
 
-The Species Percent and Species Density files are located in the directory as specified by the "Secondary Constraint". For example in the Paracousti Demo files there is a directory call "species" that contains the Species Percent and Species Density files. The Species Percent and Species Density files have the names as specifed above e.g. "WhaleWatchPredictions_2021_01.csv". Opening one of these files in a text editor shows the following:
+The Species Percent and Species Density files are located in the directory as specified by the "Secondary Constraint". For example, in the Paracousti Demo files, there is a directory called "species" that contains the Species Percent and Species Density files. The Species Percent and Species Density files have the names as specifed above e.g., "WhaleWatchPredictions_2021_01.csv". Opening one of these files in a text editor shows the following:
 
 .. code-block:: text
    :caption: WhaleWatchPredictions_2021_01.csv
