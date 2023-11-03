@@ -3,9 +3,9 @@
 Setting Up Style Files
 ======================
 
-In the tutorial files we have provided style files to use with SEAT in a folder named ``style_files``. Before you can use the style files you need to modify the ``.default`` files with the full file path to the style files and then as as csv files. The file extension is set as ``.default`` to prevent the user from loading the file into SEAT without making the necessary adjustments. For example if you have placed the style files folder in ``C:\Users\USER\Desktop\DEMO\style_files`` you would open each ``.default`` file and replace ``<style_folder>`` with ``C:\Users\USER\Desktop\DEMO\style_files``. 
+In the tutorial files, we have provided style files to use with SEAT in a folder named ``style_files``. Before you can use the style files you need to modify the ``.default`` files with the full file path to the style files and then save them as csv files. The file extension is set as ``.default`` to prevent the user from loading the file into SEAT without making the necessary adjustments. For example, if you have placed the style files folder in ``C:\Users\USER\Desktop\DEMO\style_files`` you would open each ``.default`` file and replace ``<style_folder>`` with ``C:\Users\USER\Desktop\DEMO\style_files``. 
 
-If you do not have python you can open the csv files in a text editor and replace ``<style_folder>`` with the path to the style_folder on your machine. If you do have python on your machine there is a python script provided that will adjust the paths and save the files as a csv for you. You can call `localize_style_path.py` from the command line in the provided Demo files folder: 
+If you do not have python, you can open the csv files in a text editor and replace ``<style_folder>`` with the path to the style_folder on your machine. If you do have python on your machine, there is a python script provided that will adjust the paths and save the files as a csv for you. You can call `localize_style_path.py` from the command line in the provided Demo files folder: 
 
 .. code-block:: bash
     :caption: localize_style_path.py

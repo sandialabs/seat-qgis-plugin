@@ -2,7 +2,7 @@
 Shear Stress Module
 -------------------
 
-The `shear_stress_module.py` a component of SEAT. It's aimed at assessing the impact of shear stressors on sediment mobility in aquatic environments. This module provides insights into how various devices or conditions can affect shear stress by allowing comparison between scenarios with and without these elements present.
+The `shear_stress_module.py` is a component of SEAT. It's aimed at assessing the impact of shear stressors on sediment mobility in aquatic environments. This module provides insights into how various devices or conditions can affect shear stress by allowing comparison between scenarios with and without these elements present.
 
 
 Data
@@ -11,6 +11,7 @@ Input
 """"""
 - NetCDF files: Contain shear stress data for scenarios with and without devices present.
 - Optional:
+
   - Receptor file: Contains critical shear stress values.
   - Probability/Boundary Condition file: Used to weight different run scenarios.
 
@@ -32,7 +33,8 @@ Output
 
 - CSV files: Contain statistics of area changes and mobility classifications.
 
-  * The stressor values are binned into 25 bins and the surface area in which that change occurred, the percent of the overall model domain, and number of cells within the stressor is saved to a csv file.   
+  * The stressor values are binned into 25 bins and the surface area in which that change occurred, the percent of the overall model domain, and number of cells within the stressor is saved to a csv file. 
+    
     + Lat/Lon converted to UTM (meter) coordinates for calculation.
     + UTM remains in the original unit of measure
 
