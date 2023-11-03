@@ -680,6 +680,7 @@ class StressorReceptorCalc:
                                 crs=crs)
 
             if svar == "Shear Stress":
+
                 if not ((scfilename is None) or (scfilename == "")):
                     scfilename=[os.path.join(scfilename, i) for i in os.listdir(scfilename) if i.endswith('tif')][0]
 
@@ -691,7 +692,7 @@ class StressorReceptorCalc:
                     output_path=output_folder_name,
                     receptor_filename=rfilename,
                     secondary_constraint_filename=scfilename
-                ) #TODO : Make output a dictionary to ensure consistency [{'stressor':stressor.tif}]
+                )
 
                 stylefiles_DF = self.read_style_files(
                     self.dlg.output_stylefile.text())
@@ -716,12 +717,12 @@ class StressorReceptorCalc:
                 logger.info(
                     'Stressor reclassification: {}'.format(rcstylefile))
 
-                srfilename = sfilenames[0]  # stressor
+                srfilename = sfilenames['calculated_stressor']  # stressor
                 self.style_layer(srfilename, sstylefile, ranges=True)
                 # self.calc_area_change(srfilename, crs)
                 if not ((rfilename is None) or (rfilename == "")):  # if receptor present
-                    swrfilename = sfilenames[1]  # streessor with receptor
-                    classifiedfilename = sfilenames[2]  # reclassified
+                    swrfilename = sfilenames['calculated_stressor_with_receptor']  # streessor with receptor
+                    classifiedfilename = sfilenames['calculated_stressor_reclassified']  # reclassified
                     self.style_layer(swrfilename, swrstylefile, ranges=True)
                     self.style_layer(classifiedfilename,
                                      rcstylefile, ranges=True)
@@ -730,7 +731,7 @@ class StressorReceptorCalc:
 
                 if not ((scfilename is None) or (scfilename == "")):
                     if scfilename.endswith('.tif'):
-                        self.style_layer(scfilename, scstylefile, checked=False)
+                        self.style_layer(sfilenames['secondary_constraint'], scstylefile, checked=False)
 
             if svar == "Velocity":
                 if not ((scfilename is None) or (scfilename == "")):
@@ -744,7 +745,8 @@ class StressorReceptorCalc:
                     output_path=output_folder_name,
                     receptor_filename=rfilename,
                     secondary_constraint_filename=scfilename
-                ) #TODO : Make output a dictionary to ensure consistency
+                )
+
                 # sfilenames = ['calculated_stressor.tif',
                 #  'calculated_stressor_with_receptor.tif',
                 # 'calculated_stressor_reclassified.tif']
@@ -772,12 +774,12 @@ class StressorReceptorCalc:
                 logger.info(
                     'Stressor reclassification: {}'.format(rcstylefile))
 
-                srfilename = sfilenames[2]  # stressor
+                srfilename = sfilenames['calculated_stressor']  # stressor
                 self.style_layer(srfilename, sstylefile, ranges=True)
                 # self.calc_area_change(srfilename, crs)
                 if not ((rfilename is None) or (rfilename == "")):  # if receptor present
-                    swrfilename = sfilenames[3]  # streessor with receptor
-                    classifiedfilename = sfilenames[4]  # reclassified
+                    swrfilename = sfilenames['calculated_stressor_with_receptor']  # streessor with receptor
+                    classifiedfilename = sfilenames['calculated_stressor_reclassified']  # reclassified
                     self.style_layer(swrfilename, swrstylefile, ranges=True)
                     self.style_layer(classifiedfilename,
                                      rcstylefile, ranges=True)
@@ -786,7 +788,7 @@ class StressorReceptorCalc:
 
                 if not ((scfilename is None) or (scfilename == "")):
                     if scfilename.endswith('.tif'):
-                        self.style_layer(scfilename, scstylefile, checked=False)                    
+                        self.style_layer(sfilenames['secondary_constraint'], scstylefile, checked=False)                    
 
             if svar == "Acoustics":
                 sfilenames = run_acoustics_stressor(
@@ -797,7 +799,7 @@ class StressorReceptorCalc:
                     output_path=output_folder_name,
                     receptor_filename=rfilename,
                     species_folder=scfilename
-                )
+                ) #TODO: Make output a dictionary for consistency
                 # numpy_arrays = [0] PARACOUSTI
                 #               [1] stressor
                 #               [2] threshold_exceeded

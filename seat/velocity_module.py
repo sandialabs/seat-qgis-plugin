@@ -552,5 +552,7 @@ def run_velocity_stressor(
                                             'No Change', 'Reduced Erosion', 'Increased Erosion', 'New Erosion'],
                             limit_constraint_range=[0, np.inf],
                             latlon=crs == 4326).to_csv(os.path.join(output_path, "calculated_stressor_reclassified_at_secondary_constraint.csv"), index=False)
-            
+    OUTPUT = {}
+    for val in output_rasters:
+        OUTPUT[os.path.basename(os.path.normpath(val)).split('.')[0]] = val            
     return output_rasters
