@@ -6,7 +6,7 @@ The acoustic effects from the WEC array at PacWave can be evaluated using the Ac
 Input
 """"""
 
-If you have not done so before, you will need to create input files for the default files provided. To do so, naviage to :file:`DEMO/DEMO paracousti/`. In that folder, you will find a number of .default files. You need to open these and replace `<input_folder>` with the path to the DEMO paracousti folder on your machine and ``<style_folder>`` with the path to the style_files folder on your machine. If you use python, a script titled ``localize_input_files.py`` will do this for you. You can run this script by navigating to the DEMO folder in a terminal and typing ``python localize_input_files.py``. If you do not have python, you can open the files in a text editor and replace the text manually or with a find and replace feature. If changing via a text editor, save the file as a .ini file.
+If you have not done so before, you will need to create input files for the default files provided. To do so, navigate to :file:`DEMO/DEMO paracousti/`. In that folder, you will find a number of .default files. You need to open these and replace `<input_folder>` with the path to the DEMO paracousti folder on your machine and ``<style_folder>`` with the path to the style_files folder on your machine. If you use python, a script titled ``localize_input_files.py`` will do this for you. You can run this script by navigating to the DEMO folder in a terminal and typing ``python localize_input_files.py``. If you do not have python, you can open the files in a text editor and replace the text manually or with a find and replace feature. If changing via a text editor, save the file as a .ini file.
 
 Example use of the script is shown below. After running the script, .ini files will appear in the DEMO paracousti folder. These are the files you will use to load the inputs into the SEAT GUI.
 
@@ -20,10 +20,10 @@ Example use of the script is shown below. After running the script, .ini files w
    Where is your style_files folder? C:\\Users\\sterl\\OneDrive\\Desktop\\DEMO\\style_files
 
 
-To run this demonstration, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO/DEMO paracousti/demo_paracousti_with_receptor_100.ini`, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the :ref:`save_load_config` section in the :ref:`gui` documention.
+To run this demonstration, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO/DEMO paracousti/demo_paracousti_with_receptor_219.ini`, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the :ref:`save_load_config` section in the :ref:`gui` documention.
 
 
-After loading  ``DEMO paracousti/demo_paracousti_with_receptor_100.ini``, the input should resemble the following with your local paths:
+After loading  ``DEMO paracousti/demo_paracousti_with_receptor_219.ini``, the input should resemble the following with your local paths:
 
 .. figure:: ../../media/PMEC_acoustics_input_receptor.webp
    :scale: 100 %
