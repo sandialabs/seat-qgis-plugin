@@ -691,7 +691,7 @@ class StressorReceptorCalc:
                     output_path=output_folder_name,
                     receptor_filename=rfilename,
                     secondary_constraint_filename=scfilename
-                )
+                ) #TODO : Make output a dictionary to ensure consistency [{'stressor':stressor.tif}]
 
                 stylefiles_DF = self.read_style_files(
                     self.dlg.output_stylefile.text())
@@ -733,6 +733,9 @@ class StressorReceptorCalc:
                         self.style_layer(scfilename, scstylefile, checked=False)
 
             if svar == "Velocity":
+                if not ((scfilename is None) or (scfilename == "")):
+                    scfilename=[os.path.join(scfilename, i) for i in os.listdir(scfilename) if i.endswith('tif')][0]
+
                 sfilenames = run_velocity_stressor(
                     dev_present_file=dpresentfname,
                     dev_notpresent_file=dnotpresentfname,
@@ -740,7 +743,8 @@ class StressorReceptorCalc:
                     crs=crs,
                     output_path=output_folder_name,
                     receptor_filename=rfilename,
-                )
+                    secondary_constraint_filename=scfilename
+                ) #TODO : Make output a dictionary to ensure consistency
                 # sfilenames = ['calculated_stressor.tif',
                 #  'calculated_stressor_with_receptor.tif',
                 # 'calculated_stressor_reclassified.tif']
@@ -779,9 +783,10 @@ class StressorReceptorCalc:
                                      rcstylefile, ranges=True)
                     if rfilename.endswith('.tif'):
                         self.style_layer(rfilename, rstylefile, checked=False)
-                    # crs==4326
-                    # self.calc_area_change(swrfilename, crs)
-                    # self.calc_area_change(classifiedfilename, crs)
+
+                if not ((scfilename is None) or (scfilename == "")):
+                    if scfilename.endswith('.tif'):
+                        self.style_layer(scfilename, scstylefile, checked=False)                    
 
             if svar == "Acoustics":
                 sfilenames = run_acoustics_stressor(
