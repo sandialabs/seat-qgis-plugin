@@ -680,6 +680,9 @@ class StressorReceptorCalc:
                                 crs=crs)
 
             if svar == "Shear Stress":
+                if not ((scfilename is None) or (scfilename == "")):
+                    scfilename=[os.path.join(scfilename, i) for i in os.listdir(scfilename) if i.endswith('tif')][0]
+
                 sfilenames = run_shear_stress_stressor(
                     dev_present_file=dpresentfname,
                     dev_notpresent_file=dnotpresentfname,
@@ -687,10 +690,8 @@ class StressorReceptorCalc:
                     crs=crs,
                     output_path=output_folder_name,
                     receptor_filename=rfilename,
+                    secondary_constraint_filename=scfilename
                 )
-                # sfilenames = ['calculated_stressor.tif',
-                #  'calculated_stressor_with_receptor.tif',
-                # 'calculated_stressor_reclassified.tif'
 
                 stylefiles_DF = self.read_style_files(
                     self.dlg.output_stylefile.text())
@@ -727,6 +728,9 @@ class StressorReceptorCalc:
                     if rfilename.endswith('.tif'):
                         self.style_layer(rfilename, rstylefile, checked=False)
 
+                if not ((scfilename is None) or (scfilename == "")):
+                    if scfilename.endswith('.tif'):
+                        self.style_layer(scfilename, scstylefile, checked=False)
 
             if svar == "Velocity":
                 sfilenames = run_velocity_stressor(
