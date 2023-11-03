@@ -23,7 +23,7 @@ make html
 or in Windows
 
 ```bash
-./make.bat clean && ./make.bat html
+make.bat clean && make.bat html
 ```
 
 ## Viewing the Documentation Locally
