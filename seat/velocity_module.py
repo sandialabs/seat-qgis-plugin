@@ -555,4 +555,4 @@ def run_velocity_stressor(
     OUTPUT = {}
     for val in output_rasters:
         OUTPUT[os.path.basename(os.path.normpath(val)).split('.')[0]] = val            
-    return output_rasters
+    return OUTPUT
