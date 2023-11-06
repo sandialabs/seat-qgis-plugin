@@ -365,6 +365,9 @@ def calculate_shear_stress_stressors(fpath_nodev,
 
     mobility_parameter_diff = mobility_parameter_dev - mobility_parameter_nodev
 
+    #EQ 7 in Jones et al. (2018) doi:10.3390/en11082036
+    Risk = np.round(mobility_parameter_dev * ((mobility_parameter_dev-mobility_parameter_nodev) / np.abs(mobility_parameter_dev - mobility_parameter_nodev))) + (mobility_parameter_dev - mobility_parameter_nodev)
+
     if gridtype == 'structured':
         mobility_classification = classify_mobility(
             mobility_parameter_dev, mobility_parameter_nodev)
@@ -373,7 +376,7 @@ def calculate_shear_stress_stressors(fpath_nodev,
         rx = xcor
         ry = ycor
         listOfFiles = [tau_diff, mobility_parameter_nodev, mobility_parameter_dev, mobility_parameter_diff,
-                       mobility_classification, receptor_array, tau_combined_dev, tau_combined_nodev]
+                       mobility_classification, receptor_array, tau_combined_dev, tau_combined_nodev, Risk]
     else:  # unstructured
         dxdy = estimate_grid_spacing(xcor, ycor, nsamples=100)
         dx = dxdy
@@ -393,17 +396,20 @@ def calculate_shear_stress_stressors(fpath_nodev,
                 xcor, ycor, mobility_parameter_diff, dxdy, flatness=0.2)
             _, _, receptor_array_struct = create_structured_array_from_unstructured(
                 xcor, ycor, receptor_array, dxdy, flatness=0.2)
+            _, _, Risk_struct = create_structured_array_from_unstructured(
+                xcor, ycor, receptor_array, dxdy, flatness=0.2)
         else:
             mobility_parameter_nodev_struct = np.nan * tau_diff_struct
             mobility_parameter_dev_struct = np.nan * tau_diff_struct
             mobility_parameter_diff_struct = np.nan * tau_diff_struct
             receptor_array_struct = np.nan * tau_diff_struct
+            Risk_struct = np.nan * tau_diff_struct
         mobility_classification = classify_mobility(
             mobility_parameter_dev_struct, mobility_parameter_nodev_struct)
         mobility_classification = np.where(
             np.isnan(tau_diff_struct), -100, mobility_classification)
         listOfFiles = [tau_diff_struct, mobility_parameter_nodev_struct, mobility_parameter_dev_struct, mobility_parameter_diff_struct,
-                       mobility_classification, receptor_array_struct, tau_combined_dev_struct, tau_combined_nodev_struct]
+                       mobility_classification, receptor_array_struct, tau_combined_dev_struct, tau_combined_nodev_struct, Risk_struct]
 
     return listOfFiles, rx, ry, dx, dy, gridtype
 
@@ -462,15 +468,19 @@ def run_shear_stress_stressor(
     #               [5] receptor array
     #               [6] tau_combined_dev
     #               [7] tau_combined_nodev
+    #               [8] Risk
     if not ((receptor_filename is None) or (receptor_filename == "")):
         numpy_array_names = ['calculated_stressor.tif',
                                 'calculated_stressor_with_receptor.tif',
                                 'calculated_stressor_reclassified.tif',
                                 'receptor.tif',
                                 'tau_with_devices.tif',
-                                'tau_without_devices.tif']
+                                'tau_without_devices.tif',
+                                'risk.tif']
         use_numpy_arrays = [numpy_arrays[0], numpy_arrays[3],
-                            numpy_arrays[4], numpy_arrays[5], numpy_arrays[6], numpy_arrays[7]]
+                            numpy_arrays[4], numpy_arrays[5], 
+                            numpy_arrays[6], numpy_arrays[7],
+                            numpy_arrays[8]]
     else:
         numpy_array_names = ['calculated_stressor.tif',
                             'tau_with_devices.tif',
@@ -548,6 +558,18 @@ def run_shear_stress_stressor(
                     limit_receptor_range=[0, np.inf],
                     latlon=crs == 4326).to_csv(os.path.join(output_path, "calculated_stressor_with_receptor_at_receptor.csv"), index=False)
         
+        bin_layer(os.path.join(output_path, 'risk.tif'),
+                    receptor_filename=None,
+                    receptor_names=None,
+                    limit_receptor_range=[0, np.inf],
+                    latlon=crs == 4326).to_csv(os.path.join(output_path, "calculated_risk.csv"), index=False)
+        
+        bin_layer(os.path.join(output_path, 'risk.tif'),
+                    receptor_filename=os.path.join(output_path, 'receptor.tif'),
+                    receptor_names=None,
+                    limit_receptor_range=[0, np.inf],
+                    latlon=crs == 4326).to_csv(os.path.join(output_path, "calculated_risk_at_receptor.csv"), index=False)
+        
         classify_layer_area(os.path.join(output_path, "calculated_stressor_reclassified.tif"),
                             at_values=[-3, -2, -1, 0, 1, 2, 3],
                             value_names=['New Deposition', 'Increased Deposition', 'Reduced Deposition',
@@ -568,7 +590,13 @@ def run_shear_stress_stressor(
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
                     latlon=crs == 4326).to_csv(os.path.join(output_path, "calculated_stressor_with_receptor_at_secondary_constraint.csv"), index=False)
-
+            
+            bin_layer(os.path.join(output_path, 'risk.tif'),
+                    receptor_filename=os.path.join(output_path, "secondary_constraint.tif"),
+                    receptor_names=None,
+                    limit_receptor_range=[0, np.inf],
+                    latlon=crs == 4326).to_csv(os.path.join(output_path, "risk_at_secondary_constraint.csv"), index=False)
+            
             classify_layer_area_2nd_Constraint(raster_to_sample = os.path.join(output_path, "calculated_stressor_reclassified.tif"),
                             secondary_constraint_filename=os.path.join(output_path, "secondary_constraint.tif"),
                             at_raster_values=[-3, -2, -1, 0, 1, 2, 3],

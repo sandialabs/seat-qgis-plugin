@@ -707,6 +707,8 @@ class StressorReceptorCalc:
                 ).replace("\\", "/")
                 rcstylefile = stylefiles_DF.loc['Reclassificed Stressor with receptor'].values.item(
                 ).replace("\\", "/")
+                rskstylefile = stylefiles_DF.loc['Risk'].values.item(
+                ).replace("\\", "/")
 
                 logger.info("Receptor Style File: {}".format(rstylefile))
                 logger.info("Stressor Style File: {}".format(sstylefile))
@@ -716,16 +718,15 @@ class StressorReceptorCalc:
                     swrstylefile))  # stressor with receptor
                 logger.info(
                     'Stressor reclassification: {}'.format(rcstylefile))
-
+                logger.info(
+                    'Risk: {}'.format(rskstylefile))
                 srfilename = sfilenames['calculated_stressor']  # stressor
                 self.style_layer(srfilename, sstylefile, ranges=True)
                 # self.calc_area_change(srfilename, crs)
                 if not ((rfilename is None) or (rfilename == "")):  # if receptor present
-                    swrfilename = sfilenames['calculated_stressor_with_receptor']  # streessor with receptor
-                    classifiedfilename = sfilenames['calculated_stressor_reclassified']  # reclassified
-                    self.style_layer(swrfilename, swrstylefile, ranges=True)
-                    self.style_layer(classifiedfilename,
-                                     rcstylefile, ranges=True)
+                    self.style_layer(sfilenames['calculated_stressor_with_receptor'] , swrstylefile, ranges=True)# streessor with receptor
+                    self.style_layer(sfilenames['calculated_stressor_reclassified'], rcstylefile, ranges=True)  # reclassified
+                    self.style_layer(sfilenames['risk'], rskstylefile, ranges=True)                    
                     if rfilename.endswith('.tif'):
                         self.style_layer(rfilename, rstylefile, checked=False)
 
