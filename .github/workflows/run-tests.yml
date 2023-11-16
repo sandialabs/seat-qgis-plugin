@@ -25,7 +25,7 @@ jobs:
       - name: Run QGIS Docker container
         run: |
           docker run -d --name qgis-testing-environment \
-          -v ${GITHUB_WORKSPACE}:/tests \
+          -v ${GITHUB_WORKSPACE}:/tests_directory \
           -e DISPLAY=:99 qgis/qgis:latest
 
       - name: Sleep for Xvfb
