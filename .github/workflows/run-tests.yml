@@ -1,6 +1,12 @@
 name: QGIS Plugin CI
 
-on: [push, pull_request]
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
 
 jobs:
   test:
@@ -27,9 +33,9 @@ jobs:
 
       - name: Setup QGIS and enable the plugin
         run: |
-          docker exec -it qgis-testing-environment sh -c "qgis_setup.sh seat"
-          docker exec -it qgis-testing-environment sh -c "rm -f /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
-          docker exec -it qgis-testing-environment sh -c "ln -s /tests_directory/ /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
+          docker exec qgis-testing-environment sh -c "qgis_setup.sh seat"
+          docker exec qgis-testing-environment sh -c "rm -f /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
+          docker exec qgis-testing-environment sh -c "ln -s /tests_directory/ /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
 
       - name: Run tests
         run: docker exec -it qgis-testing-environment sh -c "cd /tests_directory && qgis_testrunner.sh tests.test_example"
