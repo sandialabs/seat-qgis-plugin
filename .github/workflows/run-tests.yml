@@ -1,26 +1,61 @@
-name: Run tests
-on:
-  pull_request:
-    branches:
-      - main
-  push:
-    branches:
-      - main
+name: QGIS Plugin CI
+
+on: [push, pull_request]
+
 jobs:
-  Test-Runner:
+  test:
     runs-on: ubuntu-latest
-    container:
-      image: qgis/qgis:latest
+    services:
+      docker:
+        image: qgis/qgis:latest
+        options: --user root
+        ports:
+          - 99:99
+
     steps:
-      - name: Check out repository code
+      - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Run test in Docker
-        env:
-          QGIS_TEST_VERSION: latest
-          DISPLAY: "var"
-          QT_DEBUG_PLUGIN: 1
-          QT_QPA_PLATFORM: offscreen
+      - name: Run QGIS Docker container
         run: |
-          /__w/qgis2web/qgis2web/.docker/run-docker-tests.sh
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+          docker run -d --name qgis-testing-environment \
+          -v ${GITHUB_WORKSPACE}:/tests_directory \
+          -e DISPLAY=:99 qgis/qgis:latest
+
+      - name: Sleep for Xvfb
+        run: sleep 10
+
+      - name: Setup QGIS and enable the plugin
+        run: |
+          docker exec -it qgis-testing-environment sh -c "qgis_setup.sh seat"
+          docker exec -it qgis-testing-environment sh -c "rm -f /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
+          docker exec -it qgis-testing-environment sh -c "ln -s /tests_directory/ /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
+
+      - name: Run tests
+        run: docker exec -it qgis-testing-environment sh -c "cd /tests_directory && qgis_testrunner.sh tests.test_example"
+# name: Run tests
+# on:
+#   pull_request:
+#     branches:
+#       - main
+#   push:
+#     branches:
+#       - main
+# jobs:
+#   Test-Runner:
+#     runs-on: ubuntu-latest
+#     container:
+#       image: qgis/qgis:latest
+#     steps:
+#       - name: Check out repository code
+#         uses: actions/checkout@v2
+
+#       - name: Run test in Docker
+#         env:
+#           QGIS_TEST_VERSION: latest
+#           DISPLAY: "var"
+#           QT_DEBUG_PLUGIN: 1
+#           QT_QPA_PLATFORM: offscreen
+#         run: |
+#           /__w/qgis2web/qgis2web/.docker/run-docker-tests.sh
+#       - run: echo "🍏 This job's status is ${{ job.status }}."
