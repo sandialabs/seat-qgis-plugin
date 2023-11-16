@@ -38,7 +38,7 @@ jobs:
           docker exec qgis-testing-environment sh -c "ln -s /tests_directory/ /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
 
       - name: Run tests
-        run: docker exec -it qgis-testing-environment sh -c "cd /tests_directory && qgis_testrunner.sh tests.test_example"
+        run: docker exec qgis-testing-environment sh -c "cd /tests_directory && qgis_testrunner.sh tests.test_example"
 # name: Run tests
 # on:
 #   pull_request:
