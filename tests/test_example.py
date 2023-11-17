@@ -4,6 +4,21 @@ from qgis.core import QgsApplication
 from seat.stressor_receptor_calc import classFactory
 
 
+class ExampleTest(unittest.TestCase):
+    def test_basic(self):
+        self.assertTrue(True)
+
+
+class TestPandasInstallation(unittest.TestCase):
+    def test_pandas_installed(self):
+        try:
+            import pandas
+            pandas_available = True
+        except ImportError:
+            pandas_available = False
+        self.assertTrue(pandas_available, "Pandas is not installed.")
+
+
 class TestSeatPluginInstallation(unittest.TestCase):
 
     def setUp(self):
@@ -19,15 +34,11 @@ class TestSeatPluginInstallation(unittest.TestCase):
         self.assertIsNotNone(plugin_instance)
 
 
-class ExampleTest(unittest.TestCase):
-    def test_basic(self):
-        self.assertTrue(True)
-
-
 def run_all():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(ExampleTest))
     suite.addTest(unittest.makeSuite(TestSeatPluginInstallation))
+    suite.addTest(unittest.makeSuite(TestPandasInstallation))
     runner = unittest.TextTestRunner()
     runner.run(suite)
 
