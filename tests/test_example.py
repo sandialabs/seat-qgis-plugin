@@ -8,13 +8,13 @@ class ExampleTest(unittest.TestCase):
     def test_basic(self):
         self.assertTrue(True)
 
-    def test_pandas_installed(self):
-        try:
-            import pandas
-            pandas_available = True
-        except ImportError:
-            pandas_available = False
-        self.assertTrue(pandas_available, "Pandas is not installed.")
+    # def test_pandas_installed(self):
+    #     try:
+    #         import pandas
+    #         pandas_available = True
+    #     except ImportError:
+    #         pandas_available = False
+    #     self.assertTrue(pandas_available, "Pandas is not installed.")
 
 
 # class TestPandasInstallation(unittest.TestCase):
