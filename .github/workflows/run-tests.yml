@@ -43,5 +43,9 @@ jobs:
       # - name: Run tests
       # run: docker exec qgis-testing-environment sh -c "export PYTHONPATH=/tests_directory:\$PYTHONPATH && cd /tests_directory && qgis_testrunner.sh tests.test_example"
 
+      # - name: Run tests
+      #   run: docker exec qgis-testing-environment sh -c "PYTHONPATH=/tests_directory:\$PYTHONPATH qgis_testrunner.sh tests.test_example"
+
       - name: Run tests
-        run: docker exec qgis-testing-environment sh -c "PYTHONPATH=/tests_directory:\$PYTHONPATH qgis_testrunner.sh tests.test_example"
+        run: |
+          docker exec qgis-testing-environment sh -c "export PYTHONPATH=/tests_directory:\$PYTHONPATH && cd /tests_directory && qgis_testrunner.sh tests.test_example.run_all"
