@@ -31,6 +31,9 @@ jobs:
       - name: Sleep for Xvfb
         run: sleep 10
 
+      - name: Install Pandas
+        run: docker exec qgis-testing-environment sh -c "python /tests/install_dependencies.py"
+
       - name: Setup QGIS and enable the plugin
         run: |
           docker exec qgis-testing-environment sh -c "qgis_setup.sh seat"
@@ -42,6 +45,9 @@ jobs:
 
       - name: Install Pandas
         run: docker exec qgis-testing-environment pip install pandas
+
+      - name: Check Pandas installation
+        run: docker exec qgis-testing-environment python -c "import pandas"
 
       - name: Run tests
         run: |
