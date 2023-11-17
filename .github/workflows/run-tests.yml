@@ -32,22 +32,13 @@ jobs:
         run: sleep 10
 
       - name: Install Pandas
-        run: docker exec qgis-testing-environment sh -c "python /tests/install_dependencies.py"
+        run: docker exec qgis-testing-environment sh -c "python3 /tests/install_dependencies.py"
 
       - name: Setup QGIS and enable the plugin
         run: |
           docker exec qgis-testing-environment sh -c "qgis_setup.sh seat"
           docker exec qgis-testing-environment sh -c "rm -f /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
           docker exec qgis-testing-environment sh -c "ln -s /tests_directory/ /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
-
-      - name: Check Pandas installation
-        run: docker exec qgis-testing-environment python -c "import pandas"
-
-      - name: Install Pandas
-        run: docker exec qgis-testing-environment pip install pandas
-
-      - name: Check Pandas installation
-        run: docker exec qgis-testing-environment python -c "import pandas"
 
       - name: Run tests
         run: |
