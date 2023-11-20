@@ -19,7 +19,7 @@ jobs:
           - 99:99
 
     steps:
-      - name: Checkout
+      - name: Checkout qgis-plugin
         uses: actions/checkout@v3
 
       - name: Run QGIS Docker container
@@ -38,7 +38,7 @@ jobs:
         run: |
           docker exec qgis-testing-environment sh -c "qgis_setup.sh seat"
           docker exec qgis-testing-environment sh -c "rm -f /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
-          docker exec qgis-testing-environment sh -c "ln -s /tests_directory/ /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
+          docker exec qgis-testing-environment sh -c "ln -s /tests_directory/seat /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
 
       - name: Run tests
         run: |
