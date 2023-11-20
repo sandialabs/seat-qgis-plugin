@@ -1,7 +1,7 @@
 import unittest
 from qgis.core import QgsApplication
 # Adjust the import path if necessary
-from seat.stressor_receptor_calc import classFactory
+# from seat.stressor_receptor_calc import classFactory
 
 
 class ExampleTest(unittest.TestCase):
