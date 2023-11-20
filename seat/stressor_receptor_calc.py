@@ -244,7 +244,7 @@ class StressorReceptorCalc:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ":/plugins/seat_qgis_plugin/icon.png"
+        icon_path = ":/plugins/seat/icon.png"
         self.add_action(
             icon_path,
             setText=self.tr(
@@ -578,7 +578,8 @@ class StressorReceptorCalc:
             )
 
             # set the probabilities
-            self.dlg.probabilities_pushButton.clicked.connect(self.select_probabilities_file)
+            self.dlg.probabilities_pushButton.clicked.connect(
+                self.select_probabilities_file)
 
             self.dlg.power_files_pushButton.clicked.connect(
                 self.select_power_files_folder)
@@ -664,7 +665,7 @@ class StressorReceptorCalc:
             logger.info("CRS: {}".format(crs))
             logger.info("Secondary Constraint File: {}".format(scfilename))
             logger.info("Output Folder: {}".format(output_folder_name))
-            
+
             # if the output file path is empty display a warning
             if output_folder_name == "":
                 QgsMessageLog.logMessage(
@@ -726,7 +727,6 @@ class StressorReceptorCalc:
                                      rcstylefile, ranges=True)
                     if rfilename.endswith('.tif'):
                         self.style_layer(rfilename, rstylefile, checked=False)
-
 
             if svar == "Velocity":
                 sfilenames = run_velocity_stressor(
