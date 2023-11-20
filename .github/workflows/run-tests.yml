@@ -38,8 +38,8 @@ jobs:
         run: |
           docker exec qgis-testing-environment sh -c "qgis_setup.sh seat"
           docker exec qgis-testing-environment sh -c "rm -f /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
-          docker exec qgis-testing-environment sh -c "ln -s /tests_directory/seat /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
-
+          docker exec qgis-testing-environment sh -c "ln -s /tests_directory /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
+      #docker exec qgis-testing-environment sh -c "ln -s /tests_directory/seat /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
       - name: Run tests
         run: |
           docker exec qgis-testing-environment sh -c "export PYTHONPATH=/tests_directory:\$PYTHONPATH && qgis_testrunner.sh tests.test_example.run_all"
