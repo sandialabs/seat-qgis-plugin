@@ -1,7 +1,12 @@
+from seat import classFactory
 import unittest
 from qgis.core import QgsApplication
-# Adjust the import path if necessary
-# from seat.stressor_receptor_calc import classFactory
+
+
+# Mock Interface
+class MockIface:
+    # Add any methods here that your plugin expects from iface
+    pass
 
 
 class ExampleTest(unittest.TestCase):
@@ -19,10 +24,30 @@ class TestPandasInstallation(unittest.TestCase):
         self.assertTrue(pandas_available, "Pandas is not installed.")
 
 
+class TestQGISPlugin(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Initialize QGIS Application
+        cls.qgs = QgsApplication([], False)
+        QgsApplication.initQgis()
+        cls.iface = MockIface()
+        cls.plugin = classFactory(cls.iface)
+
+    @classmethod
+    def tearDownClass(cls):
+        # Stop the QGIS application
+        QgsApplication.exitQgis()
+
+    def test_translation_function(self):
+        translated = self.plugin.tr('hello')
+        self.assertIsNotNone(translated, "Translation function returned None")
+
+
 def run_all():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(ExampleTest))
     suite.addTest(unittest.makeSuite(TestPandasInstallation))
+    suite.addTest(unittest.makeSuite(TestQGISPlugin))
     runner = unittest.TextTestRunner()
     runner.run(suite)
 
