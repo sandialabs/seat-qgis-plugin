@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-/***************************************************************************.
-
- stressor_receptor_calc.py
+""" stressor_receptor_calc.py
+ 
  Copyright 2023, Integral Consulting Inc. All rights reserved.
 
- PURPOSE: A QGIS plugin that calculates a probability weighted response layer from stressor and/or receptor layers
+ PURPOSE: A QGIS plugin that calculates a probability weighted response
+    layer from stressor and/or receptor layers
 
  PROJECT INFORMATION:
- Name: SEAT - Spatial and Environmental Assessment Toolkit (https://github.com/sandialabs/seat-qgis-plugin)
+ Name: SEAT - Spatial and Environmental Assessment Toolkit
  Number: C1308
 
  AUTHORS
@@ -20,51 +19,18 @@
  NOTES (Data descriptions and any script specific notes)
 	1. plugin template from Plugin Builder: http://g-sherman.github.io/Qgis-Plugin-Builder/
 	2. refer to documentation regarding installation and input formatting.
-    3. requires installation of NETCDF4 (https://unidata.github.io/netcdf4-python/) and QGIS (https://qgis.org/en/site/)
+    3. requires installation of NETCDF4 (https://unidata.github.io/netcdf4-python/) 
+       and QGIS (https://qgis.org/en/site/)
     4. tested and created using QGIS v3.22
 """
-#!/usr/bin/python
-# Example Script.py (filename in case the script gets renamed)
-# Copyright 2021, Integral Consulting Inc. All rights reserved.
-#
-# PURPOSE: Example of a project script
-#
-# PROJECT INFORMATION:
-# Name:
-# Number:
-#
-# AUTHORS (Authors to use initals in history)
-#
-# NOTES (Data descriptions and any script specific notes)
-# 1.
-# 2.
-#
-# HISTORY:
-# Date		  Author                Remarks
-# ----------- --------------------- --------------------------------------------
-# YYYY-MM-DD  Name/initials if using AUTHORS  Don't forget to fill this out
-# ===============================================================================
+
 import configparser
-# import csv
-# import glob
 import logging
 import os.path
-# import shutil
-# import tempfile
 import xml.etree.ElementTree as ET
-
-# grab the data time
 from datetime import date
-
-import numpy as np
 import pandas as pd
 
-# import QGIS processing
-# import processing
-# from netCDF4 import Dataset
-# from osgeo import gdal
-# from PyQt5.QtCore import Qt
-# from qgis.analysis import QgsRasterCalculator, QgsRasterCalculatorEntry
 from qgis.core import (
     Qgis,
     QgsApplication,
@@ -75,19 +41,15 @@ from qgis.core import (
     QgsRasterLayer,
     QgsVectorLayer,
 )
-from qgis.gui import QgsProjectionSelectionDialog  # ,QgsLayerTreeView
+from qgis.gui import QgsProjectionSelectionDialog
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator
 from qgis.PyQt.QtGui import QIcon
-# , QGridLayout, QTableWidgetItem
 from qgis.PyQt.QtWidgets import QAction, QFileDialog
-
-# UTM finder
-# from .Find_UTM_srid import find_utm_srid
 
 # Initialize Qt resources from file resources.py
 from .resources import *
 
-# Import Modules
+# SEAT Modules
 from .shear_stress_module import run_shear_stress_stressor
 from .velocity_module import run_velocity_stressor
 from .acoustics_module import run_acoustics_stressor
@@ -445,106 +407,6 @@ class StressorReceptorCalc:
         if ranges:
             range = [x[0] for x in layer.legendSymbologyItems()]
             return range
-
-    # def calc_area_change(self, ofilename, crs, stylefile=None):
-    #     """Export the areas of the given file. Find a UTM of the given crs and calculate in m2."""
-
-    #     cfile = ofilename.replace(".tif", ".csv")
-    #     if os.path.isfile(cfile):
-    #         os.remove(cfile)
-
-    #     # if stylefile is not None:
-    #     #     sdf = df_from_qml(stylefile)
-
-    #     # get the basename and use the raster in the instance to get the min / max
-    #     basename = os.path.splitext(os.path.basename(ofilename))[0]
-    #     raster = QgsProject.instance().mapLayersByName(basename)[0]
-
-    #     xmin = raster.extent().xMinimum()
-    #     xmax = raster.extent().xMaximum()
-    #     ymin = raster.extent().yMinimum()
-    #     ymax = raster.extent().yMaximum()
-
-    #     # using the min and max make sure the crs doesn't change across grids
-    #     if crs==4326:
-    #         assert find_utm_srid(xmin, ymin, crs) == find_utm_srid(
-    #             xmax,
-    #             ymax,
-    #             crs,
-    #         ), "grid spans multiple utms"
-    #         crs_found = find_utm_srid(xmin, ymin, crs)
-
-    #         # create a temporary file for reprojection
-    #         outfile = tempfile.NamedTemporaryFile(suffix=".tif").name
-    #         # cmd = f'gdalwarp -s_srs EPSG:{crs} -t_srs EPSG:{crs_found} -r near -of GTiff {ofilename} {outfile}'
-    #         # os.system(cmd)
-
-    #         reproject_params = {
-    #             "INPUT": ofilename,
-    #             "SOURCE_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs}"),
-    #             "TARGET_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs_found}"),
-    #             "RESAMPLING": 0,
-    #             "NODATA": None,
-    #             "TARGET_RESOLUTION": None,
-    #             "OPTIONS": "",
-    #             "DATA_TYPE": 0,
-    #             "TARGET_EXTENT": None,
-    #             "TARGET_EXTENT_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs_found}"),
-    #             "MULTITHREADING": False,
-    #             "EXTRA": "",
-    #             "OUTPUT": outfile,
-    #         }
-
-    #         # reproject to a UTM crs for meters calculation
-    #         processing.run("gdal:warpreproject", reproject_params)
-
-    #         params = {
-    #             "BAND": 1,
-    #             "INPUT": outfile,
-    #             "OUTPUT_TABLE": cfile,
-    #         }
-
-    #         processing.run("native:rasterlayeruniquevaluesreport", params)
-    #         # remove the temporary file
-    #         os.remove(outfile)
-    #     else:
-    #         params = {
-    #             "BAND": 1,
-    #             "INPUT": ofilename,
-    #             "OUTPUT_TABLE": cfile,
-    #         }
-
-    #         processing.run("native:rasterlayeruniquevaluesreport", params)
-
-    #     df = pd.read_csv(cfile, encoding="cp1252")
-    #     if "m2" in df.columns:
-    #         df.rename(columns={"m2": "Area"}, inplace=True)
-    #     elif "m²" in df.columns:
-    #         df.rename(columns={"m²": "Area"}, inplace=True)
-    #     elif "Unnamed: 2" in df.columns:
-    #         df.rename(columns={"Unnamed: 2": "Area"}, inplace=True)
-    #     df = df.groupby(by=["value"]).sum().reset_index()
-
-    #     df["percentage"] = (df["Area"] / df["Area"].sum()) * 100.0
-
-    #     df["value"] = df["value"].astype(float)
-    #     # recode 0 to np.nan
-    #     df.loc[df["value"] == 0, "value"] = float("nan")
-    #     # sort ascending values
-    #     df = df.sort_values(by=["value"])
-
-    #     if stylefile is not None:
-    #         df = pd.merge(df, sdf, how="left", on="value")
-    #         df.loc[:, ["value", "label", "count", "Area", "percentage"]].to_csv(
-    #             cfile,
-    #             index=False,
-    #         )
-    #     else:
-    #         df.loc[:, ["value", "count", "Area", "percentage"]].to_csv(
-    #             cfile,
-    #             na_rep="NULL",
-    #             index=False,
-    #             )
 
     def run(self):
         """Run method that performs all the real work."""
