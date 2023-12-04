@@ -1,7 +1,7 @@
 """
 /***************************************************************************.
 
- velocity_module.py
+ shear_stress_module.py
  Copyright 2023, Integral Consulting Inc. All rights reserved.
  
  PURPOSE: module for calcualting shear stress (sediment mobility) change from a shear stress stressor
@@ -19,7 +19,6 @@
 	1. called by stressor_receptor_calc.py
 """
 
-import glob
 import os
 
 import numpy as np
@@ -95,12 +94,12 @@ def classify_mobility(mobility_parameter_dev, mobility_parameter_nodev):
     # New Erosion
     mobility_classification = np.where(((mobility_parameter_dev < mobility_parameter_nodev) & (
         mobility_parameter_nodev < 1) & (mobility_parameter_dev >= 1)), 3, mobility_classification)
-    # Reduced Erosion (Tw<Tb) & (Tw-Tb)>1
-    mobility_classification = np.where(((mobility_parameter_dev < mobility_parameter_nodev) & (
-        mobility_parameter_nodev >= 1) & (mobility_parameter_dev >= 1)), 1, mobility_classification)
     # Increased Erosion (Tw>Tb) & (Tw-Tb)>1
     mobility_classification = np.where(((mobility_parameter_dev > mobility_parameter_nodev) & (
         mobility_parameter_nodev >= 1) & (mobility_parameter_dev >= 1)), 2, mobility_classification)
+    # Reduced Erosion (Tw<Tb) & (Tw-Tb)>1
+    mobility_classification = np.where(((mobility_parameter_dev < mobility_parameter_nodev) & (
+        mobility_parameter_nodev >= 1) & (mobility_parameter_dev >= 1)), 1, mobility_classification)
     # Reduced Deposition (Tw>Tb) & (Tw-Tb)<1
     mobility_classification = np.where(((mobility_parameter_dev > mobility_parameter_nodev) & (
         mobility_parameter_nodev < 1) & (mobility_parameter_dev < 1)), -1, mobility_classification)

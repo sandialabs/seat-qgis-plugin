@@ -279,14 +279,12 @@ class StressorReceptorCalc:
     def select_crs(self):
         """Input the crs using the QGIS widget box."""
 
-        projSelector = QgsProjectionSelectionDialog(None)
-        # set up a default one
+        proj_selector = QgsProjectionSelectionDialog(None)
         crs = QgsCoordinateReferenceSystem()
         crs.createFromId(4326)
-        projSelector.setCrs(crs)
-        projSelector.exec()
-        # projSelector.exec_()
-        self.dlg.crs.setText(projSelector.crs().authid().split(":")[1])
+        proj_selector.setCrs(crs)
+        proj_selector.exec()
+        self.dlg.crs.setText(proj_selector.crs().authid().split(":")[1])
 
     def select_receptor_file(self):
         """Input the receptor file."""
@@ -400,8 +398,6 @@ class StressorReceptorCalc:
         # refresh legend entries
         self.iface.layerTreeView().refreshLayerSymbology(layer.id())
 
-        # self.iface.legendInterface().refreshLayerSymbology(layer)
-
         # do we want the layer visible in the map?
         if not checked:
             root = QgsProject.instance().layerTreeRoot()
@@ -417,7 +413,7 @@ class StressorReceptorCalc:
 
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
-        if self.first_start == True:
+        if self.first_start is True:
             self.first_start = False
             self.dlg = StressorReceptorCalcDialog()
 
@@ -523,14 +519,14 @@ class StressorReceptorCalc:
             # add ch to logger
             logger.addHandler(fh)
 
-            logger.info("Device present File: {}".format(dpresentfname))
-            logger.info("Device not present File: {}".format(dnotpresentfname))
-            logger.info("Probabilities File: {}".format(probabilities_fname))
-            logger.info("Power Files: {}".format(power_files_folder))
-            logger.info("Stressor: {}".format(svar))
-            logger.info("CRS: {}".format(crs))
-            logger.info("Secondary Constraint File: {}".format(scfilename))
-            logger.info("Output Folder: {}".format(output_folder_name))
+            logger.info("Device present File: %s", dpresentfname)
+            logger.info("Device not present File: %s", dnotpresentfname)
+            logger.info("Probabilities File: %s", probabilities_fname)
+            logger.info("Power Files: %s", power_files_folder)
+            logger.info("Stressor: %s", svar)
+            logger.info("CRS: %s", crs)
+            logger.info("Secondary Constraint File: %s", scfilename)
+            logger.info("Output Folder: %s", output_folder_name)
 
             # if the output file path is empty display a warning
             if output_folder_name == "":
@@ -541,7 +537,7 @@ class StressorReceptorCalc:
 
             # Calculate Power Files
             if power_files_folder is not "":
-                logger.info("Power File Folder: {}".format(power_files_folder))
+                logger.info("Power File Folder: %s", power_files_folder)
                 calculate_power(power_files_folder, probabilities_fname,
                                 save_path=output_folder_name,
                                 crs=crs)
@@ -555,9 +551,6 @@ class StressorReceptorCalc:
                     output_path=output_folder_name,
                     receptor_filename=rfilename,
                 )
-                # sfilenames = ['calculated_stressor.tif',
-                #  'calculated_stressor_with_receptor.tif',
-                # 'calculated_stressor_reclassified.tif'
 
                 stylefiles_DF = self.read_style_files(
                     self.dlg.output_stylefile.text())
@@ -573,14 +566,12 @@ class StressorReceptorCalc:
                 rcstylefile = stylefiles_DF.loc['Reclassificed Stressor with receptor'].values.item(
                 ).replace("\\", "/")
 
-                logger.info("Receptor Style File: {}".format(rstylefile))
-                logger.info("Stressor Style File: {}".format(sstylefile))
-                logger.info(
-                    "Secondary Constraint Style File: {}".format(scstylefile))
-                logger.info("Output Style File: {}".format(
-                    swrstylefile))  # stressor with receptor
-                logger.info(
-                    'Stressor reclassification: {}'.format(rcstylefile))
+                logger.info("Receptor Style File: %s", rstylefile)
+                logger.info("Stressor Style File: %s", sstylefile)
+                logger.info("Secondary Constraint Style File: %s", scstylefile)
+                logger.info("Output Style File: %s", swrstylefile)  # stressor with receptor
+                logger.info("Stressor reclassification: %s", rcstylefile)
+
 
                 srfilename = sfilenames[0]  # stressor
                 self.style_layer(srfilename, sstylefile, ranges=True)
