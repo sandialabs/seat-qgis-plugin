@@ -1,56 +1,58 @@
-from seat import classFactory
+import sys
+import os
 import unittest
+import numpy as np
 from qgis.core import QgsApplication
 
+# Import seat
+script_dir = os.path.dirname(os.path.realpath(__file__))
+parent_dir = os.path.dirname(script_dir)
+sys.path.insert(0, parent_dir)
+from seat import classFactory
+
+from seat.shear_stress_module import critical_shear_stress
 
 # Mock Interface
 class MockIface:
-    # Add any methods here that your plugin expects from iface
     pass
-
-
-class ExampleTest(unittest.TestCase):
-    def test_basic(self):
-        self.assertTrue(True)
-
-
-class TestPandasInstallation(unittest.TestCase):
-    def test_pandas_installed(self):
-        try:
-            import pandas
-            pandas_available = True
-        except ImportError:
-            pandas_available = False
-        self.assertTrue(pandas_available, "Pandas is not installed.")
 
 
 class TestQGISPlugin(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Initialize QGIS Application
+        qgis_install_path = os.environ.get('QGIS_ROOT', 'C:\\Program Files\\QGIS 3.34.1')
+        QgsApplication.setPrefixPath(qgis_install_path, True)
         cls.qgs = QgsApplication([], False)
-        QgsApplication.initQgis()
+        cls.qgs.initQgis()
         cls.iface = MockIface()
         cls.plugin = classFactory(cls.iface)
 
     @classmethod
     def tearDownClass(cls):
         # Stop the QGIS application
-        QgsApplication.exitQgis()
+        cls.qgs.exitQgis()
 
-    def test_translation_function(self):
-        translated = self.plugin.tr('hello')
-        self.assertIsNotNone(translated, "Translation function returned None")
+    def test_tr_method(self):
+        test_string = "hello"
+        expected_translation = "hello"
+        result = self.plugin.tr(test_string)
+        self.assertEqual(result, expected_translation)
+
+    def test_critical_shear_stress(self):
+        # Test with default parameters
+        D_meters = np.array([0.001, 0.002])
+        expected_output = np.array([0.52054529, 1.32156154]) 
+
+        result = critical_shear_stress(D_meters)
+        np.testing.assert_almost_equal(result, expected_output, decimal=5)
 
 
 def run_all():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(ExampleTest))
-    suite.addTest(unittest.makeSuite(TestPandasInstallation))
     suite.addTest(unittest.makeSuite(TestQGISPlugin))
     runner = unittest.TextTestRunner()
     runner.run(suite)
-
 
 if __name__ == '__main__':
     run_all()
