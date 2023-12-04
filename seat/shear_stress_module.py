@@ -93,7 +93,7 @@ def classify_mobility(mobility_parameter_dev, mobility_parameter_nodev):
 
     mobility_classification = np.zeros(mobility_parameter_dev.shape)
     # New Erosion
-    mobility_classification = np.where(((mobility_parameter_dev < mobility_parameter_nodev) & (
+    mobility_classification = np.where(((mobility_parameter_nodev < mobility_parameter_dev) & (
         mobility_parameter_nodev < 1) & (mobility_parameter_dev >= 1)), 3, mobility_classification)
     # Reduced Erosion (Tw<Tb) & (Tw-Tb)>1
     mobility_classification = np.where(((mobility_parameter_dev < mobility_parameter_nodev) & (
