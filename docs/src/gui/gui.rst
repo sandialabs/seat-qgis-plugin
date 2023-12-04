@@ -11,9 +11,9 @@ Upon successfully installing the SEAT package in QGIS, you'll notice a new icon 
    :scale: 50 %
    :alt: SEAT icon located on the QGIS toolbar
 
-To launch the SEAT GUI simply click on the SEAT icon.
+To launch the SEAT GUI, simply click on the SEAT icon.
 
-You'll then be presented with the SEAT GUI Interface.
+You'll then be presented with the SEAT GUI.
 
 .. figure:: ../media/SEAT_GUI.webp
    :scale: 90 %

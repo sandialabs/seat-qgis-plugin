@@ -11,6 +11,7 @@ Input
 """"""
 - NetCDF files: Contain acoustic data for scenarios with and without devices present.
 - Optional:
+
   - Receptor file: Contains threshold values for acoustic variables.
   - Probability/Boundary Condition file: Used to weight different run scenarios.
   - Species files: Contains density or percent data of species.
@@ -33,7 +34,8 @@ Output
 
 - CSV files: Contain statistics of area calculations for various layers.
 
-  * The stressor values are binned into 25 bins and the surface area in which that change occurred, the percent of the overall model domain, and number of cells within the stressor is saved to a csv file.   
+  * The stressor values are binned into 25 bins and the surface area in which that change occurred, the percent of the overall model domain, and number of cells within the stressor is saved to a csv file.  
+   
     + Lat/Lon converted to UTM (meter) coordinates for calculation.
     + UTM remains in the original unit of measure
 

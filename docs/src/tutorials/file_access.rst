@@ -21,7 +21,7 @@ Tutorial files are available upon request. To gain access, please follow the ema
     - Your Company/Institution
     - Intended Use of the Tutorial Files
 
-Upon approval, you will receive access to a collection of folders containing the tutorial files. The directory structure is outlined below. Each of the four provided fodlers is highlighted for emphasis, namely `DEMO paracousti`, `DEMO structured`, `DEMO unstructured`, and `style_files`.
+Upon approval, you will receive access to a collection of folders containing the tutorial files. The directory structure is outlined below. Each of the four provided folders is highlighted for emphasis, namely `DEMO paracousti`, `DEMO structured`, `DEMO unstructured`, and `style_files`.
 
 .. _DEMO_files:
 

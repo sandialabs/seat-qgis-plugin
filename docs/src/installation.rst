@@ -3,7 +3,7 @@
 Installation
 =====================
 
-To successfully install the SEAT QGIS plugin follow this guide through the process of installing the software required for running SEAT and SEAT itself. It should be noted that outside of software requirements, SEAT requires model data to be brought into the QGIS environment. This is covered in the models section and examples are provided in the tutorial section which users can use to get started with SEAT. The software requirements are listed below. The model data requirements are listed in the modules section.
+To successfully install the SEAT QGIS plugin follow this guide through the process of installing the software required for running SEAT and SEAT itself. It should be noted, that outside of software requirements, SEAT requires model data to be brought into the QGIS environment. This is covered in the models section, and examples are provided in the tutorial section, which users can use to get started with SEAT. The software requirements are listed below. The model data requirements are listed in the modules section.
 
 1. Software Requirements
 ------------------------
@@ -16,7 +16,7 @@ QGIS software (version 3.16 or later) is mandatory for installing SEAT. It serve
 2. Install NetCDF4 In QGIS
 ----------------------------
 
-After acquiring the necessary software, users must then install netCDF4 within QGIS. Note that QGIS uses its own python library seperate from any other python environments you may use. As such the following will guide you through installing NetCDF4 in the QGIS python environment. The process varies between Windows and macOS/Linux. The following are the detailed steps for both Operating Systems:
+After acquiring the necessary software, users must then install netCDF4 within QGIS. Note that QGIS uses its own python library separate from any other python environments you may use. As such, the following will guide you through installing NetCDF4 in the QGIS python environment. The process varies between Windows and macOS/Linux. The following are the detailed steps for both Operating Systems:
 
 Windows
 ^^^^^^^
@@ -61,7 +61,7 @@ Check that the above worked in QGIS by running the following in the Python Conso
       import netCDF4
       print(netCDF4.__version__)      
 
-If the above worked, you should see the version of netCDF4 printed in the console. If you see an error, try closing and reopening QGIS and trying again. If you still see an error open an issue on the GitHub.
+If the above worked, you should see the version of netCDF4 printed in the console. If you see an error, try closing and reopening QGIS and trying again. If you still see an error, open an issue on the GitHub.
 
 3. Download SEAT
 ----------------
