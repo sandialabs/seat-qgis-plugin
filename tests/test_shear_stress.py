@@ -50,7 +50,7 @@ class TestShearStress(unittest.TestCase):
         expected_classification (np.array): Array of expected numerical classifications.
         """
         mobility_parameter_dev = np.array([
-            0.8,  # New Erosion (dev >= 1, nodev < 1)
+            1.0,  # New Erosion (dev >= 1, nodev < 1)
             1.2,  # Increased Erosion
             1.0,  # Reduced Erosion
             1.0,   # No Change
