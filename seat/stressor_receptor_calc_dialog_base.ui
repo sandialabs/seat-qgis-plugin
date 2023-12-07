@@ -99,8 +99,8 @@
     <rect>
      <x>40</x>
      <y>510</y>
-     <width>199</width>
-     <height>43</height>
+     <width>223</width>
+     <height>44</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -117,7 +117,7 @@
      <number>10</number>
     </property>
     <item>
-     <widget class="QPushButton" name="load_input_2">
+     <widget class="QPushButton" name="load_input">
       <property name="maximumSize">
        <size>
         <width>130</width>
@@ -130,7 +130,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="save_input_2">
+     <widget class="QPushButton" name="save_input">
       <property name="maximumSize">
        <size>
         <width>130</width>
@@ -164,7 +164,7 @@
     <enum>QTabWidget::Triangular</enum>
    </property>
    <property name="currentIndex">
-    <number>3</number>
+    <number>0</number>
    </property>
    <property name="iconSize">
     <size>
@@ -203,10 +203,10 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="shear_device_not_present_2"/>
+       <widget class="QLineEdit" name="shear_device_not_present"/>
       </item>
       <item row="0" column="2">
-       <widget class="QPushButton" name="shear_no_device_pushButton_2">
+       <widget class="QPushButton" name="shear_no_device_pushButton">
         <property name="text">
          <string>...</string>
         </property>
@@ -223,10 +223,10 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="shear_device_present_2"/>
+       <widget class="QLineEdit" name="shear_device_present"/>
       </item>
       <item row="1" column="2">
-       <widget class="QPushButton" name="shear_device_pushButton_2">
+       <widget class="QPushButton" name="shear_device_pushButton">
         <property name="text">
          <string>...</string>
         </property>
@@ -246,10 +246,10 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QLineEdit" name="shear_probabilities_file_2"/>
+       <widget class="QLineEdit" name="shear_probabilities_file"/>
       </item>
       <item row="2" column="2">
-       <widget class="QPushButton" name="shear_probabilities_pushButton_2">
+       <widget class="QPushButton" name="shear_probabilities_pushButton">
         <property name="text">
          <string>...</string>
         </property>
@@ -269,10 +269,10 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QLineEdit" name="shear_receptor_file_2"/>
+       <widget class="QLineEdit" name="shear_receptor_file"/>
       </item>
       <item row="3" column="2">
-       <widget class="QPushButton" name="shear_receptor_button_2">
+       <widget class="QPushButton" name="shear_receptor_button">
         <property name="text">
          <string>...</string>
         </property>
@@ -289,10 +289,10 @@
        </widget>
       </item>
       <item row="4" column="1">
-       <widget class="QLineEdit" name="shear_sc_file_2"/>
+       <widget class="QLineEdit" name="shear_sc_file"/>
       </item>
       <item row="4" column="2">
-       <widget class="QPushButton" name="shear_secondary_constraint_pushButton_2">
+       <widget class="QPushButton" name="shear_secondary_constraint_pushButton">
         <property name="text">
          <string>...</string>
         </property>
@@ -326,10 +326,10 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="velocity_device_not_present_2"/>
+       <widget class="QLineEdit" name="velocity_device_not_present"/>
       </item>
       <item row="0" column="2">
-       <widget class="QPushButton" name="velocity_no_device_pushButton_2">
+       <widget class="QPushButton" name="velocity_no_device_pushButton">
         <property name="text">
          <string>...</string>
         </property>
@@ -346,10 +346,10 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="velocity_device_present_2"/>
+       <widget class="QLineEdit" name="velocity_device_present"/>
       </item>
       <item row="1" column="2">
-       <widget class="QPushButton" name="velocity_device_pushButton_2">
+       <widget class="QPushButton" name="velocity_device_pushButton">
         <property name="text">
          <string>...</string>
         </property>
@@ -369,10 +369,10 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QLineEdit" name="velocity_probabilities_file_2"/>
+       <widget class="QLineEdit" name="velocity_probabilities_file"/>
       </item>
       <item row="2" column="2">
-       <widget class="QPushButton" name="velocity_probabilities_pushButton_2">
+       <widget class="QPushButton" name="velocity_probabilities_pushButton">
         <property name="text">
          <string>...</string>
         </property>
@@ -392,10 +392,10 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QLineEdit" name="velocity_receptor_file_2"/>
+       <widget class="QLineEdit" name="velocity_receptor_file"/>
       </item>
       <item row="3" column="2">
-       <widget class="QPushButton" name="velocity_receptor_button_2">
+       <widget class="QPushButton" name="velocity_receptor_button">
         <property name="text">
          <string>...</string>
         </property>
@@ -412,10 +412,10 @@
        </widget>
       </item>
       <item row="4" column="1">
-       <widget class="QLineEdit" name="velocity_sc_file_2"/>
+       <widget class="QLineEdit" name="velocity_sc_file"/>
       </item>
       <item row="4" column="2">
-       <widget class="QPushButton" name="velocity_secondary_constraint_pushButton_2">
+       <widget class="QPushButton" name="velocity_secondary_constraint_pushButton">
         <property name="text">
          <string>...</string>
         </property>
@@ -449,10 +449,10 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="paracousti_device_not_present_2"/>
+       <widget class="QLineEdit" name="paracousti_device_not_present"/>
       </item>
       <item row="0" column="2">
-       <widget class="QPushButton" name="paracousti_no_device_pushButton_2">
+       <widget class="QPushButton" name="paracousti_no_device_pushButton">
         <property name="text">
          <string>...</string>
         </property>
@@ -469,10 +469,10 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="paracousti_device_present_2"/>
+       <widget class="QLineEdit" name="paracousti_device_present"/>
       </item>
       <item row="1" column="2">
-       <widget class="QPushButton" name="paracousti_device_pushButton_2">
+       <widget class="QPushButton" name="paracousti_device_pushButton">
         <property name="text">
          <string>...</string>
         </property>
@@ -492,10 +492,10 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QLineEdit" name="paracousti_probabilities_file_2"/>
+       <widget class="QLineEdit" name="paracousti_probabilities_file"/>
       </item>
       <item row="2" column="2">
-       <widget class="QPushButton" name="paracousti_probabilities_pushButton_2">
+       <widget class="QPushButton" name="paracousti_probabilities_pushButton">
         <property name="text">
          <string>...</string>
         </property>
@@ -515,10 +515,10 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QLineEdit" name="paracousti_receptor_file_3"/>
+       <widget class="QLineEdit" name="paracousti_receptor_file"/>
       </item>
       <item row="3" column="2">
-       <widget class="QPushButton" name="paracousti_receptor_button_3">
+       <widget class="QPushButton" name="paracousti_receptor_button_2">
         <property name="text">
          <string>...</string>
         </property>
@@ -538,10 +538,10 @@
        </widget>
       </item>
       <item row="4" column="1">
-       <widget class="QLineEdit" name="paracousti_receptor_file_4"/>
+       <widget class="QLineEdit" name="paracousti_receptor_file_2"/>
       </item>
       <item row="4" column="2">
-       <widget class="QPushButton" name="paracousti_receptor_button_4">
+       <widget class="QPushButton" name="paracousti_receptor_button">
         <property name="text">
          <string>...</string>
         </property>
@@ -558,10 +558,10 @@
        </widget>
       </item>
       <item row="5" column="1">
-       <widget class="QLineEdit" name="paracousti_sc_file_2"/>
+       <widget class="QLineEdit" name="paracousti_sc_file"/>
       </item>
       <item row="5" column="2">
-       <widget class="QPushButton" name="paracousti_secondary_constraint_pushButton_2">
+       <widget class="QPushButton" name="paracousti_secondary_constraint_pushButton">
         <property name="text">
          <string>...</string>
         </property>
@@ -585,7 +585,7 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_8" columnstretch="2,4,0">
       <item row="0" column="1">
-       <widget class="QLineEdit" name="power_files_2"/>
+       <widget class="QLineEdit" name="power_files"/>
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_36">
@@ -601,7 +601,7 @@
        </widget>
       </item>
       <item row="0" column="2">
-       <widget class="QPushButton" name="power_files_pushButton_2">
+       <widget class="QPushButton" name="power_files_pushButton">
         <property name="text">
          <string>...</string>
         </property>
@@ -611,7 +611,7 @@
     </widget>
    </widget>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -712,49 +712,49 @@
   </widget>
  </widget>
  <tabstops>
-  <tabstop>load_input_2</tabstop>
+  <tabstop>load_input</tabstop>
   <tabstop>tabWidget</tabstop>
-  <tabstop>shear_no_device_pushButton_2</tabstop>
-  <tabstop>shear_device_pushButton_2</tabstop>
-  <tabstop>shear_probabilities_pushButton_2</tabstop>
-  <tabstop>shear_receptor_button_2</tabstop>
-  <tabstop>shear_secondary_constraint_pushButton_2</tabstop>
-  <tabstop>velocity_no_device_pushButton_2</tabstop>
-  <tabstop>velocity_device_pushButton_2</tabstop>
-  <tabstop>velocity_probabilities_pushButton_2</tabstop>
-  <tabstop>velocity_receptor_button_2</tabstop>
-  <tabstop>velocity_secondary_constraint_pushButton_2</tabstop>
-  <tabstop>paracousti_no_device_pushButton_2</tabstop>
-  <tabstop>paracousti_device_pushButton_2</tabstop>
-  <tabstop>paracousti_probabilities_pushButton_2</tabstop>
-  <tabstop>paracousti_receptor_button_3</tabstop>
-  <tabstop>paracousti_receptor_button_4</tabstop>
-  <tabstop>paracousti_secondary_constraint_pushButton_2</tabstop>
-  <tabstop>power_files_pushButton_2</tabstop>
+  <tabstop>shear_no_device_pushButton</tabstop>
+  <tabstop>shear_device_pushButton</tabstop>
+  <tabstop>shear_probabilities_pushButton</tabstop>
+  <tabstop>shear_receptor_button</tabstop>
+  <tabstop>shear_secondary_constraint_pushButton</tabstop>
+  <tabstop>velocity_no_device_pushButton</tabstop>
+  <tabstop>velocity_device_pushButton</tabstop>
+  <tabstop>velocity_probabilities_pushButton</tabstop>
+  <tabstop>velocity_receptor_button</tabstop>
+  <tabstop>velocity_secondary_constraint_pushButton</tabstop>
+  <tabstop>paracousti_no_device_pushButton</tabstop>
+  <tabstop>paracousti_device_pushButton</tabstop>
+  <tabstop>paracousti_probabilities_pushButton</tabstop>
+  <tabstop>paracousti_receptor_button_2</tabstop>
+  <tabstop>paracousti_receptor_button</tabstop>
+  <tabstop>paracousti_secondary_constraint_pushButton</tabstop>
+  <tabstop>power_files_pushButton</tabstop>
   <tabstop>crs_button</tabstop>
   <tabstop>select_stylefile_button</tabstop>
   <tabstop>output_pushButton</tabstop>
-  <tabstop>save_input_2</tabstop>
-  <tabstop>velocity_probabilities_file_2</tabstop>
-  <tabstop>shear_device_not_present_2</tabstop>
-  <tabstop>velocity_receptor_file_2</tabstop>
+  <tabstop>save_input</tabstop>
+  <tabstop>velocity_probabilities_file</tabstop>
+  <tabstop>shear_device_not_present</tabstop>
+  <tabstop>velocity_receptor_file</tabstop>
   <tabstop>output_stylefile</tabstop>
-  <tabstop>velocity_sc_file_2</tabstop>
-  <tabstop>shear_device_present_2</tabstop>
-  <tabstop>paracousti_device_not_present_2</tabstop>
+  <tabstop>velocity_sc_file</tabstop>
+  <tabstop>shear_device_present</tabstop>
+  <tabstop>paracousti_device_not_present</tabstop>
   <tabstop>crs</tabstop>
-  <tabstop>paracousti_device_present_2</tabstop>
-  <tabstop>shear_probabilities_file_2</tabstop>
-  <tabstop>paracousti_probabilities_file_2</tabstop>
-  <tabstop>velocity_device_not_present_2</tabstop>
-  <tabstop>paracousti_receptor_file_3</tabstop>
-  <tabstop>shear_receptor_file_2</tabstop>
-  <tabstop>paracousti_receptor_file_4</tabstop>
+  <tabstop>paracousti_device_present</tabstop>
+  <tabstop>shear_probabilities_file</tabstop>
+  <tabstop>paracousti_probabilities_file</tabstop>
+  <tabstop>velocity_device_not_present</tabstop>
+  <tabstop>paracousti_receptor_file</tabstop>
+  <tabstop>shear_receptor_file</tabstop>
+  <tabstop>paracousti_receptor_file_2</tabstop>
   <tabstop>output_folder</tabstop>
-  <tabstop>paracousti_sc_file_2</tabstop>
-  <tabstop>shear_sc_file_2</tabstop>
-  <tabstop>power_files_2</tabstop>
-  <tabstop>velocity_device_present_2</tabstop>
+  <tabstop>paracousti_sc_file</tabstop>
+  <tabstop>shear_sc_file</tabstop>
+  <tabstop>power_files</tabstop>
+  <tabstop>velocity_device_present</tabstop>
  </tabstops>
  <resources/>
  <connections>
