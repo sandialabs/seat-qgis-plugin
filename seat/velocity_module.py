@@ -298,19 +298,18 @@ def calculate_velocity_stressors(fpath_nodev,
         mag_nodev = np.nanmean(mag_nodev, axis=2)
 
     # Calculate Stressor and Receptors
-    # data_dev_max = np.amax(data_dev, axis=1, keepdims=True) #look at maximum shear stress difference change
     if value_selection == 'MAX':
         mag_dev = np.nanmax(mag_dev, axis=1)  # max over time
         mag_nodev = np.nanmax(mag_nodev, axis=1)  # max over time
     elif value_selection == 'MEAN':
-        mag_dev = np.nanmean(mag_dev, axis=1)  # max over time
-        mag_nodev = np.nanmean(mag_nodev, axis=1)  # max over time
+        mag_dev = np.nanmean(mag_dev, axis=1)  # mean over time
+        mag_nodev = np.nanmean(mag_nodev, axis=1)  # mean over time
     elif value_selection == 'LAST':
-        mag_dev = mag_dev[:, -1, :]  # max over time
-        mag_nodev = mag_nodev[:, -1, :]  # max over time
+        mag_dev = mag_dev[:, -1, :]  # last time step
+        mag_nodev = mag_nodev[:, -1, :]  # last time step
     else:
-        mag_dev = np.nanmax(mag_dev, axis=1)  # max over time
-        mag_nodev = np.nanmax(mag_nodev, axis=1)  # max over time
+        mag_dev = np.nanmax(mag_dev, axis=1)  # default to max over time
+        mag_nodev = np.nanmax(mag_nodev, axis=1)  # default to max over time
 
     # initialize arrays
     if gridtype == 'structured':
@@ -408,19 +407,13 @@ def run_velocity_stressor(
         File directory to save output.
     receptor_filename : str, optional
         File path to the recetptor file (*.csv or *.tif). The default is None.
+    secondary_constraint_filename: str, optional
+        File path to the secondary constraint file (*.tif). The default is None.
 
     Returns
     -------
-    output_rasters : list
-        names of output rasters:
-        [0] 'calcualted_velocity_with_devices.tif
-        [1] 'calcualted_velocity_without_devices.tif'
-        [2] 'calculated_stressor.tif'
-        if receptor present:
-            [3] 'calculated_stressor_with_receptor.tif',
-            [4] 'calculated_stressor_reclassified.tif',
-            [5] 'receptor.tif'
-
+    output_rasters : dict
+        key = names of output rasters, val = full path to raster:
     """
     numpy_arrays, rx, ry, dx, dy, gridtype = calculate_velocity_stressors(fpath_nodev=dev_notpresent_file,
                                                                           fpath_dev=dev_present_file,
@@ -493,7 +486,6 @@ def run_velocity_stressor(
         )
         output_raster = None
 
-    # Area calculations pull form rasters to ensure uniformity
     # Area calculations pull form rasters to ensure uniformity
     bin_layer(os.path.join(output_path, 'calculated_stressor.tif'),
                 receptor_filename=None,

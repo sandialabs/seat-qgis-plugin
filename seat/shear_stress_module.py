@@ -315,7 +315,6 @@ def calculate_shear_stress_stressors(fpath_nodev,
             BC_probability["probability"].sum()  # rescale to ensure = 1 
 
     # Calculate Stressor and Receptors
-    # data_dev_max = np.amax(data_dev, axis=1, keepdims=True) #look at maximum shear stress difference change
     if value_selection == 'MAX':
         tau_dev = np.nanmax(tau_dev, axis=1, keepdims=True)  # max over time
         tau_nodev = np.nanmax(
@@ -328,9 +327,8 @@ def calculate_shear_stress_stressors(fpath_nodev,
         tau_dev = tau_dev[:, -2:-1, :]  # bottom bin over time
         tau_nodev = tau_nodev[:, -2:-1, :]  # bottom bin over time
     else:
-        tau_dev = np.nanmax(tau_dev, axis=1, keepdims=True)  # max over time
-        tau_nodev = np.nanmax(
-            tau_nodev, axis=1, keepdims=True)  # max over time
+        tau_dev = np.nanmax(tau_dev, axis=1, keepdims=True)  # default to max over time
+        tau_nodev = np.nanmax(tau_nodev, axis=1, keepdims=True)  # default to max over time
 
     # initialize arrays
     if gridtype == 'structured':
@@ -440,20 +438,15 @@ def run_shear_stress_stressor(
         File directory to save output.
     receptor_filename : str, optional
         File path to the recetptor file (*.csv or *.tif). The default is None.
+    secondary_constraint_filename: str, optional
+        File path to the secondary constraint file (*.tif). The default is None.
 
     Returns
     -------
-    output_rasters : list
-        names of output rasters:
-        [0] 'calculated_stressor.tif'
-        [1] or [6] 'tau_dev.tif'
-        [2] or [7] 'tau_nodev.tif'
-        if receptor present:
-            [1] 'calculated_stressor_with_receptor.tif'
-            [2] 'calculated_stressor_reclassified.tif'
-            [3] 'receptor.tif'
-
+    output_rasters : dict
+        key = names of output rasters, val = full path to raster:
     """
+
 
     numpy_arrays, rx, ry, dx, dy, gridtype = calculate_shear_stress_stressors(fpath_nodev=dev_notpresent_file,
                                                                               fpath_dev=dev_present_file,
