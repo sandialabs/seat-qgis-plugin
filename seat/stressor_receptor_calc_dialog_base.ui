@@ -144,7 +144,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QTabWidget" name="tabWidget">
+  <widget class="QTabWidget" name="shear_temporal_averaging_box">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -164,7 +164,7 @@
     <enum>QTabWidget::Triangular</enum>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <property name="iconSize">
     <size>
@@ -182,16 +182,16 @@
     <attribute name="title">
      <string>Shear Stress</string>
     </attribute>
-    <widget class="QWidget" name="layoutWidget_5">
+    <widget class="QWidget" name="">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>10</y>
+       <x>11</x>
+       <y>17</y>
        <width>691</width>
-       <height>241</height>
+       <height>231</height>
       </rect>
      </property>
-     <layout class="QGridLayout" name="gridLayout_2" columnstretch="2,4,0">
+     <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
        <widget class="QLabel" name="label_10">
         <property name="toolTip">
@@ -298,6 +298,19 @@
         </property>
        </widget>
       </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Secondary constraint (optional).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt; Temporal Averaging (Optional)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QComboBox" name="shear_averaging_combobox"/>
+      </item>
      </layout>
     </widget>
    </widget>
@@ -305,16 +318,16 @@
     <attribute name="title">
      <string>Velocity</string>
     </attribute>
-    <widget class="QWidget" name="layoutWidget_6">
+    <widget class="QWidget" name="">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>691</width>
-       <height>241</height>
+       <x>5</x>
+       <y>17</y>
+       <width>701</width>
+       <height>231</height>
       </rect>
      </property>
-     <layout class="QGridLayout" name="gridLayout_6" columnstretch="2,4,0">
+     <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">
        <widget class="QLabel" name="label_25">
         <property name="toolTip">
@@ -325,10 +338,10 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item row="0" column="2">
        <widget class="QLineEdit" name="velocity_device_not_present"/>
       </item>
-      <item row="0" column="2">
+      <item row="0" column="3">
        <widget class="QPushButton" name="velocity_no_device_pushButton">
         <property name="text">
          <string>...</string>
@@ -345,17 +358,17 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="1" column="2">
        <widget class="QLineEdit" name="velocity_device_present"/>
       </item>
-      <item row="1" column="2">
+      <item row="1" column="3">
        <widget class="QPushButton" name="velocity_device_pushButton">
         <property name="text">
          <string>...</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
+      <item row="2" column="0" colspan="2">
        <widget class="QLabel" name="label_27">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;CSV file of model runs and associated probabilities.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -368,33 +381,33 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="2" column="2">
        <widget class="QLineEdit" name="velocity_probabilities_file"/>
       </item>
-      <item row="2" column="2">
+      <item row="2" column="3">
        <widget class="QPushButton" name="velocity_probabilities_pushButton">
         <property name="text">
          <string>...</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
+      <item row="3" column="0" colspan="2">
        <widget class="QLabel" name="label_28">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Receptor File (GeoTiff Raster or CSV file)&lt;/p&gt;&lt;p&gt;Shear Stress =&amp;gt; Grain Size Receptor&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Bed Sediment Size (microns) &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Larval Motility Threshold Velocity (m/s) &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
+      <item row="3" column="2">
        <widget class="QLineEdit" name="velocity_receptor_file"/>
       </item>
-      <item row="3" column="2">
+      <item row="3" column="3">
        <widget class="QPushButton" name="velocity_receptor_button">
         <property name="text">
          <string>...</string>
@@ -411,15 +424,28 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
+      <item row="4" column="2">
        <widget class="QLineEdit" name="velocity_sc_file"/>
       </item>
-      <item row="4" column="2">
+      <item row="4" column="3">
        <widget class="QPushButton" name="velocity_secondary_constraint_pushButton">
         <property name="text">
          <string>...</string>
         </property>
        </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_7">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Secondary constraint (optional).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt; Temporal Averaging (Optional)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1" colspan="2">
+       <widget class="QComboBox" name="velocity_averaging_combobox"/>
       </item>
      </layout>
     </widget>
@@ -428,16 +454,16 @@
     <attribute name="title">
      <string>Acoustics</string>
     </attribute>
-    <widget class="QWidget" name="layoutWidget_7">
+    <widget class="QWidget" name="">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>7</y>
+       <x>11</x>
+       <y>17</y>
        <width>691</width>
-       <height>241</height>
+       <height>231</height>
       </rect>
      </property>
-     <layout class="QGridLayout" name="gridLayout_7">
+     <layout class="QGridLayout" name="gridLayout_4">
       <item row="0" column="0">
        <widget class="QLabel" name="label_30">
         <property name="toolTip">
@@ -567,6 +593,19 @@
         </property>
        </widget>
       </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Secondary constraint (optional).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt; Depth Averaging (Optional)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QComboBox" name="paracousti_averaging_combobox"/>
+      </item>
      </layout>
     </widget>
    </widget>
@@ -574,19 +613,16 @@
     <attribute name="title">
      <string>Power</string>
     </attribute>
-    <widget class="QWidget" name="layoutWidget_8">
+    <widget class="QWidget" name="">
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>10</y>
+       <y>24</y>
        <width>681</width>
-       <height>51</height>
+       <height>81</height>
       </rect>
      </property>
-     <layout class="QGridLayout" name="gridLayout_8" columnstretch="2,4,0">
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="power_files"/>
-      </item>
+     <layout class="QGridLayout" name="gridLayout_5" columnstretch="2,3,0">
       <item row="0" column="0">
        <widget class="QLabel" name="label_36">
         <property name="toolTip">
@@ -600,8 +636,34 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="power_files"/>
+      </item>
       <item row="0" column="2">
        <widget class="QPushButton" name="power_files_pushButton">
+        <property name="text">
+         <string>...</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_40">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Power Files (.OUT) optioal (.pol file)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Model Probabilities File&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="power_probabilities_file"/>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="power_probabilities_pushButton">
         <property name="text">
          <string>...</string>
         </property>
@@ -710,10 +772,20 @@
     </item>
    </layout>
   </widget>
+  <widget class="QTextBrowser" name="status_bar">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>520</y>
+     <width>271</width>
+     <height>31</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>load_input</tabstop>
-  <tabstop>tabWidget</tabstop>
+  <tabstop>shear_temporal_averaging_box</tabstop>
   <tabstop>shear_no_device_pushButton</tabstop>
   <tabstop>shear_device_pushButton</tabstop>
   <tabstop>shear_probabilities_pushButton</tabstop>
