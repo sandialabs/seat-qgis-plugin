@@ -164,7 +164,7 @@
     <enum>QTabWidget::Triangular</enum>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>2</number>
    </property>
    <property name="iconSize">
     <size>
@@ -182,16 +182,16 @@
     <attribute name="title">
      <string>Shear Stress</string>
     </attribute>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
-       <x>11</x>
-       <y>17</y>
+       <x>10</x>
+       <y>10</y>
        <width>691</width>
-       <height>231</height>
+       <height>241</height>
       </rect>
      </property>
-     <layout class="QGridLayout" name="gridLayout_2">
+     <layout class="QGridLayout" name="gridLayout_2" columnstretch="2,3,0">
       <item row="0" column="0">
        <widget class="QLabel" name="label_10">
         <property name="toolTip">
@@ -269,10 +269,10 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QLineEdit" name="shear_receptor_file"/>
+       <widget class="QLineEdit" name="shear_grain_size_file"/>
       </item>
       <item row="3" column="2">
-       <widget class="QPushButton" name="shear_receptor_button">
+       <widget class="QPushButton" name="shear_grain_size_button">
         <property name="text">
          <string>...</string>
         </property>
@@ -289,10 +289,10 @@
        </widget>
       </item>
       <item row="4" column="1">
-       <widget class="QLineEdit" name="shear_sc_file"/>
+       <widget class="QLineEdit" name="shear_risk_file"/>
       </item>
       <item row="4" column="2">
-       <widget class="QPushButton" name="shear_secondary_constraint_pushButton">
+       <widget class="QPushButton" name="shear_risk_pushButton">
         <property name="text">
          <string>...</string>
         </property>
@@ -321,13 +321,13 @@
     <widget class="QWidget" name="">
      <property name="geometry">
       <rect>
-       <x>5</x>
-       <y>17</y>
-       <width>701</width>
+       <x>10</x>
+       <y>10</y>
+       <width>691</width>
        <height>231</height>
       </rect>
      </property>
-     <layout class="QGridLayout" name="gridLayout_3">
+     <layout class="QGridLayout" name="gridLayout_3" columnstretch="2,3,0">
       <item row="0" column="0">
        <widget class="QLabel" name="label_25">
         <property name="toolTip">
@@ -338,10 +338,10 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
+      <item row="0" column="1">
        <widget class="QLineEdit" name="velocity_device_not_present"/>
       </item>
-      <item row="0" column="3">
+      <item row="0" column="2">
        <widget class="QPushButton" name="velocity_no_device_pushButton">
         <property name="text">
          <string>...</string>
@@ -358,17 +358,17 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
+      <item row="1" column="1">
        <widget class="QLineEdit" name="velocity_device_present"/>
       </item>
-      <item row="1" column="3">
+      <item row="1" column="2">
        <widget class="QPushButton" name="velocity_device_pushButton">
         <property name="text">
          <string>...</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0" colspan="2">
+      <item row="2" column="0">
        <widget class="QLabel" name="label_27">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;CSV file of model runs and associated probabilities.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -381,17 +381,17 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
+      <item row="2" column="1">
        <widget class="QLineEdit" name="velocity_probabilities_file"/>
       </item>
-      <item row="2" column="3">
+      <item row="2" column="2">
        <widget class="QPushButton" name="velocity_probabilities_pushButton">
         <property name="text">
          <string>...</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="0" colspan="2">
+      <item row="3" column="0">
        <widget class="QLabel" name="label_28">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Receptor File (GeoTiff Raster or CSV file)&lt;/p&gt;&lt;p&gt;Shear Stress =&amp;gt; Grain Size Receptor&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -404,11 +404,11 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="2">
-       <widget class="QLineEdit" name="velocity_receptor_file"/>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="velocity_threshold_file"/>
       </item>
-      <item row="3" column="3">
-       <widget class="QPushButton" name="velocity_receptor_button">
+      <item row="3" column="2">
+       <widget class="QPushButton" name="velocity_threshold_button">
         <property name="text">
          <string>...</string>
         </property>
@@ -424,11 +424,11 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="2">
-       <widget class="QLineEdit" name="velocity_sc_file"/>
+      <item row="4" column="1">
+       <widget class="QLineEdit" name="velocity_risk_file"/>
       </item>
-      <item row="4" column="3">
-       <widget class="QPushButton" name="velocity_secondary_constraint_pushButton">
+      <item row="4" column="2">
+       <widget class="QPushButton" name="velocity_risk_pushButton">
         <property name="text">
          <string>...</string>
         </property>
@@ -444,7 +444,7 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="1" colspan="2">
+      <item row="5" column="1">
        <widget class="QComboBox" name="velocity_averaging_combobox"/>
       </item>
      </layout>
@@ -454,16 +454,16 @@
     <attribute name="title">
      <string>Acoustics</string>
     </attribute>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>11</x>
-       <y>17</y>
+       <y>7</y>
        <width>691</width>
-       <height>231</height>
+       <height>241</height>
       </rect>
      </property>
-     <layout class="QGridLayout" name="gridLayout_4">
+     <layout class="QGridLayout" name="gridLayout_4" columnstretch="2,3,0">
       <item row="0" column="0">
        <widget class="QLabel" name="label_30">
         <property name="toolTip">
@@ -541,10 +541,10 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QLineEdit" name="paracousti_receptor_file"/>
+       <widget class="QLineEdit" name="paracousti_threshold_file"/>
       </item>
       <item row="3" column="2">
-       <widget class="QPushButton" name="paracousti_receptor_button_2">
+       <widget class="QPushButton" name="paracousti_threshold_button">
         <property name="text">
          <string>...</string>
         </property>
@@ -564,10 +564,10 @@
        </widget>
       </item>
       <item row="4" column="1">
-       <widget class="QLineEdit" name="paracousti_receptor_file_2"/>
+       <widget class="QLineEdit" name="paracousti_species_directory"/>
       </item>
       <item row="4" column="2">
-       <widget class="QPushButton" name="paracousti_receptor_button">
+       <widget class="QPushButton" name="paracousti_species_directory_button">
         <property name="text">
          <string>...</string>
         </property>
@@ -584,10 +584,10 @@
        </widget>
       </item>
       <item row="5" column="1">
-       <widget class="QLineEdit" name="paracousti_sc_file"/>
+       <widget class="QLineEdit" name="paracousti_risk_file"/>
       </item>
       <item row="5" column="2">
-       <widget class="QPushButton" name="paracousti_secondary_constraint_pushButton">
+       <widget class="QPushButton" name="paracousti_risk_pushButton">
         <property name="text">
          <string>...</string>
         </property>
@@ -613,7 +613,7 @@
     <attribute name="title">
      <string>Power</string>
     </attribute>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>20</x>
@@ -622,14 +622,14 @@
        <height>81</height>
       </rect>
      </property>
-     <layout class="QGridLayout" name="gridLayout_5" columnstretch="2,3,0">
+     <layout class="QGridLayout" name="gridLayout_5" columnstretch="1,2,0">
       <item row="0" column="0">
        <widget class="QLabel" name="label_36">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Power Files (.OUT) optioal (.pol file)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Power Files Directory (Optional)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Power Files Directory&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -789,19 +789,19 @@
   <tabstop>shear_no_device_pushButton</tabstop>
   <tabstop>shear_device_pushButton</tabstop>
   <tabstop>shear_probabilities_pushButton</tabstop>
-  <tabstop>shear_receptor_button</tabstop>
-  <tabstop>shear_secondary_constraint_pushButton</tabstop>
+  <tabstop>shear_grain_size_button</tabstop>
+  <tabstop>shear_risk_pushButton</tabstop>
   <tabstop>velocity_no_device_pushButton</tabstop>
   <tabstop>velocity_device_pushButton</tabstop>
   <tabstop>velocity_probabilities_pushButton</tabstop>
-  <tabstop>velocity_receptor_button</tabstop>
-  <tabstop>velocity_secondary_constraint_pushButton</tabstop>
+  <tabstop>velocity_threshold_button</tabstop>
+  <tabstop>velocity_risk_pushButton</tabstop>
   <tabstop>paracousti_no_device_pushButton</tabstop>
   <tabstop>paracousti_device_pushButton</tabstop>
   <tabstop>paracousti_probabilities_pushButton</tabstop>
-  <tabstop>paracousti_receptor_button_2</tabstop>
-  <tabstop>paracousti_receptor_button</tabstop>
-  <tabstop>paracousti_secondary_constraint_pushButton</tabstop>
+  <tabstop>paracousti_threshold_button</tabstop>
+  <tabstop>paracousti_species_directory_button</tabstop>
+  <tabstop>paracousti_risk_pushButton</tabstop>
   <tabstop>power_files_pushButton</tabstop>
   <tabstop>crs_button</tabstop>
   <tabstop>select_stylefile_button</tabstop>
@@ -809,9 +809,9 @@
   <tabstop>save_input</tabstop>
   <tabstop>velocity_probabilities_file</tabstop>
   <tabstop>shear_device_not_present</tabstop>
-  <tabstop>velocity_receptor_file</tabstop>
+  <tabstop>velocity_threshold_file</tabstop>
   <tabstop>output_stylefile</tabstop>
-  <tabstop>velocity_sc_file</tabstop>
+  <tabstop>velocity_risk_file</tabstop>
   <tabstop>shear_device_present</tabstop>
   <tabstop>paracousti_device_not_present</tabstop>
   <tabstop>crs</tabstop>
@@ -819,12 +819,12 @@
   <tabstop>shear_probabilities_file</tabstop>
   <tabstop>paracousti_probabilities_file</tabstop>
   <tabstop>velocity_device_not_present</tabstop>
-  <tabstop>paracousti_receptor_file</tabstop>
-  <tabstop>shear_receptor_file</tabstop>
-  <tabstop>paracousti_receptor_file_2</tabstop>
+  <tabstop>paracousti_threshold_file</tabstop>
+  <tabstop>shear_grain_size_file</tabstop>
+  <tabstop>paracousti_species_directory</tabstop>
   <tabstop>output_folder</tabstop>
-  <tabstop>paracousti_sc_file</tabstop>
-  <tabstop>shear_sc_file</tabstop>
+  <tabstop>paracousti_risk_file</tabstop>
+  <tabstop>shear_risk_file</tabstop>
   <tabstop>power_files</tabstop>
   <tabstop>velocity_device_present</tabstop>
  </tabstops>

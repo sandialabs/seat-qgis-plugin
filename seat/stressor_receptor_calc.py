@@ -241,17 +241,7 @@ class StressorReceptorCalc:
 
     # End mostly boilerplate code ------
 
-    def select_style_files(self):
-        """Input the styles_file file dialog."""
-        filename, _filter = QFileDialog.getOpenFileName(
-            self.dlg,
-            "Select Style Files CSV file",
-            "",
-            "*.csv",
-        )
-        self.dlg.output_stylefile.setText(filename)
-
-    def select_device_folder(self):
+    def select_folder(self):
         folder_name = QFileDialog.getExistingDirectory(
             self.dlg,
             "Select Folder"
@@ -263,22 +253,14 @@ class StressorReceptorCalc:
         data = data.set_index('Type')
         return data
 
-    def select_probabilities_file(self):
-        """Input the probabilities file dialog."""
+    def select_file(self, filter=""):
+        """Input the receptor file."""
         filename, _filter = QFileDialog.getOpenFileName(
             self.dlg,
-            "Select Probabilities File",
+            "Select File",
             "",
-            "*.csv",
+            filter,
         )
-        return filename
-
-    def select_power_files_folder(self):
-        folder_name = QFileDialog.getExistingDirectory(
-            self.dlg,
-            "Select Folder"
-        )
-        self.dlg.power_files.setText(folder_name)
 
     def select_crs(self):
         """Input the crs using the QGIS widget box."""
@@ -291,32 +273,6 @@ class StressorReceptorCalc:
         projSelector.exec()
         # projSelector.exec_()
         self.dlg.crs.setText(projSelector.crs().authid().split(":")[1])
-
-    def select_receptor_file(self):
-        """Input the receptor file."""
-        filename, _filter = QFileDialog.getOpenFileName(
-            self.dlg,
-            "Select Receptor",
-            "",
-            "*.tif; *.csv",
-        )
-        self.dlg.receptor_file.setText(filename)
-
-    def select_secondary_constraint_folder(self):
-        """Select secondary constriant file."""
-        folder_name = QFileDialog.getExistingDirectory(
-            self.dlg,
-            "Select Folder"
-        )
-        self.dlg.sc_file.setText(folder_name)
-
-    def select_output_folder(self):
-        """Select output file picker."""
-        folder_name = QFileDialog.getExistingDirectory(
-            self.dlg,
-            "Select Folder"
-        )
-        self.dlg.output_folder.setText(folder_name)
 
     def select_and_load_in(self):
         """Select and load an input file."""
@@ -332,57 +288,36 @@ class StressorReceptorCalc:
             config = configparser.ConfigParser()
             config.read(filename)
 
-            self.dlg.shear_device_present.setText(
-                config.get("Input", "shear stress device present filepath"))
-            self.dlg.shear_device_not_present.setText(
-                config.get("Input", "shear stress device not present filepath"))
-            self.dlg.shear_averaging_combobox.setCurrentText(
-                config.get("Input", "Shear Stress Averaging"))
-            self.dlg.shear_probabilities_file.setText(config.get(
-                "Input", "shear stress probabilities file"))
-            
-            self.dlg.velocity_device_present.setText(
-                config.get("Input", "velocity device present filepath"))
-            self.dlg.velocity_device_not_present.setText(
-                config.get("Input", "velocity device not present filepath"))
-            self.dlg.velocity_averaging_combobox.setCurrentText(
-                config.get("Input", "Velocity Averaging"))            
-            self.dlg.velocity_probabilities_file.setText(config.get(
-                "Input", "velocity probabilities file"))
-                            
-            self.dlg.paracousti_device_present.setText(
-                config.get("Input", "paracousti device present filepath"))
-            self.dlg.paracousti_device_not_present.setText(
-                config.get("Input", "paracousti device not present filepath"))
-            self.dlg.paracousti_averaging_combobox.setCurrentText(
-                config.get("Input", "Paracousti averaging")) 
-            self.dlg.paracousti_probabilities_file.setText(config.get(
-                "Input", "paracousti probabilities file"))
-            
-            self.dlg.power_files.setText(
-                config.get("Input", "power files filepath"))                
-             self.dlg.power_probabilities_file.setText(config.get(
-                "Input", "power probabilities file"))               
-                                                            
+            self.dlg.shear_device_present.setText(config.get("Input", "shear stress device present filepath"))
+            self.dlg.shear_device_not_present.setText(config.get("Input", "shear stress device not present filepath"))
+            self.dlg.shear_averaging_combobox.setCurrentText(config.get("Input", "shear stress averaging"))
+            self.dlg.shear_probabilities_file.setText(config.get("Input", "shear stress probabilities file"))
+            self.dlg.shear_grain_size_file.setText(config.get("Input", "shear stress grain size file"))
+            self.dlg.shear_risk_file.setText(config.get("Input", "shear stress risk layer file"))
+                                    
+            self.dlg.velocity_device_present.setText(config.get("Input", "velocity device present filepath"))
+            self.dlg.velocity_device_not_present.setText(config.get("Input", "velocity device not present filepath"))
+            self.dlg.velocity_averaging_combobox.setCurrentText(config.get("Input", "velocity Averaging"))            
+            self.dlg.velocity_probabilities_file.setText(config.get("Input", "velocity probabilities file"))
+            self.dlg.velocity_threshold_file.setText(config.get("Input", "velocity threshold file"))     
+            self.dlg.velocity_risk_file.setText(config.get("Input", "velocity risk layer file"))
+                                                    
+            self.dlg.paracousti_device_present.setText(config.get("Input", "paracousti device present filepath"))
+            self.dlg.paracousti_device_not_present.setText(config.get("Input", "paracousti device not present filepath"))
+            self.dlg.paracousti_averaging_combobox.setCurrentText(config.get("Input", "paracousti averaging")) 
+            self.dlg.paracousti_probabilities_file.setText(config.get("Input", "paracousti probabilities file"))
+            self.dlg.paracousti_threshold_file.setText(config.get("Input", "paracousti threshold file"))
+            self.dlg.paracousti_risk_file.setText(config.get("Input", "paracousti risk layer file"))
+            self.dlg.paracousti_species_directory.setText(config.get("Input", "paracousti species filepath"))
+                                    
+            self.dlg.power_files.setText(config.get("Input", "power files filepath"))                
+            self.dlg.power_probabilities_file.setText(config.get("Input", "power probabilities file"))               
 
+            self.dlg.crs.setText(config.get("Input", "coordinate reference system"))
 
+            self.dlg.output_folder.setText(config.get("Output", "output filepath"))
 
-
-            self.dlg.receptor_file.setText(
-                config.get("Input", "receptor filepath"))
-            self.dlg.sc_file.setText(
-                config.get("Input", "secondary constraint filepath"))
-
-
-                       
-            self.dlg.crs.setText(config.get(
-                "Input", "coordinate reference system"))
-
-            self.dlg.output_folder.setText(
-                config.get("Output", "output filepath"))
-
-            self.dlg.output_stylefile.setText(
-                config.get("Input", "output style files"))
+            self.dlg.output_stylefile.setText(config.get("Input", "output style files"))
 
     def save_in(self):
         """Select and save an input file."""
@@ -399,25 +334,28 @@ class StressorReceptorCalc:
         config["Input"] = {
             "shear stress device present filepath": self.dlg.shear_device_present.text(),
             "shear stress device not present filepath": self.dlg.shear_device_not_present.text(),
-            "Shear Stress Averaging": self.dlg.stressor_comboBox.currentText(),            
+            "shear stress averaging": self.dlg.stressor_comboBox.currentText(),            
             "shear stress probabilities file": self.dlg.shear_probabilities_file.text(),            
+            "shear stress grain size file": self.dlg.shear_grain_size_file.text(),
+            "shear stress risk layer file": self.dlg.shear_risk_file.text(),
             
             "velocity device present filepath": self.dlg.velocity_device_present.text(),
             "velocity device not present filepath": self.dlg.velocity_device_not_present.text(),
-            "Velocity Averaging": self.dlg.velocity_averaging_combobox.currentText(),
+            "velocity averaging": self.dlg.velocity_averaging_combobox.currentText(),
             "velocity probabilities file": self.dlg.velocity_probabilities_file.text(),
-                                                
+            "velocity threshold file": self.dlg.velocity_threshold_file.text(),
+            "velocity risk layer file": self.dlg.velocity_risk_file.Text(),
+                                                            
             "paracousti device present filepath": self.dlg.paracousti_device_present.text(),
             "paracousti device not present filepath": self.dlg.paracousti_device_not_present.text(),            
-            "Paracousti variable": self.dlg.paracousti_averaging_combobox.currentText(),
+            "paracousti averaging": self.dlg.paracousti_averaging_combobox.currentText(),
             "paracousti probabilities file": self.dlg.paracousti_probabilities_file.text(),
+            "paracousti threshold file": self.dlg.paracousti_threshold_file.text(),
+            "paracousti risk layer file": self.dlg.paracousti_risk_file.text(),
+            "paracousti species filepath" : self.dlg.paracousti_species_directory.text(),
                         
             "power files filepath": self.dlg.power_files.text(),
             "power probabilities file": self.dlg.power_probabilities_file.text(),
-            
-            
-            "receptor filepath": self.dlg.receptor_file.text(),
-            "secondary constraint filepath": self.dlg.sc_file.text(),
 
             "coordinate reference system": self.dlg.crs.text(),
             "output style files": self.dlg.output_stylefile.text(),
@@ -513,29 +451,44 @@ class StressorReceptorCalc:
             
             # set the probabilities
             self.dlg.shear_probabilities_file.setText(
-                self.dlg.shear_probabilities_pushButton.clicked.connect(self.select_probabilities_file))
+                self.dlg.shear_probabilities_pushButton.clicked.connect(self.select_file(filter="*.csv")))
             self.dlg.velocity_probabilities_file.setText(
-                self.dlg.velcoity_probabilities_pushButton.clicked.connect(self.select_probabilities_file))
+                self.dlg.velcoity_probabilities_pushButton.clicked.connect(self.select_file(filter="*.csv")))
             self.dlg.paracousti_probabilities_file.setText(
-                self.dlg.paracousti_probabilities_pushButton.clicked.connect(self.select_probabilities_file))
+                self.dlg.paracousti_probabilities_pushButton.clicked.connect(self.select_file(filter="*.csv")))
             self.dlg.power_probabilities_file.setText(
-                self.dlg.power_probabilities_pushButton.clicked.connect(self.select_probabilities_file))            
+                self.dlg.power_probabilities_pushButton.clicked.connect(self.select_file(filter="*.csv")))      
+
+            # set the threshold files (previously receptor)
+            self.dlg.shear_grain_size_file.setText(
+                self.dlg.shear_grain_size_button.clicked.connect(self.select_file(filter="*.tif; *.csv")))
+            self.dlg.velocity_critical_file.setText(
+                self.dlg.velocity_threshold_button.clicked.connect(self.select_file(filter="*.tif; *.csv")))
+            self.dlg.paracousti_threshold_file.setText(
+                self.dlg.paracousti_threshold_button.clicked.connect(self.select_file(filter="*.csv")))
+
+            # set the risk layer (previously secondary constraint)
+ 
+            self.dlg.shear_risk_file.setText(
+                self.dlg.shear_risk_pushButton.clicked.connect(self.select_file(filter="*.tif")))
+            self.dlg.velocity_risk_file.setText(
+                self.dlg.velocity_risk_pushButton.clicked.connect(self.select_file(filter="*.tif")))
+            self.dlg.paracousti_risk_file.setText(
+                self.dlg.paracousti_risk_pushButton.clicked.connect(self.select_file(filter="*.tif; *.shp")))
+            
+            # set the species folder for paracousti
+            self.dlg.paracousti_species_directory.setText(
+                self.dlg.paracousti_species_directory_button.clicked.connect(self.select_device_folder)))
+            
 
             # set the crs file
             self.dlg.crs_button.clicked.connect(self.select_crs)
-
-            # set the receptor file
-            self.dlg.receptor_button.clicked.connect(self.select_receptor_file)
-
-            # set the secondary constraint
-            self.dlg.secondary_constraint_pushButton.clicked.connect(
-                self.select_secondary_constraint_folder)
+            self.dlg.select_stylefile_button.clicked.connect(self.select_style_files)
+            
             # set the output
             self.dlg.output_pushButton.clicked.connect(
                 self.select_output_folder)
 
-            self.dlg.select_stylefile_button.clicked.connect(
-                self.select_style_files)
 
         self.dlg.shear_device_present.clear()
         self.dlg.velocity_device_present.clear()
@@ -551,9 +504,17 @@ class StressorReceptorCalc:
         self.dlg.paracousti_probabilities_file.clear()   
         self.dlg.power_probabilities_file.clear()                        
 
-        self.dlg.crs.clear()
-        self.dlg.receptor_file.clear()
-        self.dlg.sc_file.clear()
+        self.dlg.shear_grain_size_file.clear()
+        self.dlg.velocity_threshold_file.clear()
+        self.dlg.paracousti_threshold_file.clear()
+        
+        self.dlg.shear_risk_file.clear()
+        self.dlg.velocity_risk_file.clear()
+        self.dlg.paracousti_risk_file.clear()
+
+        self.dlg.paracousti_species_directory.clear()
+        
+        self.dlg.crs.clear() 
         self.dlg.output_folder.clear()
         self.dlg.output_stylefile.clear()
 
@@ -574,37 +535,51 @@ class StressorReceptorCalc:
             velocity_device_not_present_directory = self.dlg.velocity_device_not_present.text()
             paracousti_device_not_present_directory = self.dlg.paracousti_device_not_present.text()
             
-            
             shear_stress_probabilities_fname = self.dlg.shear_probabilities_file.text()
             velocity_probabilities_fname = self.dlg.velocity_probabilities_file.text()
             paracousti_probabilities_fname = self.dlg.paracousti_probabilities_file.text()
             power_probabilities_fname = self.dlg.power_probabilities_file.text()            
 
+            shear_grain_size_file = self.dlg.shear_grain_size_file.text()
+            velocity_threshold_file = self.dlg.velocity_threshold_file.text()
+            paracousti_threshold_file = self.dlg.paracousti_threshold_file.text()
+            
+            shear_risk_layer_file = self.dlg.shear_risk_file.text()
+            velocity_risk_layer_file = self.dlg.velocity_risk_file.text()
+            paracousti_risk_layer_file = self.dlg.paracousti_risk_file.text()            
 
-            rfilename = self.dlg.receptor_file.text()
-            scfilename = self.dlg.sc_file.text()
+            paracousti_species_directory = self.dlg.paracousti_species_directory.text()
+            
             output_folder_name = self.dlg.output_folder.text()
-            # create output directory if it doesn't exist
-            os.makedirs(output_folder_name, exist_ok=True)
-
-            # svar = self.dlg.stressor_comboBox.currentText()
+            os.makedirs(output_folder_name, exist_ok=True) # create output directory if it doesn't exist
 
             crs = int(self.dlg.crs.text())
-
+            
+            # need to add check to leave empty if not present then apply default values
+            stylefiles_DF = self.read_style_files(self.dlg.output_stylefile.text())
+            sstylefile = stylefiles_DF.loc['Stressor'].values.item().replace("\\", "/")
+            rstylefile = stylefiles_DF.loc['Receptor'].values.item().replace("\\", "/")
+            scstylefile = stylefiles_DF.loc['Secondary Constraint'].values.item().replace("\\", "/")
+            swrstylefile = stylefiles_DF.loc['Stressor with receptor'].values.item().replace("\\", "/")
+            rcstylefile = stylefiles_DF.loc['Reclassificed Stressor with receptor'].values.item().replace("\\", "/")
+            rskstylefile = stylefiles_DF.loc['Risk'].values.item().replace("\\", "/")
+            
+            stressor_stylefile = stylefiles_DF.loc['Stressor'].values.item().replace("\\", "/")
+            threshold_stylefile = stylefiles_DF.loc['Threshold'].values.item().replace("\\", "/")
+            percent_stylefile = stylefiles_DF.loc['Species Percent'].values.item().replace("\\", "/")
+            density_stylefile = stylefiles_DF.loc['Species Density'].values.item().replace("\\", "/")  
+                      
             # create logger
             logger = logging.getLogger(__name__)
             logger.setLevel(logging.INFO)
 
             # create file handler and set level to info
-            fname = os.path.join(output_folder_name, "_{}.log".format(
-                date.today().strftime("%Y%m%d")))
+            fname = os.path.join(output_folder_name, "_{}.log".format(date.today().strftime("%Y%m%d")))
             fh = logging.FileHandler(fname, mode="a", encoding="utf8")
             fh.setLevel(logging.INFO)
 
             # create formatter
-            formatter = logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            )
+            formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
             # add formatter to ch
             fh.setFormatter(formatter)
@@ -613,11 +588,12 @@ class StressorReceptorCalc:
             logger.addHandler(fh)
 
             logger.info("Shear device present file: {}".format(shear_stress_device_present_directory))
-            logger.info("Velocity device present file: {}".format(velocity_device_present_fname))
-            logger.info("Acoustics device present file: {}".format(paracousti_device_present_fname))
-            
+            logger.info("Velocity device present file: {}".format(velocity_device_present_directory))
+            logger.info("Acoustics device present file: {}".format(paracousti_device_present_directory))
+            logger.info("Power Files: {}".format(power_files_directory))
+                        
             logger.info("Shear device present file: {}".format(shear_stress_device_not_present_directory))
-            logger.info("Velocity device present file: {}".format(velocity_device_not_present_fname))
+            logger.info("Velocity device present file: {}".format(velocity_device_not_present_directory))
             logger.info("Acoustics device present file: {}".format(paracousti_device_not_present_directory))
             
             logger.info("Shear Probabilities File: {}".format(shear_stress_probabilities_fname))
@@ -625,8 +601,15 @@ class StressorReceptorCalc:
             logger.info("Acoustics Probabilities File: {}".format(paracousti_probabilities_fname))
             logger.info("Power Probabilities File: {}".format(power_probabilities_fname))            
             
-            logger.info("Power Files: {}".format(power_files_folder))
-            
+            logger.info("Shear Grain Size File: {}".format(shear_grain_size_file))
+            logger.info("Velocity Probabilities File: {}".format(velocity_threshold_file))
+            logger.info("Acoustics Probabilities File: {}".format(paracousti_threshold_file))
+
+            logger.info("Shear Risk Layer File: {}".format(shear_risk_layer_file))
+            logger.info("Velocity Risk Layer File: {}".format(velocity_risk_layer_file))
+            logger.info("Acoustics Risk Layer File: {}".format(paracousti_risk_layer_file))
+
+            logger.info("Acoustics Species Directory: {}".format(paracousti_species_directory))
             
             # logger.info("Stressor: {}".format(svar))
             logger.info("CRS: {}".format(crs))
@@ -635,22 +618,20 @@ class StressorReceptorCalc:
             
             # if the output file path is empty display a warning
             if output_folder_name == "":
-                QgsMessageLog.logMessage(
-                    "Output file path not given.",
-                    level=Qgis.MessageLevel.Warning,
-                )
+                QgsMessageLog.logMessage("Output file path not given.", level=Qgis.MessageLevel.Warnin)
 
             # Calculate Power Files
-            if power_files_folder is not "":
+            if power_files_directory is not "":
+                self.dlg.status_bar.setText("Processing Power Module")
                 if ((power_probabilities_fname is None) or (power_probabilities_fname == "")):
                     power_probabilities_fname = shear_stress_probabilities_fname #default to shear stress probabilities if none given
-                calculate_power(power_files_folder, 
+                calculate_power(power_files_directory, 
                                 power_probabilities_fname,
                                 save_path=output_folder_name,
                                 crs=crs)
 
             if not ((shear_stress_device_present_directory is None) or (shear_stress_device_present_directory == "")): # svar == "Shear Stress":
-
+                self.dlg.status_bar.setText("Processing Shear Stress Module")
                 if not ((scfilename is None) or (scfilename == "")):
                     scfilename=[os.path.join(scfilename, i) for i in os.listdir(scfilename) if i.endswith('tif')][0]
 
@@ -660,52 +641,32 @@ class StressorReceptorCalc:
                     probabilities_file=shear_stress_probabilities_fname,
                     crs=crs,
                     output_path=output_folder_name,
-                    receptor_filename=rfilename,
-                    secondary_constraint_filename=scfilename
-                )
+                    receptor_filename=shear_grain_size_file,
+                    secondary_constraint_filename=shear_risk_layer_file)
 
-                stylefiles_DF = self.read_style_files(
-                    self.dlg.output_stylefile.text())
-
-                sstylefile = stylefiles_DF.loc['Stressor'].values.item().replace(
-                    "\\", "/")
-                rstylefile = stylefiles_DF.loc['Receptor'].values.item().replace(
-                    "\\", "/")
-                scstylefile = stylefiles_DF.loc['Secondary Constraint'].values.item().replace(
-                    "\\", "/")
-                swrstylefile = stylefiles_DF.loc['Stressor with receptor'].values.item(
-                ).replace("\\", "/")
-                rcstylefile = stylefiles_DF.loc['Reclassificed Stressor with receptor'].values.item(
-                ).replace("\\", "/")
-                rskstylefile = stylefiles_DF.loc['Risk'].values.item(
-                ).replace("\\", "/")
-
+                
                 logger.info("Receptor Style File: {}".format(rstylefile))
                 logger.info("Stressor Style File: {}".format(sstylefile))
-                logger.info(
-                    "Secondary Constraint Style File: {}".format(scstylefile))
-                logger.info("Output Style File: {}".format(
-                    swrstylefile))  # stressor with receptor
-                logger.info(
-                    'Stressor reclassification: {}'.format(rcstylefile))
-                logger.info(
-                    'Risk: {}'.format(rskstylefile))
+                logger.info("Secondary Constraint Style File: {}".format(scstylefile))
+                logger.info("Output Style File: {}".format(swrstylefile))  # stressor with receptor
+                logger.info('Stressor reclassification: {}'.format(rcstylefile))
+                logger.info('Risk: {}'.format(rskstylefile))
                 srfilename = sfilenames['calculated_stressor']  # stressor
                 self.style_layer(srfilename, sstylefile, ranges=True)
                 
-                if not ((rfilename is None) or (rfilename == "")):  # if receptor present
+                if not ((shear_grain_size_file is None) or (shear_grain_size_file == "")):  # if receptor present
                     self.style_layer(sfilenames['calculated_stressor_with_receptor'] , swrstylefile, ranges=True)# streessor with receptor
                     self.style_layer(sfilenames['calculated_stressor_reclassified'], rcstylefile, ranges=True)  # reclassified
                     self.style_layer(sfilenames['risk'], rskstylefile, ranges=True)                    
-                    if rfilename.endswith('.tif'):
-                        self.style_layer(rfilename, rstylefile, checked=False)
+                    if shear_grain_size_file.endswith('.tif'):
+                        self.style_layer(shear_grain_size_file, rstylefile, checked=False)
 
                 if not ((scfilename is None) or (scfilename == "")):
                     if scfilename.endswith('.tif'):
                         self.style_layer(sfilenames['secondary_constraint'], scstylefile, checked=False)
 
             if not ((velocity_device_present_directory is None) or (velocity_device_present_directory == "")): # svar == "Velocity":
-
+                self.dlg.status_bar.setText("Processing Velocity Module")
                 if not ((scfilename is None) or (scfilename == "")):
                     scfilename=[os.path.join(scfilename, i) for i in os.listdir(scfilename) if i.endswith('tif')][0]
 
@@ -715,80 +676,56 @@ class StressorReceptorCalc:
                     probabilities_file=velocity_probabilities_fname,
                     crs=crs,
                     output_path=output_folder_name,
-                    receptor_filename=rfilename,
-                    secondary_constraint_filename=scfilename
+                    receptor_filename=velocity_threshold_file,
+                    secondary_constraint_filename=velocity_risk_layer_file
                 )
 
                 # sfilenames = ['calculated_stressor.tif',
                 #  'calculated_stressor_with_receptor.tif',
                 # 'calculated_stressor_reclassified.tif']
 
-                stylefiles_DF = self.read_style_files(
-                    self.dlg.output_stylefile.text())
 
-                sstylefile = stylefiles_DF.loc['Stressor'].values.item().replace(
-                    "\\", "/")
-                rstylefile = stylefiles_DF.loc['Receptor'].values.item().replace(
-                    "\\", "/")
-                scstylefile = stylefiles_DF.loc['Secondary Constraint'].values.item().replace(
-                    "\\", "/")
-                swrstylefile = stylefiles_DF.loc['Stressor with receptor'].values.item(
-                ).replace("\\", "/")
-                rcstylefile = stylefiles_DF.loc['Reclassificed Stressor with receptor'].values.item(
-                ).replace("\\", "/")
 
                 logger.info("Receptor Style File: {}".format(rstylefile))
                 logger.info("Stressor Style File: {}".format(sstylefile))
-                logger.info(
-                    "Secondary Constraint Style File: {}".format(scstylefile))
-                logger.info("Output Style File: {}".format(
-                    swrstylefile))  # stressor with receptor
-                logger.info(
-                    'Stressor reclassification: {}'.format(rcstylefile))
+                logger.info("Secondary Constraint Style File: {}".format(scstylefile))
+                logger.info("Output Style File: {}".format(swrstylefile))  # stressor with receptor
+                logger.info('Stressor reclassification: {}'.format(rcstylefile))
 
                 srfilename = sfilenames['calculated_stressor']  # stressor
                 self.style_layer(srfilename, sstylefile, ranges=True)
                 # self.calc_area_change(srfilename, crs)
-                if not ((rfilename is None) or (rfilename == "")):  # if receptor present
+                if not ((velocity_threshold_file is None) or (velocity_threshold_file == "")):  # if receptor present
                     swrfilename = sfilenames['calculated_stressor_with_receptor']  # streessor with receptor
                     classifiedfilename = sfilenames['calculated_stressor_reclassified']  # reclassified
                     self.style_layer(swrfilename, swrstylefile, ranges=True)
                     self.style_layer(classifiedfilename,
                                      rcstylefile, ranges=True)
-                    if rfilename.endswith('.tif'):
-                        self.style_layer(rfilename, rstylefile, checked=False)
+                    if velocity_threshold_file.endswith('.tif'):
+                        self.style_layer(velocity_threshold_file, rstylefile, checked=False)
 
                 if not ((scfilename is None) or (scfilename == "")):
                     if scfilename.endswith('.tif'):
                         self.style_layer(sfilenames['secondary_constraint'], scstylefile, checked=False)                    
 
-            if svar == "Acoustics":
+            if not ((paracousti_device_present_directory is None) or (paracousti_device_present_directory == "")): # if svar == "Acoustics":
+                self.dlg.status_bar.setText("Processing Paracousti Module")
+
                 sfilenames = run_acoustics_stressor(
                     dev_present_file=paracousti_device_present_directory,
                     dev_notpresent_file=paracousti_device_not_present_directory,
                     probabilities_file=paracousti_probabilities_fname,
                     crs=crs,
                     output_path=output_folder_name,
-                    receptor_filename=rfilename,
-                    species_folder=scfilename
+                    receptor_filename=paracousti_threshold_file,
+                    species_folder=paracousti_species_directory
                 ) #TODO: Make output a dictionary for consistency
+                #TODO: Add risk layer
                 # numpy_arrays = [0] PARACOUSTI
                 #               [1] stressor
                 #               [2] threshold_exceeded
                 #               [3] percent_scaled
                 #               [4] density_scaled
-
-                stylefiles_DF = self.read_style_files(
-                    self.dlg.output_stylefile.text())
-
-                stressor_stylefile = stylefiles_DF.loc['Stressor'].values.item().replace(
-                    "\\", "/")
-                threshold_stylefile = stylefiles_DF.loc['Threshold'].values.item().replace(
-                    "\\", "/")
-                percent_stylefile = stylefiles_DF.loc['Species Percent'].values.item().replace(
-                    "\\", "/")
-                density_stylefile = stylefiles_DF.loc['Species Density'].values.item().replace(
-                    "\\", "/")
 
                 logger.info("Stressor Style File: {}".format(
                     stressor_stylefile))
@@ -812,6 +749,8 @@ class StressorReceptorCalc:
                     sfilenames[0], stressor_stylefile, ranges=True)  # paracousti
                 self.style_layer(
                     sfilenames[1], stressor_stylefile, ranges=True)  # stressor
+
+            self.dlg.status_bar.setText("Finished Processing")
 
             # close and remove the filehandler
             fh.close()
