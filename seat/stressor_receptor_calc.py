@@ -468,7 +468,6 @@ class StressorReceptorCalc:
                 self.dlg.paracousti_threshold_button.clicked.connect(self.select_file(filter="*.csv")))
 
             # set the risk layer (previously secondary constraint)
- 
             self.dlg.shear_risk_file.setText(
                 self.dlg.shear_risk_pushButton.clicked.connect(self.select_file(filter="*.tif")))
             self.dlg.velocity_risk_file.setText(
@@ -478,8 +477,7 @@ class StressorReceptorCalc:
             
             # set the species folder for paracousti
             self.dlg.paracousti_species_directory.setText(
-                self.dlg.paracousti_species_directory_button.clicked.connect(self.select_device_folder)))
-            
+                self.dlg.paracousti_species_directory_button.clicked.connect(self.select_device_folder))
 
             # set the crs file
             self.dlg.crs_button.clicked.connect(self.select_crs)
