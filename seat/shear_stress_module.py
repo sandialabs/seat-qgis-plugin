@@ -395,7 +395,7 @@ def calculate_shear_stress_stressors(fpath_nodev,
             _, _, receptor_array_struct = create_structured_array_from_unstructured(
                 xcor, ycor, receptor_array, dxdy, flatness=0.2)
             _, _, Risk_struct = create_structured_array_from_unstructured(
-                xcor, ycor, receptor_array, dxdy, flatness=0.2)
+                xcor, ycor, Risk, dxdy, flatness=0.2)
         else:
             mobility_parameter_nodev_struct = np.nan * tau_diff_struct
             mobility_parameter_dev_struct = np.nan * tau_diff_struct
