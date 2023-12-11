@@ -1,5 +1,6 @@
 import sys
 import os
+import netCDF4
 import unittest
 import numpy as np
 from qgis.core import QgsApplication
@@ -7,7 +8,9 @@ from qgis.core import QgsApplication
 script_dir = os.path.dirname(os.path.realpath(__file__))
 parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
+# fmt: off
 from seat import shear_stress_module as ssm
+# fmt: on
 
 
 # Mock Interface
@@ -16,6 +19,50 @@ class MockIface:
 
 
 class TestShearStress(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        """
+        Class method called before tests in an individual class run.
+        """
+        # Set up the mock netCDF file
+        cls.mock_netcdf_data = 'mock_netcdf.nc'
+        cls.create_mock_netcdf(cls.mock_netcdf_data)
+
+    @classmethod
+    def tearDownClass(cls):
+        """
+        Class method called after tests in an individual class are run.
+        """
+        # Clean up the mock netCDF file
+        if os.path.exists(cls.mock_netcdf_filename):
+            os.remove(cls.mock_netcdf_filename)
+
+    @staticmethod
+    def create_mock_netcdf(filename):
+        """
+        Create a mock netCDF file with predefined structure and variables.
+        The structure is tailored to test the check_grid_define_vars function.
+        """
+        with netCDF4.Dataset(filename, "w", format="NETCDF4") as dataset:
+            # Create dimensions
+            dataset.createDimension('x', None)
+            dataset.createDimension('y', None)
+
+            # Create coordinate variables
+            x = dataset.createVariable('x_coord', np.float32, ('x',))
+            y = dataset.createVariable('y_coord', np.float32, ('y',))
+
+            # Create a variable with coordinates attribute
+            taumax = dataset.createVariable('TAUMAX', np.float32, ('x', 'y'))
+            taumax.coordinates = 'x_coord y_coord'
+
+            # Add some data to the variables
+            x[:] = np.arange(0, 10, 1)
+            y[:] = np.arange(0, 20, 1)
+            taumax[:, :] = np.random.rand(10, 20)
+
+        return filename
 
     def test_critical_shear_stress(self):
         """
@@ -69,15 +116,42 @@ class TestShearStress(unittest.TestCase):
             0.3,  # Increased Deposition
             1.0,  # New Deposition
         ])
-        expected_classification = np.array([ 3.,  2.,  1., 0., -1., -2.,  -3.]) 
-        result = ssm.classify_mobility(mobility_parameter_dev, mobility_parameter_nodev)
+        expected_classification = np.array([3.,  2.,  1., 0., -1., -2.,  -3.])
+        result = ssm.classify_mobility(
+            mobility_parameter_dev, mobility_parameter_nodev)
         np.testing.assert_array_equal(result, expected_classification)
+
+    def test_check_grid_define_vars(self):
+        """
+        Test the check_grid_define_vars function with a mock dataset.
+
+        This test checks if the function correctly identifies the type of grid (structured or unstructured),
+        along with the names of the x-coordinate, y-coordinate, and shear stress variables in the dataset.
+        """
+        # Open and use the mock netCDF dataset
+        with netCDF4.Dataset(self.mock_netcdf_data, 'r') as mock_dataset:
+            expected_gridtype = 'structured'
+            expected_xvar = 'x_coord'
+            expected_yvar = 'y_coord'
+            expected_tauvar = 'TAUMAX'
+
+            # Call the function with the mock dataset
+            gridtype, xvar, yvar, tauvar = ssm.check_grid_define_vars(
+                mock_dataset)
+
+            # Assert the function returns the expected values
+            self.assertEqual(gridtype, expected_gridtype)
+            self.assertEqual(xvar, expected_xvar)
+            self.assertEqual(yvar, expected_yvar)
+            self.assertEqual(tauvar, expected_tauvar)
+
 
 def run_all():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(TestShearStress))
     runner = unittest.TextTestRunner()
     runner.run(suite)
+
 
 if __name__ == '__main__':
     run_all()
