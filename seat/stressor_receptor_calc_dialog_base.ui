@@ -164,7 +164,7 @@
     <enum>QTabWidget::Triangular</enum>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>0</number>
    </property>
    <property name="iconSize">
     <size>
@@ -318,16 +318,29 @@
     <attribute name="title">
      <string>Velocity</string>
     </attribute>
+    <widget class="QPushButton" name="copy_shear_to_velocity_button">
+     <property name="geometry">
+      <rect>
+       <x>14</x>
+       <y>10</y>
+       <width>681</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Use Shear Stress Inputs</string>
+     </property>
+    </widget>
     <widget class="QWidget" name="">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>691</width>
-       <height>231</height>
+       <x>16</x>
+       <y>40</y>
+       <width>681</width>
+       <height>211</height>
       </rect>
      </property>
-     <layout class="QGridLayout" name="gridLayout_3" columnstretch="2,3,0">
+     <layout class="QGridLayout" name="gridLayout_6">
       <item row="0" column="0">
        <widget class="QLabel" name="label_25">
         <property name="toolTip">
@@ -446,6 +459,13 @@
       </item>
       <item row="5" column="1">
        <widget class="QComboBox" name="velocity_averaging_combobox"/>
+      </item>
+      <item row="5" column="2">
+       <widget class="QPushButton" name="velocity_risk_pushButton_2">
+        <property name="text">
+         <string>...</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
