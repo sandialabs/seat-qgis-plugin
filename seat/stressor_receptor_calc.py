@@ -675,34 +675,38 @@ class StressorReceptorCalc:
                     receptor_filename=velocity_threshold_file,
                     secondary_constraint_filename=velocity_risk_layer_file
                 )
+                
+                for key in sfilenames.keys(): #add styles files and/or display
+                    if stylefiles_DF is None:
+                        self.add_layer(sfilenames[key])
+                    else:
+                        logger.info("{} Style File: {}".format(key, stylefiles_DF.loc['key']))
+                        self.style_layer(sfilenames[key] , stylefiles_DF.loc['key'])
 
                 # sfilenames = ['calculated_stressor.tif',
                 #  'calculated_stressor_with_receptor.tif',
                 # 'calculated_stressor_reclassified.tif']
+                # logger.info("Receptor Style File: {}".format(rstylefile))
+                # logger.info("Stressor Style File: {}".format(sstylefile))
+                # logger.info("Secondary Constraint Style File: {}".format(scstylefile))
+                # logger.info("Output Style File: {}".format(swrstylefile))  # stressor with receptor
+                # logger.info('Stressor reclassification: {}'.format(rcstylefile))
 
+                # srfilename = sfilenames['calculated_stressor']  # stressor
+                # self.style_layer(srfilename, sstylefile, ranges=True)
+                # # self.calc_area_change(srfilename, crs)
+                # if not ((velocity_threshold_file is None) or (velocity_threshold_file == "")):  # if receptor present
+                #     swrfilename = sfilenames['calculated_stressor_with_receptor']  # streessor with receptor
+                #     classifiedfilename = sfilenames['calculated_stressor_reclassified']  # reclassified
+                #     self.style_layer(swrfilename, swrstylefile, ranges=True)
+                #     self.style_layer(classifiedfilename,
+                #                      rcstylefile, ranges=True)
+                #     if velocity_threshold_file.endswith('.tif'):
+                #         self.style_layer(velocity_threshold_file, rstylefile, checked=False)
 
-
-                logger.info("Receptor Style File: {}".format(rstylefile))
-                logger.info("Stressor Style File: {}".format(sstylefile))
-                logger.info("Secondary Constraint Style File: {}".format(scstylefile))
-                logger.info("Output Style File: {}".format(swrstylefile))  # stressor with receptor
-                logger.info('Stressor reclassification: {}'.format(rcstylefile))
-
-                srfilename = sfilenames['calculated_stressor']  # stressor
-                self.style_layer(srfilename, sstylefile, ranges=True)
-                # self.calc_area_change(srfilename, crs)
-                if not ((velocity_threshold_file is None) or (velocity_threshold_file == "")):  # if receptor present
-                    swrfilename = sfilenames['calculated_stressor_with_receptor']  # streessor with receptor
-                    classifiedfilename = sfilenames['calculated_stressor_reclassified']  # reclassified
-                    self.style_layer(swrfilename, swrstylefile, ranges=True)
-                    self.style_layer(classifiedfilename,
-                                     rcstylefile, ranges=True)
-                    if velocity_threshold_file.endswith('.tif'):
-                        self.style_layer(velocity_threshold_file, rstylefile, checked=False)
-
-                if not ((scfilename is None) or (scfilename == "")):
-                    if scfilename.endswith('.tif'):
-                        self.style_layer(sfilenames['secondary_constraint'], scstylefile, checked=False)                    
+                # if not ((scfilename is None) or (scfilename == "")):
+                #     if scfilename.endswith('.tif'):
+                #         self.style_layer(sfilenames['secondary_constraint'], scstylefile, checked=False)                    
 
             if not ((paracousti_device_present_directory is None) or (paracousti_device_present_directory == "")): # if svar == "Acoustics":
                 self.dlg.status_bar.setText("Processing Paracousti Module")
