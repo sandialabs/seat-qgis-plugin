@@ -364,7 +364,7 @@ def calculate_shear_stress_stressors(fpath_nodev,
     mobility_parameter_diff = mobility_parameter_dev - mobility_parameter_nodev
 
     #EQ 7 in Jones et al. (2018) doi:10.3390/en11082036
-    Risk = np.round(mobility_parameter_dev * ((mobility_parameter_dev-mobility_parameter_nodev) / np.abs(mobility_parameter_dev - mobility_parameter_nodev))) + (mobility_parameter_dev - mobility_parameter_nodev)
+    risk = np.round(mobility_parameter_dev * ((mobility_parameter_dev-mobility_parameter_nodev) / np.abs(mobility_parameter_dev - mobility_parameter_nodev))) + (mobility_parameter_dev - mobility_parameter_nodev)
 
     if gridtype == 'structured':
         mobility_classification = classify_mobility(
@@ -381,7 +381,7 @@ def calculate_shear_stress_stressors(fpath_nodev,
                         'sediment_mobility_difference': mobility_parameter_diff,
                         'sediment_mobility_classified':mobility_classification,
                         'sediment_graid_size':receptor_array,
-                        'shear_stress_risk_metric':Risk}        
+                        'shear_stress_risk_metric':risk}        
     else:  # unstructured
         dxdy = estimate_grid_spacing(xcor, ycor, nsamples=100)
         dx = dxdy
@@ -408,7 +408,7 @@ def calculate_shear_stress_stressors(fpath_nodev,
             mobility_parameter_dev_struct = np.nan * tau_diff_struct
             mobility_parameter_diff_struct = np.nan * tau_diff_struct
             receptor_array_struct = np.nan * tau_diff_struct
-            Risk_struct = np.nan * tau_diff_struct
+            risk_struct = np.nan * tau_diff_struct
         mobility_classification = classify_mobility(
             mobility_parameter_dev_struct, mobility_parameter_nodev_struct)
         mobility_classification = np.where(
@@ -422,7 +422,7 @@ def calculate_shear_stress_stressors(fpath_nodev,
                         'sediment_mobility_difference': mobility_parameter_diff_struct,
                         'sediment_mobility_classified':mobility_classification,
                         'sediment_graid_size':receptor_array_struct,
-                        'shear_stress_risk_metric':Risk_struct}
+                        'shear_stress_risk_metric':risk_struct}
 
     return dict_of_arrays, rx, ry, dx, dy, gridtype
 
@@ -488,14 +488,12 @@ def run_shear_stress_stressor(
                       'sediment_mobility_classified',
                       'sediment_grain_size',
                       'shear_stress_risk_metric']
-        numpy_array_names = [i + '.tif' for i in use_numpy_arrays]
-
     else:
         use_numpy_arrays = ['shear_stress_without_devices',
                         'shear_stress_with_devices',
                         'shear_stress_difference']
-        numpy_array_names = [i + '.tif' for i in use_numpy_arrays]
-
+    
+    numpy_array_names = [i + '.tif' for i in use_numpy_arrays]
     if not ((secondary_constraint_filename is None) or (secondary_constraint_filename == "")):
         rrx, rry, constraint = secondary_constraint_geotiff_to_numpy(secondary_constraint_filename)
         constraint = resample_structured_grid(rrx, rry, constraint, rx, ry, interpmethod='nearest')
