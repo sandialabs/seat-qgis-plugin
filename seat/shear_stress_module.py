@@ -492,14 +492,14 @@ def run_shear_stress_stressor(
         use_numpy_arrays = ['shear_stress_without_devices',
                         'shear_stress_with_devices',
                         'shear_stress_difference']
-    
-    numpy_array_names = [i + '.tif' for i in use_numpy_arrays]
+
     if not ((secondary_constraint_filename is None) or (secondary_constraint_filename == "")):
         rrx, rry, constraint = secondary_constraint_geotiff_to_numpy(secondary_constraint_filename)
-        constraint = resample_structured_grid(rrx, rry, constraint, rx, ry, interpmethod='nearest')
-        numpy_array_names.append('shear_stress_risk_layer.tif')
-        use_numpy_arrays.append(constraint)
+        dict_of_arrays['shear_stress_risk_layer'] = resample_structured_grid(rrx, rry, constraint, rx, ry, interpmethod='nearest')
+        use_numpy_arrays.append('shear_stress_risk_layer.tif')
 
+    numpy_array_names = [i + '.tif' for i in use_numpy_arrays]
+        
     output_rasters = []
     for array_name, use_numpy_array in zip(numpy_array_names, use_numpy_arrays):
         if gridtype == 'structured':
