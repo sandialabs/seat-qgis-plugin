@@ -154,7 +154,7 @@ def calculate_shear_stress_stressors(fpath_nodev,
                                      probabilities_file,
                                      receptor_filename=None,
                                      latlon=True,
-                                     value_selection='MAX'
+                                     value_selection=None
                                      ):
     """
     Calculates the stressor layers as arrays from model and parameter input.
@@ -315,15 +315,15 @@ def calculate_shear_stress_stressors(fpath_nodev,
             BC_probability["probability"].sum()  # rescale to ensure = 1 
 
     # Calculate Stressor and Receptors
-    if value_selection == 'MAX':
+    if value_selection == 'Maximum':
         tau_dev = np.nanmax(tau_dev, axis=1, keepdims=True)  # max over time
         tau_nodev = np.nanmax(
             tau_nodev, axis=1, keepdims=True)  # max over time
-    elif value_selection == 'MEAN':
+    elif value_selection == 'Mean':
         tau_dev = np.nanmean(tau_dev, axis=1, keepdims=True)  # mean over time
         tau_nodev = np.nanmean(
             tau_nodev, axis=1, keepdims=True)  # mean over time
-    elif value_selection == 'LAST':
+    elif value_selection == 'Final Timestep':
         tau_dev = tau_dev[:, -2:-1, :]  # bottom bin over time
         tau_nodev = tau_nodev[:, -2:-1, :]  # bottom bin over time
     else:
@@ -435,7 +435,7 @@ def run_shear_stress_stressor(
     output_path,
     receptor_filename=None,
     secondary_constraint_filename=None,
-):
+    value_selection=None):
     """
     creates geotiffs and area change statistics files for shear stress change
 
@@ -462,21 +462,12 @@ def run_shear_stress_stressor(
         key = names of output rasters, val = full path to raster:
     """
 
-    # dict_of_arrays = {'shear_stress_without_devices':tau_combined_nodev_struct,
-    #                 'shear_stress_with_devices': tau_combined_dev_struct,
-    #                 'shear_stress_difference': tau_diff_struct,
-    #                 'sediment_mobility_without_devices': mobility_parameter_nodev_struct,
-    #                 'sediment_mobility_with_devices': mobility_parameter_dev_struct,
-    #                 'sediment_mobility_difference': mobility_parameter_diff_struct,
-    #                 'sediment_mobility_classified':mobility_classification,
-    #                 'sediment_graid_size':receptor_array_struct,
-    #                 'shear_stress_risk':Risk_struct}
-
     dict_of_arrays, rx, ry, dx, dy, gridtype = calculate_shear_stress_stressors(fpath_nodev=dev_notpresent_file,
                                                                               fpath_dev=dev_present_file,
                                                                               probabilities_file=probabilities_file,
                                                                               receptor_filename=receptor_filename,
-                                                                              latlon=crs == 4326)
+                                                                              latlon=crs == 4326,
+                                                                              value_selection=value_selection)
 
     if not ((receptor_filename is None) or (receptor_filename == "")):
         use_numpy_arrays = ['shear_stress_without_devices',
@@ -496,7 +487,7 @@ def run_shear_stress_stressor(
     if not ((secondary_constraint_filename is None) or (secondary_constraint_filename == "")):
         rrx, rry, constraint = secondary_constraint_geotiff_to_numpy(secondary_constraint_filename)
         dict_of_arrays['shear_stress_risk_layer'] = resample_structured_grid(rrx, rry, constraint, rx, ry, interpmethod='nearest')
-        use_numpy_arrays.append('shear_stress_risk_layer.tif')
+        use_numpy_arrays.append('shear_stress_risk_layer')
 
     numpy_array_names = [i + '.tif' for i in use_numpy_arrays]
         
