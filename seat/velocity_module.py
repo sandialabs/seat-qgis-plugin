@@ -125,8 +125,7 @@ def calculate_velocity_stressors(fpath_nodev,
                                  probabilities_file,
                                  receptor_filename=None,
                                  latlon=True,
-                                 value_selection='MAX'
-                                 ):
+                                 value_selection=None):
     """
 
 
@@ -298,13 +297,13 @@ def calculate_velocity_stressors(fpath_nodev,
         mag_nodev = np.nanmean(mag_nodev, axis=2)
 
     # Calculate Stressor and Receptors
-    if value_selection == 'MAX':
+    if value_selection == 'Maximum':
         mag_dev = np.nanmax(mag_dev, axis=1)  # max over time
         mag_nodev = np.nanmax(mag_nodev, axis=1)  # max over time
-    elif value_selection == 'MEAN':
+    elif value_selection == 'Mean':
         mag_dev = np.nanmean(mag_dev, axis=1)  # mean over time
         mag_nodev = np.nanmean(mag_nodev, axis=1)  # mean over time
-    elif value_selection == 'LAST':
+    elif value_selection == 'Final Timestep':
         mag_dev = mag_dev[:, -1, :]  # last time step
         mag_nodev = mag_nodev[:, -1, :]  # last time step
     else:
@@ -404,7 +403,7 @@ def run_velocity_stressor(
     output_path,
     receptor_filename=None,
     secondary_constraint_filename=None,
-):
+    value_selection=None):
     """
     creates geotiffs and area change statistics files for velocity change
 
@@ -430,29 +429,13 @@ def run_velocity_stressor(
     output_rasters : dict
         key = names of output rasters, val = full path to raster:
     """
-    # numpy_arrays = [0] velocity_magnitude with devices
-    #               [1] velocity_magnitude without devices
-    #               [2] mag_diff
-    #               [3] motility_nodev
-    #               [4] motility_dev
-    #               [5] motility_diff
-    #               [6] motility_classification
-    #               [7] receptor - vel_crit
     
     dict_of_arrays, rx, ry, dx, dy, gridtype = calculate_velocity_stressors(fpath_nodev=dev_notpresent_file,
                                                                           fpath_dev=dev_present_file,
                                                                           probabilities_file=probabilities_file,
                                                                           receptor_filename=receptor_filename,
-                                                                          latlon=crs == 4326)
-
-        # dict_of_arrays = {'velocity_magnitude_without_devices':mag_combined_nodev_struct,
-        #                 'velocity_magnitude_with_devices': mag_combined_dev_struct,
-        #                 'velocity_magnitude_difference': mag_diff_struct,
-        #                 'motility_without_devices': motility_nodev_struct,
-        #                 'motility_with_devices': motility_dev_struct,
-        #                 'motility_difference': motility_diff_struct,
-        #                 'motility_classified':motility_classification,
-        #                 'critical_velocity':velcrit}
+                                                                          latlon=crs == 4326,
+                                                                          value_selection=value_selection)
 
     if not ((receptor_filename is None) or (receptor_filename == "")):
         use_numpy_arrays = ['velocity_magnitude_without_devices',
@@ -471,7 +454,7 @@ def run_velocity_stressor(
     if not ((secondary_constraint_filename is None) or (secondary_constraint_filename == "")):
         rrx, rry, constraint = secondary_constraint_geotiff_to_numpy(secondary_constraint_filename)
         dict_of_arrays['velocity_risk_layer'] = resample_structured_grid(rrx, rry, constraint, rx, ry, interpmethod='nearest')
-        use_numpy_arrays.append('velocity_risk_layer.tif')
+        use_numpy_arrays.append('velocity_risk_layer')
 
     numpy_array_names = [i + '.tif' for i in use_numpy_arrays]
     
