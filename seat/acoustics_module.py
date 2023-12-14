@@ -31,7 +31,8 @@ from .stressor_utils import (
     numpy_array_to_raster,
     calculate_cell_area,
     resample_structured_grid,
-    bin_layer
+    bin_layer,
+    secondary_constraint_geotiff_to_numpy
 )
 
 
@@ -101,7 +102,7 @@ def calculate_acoustic_stressors(fpath_dev,
                                  fpath_nodev=None,
                                  species_folder=None,  # secondary constraint
                                  latlon=True,
-                                 ):
+                                 Averaging = None):
     """
     Calculates the stressor layers as arrays from model and parameter input.
 
@@ -154,7 +155,7 @@ def calculate_acoustic_stressors(fpath_dev,
             float).to_numpy().item() * 1.0e6  # converted to m2
     else:
         grid_res_species = 0.0
-    Averaging = receptor['Depth Averaging'].values.item()
+    # Averaging = receptor['Depth Averaging'].values.item()
     variable = receptor['Paracousti Variable'].values.item()
 
     for ic, paracousti_file in enumerate(paracousti_files):
@@ -193,16 +194,16 @@ def calculate_acoustic_stressors(fpath_dev,
     else:
         Baseline = np.zeros(ACOUST_VAR.shape)
 
-    if Averaging == 'DepthMax':
+    if Averaging == 'Depth Maximum':
         ACOUST_VAR = np.nanmax(ACOUST_VAR, axis=3)
         Baseline = np.nanmax(Baseline, axis=3)
-    elif Averaging == 'DepthAverage':
+    elif Averaging == 'Depth Average':
         ACOUST_VAR = np.nanmean(ACOUST_VAR, axis=3)
         Baseline = np.nanmean(Baseline, axis=3)
-    elif Averaging == 'Bottom':
+    elif Averaging == 'Bottom Bin':
         ACOUST_VAR = ACOUST_VAR[:, :, -1]
         Baseline = Baseline[:, :, -1]
-    elif Averaging == 'Top':
+    elif Averaging == 'Top Bin':
         ACOUST_VAR = ACOUST_VAR[:, :, 0]
         Baseline = Baseline[:, :, 0]
     else:
@@ -255,11 +256,16 @@ def calculate_acoustic_stressors(fpath_dev,
             density_scaled[threshold_mask] += probability * \
                 darray_scaled[threshold_mask]
 
-    listOfFiles = [PARACOUSTI, stressor,
-                   threshold_exceeded, percent_scaled, density_scaled]
+    dict_of_arrays = {'paracousti_without_devices':baseline,
+                    'paracousti_with_devices':PARACOUSTI,
+                    'paracousti_stressor': stressor,
+                    'species_threshold_exceeded': threshold_exceeded,
+                    'species_percent': percent_scaled,
+                    'species_density': density_scaled}    
+    
     dx = np.nanmean(np.diff(rx[0, :]))
     dy = np.nanmean(np.diff(ry[:, 0]))
-    return listOfFiles, rx, ry, dx, dy
+    return dict_of_arrays, rx, ry, dx, dy
 
 
 def run_acoustics_stressor(
@@ -269,8 +275,9 @@ def run_acoustics_stressor(
     crs,
     output_path,
     receptor_filename,
-    species_folder=None
-):
+    species_folder=None,
+    Averaging=None,
+    secondary_constraint_filename=None):
     """
 
 
@@ -305,37 +312,37 @@ def run_acoustics_stressor(
 
     """
 
-    numpy_arrays, rx, ry, dx, dy = calculate_acoustic_stressors(fpath_dev=dev_present_file,
+    dict_of_arrays, rx, ry, dx, dy = calculate_acoustic_stressors(fpath_dev=dev_present_file,
                                                                 probabilities_file=probabilities_file,
                                                                 receptor_filename=receptor_filename,
                                                                 fpath_nodev=dev_notpresent_file,
-                                                                species_folder=species_folder,  # secondary constraint
-                                                                latlon=crs == 4326)
-
-    # numpy_arrays = [0] PARACOUSTI
-    #               [1] stressor
-    #               [2] threshold_exceeded
-    #               [3] percent_scaled
-    #               [4] density_scaled
+                                                                species_folder=species_folder,
+                                                                latlon=crs == 4326,
+                                                                Averaging=Averaging)
 
     if not ((species_folder is None) or (species_folder == "")):
-        numpy_array_names = ['calculated_paracousti.tif',
-                             'calculated_stressor.tif',
-                             'threshold_exceeded_receptor.tif',
-                             'species_percent.tif',
-                             'species_density.tif']
-        use_numpy_arrays = [numpy_arrays[0], numpy_arrays[1],
-                            numpy_arrays[2], numpy_arrays[3], numpy_arrays[4]]
+        use_numpy_arrays = ['paracousti_without_devices'
+                            'paracousti_with_devices',
+                             'paracousti_stressor',
+                             'species_threshold_exceeded',
+                             'species_percent',
+                             'species_density']
     else:
-        numpy_array_names = ['calculated_paracousti.tif',
-                             'calculated_stressor.tif', 'threshold_exceeded_receptor.tif']
-        use_numpy_arrays = [numpy_arrays[0], numpy_arrays[1], numpy_arrays[2]]
+        use_numpy_arrays = ['paracousti_without_devices'
+                            'paracousti_with_devices',
+                            'paracousti_stressor',
+                            'species_threshold_exceeded']
 
+    if not ((secondary_constraint_filename is None) or (secondary_constraint_filename == "")):
+        rrx, rry, constraint = secondary_constraint_geotiff_to_numpy(secondary_constraint_filename)
+        dict_of_arrays['paracousti_risk_layer'] = resample_structured_grid(rrx, rry, constraint, rx, ry, interpmethod='nearest')
+        use_numpy_arrays.append('paracousti_risk_layer')
+
+    numpy_array_names = [i + '.tif' for i in use_numpy_arrays]
+        
     output_rasters = []
-    for array_name, numpy_array in zip(numpy_array_names, use_numpy_arrays):
-
+    for array_name, use_numpy_array in zip(numpy_array_names, use_numpy_arrays):
         numpy_array = np.flip(numpy_array, axis=0)
-
         cell_resolution = [dx, dy]
         if crs == 4326:
             rxx = np.where(rx > 180, rx-360, rx)
@@ -349,9 +356,7 @@ def run_acoustics_stressor(
             os.path.join(output_path, array_name),
             cols,
             rows,
-            nbands=1,
-            eType=gdal.GDT_Float64,
-        )
+            nbands=1)
 
         # post processing of numpy array to output raster
         numpy_array_to_raster(
@@ -360,26 +365,51 @@ def run_acoustics_stressor(
             bounds,
             cell_resolution,
             crs,
-            os.path.join(output_path, array_name),
-        )
+            os.path.join(output_path, array_name))
+        output_raster = None
 
     # Area calculations
     # ParAcousti Area
-    bin_layer(os.path.join(output_path, numpy_array_names[0]),
-              latlon=crs == 4326).to_csv(os.path.join(output_path, "calculated_paracousti.csv"), index=False)
+
+    bin_layer(os.path.join(output_path, "paracousti_without_devices.tif"),
+              latlon=crs == 4326).to_csv(os.path.join(output_path, "paracousti_without_devices.csv"), index=False)
+        
+    bin_layer(os.path.join(output_path, "paracousti_with_devices.tif"),
+              latlon=crs == 4326).to_csv(os.path.join(output_path, "paracousti_with_devices.csv"), index=False)
 
     # Stressor Area
-    bin_layer(os.path.join(output_path, numpy_array_names[1]),
-              latlon=crs == 4326).to_csv(os.path.join(output_path, "calculated_stressor.csv"), index=False)
+    bin_layer(os.path.join(output_path, "paracousti_stressor.tif"),
+              latlon=crs == 4326).to_csv(os.path.join(output_path, "paracousti_stressor.csv"), index=False)
 
     # threshold exeeded Area
-    bin_layer(os.path.join(output_path, numpy_array_names[2]),
-              latlon=crs == 4326).to_csv(os.path.join(output_path, "threshold_exceeded_receptor.csv"), index=False)
+    bin_layer(os.path.join(output_path, "species_threshold_exceeded.tif"),
+              latlon=crs == 4326).to_csv(os.path.join(output_path, "species_threshold_exceeded.csv"), index=False)
+    
+    if not ((secondary_constraint_filename is None) or (secondary_constraint_filename == "")):
+        bin_layer(os.path.join(output_path, 'paracousti_stressor.tif'),
+                receptor_filename=os.path.join(output_path, "paracousti_risk_layer.tif"),
+                receptor_names=None,
+                limit_receptor_range=[0, np.inf],
+                latlon=crs == 4326).to_csv(os.path.join(output_path, "paracousti_stressor_at_paracousti_risk_layer.csv"), index=False)
 
     if not ((species_folder is None) or (species_folder == "")):
-        bin_layer(os.path.join(output_path, numpy_array_names[3]),
+        bin_layer(os.path.join(output_path, "species_percent.tif"),
                   latlon=crs == 4326).to_csv(os.path.join(output_path, "species_percent.csv"), index=False)
 
-        bin_layer(os.path.join(output_path, numpy_array_names[4]),
+        bin_layer(os.path.join(output_path, "species_density.tif"),
                   latlon=crs == 4326).to_csv(os.path.join(output_path, "species_density.csv"), index=False)
+        
+        if not ((secondary_constraint_filename is None) or (secondary_constraint_filename == "")):
+            bin_layer(os.path.join(output_path, 'species_percent.tif'),
+                    receptor_filename=os.path.join(output_path, "paracousti_risk_layer.tif"),
+                    receptor_names=None,
+                    limit_receptor_range=[0, np.inf],
+                    latlon=crs == 4326).to_csv(os.path.join(output_path, "species_percent_at_paracousti_risk_layer.csv"), index=False)        
+
+            bin_layer(os.path.join(output_path, 'species_density.tif'),
+                    receptor_filename=os.path.join(output_path, "paracousti_risk_layer.tif"),
+                    receptor_names=None,
+                    limit_receptor_range=[0, np.inf],
+                    latlon=crs == 4326).to_csv(os.path.join(output_path, "species_density_at_paracousti_risk_layer.csv"), index=False)    
+        
     return output_rasters
