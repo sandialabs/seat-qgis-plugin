@@ -403,7 +403,69 @@ class StressorReceptorCalc:
         # if ranges:
         #     range = [x[0] for x in layer.legendSymbologyItems()]
         #     return range
+    def select_folder_module(self, module=None, option=None):
+        directory = self.select_folder()
+        if module=='shear':
+            if option=='device_present':
+                self.dlg.shear_device_present.setText(directory)
+            if option=="device_not_present":
+                self.dlg.shear_device_not_present.setText(directory)
+        if module=='velocity':
+            if option=='device_present':
+                self.dlg.velocity_device_present.setText(directory)
+            if option=="device_not_present":
+                self.dlg.velocity_device_not_present.setText(directory)
+        if module=='paracousti':
+            if option=='device_present':
+                self.dlg.velocity_device_present.setText(directory)
+            if option=="device_not_present":
+                self.dlg.velocity_device_not_present.setText(directory)           
+            if option=='species_directory':
+                self.dlg.paracousti_species_directory.setText(directory)
+        if module=='power':
+            self.dlg.power_files.setText(directory)
+        if module=='output':
+            self.dlg.output_folder.setText(directory)      
 
+    def select_files_module(self, module=None, option=None):
+        if module=='shear':
+            if option=='probabilities_file':
+                file = self.select_file(filter="*.csv")
+                self.dlg.shear_probabilities_file.setText(file)
+            if option=="grain_size_file":
+                file = self.select_file(filter="*.tif; *.csv")
+                self.dlg.shear_grain_size_file.setText(file)
+            if option=="risk_file":
+                file = self.select_file(filter="*.tif")
+                self.dlg.shear_risk_file.setText(file)                       
+        if module=='velocity':
+            if option=='probabilities_file':
+                file = self.select_file(filter="*.csv")
+                self.dlg.velocity_probabilities_file.setText(file)
+            if option=="thresholds":
+                file = self.select_file(filter="*.tif; *.csv")
+                self.dlg.velocity_critical_file.setText(file)
+            if option=="risk_file":
+                file = self.select_file(filter="*.tif")
+                self.dlg.velocity_risk_file.setText(file)    
+        if module=='paracousti':
+            if option=='probabilities_file':
+                file = self.select_file(filter="*.csv")
+                self.dlg.paracousti_probabilities_file.setText(file)
+            if option=="thresholds":
+                file = self.select_file(filter="*.csv")
+                self.dlg.paracousti_threshold_file.setText(file)
+            if option=="risk_file":
+                file = self.select_file(filter="*.tif")
+                self.dlg.paracousti_risk_file.setText(file)   
+        if module=='power':
+            file = self.select_file(filter="*.csv")
+            self.dlg.power_probabilities_file.setText(file)
+        if module=='style_files':
+            file = self.select_file(filter="*.csv")
+            self.dlg.output_stylefile.setText(file)
+        
+                    
     def run(self):
         """Run method that performs all the real work."""
 
@@ -442,56 +504,82 @@ class StressorReceptorCalc:
             # this connects the input file creator
             self.dlg.save_input.clicked.connect(lambda: self.save_in())
 
+                  
             # set the present and not present files. Either .nc files or .tif folders
-            self.dlg.shear_device_present.setText(
-                self.dlg.shear_device_pushButton.clicked.connect(self.select_device_folder))
-            self.dlg.shear_device_not_present.setText(
-                self.dlg.shear_no_device_pushButton.clicked.connect(self.select_device_folder))
-            self.dlg.shear_probabilities_file.setText(
-                self.dlg.shear_probabilities_pushButton.clicked.connect(self.select_file(filter="*.csv")))
-            self.dlg.shear_grain_size_file.setText(
-                self.dlg.shear_grain_size_button.clicked.connect(self.select_file(filter="*.tif; *.csv")))
-            self.dlg.shear_risk_file.setText(
-                self.dlg.shear_risk_pushButton.clicked.connect(self.select_file(filter="*.tif")))
             
-            self.dlg.copy_shear_to_velocity_button.clicked.connect(self.copy_shear_input_to_velocity)
+            #directories
+            self.dlg.shear_device_pushButton.clicked.connect(lambda: self.select_folder_module(module="shear", option="device_present"))
+            self.dlg.shear_no_device_pushButton.clicked.connect(lambda: self.select_folder_module(module="shear", option="device_not_present"))
+            self.dlg.velocity_device_pushButton.clicked.connect(lambda: self.select_folder_module(module="velocity", option="device_present"))
+            self.dlg.velocity_no_device_pushButton.clicked.connect(lambda: self.select_folder_module(module="velocity", option="device_not_present"))           
+            self.dlg.paracousti_device_pushButton.clicked.connect(lambda: self.select_folder_module(module="paracousti", option="device_present"))
+            self.dlg.paracousti_no_device_pushButton.clicked.connect(lambda: self.select_folder_module(module="paracousti", option="device_not_present"))
+            self.dlg.paracousti_species_directory_button.clicked.connect(lambda: self.select_folder_module(module="paracousti", option="species_directory"))
+            self.dlg.power_files_pushButton.clicked.connect(lambda: self.select_folder_module(module="power"))
+            self.dlg.output_pushButton.clicked.connect(lambda: self.select_folder_module(module="output"))
+            
+            #files
+            self.dlg.shear_probabilities_pushButton.clicked.connect(lambda: self.select_files_module(module='shear', option='probabilities_file'))
+            self.dlg.shear_grain_size_button.clicked.connect(lambda: self.select_files_module(module='shear', option='grain_size_file'))
+            self.dlg.shear_risk_pushButton.clicked.connect(lambda: self.select_files_module(module='shear', option='risk_file'))
+            self.dlg.velocity_probabilities_pushButton.clicked.connect(lambda: self.select_files_module(module='velocity', option='probabilities_file'))
+            self.dlg.velocity_threshold_button.clicked.connect(lambda: self.select_files_module(module='velocity', option='thresholds'))
+            self.dlg.velocity_risk_pushButton.clicked.connect(lambda: self.select_files_module(module='velocity', option='risk_file'))                
+            self.dlg.paracousti_probabilities_pushButton.clicked.connect(lambda: self.select_files_module(module='paracousti', option='probabilities_file'))
+            self.dlg.paracousti_threshold_button.clicked.connect(lambda: self.select_files_module(module='paracousti', option='thresholds'))
+            self.dlg.paracousti_risk_pushButton.clicked.connect(lambda: self.select_files_module(module='paracousti', option='risk_file'))                
+            self.dlg.power_probabilities_pushButton.clicked.connect(lambda: self.select_files_module(module='power'))     
+            self.dlg.select_stylefile_button.clicked.connect(lambda: self.select_files_module(module='style_files'))   
+            
+            self.dlg.copy_shear_to_velocity_button.clicked.connect(self.copy_shear_input_to_velocity)  
+            self.dlg.crs_button.clicked.connect(self.select_crs)
+                          
+            # self.dlg.shear_probabilities_file.setText(
+            #     self.dlg.shear_probabilities_pushButton.clicked.connect(self.select_file(filter="*.csv")))
+            # self.dlg.shear_grain_size_file.setText(
+            #     self.dlg.shear_grain_size_button.clicked.connect(self.select_file(filter="*.tif; *.csv")))
+            # self.dlg.shear_risk_file.setText(
+            #     self.dlg.shear_risk_pushButton.clicked.connect(self.select_file(filter="*.tif")))
+            
+            # self.dlg.copy_shear_to_velocity_button.clicked.connect(self.copy_shear_input_to_velocity)
 
-            self.dlg.velocity_device_present.setText(
-                self.dlg.velocity_device_pushButton.clicked.connect(self.select_device_folder))
-            self.dlg.velocity_device_not_present.setText(
-                self.dlg.velocity_no_device_pushButton.clicked.connect(self.select_device_folder))            
-            self.dlg.velocity_probabilities_file.setText(
-                self.dlg.velcoity_probabilities_pushButton.clicked.connect(self.select_file(filter="*.csv")))            
-            self.dlg.velocity_critical_file.setText(
-                self.dlg.velocity_threshold_button.clicked.connect(self.select_file(filter="*.tif; *.csv")))            
-            self.dlg.velocity_risk_file.setText(
-                self.dlg.velocity_risk_pushButton.clicked.connect(self.select_file(filter="*.tif")))
+            # self.dlg.velocity_device_present.setText(
+            #     self.dlg.velocity_device_pushButton.clicked.connect(self.select_folder()))
+            # self.dlg.velocity_device_not_present.setText(
+            #     self.dlg.velocity_no_device_pushButton.clicked.connect(self.select_folder()))            
+            # self.dlg.velocity_probabilities_file.setText(
+            #     self.dlg.velcoity_probabilities_pushButton.clicked.connect(self.select_file(filter="*.csv")))            
+            # self.dlg.velocity_critical_file.setText(
+            #     self.dlg.velocity_threshold_button.clicked.connect(self.select_file(filter="*.tif; *.csv")))            
+            # self.dlg.velocity_risk_file.setText(
+            #     self.dlg.velocity_risk_pushButton.clicked.connect(self.select_file(filter="*.tif")))
             
 
-            self.dlg.paracousti_device_present.setText(
-                self.dlg.paracousti_device_pushButton.clicked.connect(self.select_device_folder))
-            self.dlg.paracousti_device_not_present.setText(
-                self.dlg.paracousti_no_device_pushButton.clicked.connect(self.select_device_folder))
-            self.dlg.paracousti_probabilities_file.setText(
-                self.dlg.paracousti_probabilities_pushButton.clicked.connect(self.select_file(filter="*.csv")))
-            self.dlg.paracousti_threshold_file.setText(
-                self.dlg.paracousti_threshold_button.clicked.connect(self.select_file(filter="*.csv")))            
-            self.dlg.paracousti_risk_file.setText(
-                self.dlg.paracousti_risk_pushButton.clicked.connect(self.select_file(filter="*.tif; *.shp")))
-            self.dlg.paracousti_species_directory.setText(
-                self.dlg.paracousti_species_directory_button.clicked.connect(self.select_device_folder))
+            # self.dlg.paracousti_device_present.setText(
+            #     self.dlg.paracousti_device_pushButton.clicked.connect(self.select_folder()))
+            # self.dlg.paracousti_device_not_present.setText(
+            #     self.dlg.paracousti_no_device_pushButton.clicked.connect(self.select_folder()))
+            # self.dlg.paracousti_probabilities_file.setText(
+            #     self.dlg.paracousti_probabilities_pushButton.clicked.connect(self.select_file(filter="*.csv")))
+            # self.dlg.paracousti_threshold_file.setText(
+            #     self.dlg.paracousti_threshold_button.clicked.connect(self.select_file(filter="*.csv")))            
+            # self.dlg.paracousti_risk_file.setText(
+            #     self.dlg.paracousti_risk_pushButton.clicked.connect(self.select_file(filter="*.tif; *.shp")))
+            # self.dlg.paracousti_species_directory.setText(
+            #     self.dlg.paracousti_species_directory_button.clicked.connect(self.select_folder()))
 
-            self.dlg.power_files_pushButton.clicked.connect(self.select_power_files_folder)
-            self.dlg.power_probabilities_file.setText(
-                self.dlg.power_probabilities_pushButton.clicked.connect(self.select_file(filter="*.csv")))  
+            # self.dlg.power_files_pushButton.clicked.connect(self.select_folder())
+            
+            # self.dlg.power_probabilities_file.setText(
+            #     self.dlg.power_probabilities_pushButton.clicked.connect(self.select_file(filter="*.csv")))  
 
             # set the crs file
-            self.dlg.crs_button.clicked.connect(self.select_crs)
-            self.dlg.select_stylefile_button.clicked.connect(self.select_style_files)
+            # self.dlg.crs_button.clicked.connect(self.select_crs)
+            # self.dlg.select_stylefile_button.clicked.connect(self.select_style_files)
             
             # set the output
-            self.dlg.output_pushButton.clicked.connect(
-                self.select_output_folder)
+            # self.dlg.output_pushButton.clicked.connect(
+            #     self.select_output_folder)
 
 
         self.dlg.shear_device_present.clear()
