@@ -159,40 +159,42 @@ def calculate_acoustic_stressors(fpath_dev,
     variable = receptor['Paracousti Variable'].values.item()
 
     for ic, paracousti_file in enumerate(paracousti_files):
-        ds = Dataset(paracousti_file)
-        acoust_var = ds.variables[variable][:].data
-        cords = ds.variables[variable].coordinates.split()
-        X = ds.variables[cords[0]][:].data
-        Y = ds.variables[cords[1]][:].data
-        if X.shape[0] != acoust_var.shape[0]:
-            acoust_var = np.transpose(acoust_var, (1, 2, 0))
-        if ic == 0:
-            xunits = ds.variables[cords[0]].units
-            if 'degrees' in xunits:
-                latlon = True
-                XCOR = np.where(X < 0, X+360, X)
-            else:
-                XCOR = X
-            YCOR = Y
-            ACOUST_VAR = np.zeros((len(paracousti_files), np.shape(acoust_var)[
-                                  0], np.shape(acoust_var)[1], np.shape(acoust_var)[2]))
-        ACOUST_VAR[ic, :] = acoust_var
+        with Dataset(paracousti_file) as ds:
+        # ds = Dataset(paracousti_file)
+            acoust_var = ds.variables[variable][:].data
+            cords = ds.variables[variable].coordinates.split()
+            X = ds.variables[cords[0]][:].data
+            Y = ds.variables[cords[1]][:].data
+            if X.shape[0] != acoust_var.shape[0]:
+                acoust_var = np.transpose(acoust_var, (1, 2, 0))
+            if ic == 0:
+                xunits = ds.variables[cords[0]].units
+                if 'degrees' in xunits:
+                    latlon = True
+                    XCOR = np.where(X < 0, X+360, X)
+                else:
+                    XCOR = X
+                YCOR = Y
+                ACOUST_VAR = np.zeros((len(paracousti_files), np.shape(acoust_var)[
+                                    0], np.shape(acoust_var)[1], np.shape(acoust_var)[2]))
+            ACOUST_VAR[ic, :] = acoust_var
 
     if not ((fpath_nodev is None) or (fpath_nodev == "")):  # Assumes same grid as paracousti_files
         baseline_files = [os.path.join(fpath_nodev, i) for i in os.listdir(
             fpath_nodev) if i.endswith('.nc')]
         for ic, baseline_file in enumerate(baseline_files):
-            ds = Dataset(baseline_file)
-            baseline = ds.variables[variable][:].data
-            cords = ds.variables[variable].coordinates.split()
-            if ds.variables[cords[0]][:].data.shape[0] != baseline.shape[0]:
-                baseline = np.transpose(baseline, (1, 2, 0))
-            if ic == 0:
-                Baseline = np.zeros((len(baseline_files), np.shape(baseline)[
-                                    0], np.shape(baseline)[1], np.shape(baseline)[2]))
-            Baseline[ic, :] = baseline
-    else:
-        Baseline = np.zeros(ACOUST_VAR.shape)
+            with Dataset(baseline_file) as ds:
+            # ds = Dataset(baseline_file)
+                baseline = ds.variables[variable][:].data
+                cords = ds.variables[variable].coordinates.split()
+                if ds.variables[cords[0]][:].data.shape[0] != baseline.shape[0]:
+                    baseline = np.transpose(baseline, (1, 2, 0))
+                if ic == 0:
+                    Baseline = np.zeros((len(baseline_files), np.shape(baseline)[
+                                        0], np.shape(baseline)[1], np.shape(baseline)[2]))
+                Baseline[ic, :] = baseline
+        else:
+            Baseline = np.zeros(ACOUST_VAR.shape)
 
     if Averaging == 'Depth Maximum':
         ACOUST_VAR = np.nanmax(ACOUST_VAR, axis=3)
