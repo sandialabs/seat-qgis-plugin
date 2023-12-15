@@ -26,7 +26,7 @@ import os
 import numpy as np
 import pandas as pd
 from netCDF4 import Dataset
-from .utils.stressor_utils import (
+from .stressor_utils import (
     estimate_grid_spacing,
     create_structured_array_from_unstructured,
     calc_receptor_array,
