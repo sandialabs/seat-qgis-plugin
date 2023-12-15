@@ -212,19 +212,28 @@ def calculate_shear_stress_stressors(fpath_nodev,
         # asumes a concatonated files with shape
         # [run_num, time, rows, cols]
 
-        file_dev_present = Dataset(os.path.join(fpath_dev, files_dev[0]))
-        gridtype, xvar, yvar, tauvar = check_grid_define_vars(file_dev_present)
-        xcor = file_dev_present.variables[xvar][:].data
-        ycor = file_dev_present.variables[yvar][:].data
-        tau_dev = file_dev_present.variables[tauvar][:]
-        # close the device prsent file
-        file_dev_present.close()
+        with Dataset(os.path.join(fpath_dev, files_dev[0])) as file_dev_present:
+            gridtype, xvar, yvar, tauvar = check_grid_define_vars(file_dev_present)
+            xcor = file_dev_present.variables[xvar][:].data
+            ycor = file_dev_present.variables[yvar][:].data
+            tau_dev = file_dev_present.variables[tauvar][:]
 
-        file_dev_notpresent = Dataset(
-            os.path.join(fpath_nodev, files_nodev[0]))
-        tau_nodev = file_dev_notpresent.variables[tauvar][:]
-        # close the device not present file
-        file_dev_notpresent.close()
+        # file_dev_present = Dataset(os.path.join(fpath_dev, files_dev[0]))
+        # gridtype, xvar, yvar, tauvar = check_grid_define_vars(file_dev_present)
+        # xcor = file_dev_present.variables[xvar][:].data
+        # ycor = file_dev_present.variables[yvar][:].data
+        # tau_dev = file_dev_present.variables[tauvar][:]
+        # # close the device prsent file
+        # file_dev_present.close()
+        
+        with Dataset(os.path.join(fpath_nodev, files_nodev[0])) as file_dev_notpresent:
+            tau_nodev = file_dev_notpresent.variables[tauvar][:]
+
+        # file_dev_notpresent = Dataset(
+        #     os.path.join(fpath_nodev, files_nodev[0]))
+        # tau_nodev = file_dev_notpresent.variables[tauvar][:]
+        # # close the device not present file
+        # file_dev_notpresent.close()
 
         # if tau_dev.shape[0] != tau_nodev.shape[0]:
         #     raise Exception(f"Number of device runs ({tau_dev.shape[0]}) must be the same as no device runs ({tau_nodev.shape[0]}).")
@@ -256,34 +265,37 @@ def calculate_shear_stress_stressors(fpath_nodev,
         first_run = True
         ir = 0
         for _, row in DF.iterrows():
-            file_dev_notpresent = Dataset(
-                os.path.join(fpath_nodev, row.files_nodev))
-            file_dev_present = Dataset(os.path.join(fpath_dev, row.files_dev))
+            with Dataset(os.path.join(fpath_nodev, row.files_nodev)) as file_dev_notpresent, \
+                Dataset(os.path.join(fpath_dev, row.files_dev)) as file_dev_present:
+                
+            # file_dev_notpresent = Dataset(
+            #     os.path.join(fpath_nodev, row.files_nodev))
+            # file_dev_present = Dataset(os.path.join(fpath_dev, row.files_dev))
 
-            gridtype, xvar, yvar, tauvar = check_grid_define_vars(
-                file_dev_present)
+                gridtype, xvar, yvar, tauvar = check_grid_define_vars(
+                    file_dev_present)
 
-            if first_run:
-                tmp = file_dev_notpresent.variables[tauvar][:].data
-                if gridtype == 'structured':
-                    tau_nodev = np.zeros(
-                        (DF.shape[0], tmp.shape[0], tmp.shape[1], tmp.shape[2]))
-                    tau_dev = np.zeros(
-                        (DF.shape[0], tmp.shape[0], tmp.shape[1], tmp.shape[2]))
-                else:
-                    tau_nodev = np.zeros(
-                        (DF.shape[0], tmp.shape[0], tmp.shape[1]))
-                    tau_dev = np.zeros(
-                        (DF.shape[0], tmp.shape[0], tmp.shape[1]))
-                xcor = file_dev_notpresent.variables[xvar][:].data
-                ycor = file_dev_notpresent.variables[yvar][:].data
-                first_run = False
-            tau_nodev[ir, :] = file_dev_notpresent.variables[tauvar][:].data
-            tau_dev[ir, :] = file_dev_present.variables[tauvar][:].data
+                if first_run:
+                    tmp = file_dev_notpresent.variables[tauvar][:].data
+                    if gridtype == 'structured':
+                        tau_nodev = np.zeros(
+                            (DF.shape[0], tmp.shape[0], tmp.shape[1], tmp.shape[2]))
+                        tau_dev = np.zeros(
+                            (DF.shape[0], tmp.shape[0], tmp.shape[1], tmp.shape[2]))
+                    else:
+                        tau_nodev = np.zeros(
+                            (DF.shape[0], tmp.shape[0], tmp.shape[1]))
+                        tau_dev = np.zeros(
+                            (DF.shape[0], tmp.shape[0], tmp.shape[1]))
+                    xcor = file_dev_notpresent.variables[xvar][:].data
+                    ycor = file_dev_notpresent.variables[yvar][:].data
+                    first_run = False
+                tau_nodev[ir, :] = file_dev_notpresent.variables[tauvar][:].data
+                tau_dev[ir, :] = file_dev_present.variables[tauvar][:].data
 
-            file_dev_notpresent.close()
-            file_dev_present.close()
-            ir += 1
+                file_dev_notpresent.close()
+                file_dev_present.close()
+                ir += 1
     else:
         raise Exception(
             f"Number of device runs ({len(files_dev)}) must be the same as no device runs ({len(files_nodev)}).")
@@ -380,7 +392,7 @@ def calculate_shear_stress_stressors(fpath_nodev,
                         'sediment_mobility_with_devices': mobility_parameter_dev,
                         'sediment_mobility_difference': mobility_parameter_diff,
                         'sediment_mobility_classified':mobility_classification,
-                        'sediment_graid_size':receptor_array,
+                        'sediment_grain_size':receptor_array,
                         'shear_stress_risk_metric':risk}        
     else:  # unstructured
         dxdy = estimate_grid_spacing(xcor, ycor, nsamples=100)
@@ -401,8 +413,8 @@ def calculate_shear_stress_stressors(fpath_nodev,
                 xcor, ycor, mobility_parameter_diff, dxdy, flatness=0.2)
             _, _, receptor_array_struct = create_structured_array_from_unstructured(
                 xcor, ycor, receptor_array, dxdy, flatness=0.2)
-            _, _, Risk_struct = create_structured_array_from_unstructured(
-                xcor, ycor, Risk, dxdy, flatness=0.2)
+            _, _, risk_struct = create_structured_array_from_unstructured(
+                xcor, ycor, risk, dxdy, flatness=0.2)
         else:
             mobility_parameter_nodev_struct = np.nan * tau_diff_struct
             mobility_parameter_dev_struct = np.nan * tau_diff_struct
@@ -421,7 +433,7 @@ def calculate_shear_stress_stressors(fpath_nodev,
                         'sediment_mobility_with_devices': mobility_parameter_dev_struct,
                         'sediment_mobility_difference': mobility_parameter_diff_struct,
                         'sediment_mobility_classified':mobility_classification,
-                        'sediment_graid_size':receptor_array_struct,
+                        'sediment_grain_size':receptor_array_struct,
                         'shear_stress_risk_metric':risk_struct}
 
     return dict_of_arrays, rx, ry, dx, dy, gridtype
@@ -462,13 +474,15 @@ def run_shear_stress_stressor(
         key = names of output rasters, val = full path to raster:
     """
 
+    os.makedirs(output_path, exist_ok=True) # create output directory if it doesn't exist
+    
     dict_of_arrays, rx, ry, dx, dy, gridtype = calculate_shear_stress_stressors(fpath_nodev=dev_notpresent_file,
                                                                               fpath_dev=dev_present_file,
                                                                               probabilities_file=probabilities_file,
                                                                               receptor_filename=receptor_filename,
                                                                               latlon=crs == 4326,
                                                                               value_selection=value_selection)
-
+    
     if not ((receptor_filename is None) or (receptor_filename == "")):
         use_numpy_arrays = ['shear_stress_without_devices',
                       'shear_stress_with_devices',
