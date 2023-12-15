@@ -344,9 +344,9 @@ def calculate_velocity_stressors(fpath_nodev,
         ry = ycor
         # listOfFiles = [mag_combined_dev, mag_combined_nodev, mag_diff, motility_nodev,
         #                motility_dev, motility_diff, motility_classification, velcrit]
-        dict_of_arrays = {'velocity_without_devices':mag_combined_nodev,
-                        'velocity_with_devices': mag_combined_dev,
-                        'velocity_difference': mag_diff,
+        dict_of_arrays = {'velocity_magnitude_without_devices':mag_combined_nodev,
+                        'velocity_magnitude_with_devices': mag_combined_dev,
+                        'velocity_magnitude_difference': mag_diff,
                         'motility_without_devices': motility_nodev,
                         'motility_with_devices': motility_dev,
                         'motility_difference': motility_diff,
@@ -430,6 +430,8 @@ def run_velocity_stressor(
         key = names of output rasters, val = full path to raster:
     """
     
+    os.makedirs(output_path, exist_ok=True) # create output directory if it doesn't exist
+
     dict_of_arrays, rx, ry, dx, dy, gridtype = calculate_velocity_stressors(fpath_nodev=dev_notpresent_file,
                                                                           fpath_dev=dev_present_file,
                                                                           probabilities_file=probabilities_file,
@@ -459,12 +461,12 @@ def run_velocity_stressor(
     numpy_array_names = [i + '.tif' for i in use_numpy_arrays]
     
     output_rasters = []
-    for array_name, numpy_array in zip(numpy_array_names, use_numpy_arrays):
+    for array_name, use_numpy_array in zip(numpy_array_names, use_numpy_arrays):
 
         if gridtype == 'structured':
-            numpy_array = np.flip(np.transpose(numpy_array), axis=0)
+            numpy_array = np.flip(np.transpose(dict_of_arrays[use_numpy_array]), axis=0)
         else:
-            numpy_array = np.flip(numpy_array, axis=0)
+            numpy_array = np.flip(dict_of_arrays[use_numpy_array], axis=0)
 
         cell_resolution = [dx, dy]
         if crs == 4326:
@@ -494,22 +496,22 @@ def run_velocity_stressor(
         output_raster = None
 
     # Area calculations pull form rasters to ensure uniformity
-    bin_layer(os.path.join(output_path, 'velocity_difference.tif'),
+    bin_layer(os.path.join(output_path, 'velocity_magnitude_difference.tif'),
                 receptor_filename=None,
                 receptor_names=None,
-                latlon=crs == 4326).to_csv(os.path.join(output_path, "velocity_difference.csv"), index=False)
+                latlon=crs == 4326).to_csv(os.path.join(output_path, "velocity_magnitude_difference.csv"), index=False)
     if not ((secondary_constraint_filename is None) or (secondary_constraint_filename == "")):
-            bin_layer(os.path.join(output_path, 'velocity_difference.tif'),
+            bin_layer(os.path.join(output_path, 'velocity_magnitude_difference.tif'),
                     receptor_filename=os.path.join(output_path, "velocity_risk_layer.tif"),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
-                    latlon=crs == 4326).to_csv(os.path.join(output_path, "velocity_difference_at_velocity_risk_layer.csv"), index=False)
+                    latlon=crs == 4326).to_csv(os.path.join(output_path, "velocity_magnitude_difference_at_velocity_risk_layer.csv"), index=False)
     if not ((receptor_filename is None) or (receptor_filename == "")):
-        bin_layer(os.path.join(output_path, 'velocity_difference.tif'),
+        bin_layer(os.path.join(output_path, 'velocity_magnitude_difference.tif'),
                     receptor_filename=os.path.join(output_path, 'critical_velocity.tif'),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
-                    latlon=crs == 4326).to_csv(os.path.join(output_path, "velocity_difference_at_critical_velocity.csv"), index=False)
+                    latlon=crs == 4326).to_csv(os.path.join(output_path, "velocity_magnitude_difference_at_critical_velocity.csv"), index=False)
         
         bin_layer(os.path.join(output_path, 'motility_difference.tif'),
                     receptor_filename=None,
