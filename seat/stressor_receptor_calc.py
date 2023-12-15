@@ -363,11 +363,16 @@ class StressorReceptorCalc:
         with open(filename, "w") as configfile:
             config.write(configfile)
             
-    def add_layer(self, fpath, root=None, group=None): 
+    def add_layer(self, fpath, group_name=None): 
         basename = os.path.splitext(os.path.basename(fpath))[0]
-        if group is not None:
+        if group_name is not None:
             vlayer = QgsRasterLayer(fpath, basename)
             QgsProject.instance().addMapLayer(vlayer)
+            root = QgsProject.instance().layerTreeRoot()
+            group = root.findGroup(group_name)
+            if group is None:
+                group = QgsLayerTreeGroup(group_name)
+                root.addGroup(group)            
             layer = root.findLayer(vlayer.id())
             clone = layer.clone()
             group.insertChildNode(0, clone)
@@ -375,21 +380,25 @@ class StressorReceptorCalc:
         else:
             layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))        
 
-    def style_layer(self, fpath, stylepath, root=None, group=None):#, ranges=True):
+    def style_layer(self, fpath, stylepath, group_name=None):
         """Style and add the result layer to map."""
         basename = os.path.splitext(os.path.basename(fpath))[0]
-        if group is not None:
+        if group_name is not None:
             vlayer = QgsRasterLayer(fpath, basename)
             QgsProject.instance().addMapLayer(vlayer)
-            root = QgsProject.instance().layerTreeRoot()
             vlayer.loadNamedStyle(stylepath)
             vlayer.triggerRepaint()
             vlayer.reload() 
+            root = QgsProject.instance().layerTreeRoot()
+            group = root.findGroup(group_name)
+            if group is None:
+                group = QgsLayerTreeGroup(group_name)
+                root.addGroup(group)     
             layer = root.findLayer(vlayer.id())
             clone = layer.clone()
             group.insertChildNode(0, clone)
             root.removeChildNode(layer)
-
+            group.close()
         else:
             layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))     
             layer.loadNamedStyle(stylepath)
@@ -397,7 +406,7 @@ class StressorReceptorCalc:
             layer.reload()            
         # refresh legend entries
             self.iface.layerTreeView().refreshLayerSymbology(layer.id())
-
+        
     def select_folder_module(self, module=None, option=None):
         directory = self.select_folder()
         if module=='shear':
@@ -644,15 +653,10 @@ class StressorReceptorCalc:
                     value_selection=shear_stress_averaging)
 
                 for key in sfilenames.keys(): #add styles files and/or display
-                    group_name = "Shear Stress Stressor"
-                    root = QgsProject.instance().layerTreeRoot()
-                    group = root.findGroup(group_name)
-                    if group is None:
-                        group = root.addGroup(group_name)
                     if stylefiles_DF is None:
-                        self.add_layer(sfilenames[key], root=root, group=group)
+                        self.add_layer(sfilenames[key], group_name="Shear Stress Stressor")
                     else:
-                        self.style_layer(sfilenames[key], stylefiles_DF.loc[key].item(), root=root, group=group)
+                        self.style_layer(sfilenames[key], stylefiles_DF.loc[key].item(), group_name="Shear Stress Stressor")
 
             # Run Velocity Module
             if not ((velocity_device_present_directory is None) or (velocity_device_present_directory == "")): # svar == "Velocity":
@@ -668,15 +672,10 @@ class StressorReceptorCalc:
                     value_selection=velocity_averaging)
                 
                 for key in vfilenames.keys(): #add styles files and/or display
-                    group_name = "Velocity Stressor"
-                    root = QgsProject.instance().layerTreeRoot()
-                    group = root.findGroup(group_name)
-                    if group is None:
-                        group = root.addGroup(group_name)
                     if stylefiles_DF is None:
-                        self.add_layer(vfilenames[key], root=root, group=group)
+                        self.add_layer(vfilenames[key], group_name="Velocity Stressor")
                     else:
-                        self.style_layer(vfilenames[key] , stylefiles_DF.loc[key].item(), root=root, group=group)                 
+                        self.style_layer(vfilenames[key] , stylefiles_DF.loc[key].item(), group_name="Velocity Stressor")                 
 
             # Run Acoustics Module
             if not ((paracousti_device_present_directory is None) or (paracousti_device_present_directory == "")): # if svar == "Acoustics":
@@ -692,16 +691,12 @@ class StressorReceptorCalc:
                     Averaging = paracousti_averaging,
                     secondary_constraint_filename=paracousti_risk_layer_file)
                 
+
                 for key in pfilenames.keys(): #add styles files and/or display
-                    group_name = "Acoustic Stressor"
-                    root = QgsProject.instance().layerTreeRoot()
-                    group = root.findGroup(group_name)
-                    if group is None:
-                        group = root.addGroup(group_name)
                     if stylefiles_DF is None:
-                        self.add_layer(pfilenames[key], root=root, group=group)
+                        self.add_layer(pfilenames[key], group_name="Acoustic Stressor")
                     else:
-                        self.style_layer(pfilenames[key] , stylefiles_DF.loc[key].item(), root=root, group=group)
+                        self.style_layer(pfilenames[key] , stylefiles_DF.loc[key].item(), group_name="Acoustic Stressor")
 
             # close and remove the filehandler
             fh.close()
