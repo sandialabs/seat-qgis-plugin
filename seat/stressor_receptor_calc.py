@@ -607,10 +607,6 @@ class StressorReceptorCalc:
                 stylefiles_DF = None
 
                       
-            # create logger
-            # logger = logging.getLogger(__name__)
-            # logger.setLevel(logging.INFO)
-
             # create file handler and set level to info
             fname = os.path.join(output_folder_name, "_{}.log".format(date.today().strftime("%Y%m%d")))
             fh = logging.FileHandler(fname, mode="a", encoding="utf8")
@@ -622,38 +618,6 @@ class StressorReceptorCalc:
             # add formatter to ch
             fh.setFormatter(formatter)
 
-            # add ch to logger
-            # logger.addHandler(fh)
-
-            # logger.info("Shear device present file: {}".format(shear_stress_device_present_directory))
-            # logger.info("Velocity device present file: {}".format(velocity_device_present_directory))
-            # logger.info("Acoustics device present file: {}".format(paracousti_device_present_directory))
-            # logger.info("Power Files: {}".format(power_files_directory))
-                        
-            # logger.info("Shear device present file: {}".format(shear_stress_device_not_present_directory))
-            # logger.info("Velocity device present file: {}".format(velocity_device_not_present_directory))
-            # logger.info("Acoustics device present file: {}".format(paracousti_device_not_present_directory))
-            
-            # logger.info("Shear Probabilities File: {}".format(shear_stress_probabilities_fname))
-            # logger.info("Velocity Probabilities File: {}".format(velocity_probabilities_fname))
-            # logger.info("Acoustics Probabilities File: {}".format(paracousti_probabilities_fname))
-            # logger.info("Power Probabilities File: {}".format(power_probabilities_fname))            
-            
-            # logger.info("Shear Grain Size File: {}".format(shear_grain_size_file))
-            # logger.info("Velocity Probabilities File: {}".format(velocity_threshold_file))
-            # logger.info("Acoustics Probabilities File: {}".format(paracousti_threshold_file))
-
-            # logger.info("Shear Risk Layer File: {}".format(shear_risk_layer_file))
-            # logger.info("Velocity Risk Layer File: {}".format(velocity_risk_layer_file))
-            # logger.info("Acoustics Risk Layer File: {}".format(paracousti_risk_layer_file))
-
-            # logger.info("Acoustics Species Directory: {}".format(paracousti_species_directory))
-            
-            # # logger.info("Stressor: {}".format(svar))
-            # logger.info("CRS: {}".format(crs))
-            # logger.info("Secondary Constraint File: {}".format(scfilename))
-            # logger.info("Output Folder: {}".format(output_folder_name))
-            
             # if the output file path is empty display a warning
             if output_folder_name == "":
                 QgsMessageLog.logMessage("Output file path not given.", level=Qgis.MessageLevel.Warnin)
@@ -688,7 +652,6 @@ class StressorReceptorCalc:
                     if stylefiles_DF is None:
                         self.add_layer(sfilenames[key], root=root, group=group)
                     else:
-                        # logger.info("{} Style File: {}".format(key, stylefiles_DF.loc['key']))
                         self.style_layer(sfilenames[key], stylefiles_DF.loc[key].item(), root=root, group=group)
 
             # Run Velocity Module
@@ -713,7 +676,6 @@ class StressorReceptorCalc:
                     if stylefiles_DF is None:
                         self.add_layer(vfilenames[key], root=root, group=group)
                     else:
-                        # logger.info("{} Style File: {}".format(key, stylefiles_DF.loc['key']))
                         self.style_layer(vfilenames[key] , stylefiles_DF.loc[key].item(), root=root, group=group)                 
 
             # Run Acoustics Module
@@ -739,9 +701,7 @@ class StressorReceptorCalc:
                     if stylefiles_DF is None:
                         self.add_layer(pfilenames[key], root=root, group=group)
                     else:
-                        # logger.info("{} Style File: {}".format(key, stylefiles_DF.loc['key']))
                         self.style_layer(pfilenames[key] , stylefiles_DF.loc[key].item(), root=root, group=group)
 
             # close and remove the filehandler
             fh.close()
-            # logger.removeHandler(fh)
