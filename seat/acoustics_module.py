@@ -311,6 +311,8 @@ def run_acoustics_stressor(
             [4] 'species_density.tif'
 
     """
+    
+    os.makedirs(output_path, exist_ok=True) # create output directory if it doesn't exist
 
     dict_of_arrays, rx, ry, dx, dy = calculate_acoustic_stressors(fpath_dev=dev_present_file,
                                                                 probabilities_file=probabilities_file,
@@ -321,7 +323,7 @@ def run_acoustics_stressor(
                                                                 Averaging=Averaging)
 
     if not ((species_folder is None) or (species_folder == "")):
-        use_numpy_arrays = ['paracousti_without_devices'
+        use_numpy_arrays = ['paracousti_without_devices',
                             'paracousti_with_devices',
                              'paracousti_stressor',
                              'species_threshold_exceeded',
@@ -342,8 +344,12 @@ def run_acoustics_stressor(
         
     output_rasters = []
     for array_name, use_numpy_array in zip(numpy_array_names, use_numpy_arrays):
-        numpy_array = np.flip(numpy_array, axis=0)
+        numpy_array = np.flip(dict_of_arrays[use_numpy_array], axis=0)
         cell_resolution = [dx, dy]
+    # output_rasters = []
+    # for array_name, use_numpy_array in zip(numpy_array_names, use_numpy_arrays):
+        # numpy_array = np.flip(numpy_array, axis=0)
+        # cell_resolution = [dx, dy]
         if crs == 4326:
             rxx = np.where(rx > 180, rx-360, rx)
             bounds = [rxx.min() - dx/2, ry.max() - dy/2]
@@ -412,4 +418,7 @@ def run_acoustics_stressor(
                     limit_receptor_range=[0, np.inf],
                     latlon=crs == 4326).to_csv(os.path.join(output_path, "species_density_at_paracousti_risk_layer.csv"), index=False)    
         
-    return output_rasters
+    OUTPUT = {}
+    for val in output_rasters:
+        OUTPUT[os.path.basename(os.path.normpath(val)).split('.')[0]] = val    
+    return OUTPUT
