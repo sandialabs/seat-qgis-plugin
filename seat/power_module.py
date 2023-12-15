@@ -292,14 +292,14 @@ def read_power_file(datafile):
         Total power from all observations.
 
     """
-    inf = io.open(datafile, "r")  # Read datafile
-    for line in inf:  # iterate through each line
-        if re.match('Iteration:', line):
-            Power = []  # If a new iteration is found, initalize varialbe or overwrite existing iteration
-        else:  # data
-            # extract float variable from line
-            power = float(line.split('=')[-1].split('W')[0].strip())
-            Power = np.append(Power, power)  # append data for each observation
+    with io.open(datafile, "r") as inf:# = io.open(datafile, "r")  # Read datafile
+        for line in inf:  # iterate through each line
+            if re.match('Iteration:', line):
+                Power = []  # If a new iteration is found, initalize varialbe or overwrite existing iteration
+            else:  # data
+                # extract float variable from line
+                power = float(line.split('=')[-1].split('W')[0].strip())
+                Power = np.append(Power, power)  # append data for each observation
     Total_Power = np.nansum(Power)  # Total power from all observations
     return Power, Total_Power
 
