@@ -32,12 +32,6 @@ from datetime import date
 import numpy as np
 import pandas as pd
 
-# import QGIS processing
-# import processing
-# from netCDF4 import Dataset
-# from osgeo import gdal
-# from PyQt5.QtCore import Qt
-# from qgis.analysis import QgsRasterCalculator, QgsRasterCalculatorEntry
 from qgis.core import (
     Qgis,
     QgsApplication,
@@ -47,24 +41,22 @@ from qgis.core import (
     QgsRasterBandStats,
     QgsRasterLayer,
     QgsVectorLayer,
+    QgsLayerTreeGroup
 )
 from qgis.gui import QgsProjectionSelectionDialog  # ,QgsLayerTreeView
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator
 from qgis.PyQt.QtGui import QIcon
-# , QGridLayout, QTableWidgetItem
 from qgis.PyQt.QtWidgets import QAction, QFileDialog
 
-# UTM finder
-# from .Find_UTM_srid import find_utm_srid
 
 # Initialize Qt resources from file resources.py
 from .resources import *
 
 # Import Modules
-from .shear_stress_module import run_shear_stress_stressor
-from .velocity_module import run_velocity_stressor
-from .acoustics_module import run_acoustics_stressor
-from .power_module import calculate_power
+from .modules.shear_stress_module import run_shear_stress_stressor
+from .modules.velocity_module import run_velocity_stressor
+from .modules.acoustics_module import run_acoustics_stressor
+from .modules.power_module import calculate_power
 
 # Import the code for the dialog
 from .stressor_receptor_calc_dialog import StressorReceptorCalcDialog
@@ -265,9 +257,9 @@ class StressorReceptorCalc:
     
     def copy_shear_input_to_velocity(self):
         self.dlg.velocity_device_present.setText(self.dlg.shear_device_present.text())
-        self.dlg.velocity_device_not_present.setText(self.dlg.shear_device_present.text())            
-        self.dlg.velocity_probabilities_file.setText(self.dlg.shear_device_present.text())               
-        self.dlg.velocity_risk_file.setText(self.dlg.shear_device_present.text())
+        self.dlg.velocity_device_not_present.setText(self.dlg.shear_device_not_present.text())            
+        self.dlg.velocity_probabilities_file.setText(self.dlg.shear_probabilities_file.text())               
+        self.dlg.velocity_risk_file.setText(self.dlg.shear_risk_file.text())
                 
     def select_crs(self):
         """Input the crs using the QGIS widget box."""
