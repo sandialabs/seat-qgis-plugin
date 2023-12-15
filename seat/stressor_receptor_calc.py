@@ -41,7 +41,8 @@ from qgis.core import (
     QgsRasterBandStats,
     QgsRasterLayer,
     QgsVectorLayer,
-    QgsLayerTreeGroup
+    QgsLayerTreeGroup,
+    QgsMapLayerStyleManager
 )
 from qgis.gui import QgsProjectionSelectionDialog  # ,QgsLayerTreeView
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator
@@ -362,36 +363,41 @@ class StressorReceptorCalc:
         with open(filename, "w") as configfile:
             config.write(configfile)
             
-    def add_layer(self, fpath): 
+    def add_layer(self, fpath, root=None, group=None): 
         basename = os.path.splitext(os.path.basename(fpath))[0]
-        layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))        
+        if group is not None:
+            vlayer = QgsRasterLayer(fpath, basename)
+            QgsProject.instance().addMapLayer(vlayer)
+            layer = root.findLayer(vlayer.id())
+            clone = layer.clone()
+            group.insertChildNode(0, clone)
+            root.removeChildNode(layer)
+        else:
+            layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))        
 
-    def style_layer(self, fpath, stylepath, checked=True):#, ranges=True):
+    def style_layer(self, fpath, stylepath, root=None, group=None):#, ranges=True):
         """Style and add the result layer to map."""
         basename = os.path.splitext(os.path.basename(fpath))[0]
-        layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))
+        if group is not None:
+            vlayer = QgsRasterLayer(fpath, basename)
+            QgsProject.instance().addMapLayer(vlayer)
+            root = QgsProject.instance().layerTreeRoot()
+            vlayer.loadNamedStyle(stylepath)
+            vlayer.triggerRepaint()
+            vlayer.reload() 
+            layer = root.findLayer(vlayer.id())
+            clone = layer.clone()
+            group.insertChildNode(0, clone)
+            root.removeChildNode(layer)
 
-        if stylepath != "":
-            # apply layer style
+        else:
+            layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))     
             layer.loadNamedStyle(stylepath)
             layer.triggerRepaint()
-            # reload to see layer classification
-            layer.reload()
-
+            layer.reload()            
         # refresh legend entries
-        self.iface.layerTreeView().refreshLayerSymbology(layer.id())
+            self.iface.layerTreeView().refreshLayerSymbology(layer.id())
 
-        # self.iface.legendInterface().refreshLayerSymbology(layer)
-
-        # do we want the layer visible in the map?
-        if not checked:
-            root = QgsProject.instance().layerTreeRoot()
-            root.findLayer(layer.id()).setItemVisibilityChecked(checked)
-
-        # # do we want to return the ranges?
-        # if ranges:
-        #     range = [x[0] for x in layer.legendSymbologyItems()]
-        #     return range
     def select_folder_module(self, module=None, option=None):
         directory = self.select_folder()
         if module=='shear':
@@ -523,81 +529,33 @@ class StressorReceptorCalc:
             self.dlg.copy_shear_to_velocity_button.clicked.connect(self.copy_shear_input_to_velocity)  
             self.dlg.crs_button.clicked.connect(self.select_crs)
                           
-            # self.dlg.shear_probabilities_file.setText(
-            #     self.dlg.shear_probabilities_pushButton.clicked.connect(self.select_file(filter="*.csv")))
-            # self.dlg.shear_grain_size_file.setText(
-            #     self.dlg.shear_grain_size_button.clicked.connect(self.select_file(filter="*.tif; *.csv")))
-            # self.dlg.shear_risk_file.setText(
-            #     self.dlg.shear_risk_pushButton.clicked.connect(self.select_file(filter="*.tif")))
-            
-            # self.dlg.copy_shear_to_velocity_button.clicked.connect(self.copy_shear_input_to_velocity)
-
-            # self.dlg.velocity_device_present.setText(
-            #     self.dlg.velocity_device_pushButton.clicked.connect(self.select_folder()))
-            # self.dlg.velocity_device_not_present.setText(
-            #     self.dlg.velocity_no_device_pushButton.clicked.connect(self.select_folder()))            
-            # self.dlg.velocity_probabilities_file.setText(
-            #     self.dlg.velcoity_probabilities_pushButton.clicked.connect(self.select_file(filter="*.csv")))            
-            # self.dlg.velocity_threshold_file.setText(
-            #     self.dlg.velocity_threshold_button.clicked.connect(self.select_file(filter="*.tif; *.csv")))            
-            # self.dlg.velocity_risk_file.setText(
-            #     self.dlg.velocity_risk_pushButton.clicked.connect(self.select_file(filter="*.tif")))
-            
-
-            # self.dlg.paracousti_device_present.setText(
-            #     self.dlg.paracousti_device_pushButton.clicked.connect(self.select_folder()))
-            # self.dlg.paracousti_device_not_present.setText(
-            #     self.dlg.paracousti_no_device_pushButton.clicked.connect(self.select_folder()))
-            # self.dlg.paracousti_probabilities_file.setText(
-            #     self.dlg.paracousti_probabilities_pushButton.clicked.connect(self.select_file(filter="*.csv")))
-            # self.dlg.paracousti_threshold_file.setText(
-            #     self.dlg.paracousti_threshold_button.clicked.connect(self.select_file(filter="*.csv")))            
-            # self.dlg.paracousti_risk_file.setText(
-            #     self.dlg.paracousti_risk_pushButton.clicked.connect(self.select_file(filter="*.tif; *.shp")))
-            # self.dlg.paracousti_species_directory.setText(
-            #     self.dlg.paracousti_species_directory_button.clicked.connect(self.select_folder()))
-
-            # self.dlg.power_files_pushButton.clicked.connect(self.select_folder())
-            
-            # self.dlg.power_probabilities_file.setText(
-            #     self.dlg.power_probabilities_pushButton.clicked.connect(self.select_file(filter="*.csv")))  
-
-            # set the crs file
-            # self.dlg.crs_button.clicked.connect(self.select_crs)
-            # self.dlg.select_stylefile_button.clicked.connect(self.select_style_files)
-            
-            # set the output
-            # self.dlg.output_pushButton.clicked.connect(
-            #     self.select_output_folder)
-
-
-        # self.dlg.shear_device_present.clear()
-        # self.dlg.velocity_device_present.clear()
-        # self.dlg.paracousti_device_present.clear()
-        # self.dlg.power_files.clear()
+        self.dlg.shear_device_present.clear()
+        self.dlg.velocity_device_present.clear()
+        self.dlg.paracousti_device_present.clear()
+        self.dlg.power_files.clear()
         
-        # self.dlg.shear_device_not_present.clear()
-        # self.dlg.velocity_device_not_present.clear()        
-        # self.dlg.paracousti_device_not_present.clear()
+        self.dlg.shear_device_not_present.clear()
+        self.dlg.velocity_device_not_present.clear()        
+        self.dlg.paracousti_device_not_present.clear()
 
-        # self.dlg.shear_probabilities_file.clear()
-        # self.dlg.velocity_probabilities_file.clear()
-        # self.dlg.paracousti_probabilities_file.clear()   
-        # self.dlg.power_probabilities_file.clear()                        
+        self.dlg.shear_probabilities_file.clear()
+        self.dlg.velocity_probabilities_file.clear()
+        self.dlg.paracousti_probabilities_file.clear()   
+        self.dlg.power_probabilities_file.clear()                        
 
-        # self.dlg.shear_grain_size_file.clear()
-        # self.dlg.velocity_threshold_file.clear()
-        # self.dlg.paracousti_threshold_file.clear()
+        self.dlg.shear_grain_size_file.clear()
+        self.dlg.velocity_threshold_file.clear()
+        self.dlg.paracousti_threshold_file.clear()
         
-        # self.dlg.shear_risk_file.clear()
-        # self.dlg.velocity_risk_file.clear()
-        # self.dlg.paracousti_risk_file.clear()
+        self.dlg.shear_risk_file.clear()
+        self.dlg.velocity_risk_file.clear()
+        self.dlg.paracousti_risk_file.clear()
 
-        # self.dlg.paracousti_species_directory.clear()
+        self.dlg.paracousti_species_directory.clear()
         
-        # self.dlg.crs.clear() 
-        # self.dlg.output_folder.clear()
-        # self.dlg.output_stylefile.clear()
+        self.dlg.crs.clear() 
+        self.dlg.output_folder.clear()
+        self.dlg.output_stylefile.clear()
 
         # show the dialog
         self.dlg.show()
@@ -607,6 +565,7 @@ class StressorReceptorCalc:
         if result:
             # Run Calculations
             # this grabs the files for input and output
+            #TODO Remove these and just query the dlg directly when needed
             shear_stress_device_present_directory = self.dlg.shear_device_present.text()
             velocity_device_present_directory = self.dlg.velocity_device_present.text()
             paracousti_device_present_directory = self.dlg.paracousti_device_present.text()
@@ -646,17 +605,7 @@ class StressorReceptorCalc:
                 stylefiles_DF = self.read_style_files(self.dlg.output_stylefile.text())
             else:
                 stylefiles_DF = None
-            # sstylefile = stylefiles_DF.loc['Stressor'].values.item().replace("\\", "/")
-            # rstylefile = stylefiles_DF.loc['Receptor'].values.item().replace("\\", "/")
-            # scstylefile = stylefiles_DF.loc['Secondary Constraint'].values.item().replace("\\", "/")
-            # swrstylefile = stylefiles_DF.loc['Stressor with receptor'].values.item().replace("\\", "/")
-            # rcstylefile = stylefiles_DF.loc['Reclassificed Stressor with receptor'].values.item().replace("\\", "/")
-            # rskstylefile = stylefiles_DF.loc['Risk'].values.item().replace("\\", "/")
-            
-            # stressor_stylefile = stylefiles_DF.loc['Stressor'].values.item().replace("\\", "/")
-            # threshold_stylefile = stylefiles_DF.loc['Threshold'].values.item().replace("\\", "/")
-            # percent_stylefile = stylefiles_DF.loc['Species Percent'].values.item().replace("\\", "/")
-            # density_stylefile = stylefiles_DF.loc['Species Density'].values.item().replace("\\", "/")  
+
                       
             # create logger
             # logger = logging.getLogger(__name__)
@@ -711,7 +660,6 @@ class StressorReceptorCalc:
 
             # Run Power Module
             if power_files_directory is not "":
-                # self.dlg.status_bar.setText("Processing Power Module")
                 if ((power_probabilities_fname is None) or (power_probabilities_fname == "")):
                     power_probabilities_fname = shear_stress_probabilities_fname #default to shear stress probabilities if none given
                 calculate_power(power_files_directory, 
@@ -721,9 +669,6 @@ class StressorReceptorCalc:
 
             # Run Shear Stress Module 
             if not ((shear_stress_device_present_directory is None) or (shear_stress_device_present_directory == "")): # svar == "Shear Stress":
-                # self.dlg.status_bar.setText("Processing Shear Stress Module")
-                # if not ((shear_risk_layer_file is None) or (shear_risk_layer_file == "")):
-                #     scfilename=[os.path.join(scfilename, i) for i in os.listdir(scfilename) if i.endswith('tif')][0]
                 sfilenames = run_shear_stress_stressor(
                     dev_present_file=shear_stress_device_present_directory,
                     dev_notpresent_file=shear_stress_device_not_present_directory,
@@ -735,17 +680,19 @@ class StressorReceptorCalc:
                     value_selection=shear_stress_averaging)
 
                 for key in sfilenames.keys(): #add styles files and/or display
+                    group_name = "Shear Stress Stressor"
+                    root = QgsProject.instance().layerTreeRoot()
+                    group = root.findGroup(group_name)
+                    if group is None:
+                        group = root.addGroup(group_name)
                     if stylefiles_DF is None:
-                        self.add_layer(sfilenames[key])
+                        self.add_layer(sfilenames[key], root=root, group=group)
                     else:
                         # logger.info("{} Style File: {}".format(key, stylefiles_DF.loc['key']))
-                        self.style_layer(sfilenames[key], stylefiles_DF.loc[key].item())
+                        self.style_layer(sfilenames[key], stylefiles_DF.loc[key].item(), root=root, group=group)
 
             # Run Velocity Module
             if not ((velocity_device_present_directory is None) or (velocity_device_present_directory == "")): # svar == "Velocity":
-                # self.dlg.status_bar.setText("Processing Velocity Module")
-                # if not ((scfilename is None) or (scfilename == "")):
-                #     scfilename=[os.path.join(scfilename, i) for i in os.listdir(scfilename) if i.endswith('tif')][0]
 
                 vfilenames = run_velocity_stressor(
                     dev_present_file=velocity_device_present_directory,
@@ -758,39 +705,19 @@ class StressorReceptorCalc:
                     value_selection=velocity_averaging)
                 
                 for key in vfilenames.keys(): #add styles files and/or display
+                    group_name = "Velocity Stressor"
+                    root = QgsProject.instance().layerTreeRoot()
+                    group = root.findGroup(group_name)
+                    if group is None:
+                        group = root.addGroup(group_name)
                     if stylefiles_DF is None:
-                        self.add_layer(vfilenames[key])
+                        self.add_layer(vfilenames[key], root=root, group=group)
                     else:
                         # logger.info("{} Style File: {}".format(key, stylefiles_DF.loc['key']))
-                        self.style_layer(vfilenames[key] , stylefiles_DF.loc[key].item())
+                        self.style_layer(vfilenames[key] , stylefiles_DF.loc[key].item(), root=root, group=group)                 
 
-                # sfilenames = ['calculated_stressor.tif',
-                #  'calculated_stressor_with_receptor.tif',
-                # 'calculated_stressor_reclassified.tif']
-                # logger.info("Receptor Style File: {}".format(rstylefile))
-                # logger.info("Stressor Style File: {}".format(sstylefile))
-                # logger.info("Secondary Constraint Style File: {}".format(scstylefile))
-                # logger.info("Output Style File: {}".format(swrstylefile))  # stressor with receptor
-                # logger.info('Stressor reclassification: {}'.format(rcstylefile))
-
-                # srfilename = sfilenames['calculated_stressor']  # stressor
-                # self.style_layer(srfilename, sstylefile, ranges=True)
-                # # self.calc_area_change(srfilename, crs)
-                # if not ((velocity_threshold_file is None) or (velocity_threshold_file == "")):  # if receptor present
-                #     swrfilename = sfilenames['calculated_stressor_with_receptor']  # streessor with receptor
-                #     classifiedfilename = sfilenames['calculated_stressor_reclassified']  # reclassified
-                #     self.style_layer(swrfilename, swrstylefile, ranges=True)
-                #     self.style_layer(classifiedfilename,
-                #                      rcstylefile, ranges=True)
-                #     if velocity_threshold_file.endswith('.tif'):
-                #         self.style_layer(velocity_threshold_file, rstylefile, checked=False)
-
-                # if not ((scfilename is None) or (scfilename == "")):
-                #     if scfilename.endswith('.tif'):
-                #         self.style_layer(sfilenames['secondary_constraint'], scstylefile, checked=False)                    
-
+            # Run Acoustics Module
             if not ((paracousti_device_present_directory is None) or (paracousti_device_present_directory == "")): # if svar == "Acoustics":
-                # self.dlg.status_bar.setText("Processing Paracousti Module")
 
                 pfilenames = run_acoustics_stressor(
                     dev_present_file=paracousti_device_present_directory,
@@ -804,43 +731,16 @@ class StressorReceptorCalc:
                     secondary_constraint_filename=paracousti_risk_layer_file)
                 
                 for key in pfilenames.keys(): #add styles files and/or display
+                    group_name = "Acoustic Stressor"
+                    root = QgsProject.instance().layerTreeRoot()
+                    group = root.findGroup(group_name)
+                    if group is None:
+                        group = root.addGroup(group_name)
                     if stylefiles_DF is None:
-                        self.add_layer(pfilenames[key])
+                        self.add_layer(pfilenames[key], root=root, group=group)
                     else:
                         # logger.info("{} Style File: {}".format(key, stylefiles_DF.loc['key']))
-                        self.style_layer(pfilenames[key] , stylefiles_DF.loc[key].item())
-                
-                
-                # numpy_arrays = [0] PARACOUSTI
-                #               [1] stressor
-                #               [2] threshold_exceeded
-                #               [3] percent_scaled
-                #               [4] density_scaled
-
-                # logger.info("Stressor Style File: {}".format(
-                #     stressor_stylefile))
-                # logger.info("Threshold Style File: {}".format(
-                #     threshold_stylefile))
-                # logger.info("Species Percent Style File: {}".format(
-                #     percent_stylefile))
-                # logger.info("Species Density Style File: {}".format(
-                #     density_stylefile))
-
-                # # self.calc_area_change(srfilename, crs)
-                # if not ((scfilename is None) or (scfilename == "")):  # if specie files present
-                #     self.style_layer(
-                #         sfilenames[4], density_stylefile, ranges=True)
-                #     self.style_layer(
-                #         sfilenames[3], percent_stylefile, ranges=True)
-
-                # self.style_layer(
-                #     sfilenames[2], threshold_stylefile, ranges=True)
-                # self.style_layer(
-                #     sfilenames[0], stressor_stylefile, ranges=True)  # paracousti
-                # self.style_layer(
-                #     sfilenames[1], stressor_stylefile, ranges=True)  # stressor
-
-            # self.dlg.status_bar.setText("Finished Processing")
+                        self.style_layer(pfilenames[key] , stylefiles_DF.loc[key].item(), root=root, group=group)
 
             # close and remove the filehandler
             fh.close()
