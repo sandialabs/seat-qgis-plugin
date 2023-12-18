@@ -29,14 +29,18 @@ class TestShearStress(unittest.TestCase):
         cls.mock_netcdf_data = 'mock_netcdf.nc'
         cls.create_mock_netcdf(cls.mock_netcdf_data)
 
+        cls.fpath_dev_present = r"C:\Users\sterl\OneDrive\Desktop\DEMO Files\DEMO structured\devices-present"
+        cls.fpath_dev_not_present = r"C:\Users\sterl\OneDrive\Desktop\DEMO Files\DEMO structured\devices-not-present"
+        cls.probabilities_file = r"C:\Users\sterl\OneDrive\Desktop\DEMO Files\DEMO structured\probabilities\probabilities.csv"
+
     @classmethod
     def tearDownClass(cls):
         """
         Class method called after tests in an individual class are run.
         """
         # Clean up the mock netCDF file
-        if os.path.exists(cls.mock_netcdf_filename):
-            os.remove(cls.mock_netcdf_filename)
+        if os.path.exists(cls.mock_netcdf_data):
+            os.remove(cls.mock_netcdf_data)
 
     @staticmethod
     def create_mock_netcdf(filename):
@@ -144,6 +148,27 @@ class TestShearStress(unittest.TestCase):
             self.assertEqual(xvar, expected_xvar)
             self.assertEqual(yvar, expected_yvar)
             self.assertEqual(tauvar, expected_tauvar)
+
+    def test_calculate_shear_stress_stressors(self):
+        """
+        Test the calculate_shear_stress_stressors function with hardcoded file paths.
+        """
+        # Call the function with hardcoded paths
+        numpy_arrays, rx, ry, dx, dy, gridtype = ssm.calculate_shear_stress_stressors(
+            self.fpath_dev_not_present,
+            self.fpath_dev_present,
+            self.probabilities_file,
+            # Include other parameters as needed
+        )
+
+        import ipdb
+        # ipdb.set_trace()
+        self.assertIsInstance(numpy_arrays, list)
+        self.assertIsInstance(rx, np.ndarray)
+        self.assertIsInstance(ry, np.ndarray)
+        self.assertTrue(isinstance(dx, float) or isinstance(dx, np.floating))
+        self.assertTrue(isinstance(dy, float) or isinstance(dy, np.floating))
+        self.assertIsInstance(gridtype, str)
 
 
 def run_all():

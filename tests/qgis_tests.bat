@@ -1,7 +1,8 @@
 @echo off
 
 :: Set the QGIS installation path
-set "QGIS_ROOT=C:\Program Files\QGIS 3.34.1"
+@REM set "QGIS_ROOT=C:\Program Files\QGIS 3.34.1"
+set "QGIS_ROOT=C:\Program Files\QGIS 3.32.3"
 
 :: Set PYTHONPATH to include QGIS Python modules
 set "PYTHONPATH=%QGIS_ROOT%\apps\qgis\python;%PYTHONPATH%"
@@ -16,7 +17,7 @@ if %errorlevel% neq 0 (
     echo netCDF4 not found, installing...
     "%QGIS_ROOT%\bin\python.exe" -m pip install netCDF4 ipdb
 )
-@REM "%QGIS_ROOT%\bin\python.exe" -m pip install ipdb
+"%QGIS_ROOT%\bin\python.exe" -m pip install ipdb
 
 :: Run your QGIS-based Python script
 "%QGIS_ROOT%\bin\python.exe" test_shear_stress.py
