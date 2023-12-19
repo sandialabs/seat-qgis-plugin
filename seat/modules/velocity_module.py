@@ -378,7 +378,7 @@ def calculate_velocity_stressors(fpath_nodev,
                         'motility_with_devices': motility_dev_struct,
                         'motility_difference': motility_diff_struct,
                         'motility_classified':motility_classification,
-                        'critical_velocity':velcrit}
+                        'critical_velocity':velcrit_struct}
     return dict_of_arrays, rx, ry, dx, dy, gridtype
 
 
