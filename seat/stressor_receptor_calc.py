@@ -267,8 +267,9 @@ class StressorReceptorCalc:
 
         projSelector = QgsProjectionSelectionDialog(None)
         # set up a default one
-        crs = QgsCoordinateReferenceSystem()
-        crs.createFromId(4326)
+        # crs = QgsCoordinateReferenceSystem()
+        # crs.createFromId(4326)
+        crs = QgsCoordinateReferenceSystem.fromWkt("EPSG:4326")
         projSelector.setCrs(crs)
         projSelector.exec()
         # projSelector.exec_()
@@ -608,23 +609,23 @@ class StressorReceptorCalc:
 
             initialize_group  = True
                                   
-            # create file handler and set level to info
-            fname = os.path.join(output_folder_name, "_{}.log".format(date.today().strftime("%Y%m%d")))
-            fh = logging.FileHandler(fname, mode="a", encoding="utf8")
-            fh.setLevel(logging.INFO)
+            # # create file handler and set level to info
+            # fname = os.path.join(output_folder_name, "_{}.log".format(date.today().strftime("%Y%m%d")))
+            # fh = logging.FileHandler(fname, mode="a", encoding="utf8")
+            # fh.setLevel(logging.INFO)
 
             # create formatter
-            formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+            # formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
             # add formatter to ch
-            fh.setFormatter(formatter)
+            # fh.setFormatter(formatter)
 
             # if the output file path is empty display a warning
             if output_folder_name == "":
                 QgsMessageLog.logMessage("Output file path not given.", level=Qgis.MessageLevel.Warnin)
 
             # Run Power Module
-            if power_files_directory is not "":
+            if power_files_directory != "":
                 if ((power_probabilities_fname is None) or (power_probabilities_fname == "")):
                     power_probabilities_fname = shear_stress_probabilities_fname #default to shear stress probabilities if none given
                 calculate_power(power_files_directory, 
@@ -730,6 +731,4 @@ class StressorReceptorCalc:
                 root.removeChildNode(group_layer)
             
             # close and remove the filehandler
-            fh.close()
-
-        
+        # fh.close()
