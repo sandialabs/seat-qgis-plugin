@@ -22,40 +22,13 @@
 	2. refer to documentation regarding installation and input formatting.
     3. requires installation of NETCDF4 (https://unidata.github.io/netcdf4-python/) and QGIS (https://qgis.org/en/site/)
     4. tested and created using QGIS v3.22
+    5. added habitat for shear stress
 """
-#!/usr/bin/python
-# Example Script.py (filename in case the script gets renamed)
-# Copyright 2021, Integral Consulting Inc. All rights reserved.
-#
-# PURPOSE: Example of a project script
-#
-# PROJECT INFORMATION:
-# Name:
-# Number:
-#
-# AUTHORS (Authors to use initals in history)
-#
-# NOTES (Data descriptions and any script specific notes)
-# 1.
-# 2.
-#
-# HISTORY:
-# Date		  Author                Remarks
-# ----------- --------------------- --------------------------------------------
-# YYYY-MM-DD  Name/initials if using AUTHORS  Don't forget to fill this out
-# ===============================================================================
 import configparser
-# import csv
-# import glob
 import logging
 import os.path
-# import shutil
-# import tempfile
 import xml.etree.ElementTree as ET
-
-# grab the data time
 from datetime import date
-
 import numpy as np
 import pandas as pd
 
@@ -446,106 +419,6 @@ class StressorReceptorCalc:
             range = [x[0] for x in layer.legendSymbologyItems()]
             return range
 
-    # def calc_area_change(self, ofilename, crs, stylefile=None):
-    #     """Export the areas of the given file. Find a UTM of the given crs and calculate in m2."""
-
-    #     cfile = ofilename.replace(".tif", ".csv")
-    #     if os.path.isfile(cfile):
-    #         os.remove(cfile)
-
-    #     # if stylefile is not None:
-    #     #     sdf = df_from_qml(stylefile)
-
-    #     # get the basename and use the raster in the instance to get the min / max
-    #     basename = os.path.splitext(os.path.basename(ofilename))[0]
-    #     raster = QgsProject.instance().mapLayersByName(basename)[0]
-
-    #     xmin = raster.extent().xMinimum()
-    #     xmax = raster.extent().xMaximum()
-    #     ymin = raster.extent().yMinimum()
-    #     ymax = raster.extent().yMaximum()
-
-    #     # using the min and max make sure the crs doesn't change across grids
-    #     if crs==4326:
-    #         assert find_utm_srid(xmin, ymin, crs) == find_utm_srid(
-    #             xmax,
-    #             ymax,
-    #             crs,
-    #         ), "grid spans multiple utms"
-    #         crs_found = find_utm_srid(xmin, ymin, crs)
-
-    #         # create a temporary file for reprojection
-    #         outfile = tempfile.NamedTemporaryFile(suffix=".tif").name
-    #         # cmd = f'gdalwarp -s_srs EPSG:{crs} -t_srs EPSG:{crs_found} -r near -of GTiff {ofilename} {outfile}'
-    #         # os.system(cmd)
-
-    #         reproject_params = {
-    #             "INPUT": ofilename,
-    #             "SOURCE_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs}"),
-    #             "TARGET_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs_found}"),
-    #             "RESAMPLING": 0,
-    #             "NODATA": None,
-    #             "TARGET_RESOLUTION": None,
-    #             "OPTIONS": "",
-    #             "DATA_TYPE": 0,
-    #             "TARGET_EXTENT": None,
-    #             "TARGET_EXTENT_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs_found}"),
-    #             "MULTITHREADING": False,
-    #             "EXTRA": "",
-    #             "OUTPUT": outfile,
-    #         }
-
-    #         # reproject to a UTM crs for meters calculation
-    #         processing.run("gdal:warpreproject", reproject_params)
-
-    #         params = {
-    #             "BAND": 1,
-    #             "INPUT": outfile,
-    #             "OUTPUT_TABLE": cfile,
-    #         }
-
-    #         processing.run("native:rasterlayeruniquevaluesreport", params)
-    #         # remove the temporary file
-    #         os.remove(outfile)
-    #     else:
-    #         params = {
-    #             "BAND": 1,
-    #             "INPUT": ofilename,
-    #             "OUTPUT_TABLE": cfile,
-    #         }
-
-    #         processing.run("native:rasterlayeruniquevaluesreport", params)
-
-    #     df = pd.read_csv(cfile, encoding="cp1252")
-    #     if "m2" in df.columns:
-    #         df.rename(columns={"m2": "Area"}, inplace=True)
-    #     elif "m²" in df.columns:
-    #         df.rename(columns={"m²": "Area"}, inplace=True)
-    #     elif "Unnamed: 2" in df.columns:
-    #         df.rename(columns={"Unnamed: 2": "Area"}, inplace=True)
-    #     df = df.groupby(by=["value"]).sum().reset_index()
-
-    #     df["percentage"] = (df["Area"] / df["Area"].sum()) * 100.0
-
-    #     df["value"] = df["value"].astype(float)
-    #     # recode 0 to np.nan
-    #     df.loc[df["value"] == 0, "value"] = float("nan")
-    #     # sort ascending values
-    #     df = df.sort_values(by=["value"])
-
-    #     if stylefile is not None:
-    #         df = pd.merge(df, sdf, how="left", on="value")
-    #         df.loc[:, ["value", "label", "count", "Area", "percentage"]].to_csv(
-    #             cfile,
-    #             index=False,
-    #         )
-    #     else:
-    #         df.loc[:, ["value", "count", "Area", "percentage"]].to_csv(
-    #             cfile,
-    #             na_rep="NULL",
-    #             index=False,
-    #             )
-
     def run(self):
         """Run method that performs all the real work."""
 
@@ -615,12 +488,9 @@ class StressorReceptorCalc:
         result = self.dlg.exec_()
         # See if OK was pressed
         if result:
-            # Do something useful here
+            # Run Calculations
             # this grabs the files for input and output
-
             dpresentfname = self.dlg.device_present.text()
-            # ADD in an ini file here?
-            # if '.ini' not in dpresentfname:
             dnotpresentfname = self.dlg.device_not_present.text()
             probabilities_fname = self.dlg.probabilities_file.text()
             power_files_folder = self.dlg.power_files.text()
@@ -680,6 +550,10 @@ class StressorReceptorCalc:
                                 crs=crs)
 
             if svar == "Shear Stress":
+
+                if not ((scfilename is None) or (scfilename == "")):
+                    scfilename=[os.path.join(scfilename, i) for i in os.listdir(scfilename) if i.endswith('tif')][0]
+
                 sfilenames = run_shear_stress_stressor(
                     dev_present_file=dpresentfname,
                     dev_notpresent_file=dnotpresentfname,
@@ -687,10 +561,8 @@ class StressorReceptorCalc:
                     crs=crs,
                     output_path=output_folder_name,
                     receptor_filename=rfilename,
+                    secondary_constraint_filename=scfilename
                 )
-                # sfilenames = ['calculated_stressor.tif',
-                #  'calculated_stressor_with_receptor.tif',
-                # 'calculated_stressor_reclassified.tif'
 
                 stylefiles_DF = self.read_style_files(
                     self.dlg.output_stylefile.text())
@@ -705,6 +577,8 @@ class StressorReceptorCalc:
                 ).replace("\\", "/")
                 rcstylefile = stylefiles_DF.loc['Reclassificed Stressor with receptor'].values.item(
                 ).replace("\\", "/")
+                rskstylefile = stylefiles_DF.loc['Risk'].values.item(
+                ).replace("\\", "/")
 
                 logger.info("Receptor Style File: {}".format(rstylefile))
                 logger.info("Stressor Style File: {}".format(sstylefile))
@@ -714,21 +588,26 @@ class StressorReceptorCalc:
                     swrstylefile))  # stressor with receptor
                 logger.info(
                     'Stressor reclassification: {}'.format(rcstylefile))
-
-                srfilename = sfilenames[0]  # stressor
+                logger.info(
+                    'Risk: {}'.format(rskstylefile))
+                srfilename = sfilenames['calculated_stressor']  # stressor
                 self.style_layer(srfilename, sstylefile, ranges=True)
                 # self.calc_area_change(srfilename, crs)
                 if not ((rfilename is None) or (rfilename == "")):  # if receptor present
-                    swrfilename = sfilenames[1]  # streessor with receptor
-                    classifiedfilename = sfilenames[2]  # reclassified
-                    self.style_layer(swrfilename, swrstylefile, ranges=True)
-                    self.style_layer(classifiedfilename,
-                                     rcstylefile, ranges=True)
+                    self.style_layer(sfilenames['calculated_stressor_with_receptor'] , swrstylefile, ranges=True)# streessor with receptor
+                    self.style_layer(sfilenames['calculated_stressor_reclassified'], rcstylefile, ranges=True)  # reclassified
+                    self.style_layer(sfilenames['risk'], rskstylefile, ranges=True)                    
                     if rfilename.endswith('.tif'):
                         self.style_layer(rfilename, rstylefile, checked=False)
 
+                if not ((scfilename is None) or (scfilename == "")):
+                    if scfilename.endswith('.tif'):
+                        self.style_layer(sfilenames['secondary_constraint'], scstylefile, checked=False)
 
             if svar == "Velocity":
+                if not ((scfilename is None) or (scfilename == "")):
+                    scfilename=[os.path.join(scfilename, i) for i in os.listdir(scfilename) if i.endswith('tif')][0]
+
                 sfilenames = run_velocity_stressor(
                     dev_present_file=dpresentfname,
                     dev_notpresent_file=dnotpresentfname,
@@ -736,7 +615,9 @@ class StressorReceptorCalc:
                     crs=crs,
                     output_path=output_folder_name,
                     receptor_filename=rfilename,
+                    secondary_constraint_filename=scfilename
                 )
+
                 # sfilenames = ['calculated_stressor.tif',
                 #  'calculated_stressor_with_receptor.tif',
                 # 'calculated_stressor_reclassified.tif']
@@ -764,20 +645,21 @@ class StressorReceptorCalc:
                 logger.info(
                     'Stressor reclassification: {}'.format(rcstylefile))
 
-                srfilename = sfilenames[2]  # stressor
+                srfilename = sfilenames['calculated_stressor']  # stressor
                 self.style_layer(srfilename, sstylefile, ranges=True)
                 # self.calc_area_change(srfilename, crs)
                 if not ((rfilename is None) or (rfilename == "")):  # if receptor present
-                    swrfilename = sfilenames[3]  # streessor with receptor
-                    classifiedfilename = sfilenames[4]  # reclassified
+                    swrfilename = sfilenames['calculated_stressor_with_receptor']  # streessor with receptor
+                    classifiedfilename = sfilenames['calculated_stressor_reclassified']  # reclassified
                     self.style_layer(swrfilename, swrstylefile, ranges=True)
                     self.style_layer(classifiedfilename,
                                      rcstylefile, ranges=True)
                     if rfilename.endswith('.tif'):
                         self.style_layer(rfilename, rstylefile, checked=False)
-                    # crs==4326
-                    # self.calc_area_change(swrfilename, crs)
-                    # self.calc_area_change(classifiedfilename, crs)
+
+                if not ((scfilename is None) or (scfilename == "")):
+                    if scfilename.endswith('.tif'):
+                        self.style_layer(sfilenames['secondary_constraint'], scstylefile, checked=False)                    
 
             if svar == "Acoustics":
                 sfilenames = run_acoustics_stressor(
@@ -788,7 +670,7 @@ class StressorReceptorCalc:
                     output_path=output_folder_name,
                     receptor_filename=rfilename,
                     species_folder=scfilename
-                )
+                ) #TODO: Make output a dictionary for consistency
                 # numpy_arrays = [0] PARACOUSTI
                 #               [1] stressor
                 #               [2] threshold_exceeded
