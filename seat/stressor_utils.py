@@ -316,6 +316,7 @@ def numpy_array_to_raster(
     cell_resolution,
     spatial_reference_system_wkid,
     output_path,
+    nodata_val=None
 ):
     """
 
@@ -367,7 +368,8 @@ def numpy_array_to_raster(
     )  # exports the cords to the file
     output_raster.SetGeoTransform(geotransform)
     output_band = output_raster.GetRasterBand(1)
-    # output_band.SetNoDataValue(no_data) #Not an issue, may be in other cases?
+    if nodata_val is not None:
+        output_band.SetNoDataValue(nodata_val) #Not an issue, may be in other cases?
     output_band.WriteArray(numpy_array)
 
     output_band.FlushCache()
@@ -453,6 +455,23 @@ def read_raster(raster_name):
     data = None
     return rx, ry, raster_array
 
+def secondary_constraint_geotiff_to_numpy(filename):
+    data = gdal.Open(filename)
+    img = data.GetRasterBand(1)
+    array = img.ReadAsArray()
+    
+    (upper_left_x, x_size, x_rotation, upper_left_y,
+        y_rotation, y_size) = data.GetGeoTransform()
+    cols = data.RasterXSize
+    rows = data.RasterYSize
+    r_rows = np.arange(rows) * y_size + upper_left_y + (y_size / 2)
+    r_cols = np.arange(cols) * x_size + upper_left_x + (x_size / 2)
+    prj = data.GetProjection()
+    srs = osr.SpatialReference(wkt=prj)
+    if srs.GetAttrValue('AUTHORITY',1) == '4326':
+        r_cols = np.where(r_cols < 0, r_cols+360, r_cols)
+    x_grid, y_grid = np.meshgrid(r_cols, r_rows)
+    return x_grid, y_grid, array
 
 def calculate_cell_area(rx, ry, latlon=True):
     """
@@ -634,11 +653,11 @@ def bin_layer(raster_filename, receptor_filename=None, receptor_names=None, limi
         DATA['Area percent'] = 100 * DATA['Area']/DATA['Area'].sum()
     else:
         rrx, rry, receptor = read_raster(receptor_filename)
+        receptor = resample_structured_grid(
+            rrx, rry, receptor, rxm, rym).flatten()
         if limit_receptor_range is not None:
             receptor = np.where((receptor >= np.min(limit_receptor_range)) & (
                 receptor <= np.max(limit_receptor_range)), receptor, 0)
-        receptor = resample_structured_grid(
-            rrx, rry, receptor, rxm, rym).flatten()
         DATA = bin_receptor(zm[np.invert(np.isnan(zm))], receptor[np.invert(np.isnan(
             zm))], square_area[np.invert(np.isnan(zm))], receptor_names=receptor_names)
     return pd.DataFrame(DATA)
@@ -710,3 +729,145 @@ def classify_layer_area(raster_filename, receptor_filename=None, at_values=None,
             DATA[f'Area percent, receptor value {rval}'] = 100 * \
                 DATA[rcolname]/DATA[rcolname].sum()
     return pd.DataFrame(DATA)
+
+
+def classify_layer_area_2nd_Constraint(raster_to_sample, secondary_constraint_filename, at_raster_values, at_raster_value_names, limit_constraint_range, latlon):
+    rx, ry, z = read_raster(raster_to_sample)
+    rxm, rym, square_area = calculate_cell_area(rx, ry, latlon=latlon)
+    square_area = square_area.flatten()
+    zm = resample_structured_grid(rx, ry, z, rxm, rym).flatten()
+    if at_raster_values is None:
+        at_values = np.unique(zm)
+    else:
+        at_values = np.atleast_1d(at_raster_values)
+    DATA = {}
+    DATA['value'] = at_values
+    if at_raster_value_names is not None:
+        DATA['value name'] = at_raster_value_names
+    if secondary_constraint_filename is None:
+        DATA['Area'] = np.zeros(len(at_values))
+        for ic, value in enumerate(at_values):
+            area_ix = np.flatnonzero(zm == value)
+            DATA['Area'][ic] = np.sum(square_area[area_ix])
+        DATA['Area percent'] = 100 * DATA['Area']/DATA['Area'].sum()
+    else:
+        rrx, rry, constraint = read_raster(secondary_constraint_filename)
+        constraint = resample_structured_grid(rrx, rry, constraint, rxm, rym, interpmethod='nearest').flatten()
+        if limit_constraint_range is not None:
+            constraint = np.where((constraint >= np.min(limit_constraint_range)) & (
+                constraint <= np.max(limit_constraint_range)), constraint, np.nan)
+        for ic, rval in enumerate(np.unique(constraint)):
+            if ~np.isnan(rval):
+                zz = zm[constraint == rval]
+                sqa = square_area[constraint == rval]
+                rcolname = f'Area, constraint value {rval}'
+                ccolname = f'Count, constraint value {rval}'
+                DATA[rcolname] = np.zeros(len(at_values))
+                DATA[ccolname] = np.zeros(len(at_values))
+                for iic, value in enumerate(at_values):
+                    area_ix = np.flatnonzero(zz == value)
+                    DATA[ccolname][iic] = len(area_ix)
+                    DATA[rcolname][iic] = np.sum(sqa[area_ix])
+                DATA[f'Area percent, constraint value {rval}'] = 100 * \
+                    DATA[rcolname]/DATA[rcolname].sum()
+    return pd.DataFrame(DATA)
+
+    # def calc_area_change(self, ofilename, crs, stylefile=None):
+    #     """Export the areas of the given file. Find a UTM of the given crs and calculate in m2."""
+
+    #     cfile = ofilename.replace(".tif", ".csv")
+    #     if os.path.isfile(cfile):
+    #         os.remove(cfile)
+
+    #     # if stylefile is not None:
+    #     #     sdf = df_from_qml(stylefile)
+
+    #     # get the basename and use the raster in the instance to get the min / max
+    #     basename = os.path.splitext(os.path.basename(ofilename))[0]
+    #     raster = QgsProject.instance().mapLayersByName(basename)[0]
+
+    #     xmin = raster.extent().xMinimum()
+    #     xmax = raster.extent().xMaximum()
+    #     ymin = raster.extent().yMinimum()
+    #     ymax = raster.extent().yMaximum()
+
+    #     # using the min and max make sure the crs doesn't change across grids
+    #     if crs==4326:
+    #         assert find_utm_srid(xmin, ymin, crs) == find_utm_srid(
+    #             xmax,
+    #             ymax,
+    #             crs,
+    #         ), "grid spans multiple utms"
+    #         crs_found = find_utm_srid(xmin, ymin, crs)
+
+    #         # create a temporary file for reprojection
+    #         outfile = tempfile.NamedTemporaryFile(suffix=".tif").name
+    #         # cmd = f'gdalwarp -s_srs EPSG:{crs} -t_srs EPSG:{crs_found} -r near -of GTiff {ofilename} {outfile}'
+    #         # os.system(cmd)
+
+    #         reproject_params = {
+    #             "INPUT": ofilename,
+    #             "SOURCE_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs}"),
+    #             "TARGET_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs_found}"),
+    #             "RESAMPLING": 0,
+    #             "NODATA": None,
+    #             "TARGET_RESOLUTION": None,
+    #             "OPTIONS": "",
+    #             "DATA_TYPE": 0,
+    #             "TARGET_EXTENT": None,
+    #             "TARGET_EXTENT_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs_found}"),
+    #             "MULTITHREADING": False,
+    #             "EXTRA": "",
+    #             "OUTPUT": outfile,
+    #         }
+
+    #         # reproject to a UTM crs for meters calculation
+    #         processing.run("gdal:warpreproject", reproject_params)
+
+    #         params = {
+    #             "BAND": 1,
+    #             "INPUT": outfile,
+    #             "OUTPUT_TABLE": cfile,
+    #         }
+
+    #         processing.run("native:rasterlayeruniquevaluesreport", params)
+    #         # remove the temporary file
+    #         os.remove(outfile)
+    #     else:
+    #         params = {
+    #             "BAND": 1,
+    #             "INPUT": ofilename,
+    #             "OUTPUT_TABLE": cfile,
+    #         }
+
+    #         processing.run("native:rasterlayeruniquevaluesreport", params)
+
+    #     df = pd.read_csv(cfile, encoding="cp1252")
+    #     if "m2" in df.columns:
+    #         df.rename(columns={"m2": "Area"}, inplace=True)
+    #     elif "m²" in df.columns:
+    #         df.rename(columns={"m²": "Area"}, inplace=True)
+    #     elif "Unnamed: 2" in df.columns:
+    #         df.rename(columns={"Unnamed: 2": "Area"}, inplace=True)
+    #     df = df.groupby(by=["value"]).sum().reset_index()
+
+    #     df["percentage"] = (df["Area"] / df["Area"].sum()) * 100.0
+
+    #     df["value"] = df["value"].astype(float)
+    #     # recode 0 to np.nan
+    #     df.loc[df["value"] == 0, "value"] = float("nan")
+    #     # sort ascending values
+    #     df = df.sort_values(by=["value"])
+
+    #     if stylefile is not None:
+    #         df = pd.merge(df, sdf, how="left", on="value")
+    #         df.loc[:, ["value", "label", "count", "Area", "percentage"]].to_csv(
+    #             cfile,
+    #             index=False,
+    #         )
+    #     else:
+    #         df.loc[:, ["value", "count", "Area", "percentage"]].to_csv(
+    #             cfile,
+    #             na_rep="NULL",
+    #             index=False,
+    #             )

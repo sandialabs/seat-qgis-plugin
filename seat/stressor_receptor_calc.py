@@ -22,13 +22,14 @@
     3. requires installation of NETCDF4 (https://unidata.github.io/netcdf4-python/) 
        and QGIS (https://qgis.org/en/site/)
     4. tested and created using QGIS v3.22
+    5. added habitat for shear stress
 """
-
 import configparser
 import logging
 import os.path
 import xml.etree.ElementTree as ET
 from datetime import date
+import numpy as np
 import pandas as pd
 
 from qgis.core import (
@@ -478,12 +479,9 @@ class StressorReceptorCalc:
         result = self.dlg.exec_()
         # See if OK was pressed
         if result:
-            # Do something useful here
+            # Run Calculations
             # this grabs the files for input and output
-
             dpresentfname = self.dlg.device_present.text()
-            # ADD in an ini file here?
-            # if '.ini' not in dpresentfname:
             dnotpresentfname = self.dlg.device_not_present.text()
             probabilities_fname = self.dlg.probabilities_file.text()
             power_files_folder = self.dlg.power_files.text()
@@ -543,6 +541,11 @@ class StressorReceptorCalc:
                                 crs=crs)
 
             if svar == "Shear Stress":
+
+                if not ((scfilename is None) or (scfilename == "")):
+                    scfilename = [os.path.join(scfilename, i) for i in os.listdir(
+                        scfilename) if i.endswith('tif')][0]
+
                 sfilenames = run_shear_stress_stressor(
                     dev_present_file=dpresentfname,
                     dev_notpresent_file=dnotpresentfname,
@@ -550,6 +553,7 @@ class StressorReceptorCalc:
                     crs=crs,
                     output_path=output_folder_name,
                     receptor_filename=rfilename,
+                    secondary_constraint_filename=scfilename
                 )
 
                 stylefiles_DF = self.read_style_files(
@@ -565,27 +569,43 @@ class StressorReceptorCalc:
                 ).replace("\\", "/")
                 rcstylefile = stylefiles_DF.loc['Reclassificed Stressor with receptor'].values.item(
                 ).replace("\\", "/")
+                rskstylefile = stylefiles_DF.loc['Risk'].values.item(
+                ).replace("\\", "/")
 
-                logger.info("Receptor Style File: %s", rstylefile)
-                logger.info("Stressor Style File: %s", sstylefile)
-                logger.info("Secondary Constraint Style File: %s", scstylefile)
-                logger.info("Output Style File: %s", swrstylefile)  # stressor with receptor
-                logger.info("Stressor reclassification: %s", rcstylefile)
-
-
-                srfilename = sfilenames[0]  # stressor
+                logger.info("Receptor Style File: {}".format(rstylefile))
+                logger.info("Stressor Style File: {}".format(sstylefile))
+                logger.info(
+                    "Secondary Constraint Style File: {}".format(scstylefile))
+                logger.info("Output Style File: {}".format(
+                    swrstylefile))  # stressor with receptor
+                logger.info(
+                    'Stressor reclassification: {}'.format(rcstylefile))
+                logger.info(
+                    'Risk: {}'.format(rskstylefile))
+                srfilename = sfilenames['calculated_stressor']  # stressor
                 self.style_layer(srfilename, sstylefile, ranges=True)
                 # self.calc_area_change(srfilename, crs)
                 if not ((rfilename is None) or (rfilename == "")):  # if receptor present
-                    swrfilename = sfilenames[1]  # streessor with receptor
-                    classifiedfilename = sfilenames[2]  # reclassified
-                    self.style_layer(swrfilename, swrstylefile, ranges=True)
-                    self.style_layer(classifiedfilename,
-                                     rcstylefile, ranges=True)
+                    # streessor with receptor
+                    self.style_layer(
+                        sfilenames['calculated_stressor_with_receptor'], swrstylefile, ranges=True)
+                    self.style_layer(
+                        sfilenames['calculated_stressor_reclassified'], rcstylefile, ranges=True)  # reclassified
+                    self.style_layer(
+                        sfilenames['risk'], rskstylefile, ranges=True)
                     if rfilename.endswith('.tif'):
                         self.style_layer(rfilename, rstylefile, checked=False)
 
+                if not ((scfilename is None) or (scfilename == "")):
+                    if scfilename.endswith('.tif'):
+                        self.style_layer(
+                            sfilenames['secondary_constraint'], scstylefile, checked=False)
+
             if svar == "Velocity":
+                if not ((scfilename is None) or (scfilename == "")):
+                    scfilename = [os.path.join(scfilename, i) for i in os.listdir(
+                        scfilename) if i.endswith('tif')][0]
+
                 sfilenames = run_velocity_stressor(
                     dev_present_file=dpresentfname,
                     dev_notpresent_file=dnotpresentfname,
@@ -593,7 +613,9 @@ class StressorReceptorCalc:
                     crs=crs,
                     output_path=output_folder_name,
                     receptor_filename=rfilename,
+                    secondary_constraint_filename=scfilename
                 )
+
                 # sfilenames = ['calculated_stressor.tif',
                 #  'calculated_stressor_with_receptor.tif',
                 # 'calculated_stressor_reclassified.tif']
@@ -621,20 +643,24 @@ class StressorReceptorCalc:
                 logger.info(
                     'Stressor reclassification: {}'.format(rcstylefile))
 
-                srfilename = sfilenames[2]  # stressor
+                srfilename = sfilenames['calculated_stressor']  # stressor
                 self.style_layer(srfilename, sstylefile, ranges=True)
                 # self.calc_area_change(srfilename, crs)
                 if not ((rfilename is None) or (rfilename == "")):  # if receptor present
-                    swrfilename = sfilenames[3]  # streessor with receptor
-                    classifiedfilename = sfilenames[4]  # reclassified
+                    # streessor with receptor
+                    swrfilename = sfilenames['calculated_stressor_with_receptor']
+                    # reclassified
+                    classifiedfilename = sfilenames['calculated_stressor_reclassified']
                     self.style_layer(swrfilename, swrstylefile, ranges=True)
                     self.style_layer(classifiedfilename,
                                      rcstylefile, ranges=True)
                     if rfilename.endswith('.tif'):
                         self.style_layer(rfilename, rstylefile, checked=False)
-                    # crs==4326
-                    # self.calc_area_change(swrfilename, crs)
-                    # self.calc_area_change(classifiedfilename, crs)
+
+                if not ((scfilename is None) or (scfilename == "")):
+                    if scfilename.endswith('.tif'):
+                        self.style_layer(
+                            sfilenames['secondary_constraint'], scstylefile, checked=False)
 
             if svar == "Acoustics":
                 sfilenames = run_acoustics_stressor(
@@ -645,7 +671,7 @@ class StressorReceptorCalc:
                     output_path=output_folder_name,
                     receptor_filename=rfilename,
                     species_folder=scfilename
-                )
+                )  # TODO: Make output a dictionary for consistency
                 # numpy_arrays = [0] PARACOUSTI
                 #               [1] stressor
                 #               [2] threshold_exceeded
