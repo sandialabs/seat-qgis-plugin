@@ -4,10 +4,15 @@ import netCDF4
 import unittest
 import numpy as np
 from qgis.core import QgsApplication
-# Import seat
+
+
+# Get the directory in which the current script is located
 script_dir = os.path.dirname(os.path.realpath(__file__))
+
+# Import seat
 parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
+
 # fmt: off
 from seat import shear_stress_module as ssm
 # fmt: on
@@ -29,11 +34,11 @@ class TestShearStress(unittest.TestCase):
         cls.mock_netcdf_data = 'mock_netcdf.nc'
         cls.create_mock_netcdf(cls.mock_netcdf_data)
 
-        cls.dev_present = r"data/structured/devices-present"
-        cls.dev_not_present = r"data/structured/devices-not-present"
-        cls.probabilities = r"data/structured/probabilities/probabilities.csv"
-        cls.receptor = r"data/structured/receptor/grain_size_receptor.csv"
-
+        # Define paths with script_dir prepended
+        cls.dev_present = os.path.join(script_dir, "data/structured/devices-present")
+        cls.dev_not_present = os.path.join(script_dir, "data/structured/devices-not-present")
+        cls.probabilities = os.path.join(script_dir, "data/structured/probabilities/probabilities.csv")
+        cls.receptor = os.path.join(script_dir, "data/structured/receptor/grain_size_receptor.csv")
 
     @classmethod
     def tearDownClass(cls):
