@@ -29,9 +29,11 @@ class TestShearStress(unittest.TestCase):
         cls.mock_netcdf_data = 'mock_netcdf.nc'
         cls.create_mock_netcdf(cls.mock_netcdf_data)
 
-        cls.fpath_dev_present = r"C:\Users\sterl\OneDrive\Desktop\DEMO Files\DEMO structured\devices-present"
-        cls.fpath_dev_not_present = r"C:\Users\sterl\OneDrive\Desktop\DEMO Files\DEMO structured\devices-not-present"
-        cls.probabilities_file = r"C:\Users\sterl\OneDrive\Desktop\DEMO Files\DEMO structured\probabilities\probabilities.csv"
+        cls.dev_present = r"data/structured/devices-present"
+        cls.dev_not_present = r"data/structured/devices-not-present"
+        cls.probabilities = r"data/structured/probabilities/probabilities.csv"
+        cls.receptor = r"data/structured/receptor/grain_size_receptor.csv"
+
 
     @classmethod
     def tearDownClass(cls):
@@ -151,18 +153,14 @@ class TestShearStress(unittest.TestCase):
 
     def test_calculate_shear_stress_stressors(self):
         """
-        Test the calculate_shear_stress_stressors function with hardcoded file paths.
+        Test the calculate_shear_stress_stressors function.
         """
-        # Call the function with hardcoded paths
         numpy_arrays, rx, ry, dx, dy, gridtype = ssm.calculate_shear_stress_stressors(
-            self.fpath_dev_not_present,
-            self.fpath_dev_present,
-            self.probabilities_file,
-            # Include other parameters as needed
+            self.dev_not_present,
+            self.dev_present,
+            self.probabilities,
         )
 
-        import ipdb
-        # ipdb.set_trace()
         self.assertIsInstance(numpy_arrays, list)
         self.assertIsInstance(rx, np.ndarray)
         self.assertIsInstance(ry, np.ndarray)
@@ -170,6 +168,49 @@ class TestShearStress(unittest.TestCase):
         self.assertTrue(isinstance(dy, float) or isinstance(dy, np.floating))
         self.assertIsInstance(gridtype, str)
 
+
+    def test_run_shear_stress_stressor(self):
+            """
+            Test the run_shear_stress_stressor function to ensure it correctly processes input data
+            and generates the expected geotiffs and area change statistics files.
+            """
+            output_path = "test_output"  # Define a directory for test outputs
+            if not os.path.exists(output_path):
+                os.makedirs(output_path)
+
+            # Call the function with test data
+            result = ssm.run_shear_stress_stressor(
+                self.dev_present,
+                self.dev_not_present,
+                self.probabilities,
+                crs=4326,  
+                output_path=output_path,
+                receptor_filename=self.receptor,
+                secondary_constraint_filename=None
+            )
+
+            # Verify that the function returns a dictionary with the expected keys
+            expected_keys = ['calculated_stressor', 'calculated_stressor_with_receptor',
+                            'calculated_stressor_reclassified', 'receptor', 'tau_with_devices',
+                            'tau_without_devices', 'risk']
+            self.assertIsInstance(result, dict)
+            for key in expected_keys:
+                self.assertIn(key, result)
+                self.assertTrue(os.path.isfile(result[key]))
+
+            # Clean up test output files
+            for file_path in result.values():
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+
+            # Remove any additional files in the directory
+            for file in os.listdir(output_path):
+                file_path = os.path.join(output_path, file)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+
+            # Now remove the directory
+            os.rmdir(output_path)
 
 def run_all():
     suite = unittest.TestSuite()
