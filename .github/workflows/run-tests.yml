@@ -31,9 +31,6 @@ jobs:
       - name: Sleep for Xvfb
         run: sleep 10
 
-      - name: Install Dependencies
-        run: docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/install_dependencies.py"
-
       - name: Setup QGIS and enable the plugin
         run: |
           docker exec qgis-testing-environment sh -c "qgis_setup.sh seat"
