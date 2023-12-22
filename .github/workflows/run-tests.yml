@@ -31,16 +31,18 @@ jobs:
       - name: Sleep for Xvfb
         run: sleep 10
 
+      - name: Install python dependencies
+        run: |
+          docker exec qgis-testing-environment sh -c "python3 -m pip install --upgrade pip"
+          docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/install_dependencies.py"
+
       - name: Setup QGIS and enable the plugin
         run: |
           docker exec qgis-testing-environment sh -c "qgis_setup.sh seat"
           docker exec qgis-testing-environment sh -c "rm -f /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
           docker exec qgis-testing-environment sh -c "ln -s /tests_directory /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
 
-      - name: Install python dependencies
-        run: |
-          docker exec qgis-testing-environment sh -c "python3 -m pip install --upgrade pip"
-          docker exec qgis-testing-environment sh -c "python3 -m pip show netCDF4 > /dev/null 2>&1 || python3 -m pip install netCDF4"
+
 
       - name: Run Tests
         run: |
