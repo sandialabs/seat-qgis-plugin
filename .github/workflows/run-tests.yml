@@ -42,8 +42,6 @@ jobs:
           docker exec qgis-testing-environment sh -c "rm -f /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
           docker exec qgis-testing-environment sh -c "ln -s /tests_directory /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
 
-
-
       - name: Run Tests
         run: |
           docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/test_shear_stress.py"          
