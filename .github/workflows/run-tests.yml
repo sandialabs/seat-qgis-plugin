@@ -40,13 +40,9 @@ jobs:
           docker exec qgis-testing-environment sh -c "rm -f /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
           docker exec qgis-testing-environment sh -c "ln -s /tests_directory /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
 
-      - name: Run Custom Script
+      - name: Run Tests
         run: |
           docker exec qgis-testing-environment sh -c "python3 -m pip install --upgrade pip"
           docker exec qgis-testing-environment sh -c "python3 -m pip show netCDF4 > /dev/null 2>&1 || python3 -m pip install netCDF4 ipdb"
           docker exec qgis-testing-environment sh -c "python3 -m pip install ipdb"
           docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/test_shear_stress.py"
-
-      - name: Run tests
-        run: |
-          docker exec qgis-testing-environment sh -c "export PYTHONPATH=/tests_directory:\$PYTHONPATH && qgis_testrunner.sh tests.test_example.run_all"
