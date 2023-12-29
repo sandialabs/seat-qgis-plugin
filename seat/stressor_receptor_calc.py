@@ -32,7 +32,7 @@ from datetime import date
 import numpy as np
 import pandas as pd
 
-from qgis.core import (
+from qgis.core import (# type: ignore
     Qgis,
     QgsApplication,
     QgsCoordinateReferenceSystem,
@@ -43,11 +43,11 @@ from qgis.core import (
     QgsVectorLayer,
     QgsLayerTreeGroup,
     QgsMapLayerStyleManager
-)
-from qgis.gui import QgsProjectionSelectionDialog  # ,QgsLayerTreeView
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator
-from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction, QFileDialog
+)# type: ignore
+from qgis.gui import QgsProjectionSelectionDialog  # ,QgsLayerTreeView # type: ignore
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator  # type: ignore
+from qgis.PyQt.QtGui import QIcon  # type: ignore
+from qgis.PyQt.QtWidgets import QAction, QFileDialog  # type: ignore
 
 
 # Initialize Qt resources from file resources.py
@@ -275,6 +275,17 @@ class StressorReceptorCalc:
         # projSelector.exec_()
         self.dlg.crs.setText(projSelector.crs().authid().split(":")[1])
 
+    def test_exists(self, line_edit, fin, fin_type):
+        if not ((fin is None) or (fin == "")):
+            if os.path.exists(fin):
+                line_edit.setText(fin)
+                line_edit.setStyleSheet("color: black;")
+            else:
+                line_edit.setText(f'{fin_type} not Found')
+                line_edit.setStyleSheet("color: red;")      
+        else:
+            line_edit.setStyleSheet("color: black;") 
+
     def select_and_load_in(self):
         """Select and load an input file."""
         filename, _filter = QFileDialog.getOpenFileName(
@@ -289,37 +300,58 @@ class StressorReceptorCalc:
             config = configparser.ConfigParser()
             config.read(filename)
 
-            self.dlg.shear_device_present.setText(config.get("Input", "shear stress device present filepath"))
-            self.dlg.shear_device_not_present.setText(config.get("Input", "shear stress device not present filepath"))
+            fin = config.get("Input", "shear stress device present filepath")
+            self.test_exists(self.dlg.shear_device_present, fin, 'Directory')    
+            fin = config.get("Input", "shear stress device not present filepath")
+            self.test_exists(self.dlg.shear_device_not_present, fin, 'Directory')      
+            fin = config.get("Input", "shear stress probabilities file")
+            self.test_exists(self.dlg.shear_probabilities_file, fin, 'File')       
+            fin = config.get("Input", "shear stress grain size file")
+            self.test_exists(self.dlg.shear_grain_size_file, fin, 'File')        
+            fin = config.get("Input", "shear stress risk layer file")
+            self.test_exists(self.dlg.shear_risk_file, fin, 'File')
             self.dlg.shear_averaging_combobox.setCurrentText(config.get("Input", "shear stress averaging"))
-            self.dlg.shear_probabilities_file.setText(config.get("Input", "shear stress probabilities file"))
-            self.dlg.shear_grain_size_file.setText(config.get("Input", "shear stress grain size file"))
-            self.dlg.shear_risk_file.setText(config.get("Input", "shear stress risk layer file"))
-                                    
-            self.dlg.velocity_device_present.setText(config.get("Input", "velocity device present filepath"))
-            self.dlg.velocity_device_not_present.setText(config.get("Input", "velocity device not present filepath"))
-            self.dlg.velocity_averaging_combobox.setCurrentText(config.get("Input", "velocity Averaging"))            
-            self.dlg.velocity_probabilities_file.setText(config.get("Input", "velocity probabilities file"))
-            self.dlg.velocity_threshold_file.setText(config.get("Input", "velocity threshold file"))     
-            self.dlg.velocity_risk_file.setText(config.get("Input", "velocity risk layer file"))
-                                                    
-            self.dlg.paracousti_device_present.setText(config.get("Input", "paracousti device present filepath"))
-            self.dlg.paracousti_device_not_present.setText(config.get("Input", "paracousti device not present filepath"))
-            self.dlg.paracousti_averaging_combobox.setCurrentText(config.get("Input", "paracousti averaging")) 
-            self.dlg.paracousti_probabilities_file.setText(config.get("Input", "paracousti probabilities file"))
-            self.dlg.paracousti_threshold_file.setText(config.get("Input", "paracousti threshold file"))
-            self.dlg.paracousti_risk_file.setText(config.get("Input", "paracousti risk layer file"))
-            self.dlg.paracousti_species_directory.setText(config.get("Input", "paracousti species filepath"))
-                                    
-            self.dlg.power_files.setText(config.get("Input", "power files filepath"))                
-            self.dlg.power_probabilities_file.setText(config.get("Input", "power probabilities file"))               
+                                                                
+            fin = config.get("Input", "velocity device present filepath")
+            self.test_exists(self.dlg.velocity_device_present, fin, 'Directory')
+            fin = config.get("Input", "velocity device not present filepath")
+            self.test_exists(self.dlg.velocity_device_not_present, fin, 'Directory')
+            fin=config.get("Input", "velocity probabilities file")
+            self.test_exists(self.dlg.velocity_probabilities_file, fin, 'File')
+            fin=config.get("Input", "velocity threshold file")
+            self.test_exists(self.dlg.velocity_threshold_file, fin, 'File')
+            fin=config.get("Input", "velocity risk layer file")
+            self.test_exists(self.dlg.velocity_risk_file, fin, 'File')
+            self.dlg.velocity_averaging_combobox.setCurrentText(config.get("Input", "velocity Averaging"))
+                                                                
+            fin=config.get("Input", "paracousti device present filepath")
+            self.test_exists(self.dlg.paracousti_device_present, fin, 'Directory')
+            fin = config.get("Input", "paracousti device not present filepath")
+            self.test_exists(self.dlg.paracousti_device_not_present, fin, 'Directory')
+            fin = config.get("Input", "paracousti probabilities file")
+            self.test_exists(self.dlg.paracousti_probabilities_file, fin, 'File')
+            fin = config.get("Input", "paracousti threshold file")
+            self.test_exists(self.dlg.paracousti_threshold_file, fin, 'File')
+            fin = config.get("Input", "paracousti risk layer file")
+            self.test_exists(self.dlg.paracousti_risk_file, fin, 'File')
+            fin = config.get("Input", "paracousti species filepath")
+            self.test_exists(self.dlg.paracousti_species_directory, fin, 'Directory')
+            self.dlg.paracousti_averaging_combobox.setCurrentText(config.get("Input", "paracousti averaging"))
+                                                
+            fin = config.get("Input", "power files filepath")
+            self.test_exists(self.dlg.power_files, fin, 'Directory')                
+            fin = config.get("Input", "power probabilities file")
+            self.test_exists(self.dlg.power_probabilities_file, fin, 'File')             
 
             self.dlg.crs.setText(config.get("Input", "coordinate reference system"))
 
             self.dlg.output_folder.setText(config.get("Output", "output filepath"))
 
             self.dlg.output_stylefile.setText(config.get("Input", "output style files"))
+            self.test_exists(self.dlg.output_stylefile, fin, 'File')
 
+        config.clear()
+        
     def save_in(self):
         """Select and save an input file."""
         filename, _filter = QFileDialog.getSaveFileName(
@@ -404,62 +436,82 @@ class StressorReceptorCalc:
         if module=='shear':
             if option=='device_present':
                 self.dlg.shear_device_present.setText(directory)
+                self.dlg.shear_device_present.setStyleSheet("color: black;")
             if option=="device_not_present":
                 self.dlg.shear_device_not_present.setText(directory)
+                self.dlg.shear_device_not_present.setStyleSheet("color: black;")
         if module=='velocity':
             if option=='device_present':
                 self.dlg.velocity_device_present.setText(directory)
+                self.dlg.velocity_device_present.setStyleSheet("color: black;")
             if option=="device_not_present":
                 self.dlg.velocity_device_not_present.setText(directory)
+                self.dlg.velocity_device_not_present.setStyleSheet("color: black;")
         if module=='paracousti':
             if option=='device_present':
                 self.dlg.paracousti_device_present.setText(directory)
+                self.dlg.paracousti_device_present.setStyleSheet("color: black;")
             if option=="device_not_present":
-                self.dlg.paracousti_device_not_present.setText(directory)           
+                self.dlg.paracousti_device_not_present.setText(directory)  
+                self.dlg.paracousti_device_not_present.setStyleSheet("color: black;")         
             if option=='species_directory':
                 self.dlg.paracousti_species_directory.setText(directory)
+                self.dlg.paracousti_species_directory.setStyleSheet("color: black;")
         if module=='power':
             self.dlg.power_files.setText(directory)
+            self.dlg.power_files.setStyleSheet("color: black;")
         if module=='output':
             self.dlg.output_folder.setText(directory)      
+            self.dlg.output_folder.setStyleSheet("color: black;")
 
     def select_files_module(self, module=None, option=None):
         if module=='shear':
             if option=='probabilities_file':
                 file = self.select_file(filter="*.csv")
-                self.dlg.shear_probabilities_file.setText(file)
+                self.dlg.shear_probabilities_file.setText(file)      
+                self.dlg.shear_probabilities_file.setStyleSheet("color: black;")
             if option=="grain_size_file":
                 file = self.select_file(filter="*.tif; *.csv")
-                self.dlg.shear_grain_size_file.setText(file)
+                self.dlg.shear_grain_size_file.setText(file)      
+                self.dlg.shear_grain_size_file.setStyleSheet("color: black;")
             if option=="risk_file":
                 file = self.select_file(filter="*.tif")
-                self.dlg.shear_risk_file.setText(file)                       
+                self.dlg.shear_risk_file.setText(file)       
+                self.dlg.shear_risk_file.setStyleSheet("color: black;")                      
         if module=='velocity':
             if option=='probabilities_file':
                 file = self.select_file(filter="*.csv")
-                self.dlg.velocity_probabilities_file.setText(file)
+                self.dlg.velocity_probabilities_file.setText(file)      
+                self.dlg.velocity_probabilities_file.setStyleSheet("color: black;")
             if option=="thresholds":
                 file = self.select_file(filter="*.tif; *.csv")
-                self.dlg.velocity_threshold_file.setText(file)
+                self.dlg.velocity_threshold_file.setText(file)      
+                self.dlg.velocity_threshold_file.setStyleSheet("color: black;")
             if option=="risk_file":
                 file = self.select_file(filter="*.tif")
-                self.dlg.velocity_risk_file.setText(file)    
+                self.dlg.velocity_risk_file.setText(file)        
+                self.dlg.velocity_risk_file.setStyleSheet("color: black;")  
         if module=='paracousti':
             if option=='probabilities_file':
                 file = self.select_file(filter="*.csv")
-                self.dlg.paracousti_probabilities_file.setText(file)
+                self.dlg.paracousti_probabilities_file.setText(file)      
+                self.dlg.paracousti_probabilities_file.setStyleSheet("color: black;")
             if option=="thresholds":
                 file = self.select_file(filter="*.csv")
-                self.dlg.paracousti_threshold_file.setText(file)
+                self.dlg.paracousti_threshold_file.setText(file)      
+                self.dlg.paracousti_threshold_file.setStyleSheet("color: black;")
             if option=="risk_file":
                 file = self.select_file(filter="*.tif")
-                self.dlg.paracousti_risk_file.setText(file)   
+                self.dlg.paracousti_risk_file.setText(file)         
+                self.dlg.paracousti_risk_file.setStyleSheet("color: black;")
         if module=='power':
             file = self.select_file(filter="*.csv")
-            self.dlg.power_probabilities_file.setText(file)
+            self.dlg.power_probabilities_file.setText(file)      
+            self.dlg.power_probabilities_file.setStyleSheet("color: black;")
         if module=='style_files':
             file = self.select_file(filter="*.csv")
-            self.dlg.output_stylefile.setText(file)
+            self.dlg.output_stylefile.setText(file)      
+            self.dlg.output_stylefile.setStyleSheet("color: black;")
         
                     
     def run(self):
@@ -568,33 +620,86 @@ class StressorReceptorCalc:
             # this grabs the files for input and output
             #TODO Remove these and just query the dlg directly when needed
             shear_stress_device_present_directory = self.dlg.shear_device_present.text()
+            if not ((shear_stress_device_present_directory is None) or (shear_stress_device_present_directory == "")):
+                if not os.path.exists(shear_stress_device_present_directory):
+                    raise FileNotFoundError(f"The directory {shear_stress_device_present_directory} does not exist.")
             velocity_device_present_directory = self.dlg.velocity_device_present.text()
+            if not ((velocity_device_present_directory is None) or (velocity_device_present_directory == "")):
+                if not os.path.exists(velocity_device_present_directory):
+                    raise FileNotFoundError(f"The directory {velocity_device_present_directory} does not exist.")            
             paracousti_device_present_directory = self.dlg.paracousti_device_present.text()
+            if not ((paracousti_device_present_directory is None) or (paracousti_device_present_directory == "")):
+                if not os.path.exists(paracousti_device_present_directory):
+                    raise FileNotFoundError(f"The directory {paracousti_device_present_directory} does not exist.")                 
             power_files_directory = self.dlg.power_files.text()
-            
+            if not ((power_files_directory is None) or (power_files_directory == "")):
+                if not os.path.exists(power_files_directory):
+                    raise FileNotFoundError(f"The directory {power_files_directory} does not exist.")    
+                            
             shear_stress_device_not_present_directory = self.dlg.shear_device_not_present.text()
+            if not ((shear_stress_device_not_present_directory is None) or (shear_stress_device_not_present_directory == "")):
+                if not os.path.exists(shear_stress_device_not_present_directory):
+                    raise FileNotFoundError(f"The directory {shear_stress_device_not_present_directory} does not exist.")
             velocity_device_not_present_directory = self.dlg.velocity_device_not_present.text()
+            if not ((velocity_device_not_present_directory is None) or (velocity_device_not_present_directory == "")):
+                if not os.path.exists(velocity_device_not_present_directory):
+                    raise FileNotFoundError(f"The directory {velocity_device_not_present_directory} does not exist.")
             paracousti_device_not_present_directory = self.dlg.paracousti_device_not_present.text()
+            if not ((paracousti_device_not_present_directory is None) or (paracousti_device_not_present_directory == "")):
+                if not os.path.exists(paracousti_device_not_present_directory):
+                    raise FileNotFoundError(f"The directory {paracousti_device_not_present_directory} does not exist.")
             
             shear_stress_probabilities_fname = self.dlg.shear_probabilities_file.text()
+            if not ((shear_stress_probabilities_fname is None) or (shear_stress_probabilities_fname == "")):
+                if not os.path.exists(shear_stress_probabilities_fname):
+                    raise FileNotFoundError(f"The file {shear_stress_probabilities_fname} does not exist.")
             velocity_probabilities_fname = self.dlg.velocity_probabilities_file.text()
+            if not ((velocity_probabilities_fname is None) or (velocity_probabilities_fname == "")):
+                if not os.path.exists(velocity_probabilities_fname):
+                    raise FileNotFoundError(f"The file {velocity_probabilities_fname} does not exist.")
             paracousti_probabilities_fname = self.dlg.paracousti_probabilities_file.text()
-            power_probabilities_fname = self.dlg.power_probabilities_file.text()            
+            if not ((paracousti_probabilities_fname is None) or (paracousti_probabilities_fname == "")):
+                if not os.path.exists(paracousti_probabilities_fname):
+                    raise FileNotFoundError(f"The file {paracousti_probabilities_fname} does not exist.")
+            power_probabilities_fname = self.dlg.power_probabilities_file.text()     
+            if not ((power_probabilities_fname is None) or (power_probabilities_fname == "")):
+                if not os.path.exists(power_probabilities_fname):
+                    raise FileNotFoundError(f"The file {power_probabilities_fname} does not exist.")       
 
-            shear_grain_size_file = self.dlg.shear_grain_size_file.text()
-            velocity_threshold_file = self.dlg.velocity_threshold_file.text()
-            paracousti_threshold_file = self.dlg.paracousti_threshold_file.text()
+            shear_grain_size_file = self.dlg.shear_grain_size_file.text()     
+            if not ((shear_grain_size_file is None) or (shear_grain_size_file == "")):
+                if not os.path.exists(shear_grain_size_file):
+                    raise FileNotFoundError(f"The file {shear_grain_size_file} does not exist.")   
+            velocity_threshold_file = self.dlg.velocity_threshold_file.text()     
+            if not ((velocity_threshold_file is None) or (velocity_threshold_file == "")):
+                if not os.path.exists(velocity_threshold_file):
+                    raise FileNotFoundError(f"The file {velocity_threshold_file} does not exist.")   
+            paracousti_threshold_file = self.dlg.paracousti_threshold_file.text()     
+            if not ((paracousti_threshold_file is None) or (paracousti_threshold_file == "")):
+                if not os.path.exists(paracousti_threshold_file):
+                    raise FileNotFoundError(f"The file {paracousti_threshold_file} does not exist.")   
             
-            shear_risk_layer_file = self.dlg.shear_risk_file.text()
-            velocity_risk_layer_file = self.dlg.velocity_risk_file.text()
-            paracousti_risk_layer_file = self.dlg.paracousti_risk_file.text()            
+            shear_risk_layer_file = self.dlg.shear_risk_file.text()     
+            if not ((shear_risk_layer_file is None) or (shear_risk_layer_file == "")):
+                if not os.path.exists(shear_risk_layer_file):
+                    raise FileNotFoundError(f"The file {shear_risk_layer_file} does not exist.")   
+            velocity_risk_layer_file = self.dlg.velocity_risk_file.text()     
+            if not ((velocity_risk_layer_file is None) or (velocity_risk_layer_file == "")):
+                if not os.path.exists(velocity_risk_layer_file):
+                    raise FileNotFoundError(f"The file {velocity_risk_layer_file} does not exist.")   
+            paracousti_risk_layer_file = self.dlg.paracousti_risk_file.text()         
+            if not ((paracousti_risk_layer_file is None) or (paracousti_risk_layer_file == "")):
+                if not os.path.exists(paracousti_risk_layer_file):
+                    raise FileNotFoundError(f"The file {paracousti_risk_layer_file} does not exist.")           
 
-            paracousti_species_directory = self.dlg.paracousti_species_directory.text()
+            paracousti_species_directory = self.dlg.paracousti_species_directory.text()         
+            if not ((paracousti_species_directory is None) or (paracousti_species_directory == "")):
+                if not os.path.exists(paracousti_species_directory):
+                    raise FileNotFoundError(f"The directory {paracousti_species_directory} does not exist.")  
             
-            shear_stress_averaging = self.dlg.shear_averaging_combobox.currentText()           
-            velocity_averaging = self.dlg.velocity_averaging_combobox.currentText()           
-            paracousti_averaging = self.dlg.paracousti_averaging_combobox.currentText()           
-            
+            shear_stress_averaging = self.dlg.shear_averaging_combobox.currentText()              
+            velocity_averaging = self.dlg.velocity_averaging_combobox.currentText()                   
+            paracousti_averaging = self.dlg.paracousti_averaging_combobox.currentText()                   
             
             output_folder_name = self.dlg.output_folder.text()
             os.makedirs(output_folder_name, exist_ok=True) # create output directory if it doesn't exist
@@ -603,23 +708,14 @@ class StressorReceptorCalc:
             
             # need to add check to leave empty if not present then apply default values
             if not ((self.dlg.output_stylefile.text() is None) or (self.dlg.output_stylefile.text() == "")):
+                if not os.path.exists(self.dlg.output_stylefile.text()):
+                    raise FileNotFoundError(f"The file {self.dlg.output_stylefile.text()} does not exist.")
                 stylefiles_DF = self.read_style_files(self.dlg.output_stylefile.text())
             else:
                 stylefiles_DF = None
 
             initialize_group  = True
                                   
-            # # create file handler and set level to info
-            # fname = os.path.join(output_folder_name, "_{}.log".format(date.today().strftime("%Y%m%d")))
-            # fh = logging.FileHandler(fname, mode="a", encoding="utf8")
-            # fh.setLevel(logging.INFO)
-
-            # create formatter
-            # formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-
-            # add formatter to ch
-            # fh.setFormatter(formatter)
-
             # if the output file path is empty display a warning
             if output_folder_name == "":
                 QgsMessageLog.logMessage("Output file path not given.", level=Qgis.MessageLevel.Warnin)
