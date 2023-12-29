@@ -202,7 +202,11 @@ def calculate_shear_stress_stressors(fpath_nodev,
         grid type [structured or unstructured].
 
     """
-
+    if not os.path.exists(fpath_nodev):
+        raise FileNotFoundError(f"The file {fpath_nodev} does not exist.")
+    if not os.path.exists(fpath_dev):
+        raise FileNotFoundError(f"The file {fpath_dev} does not exist.")
+    
     files_nodev = [i for i in os.listdir(fpath_nodev) if i.endswith('.nc')]
     files_dev = [i for i in os.listdir(fpath_dev) if i.endswith('.nc')]
 
@@ -249,10 +253,6 @@ def calculate_shear_stress_stressors(fpath_nodev,
             with Dataset(os.path.join(fpath_nodev, row.files_nodev)) as file_dev_notpresent, \
                 Dataset(os.path.join(fpath_dev, row.files_dev)) as file_dev_present:
                 
-            # file_dev_notpresent = Dataset(
-            #     os.path.join(fpath_nodev, row.files_nodev))
-            # file_dev_present = Dataset(os.path.join(fpath_dev, row.files_dev))
-
                 gridtype, xvar, yvar, tauvar = check_grid_define_vars(
                     file_dev_present)
 
@@ -274,8 +274,6 @@ def calculate_shear_stress_stressors(fpath_nodev,
                 tau_nodev[ir, :] = file_dev_notpresent.variables[tauvar][:].data
                 tau_dev[ir, :] = file_dev_present.variables[tauvar][:].data
 
-                # file_dev_notpresent.close()
-                # file_dev_present.close()
                 ir += 1
     else:
         raise Exception(
@@ -289,6 +287,8 @@ def calculate_shear_stress_stressors(fpath_nodev,
                 xcor, ycor, tau_nodev, tau_dev)
 
     if not (probabilities_file == ""):
+        if not os.path.exists(probabilities_file):
+            raise FileNotFoundError(f"The file {probabilities_file} does not exist.")
         # Load BC file with probabilities and find appropriate probability
         BC_probability = pd.read_csv(probabilities_file, delimiter=",")
         BC_probability['run_num'] = BC_probability['run number']-1
@@ -480,6 +480,8 @@ def run_shear_stress_stressor(
                         'shear_stress_difference']
 
     if not ((secondary_constraint_filename is None) or (secondary_constraint_filename == "")):
+        if not os.path.exists(secondary_constraint_filename):
+            raise FileNotFoundError(f"The file {secondary_constraint_filename} does not exist.")        
         rrx, rry, constraint = secondary_constraint_geotiff_to_numpy(secondary_constraint_filename)
         dict_of_arrays['shear_stress_risk_layer'] = resample_structured_grid(rrx, rry, constraint, rx, ry, interpmethod='nearest')
         use_numpy_arrays.append('shear_stress_risk_layer')

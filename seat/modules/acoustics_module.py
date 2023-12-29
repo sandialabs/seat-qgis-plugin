@@ -140,6 +140,14 @@ def calculate_acoustic_stressors(fpath_dev,
         y-spacing.
 
     """
+    # Ensure required files exist
+    if not os.path.exists(fpath_dev):
+        raise FileNotFoundError(f"The directory {fpath_dev} does not exist.")
+    if not os.path.exists(probabilities_file):
+        raise FileNotFoundError(f"The file {probabilities_file} does not exist.")
+    if not os.path.exists(receptor_filename):
+        raise FileNotFoundError(f"The file {receptor_filename} does not exist.")
+        
     paracousti_files = [os.path.join(fpath_dev, i)
                         for i in os.listdir(fpath_dev) if i.endswith('.nc')]
     boundary_conditions = pd.read_csv(
@@ -180,6 +188,8 @@ def calculate_acoustic_stressors(fpath_dev,
             ACOUST_VAR[ic, :] = acoust_var
 
     if not ((fpath_nodev is None) or (fpath_nodev == "")):  # Assumes same grid as paracousti_files
+        if not os.path.exists(fpath_nodev):
+            raise FileNotFoundError(f"The directory {fpath_nodev} does not exist.")        
         baseline_files = [os.path.join(fpath_nodev, i) for i in os.listdir(
             fpath_nodev) if i.endswith('.nc')]
         for ic, baseline_file in enumerate(baseline_files):
@@ -235,6 +245,8 @@ def calculate_acoustic_stressors(fpath_dev,
         threshold_exceeded[threshold_mask] += probability*100
 
         if not ((species_folder is None) or (species_folder == "")):
+            if not os.path.exists(species_folder):
+                raise FileNotFoundError(f"The directory {species_folder} does not exist.")                   
             species_percent_filename = boundary_conditions.loc[os.path.basename(
                 paracousti_file)]['Species Percent Occurance File']
             species_density_filename = boundary_conditions.loc[os.path.basename(
@@ -338,6 +350,8 @@ def run_acoustics_stressor(
                             'species_threshold_exceeded']
 
     if not ((secondary_constraint_filename is None) or (secondary_constraint_filename == "")):
+        if not os.path.exists(secondary_constraint_filename):
+            raise FileNotFoundError(f"The file {secondary_constraint_filename} does not exist.")
         rrx, rry, constraint = secondary_constraint_geotiff_to_numpy(secondary_constraint_filename)
         dict_of_arrays['paracousti_risk_layer'] = resample_structured_grid(rrx, rry, constraint, rx, ry, interpmethod='nearest')
         use_numpy_arrays.append('paracousti_risk_layer')

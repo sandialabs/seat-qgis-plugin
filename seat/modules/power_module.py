@@ -349,6 +349,12 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
         Total annual power per device.
 
     """
+
+    if not os.path.exists(power_files):
+        raise FileNotFoundError(f"The directory {power_files} does not exist.")
+    if not os.path.exists(probabilities_file):
+        raise FileNotFoundError(f"The file {probabilities_file} does not exist.")
+    
     datafiles_o = [s for s in os.listdir(power_files) if s.endswith('.OUT')]
     bc_data = pd.read_csv(probabilities_file)
     datafiles = sort_data_files_by_runnumber(bc_data, datafiles_o)

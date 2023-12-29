@@ -171,6 +171,11 @@ def calculate_velocity_stressors(fpath_nodev,
         grid type [structured or unstructured].
 
     """
+    if not os.path.exists(fpath_nodev):
+        raise FileNotFoundError(f"The directory {fpath_nodev} does not exist.")
+    if not os.path.exists(fpath_dev):
+        raise FileNotFoundError(f"The directory {fpath_dev} does not exist.")    
+    
     files_nodev = [i for i in os.listdir(fpath_nodev) if i.endswith('.nc')]
     files_dev = [i for i in os.listdir(fpath_dev) if i.endswith('.nc')]
 
@@ -260,6 +265,8 @@ def calculate_velocity_stressors(fpath_nodev,
                 xcor, ycor, mag_nodev, mag_dev)
 
     if probabilities_file != "":
+        if not os.path.exists(probabilities_file):
+            raise FileNotFoundError(f"The file {probabilities_file} does not exist.")
         # Load BC file with probabilities and find appropriate probability
         BC_probability = pd.read_csv(probabilities_file, delimiter=",")
         BC_probability['run_num'] = BC_probability['run number']-1
@@ -441,6 +448,8 @@ def run_velocity_stressor(
                       'velocity_magnitude_difference']
 
     if not ((secondary_constraint_filename is None) or (secondary_constraint_filename == "")):
+        if not os.path.exists(secondary_constraint_filename):
+            raise FileNotFoundError(f"The file {secondary_constraint_filename} does not exist.")
         rrx, rry, constraint = secondary_constraint_geotiff_to_numpy(secondary_constraint_filename)
         dict_of_arrays['velocity_risk_layer'] = resample_structured_grid(rrx, rry, constraint, rx, ry, interpmethod='nearest')
         use_numpy_arrays.append('velocity_risk_layer')
