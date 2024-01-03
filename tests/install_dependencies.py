@@ -3,7 +3,7 @@ import subprocess
 import sys
 
 # Default path to the Python executable
-default_python_exe = "python" 
+default_python_exe = "python3" 
 # Use the provided path if given, otherwise use the default
 python_exe = sys.argv[1] if len(sys.argv) > 1 else default_python_exe
 
