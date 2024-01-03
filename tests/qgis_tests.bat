@@ -1,3 +1,4 @@
+::qgis_tests.bat
 @echo off
 
 :: Set the QGIS installation path
@@ -10,16 +11,8 @@ set "PYTHONHOME=%QGIS_ROOT%\apps\Python39"
 :: Set PATH to include QGIS binaries and libraries
 set "PATH=%QGIS_ROOT%\bin;%QGIS_ROOT%\apps\qgis\bin;%PATH%"
 
-:: Upgrade pip
-"%QGIS_ROOT%\bin\python.exe" -m pip install --upgrade pip
+:: Install dependencies
+"%QGIS_ROOT%\bin\python.exe"  install_dependencies.py "C:\\Program Files\\QGIS 3.34.1\\bin\\python.exe"
 
-:: Check if netCDF4 is installed and install if not
-"%QGIS_ROOT%\bin\python.exe" -m pip show netCDF4 >nul 2>&1
-if %errorlevel% neq 0 (
-    echo netCDF4 not found, installing...
-    "%QGIS_ROOT%\bin\python.exe" -m pip install netCDF4 ipdb
-)
-"%QGIS_ROOT%\bin\python.exe" -m pip install ipdb
-
-:: Run your QGIS-based Python script
-"%QGIS_ROOT%\bin\python.exe" test_shear_stress.py
+:: Run pytest on all test scripts in the directory
+"%QGIS_ROOT%\bin\python.exe" -m pytest .
