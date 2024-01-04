@@ -129,7 +129,7 @@ def centroid_diffs(Centroids, centroid):
     Parameters
     ----------
     Centroids : Dict
-        DESCRIPTION.
+        dimensions M,N with each M [index, x , y]
     centroid : array
         single x,y.
 
