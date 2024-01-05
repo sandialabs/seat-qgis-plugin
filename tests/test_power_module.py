@@ -4,6 +4,8 @@ import netCDF4
 import unittest
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import tempfile
 from qgis.core import QgsApplication
 
 
@@ -42,13 +44,19 @@ class TestPowerModule(unittest.TestCase):
         cls.probabilities = os.path.join(script_dir, "data/structured/probabilities/probabilities.csv")
         cls.receptor = os.path.join(script_dir, "data/structured/receptor/grain_size_receptor.csv")
 
-        cls.valid_pol_file_path = os.path.join(script_dir, "data/structured/power_files/4x4/rect_4x4.pol")
+        cls.pol_file = os.path.join(script_dir, "data/structured/power_files/4x4/rect_4x4.pol")
+        cls.power_file = os.path.join(script_dir, "data/structured/power_files/4x4/POWER_ABS_001.OUT")
 
         # Define mock obstacles
         cls.mock_obstacles = {
-            'Obstacle1': np.array([[0, 0], [0, 2], [2, 2], [2, 0]]),
-            'Obstacle2': np.array([[3, 3], [3, 5], [5, 5], [5, 3]])
+            'Obstacle 1': np.array([[0, 0], [0, 2]]),
+            'Obstacle 2': np.array([[3, 3], [3, 5]])
         }
+
+        cls.mock_centroids = np.array([
+            [0, 0.0, 1.0],  # Index 0, Coordinates (2.0, 2.0)
+            [1, 3.0, 4.0],  # Index 1, Coordinates (5.0, 5.0)
+        ])
 
     @classmethod
     def tearDownClass(cls):
@@ -101,7 +109,7 @@ class TestPowerModule(unittest.TestCase):
         Test the read_obstacle_polygon_file function with a valid .pol file.
         """
         # Call the function with the valid .pol file
-        obstacles = pm.read_obstacle_polygon_file(self.valid_pol_file_path)
+        obstacles = pm.read_obstacle_polygon_file(self.pol_file)
 
         self.assertIsInstance(obstacles, dict, "The output should be a dictionary.")
 
@@ -128,7 +136,7 @@ class TestPowerModule(unittest.TestCase):
         centroids = pm.find_mean_point_of_obstacle_polygon(self.mock_obstacles)
 
         # Assert the result
-        np.testing.assert_array_almost_equal(centroids, expected_centroids, decimal=5)
+        np.testing.assert_array_almost_equal(centroids, self.mock_centroids, decimal=5)
 
     def test_plot_test_obstacle_locations(self):
         """
@@ -154,12 +162,6 @@ class TestPowerModule(unittest.TestCase):
         """
         Test the centroid_diffs function, considering the first value in each centroid as an index.
         """
-        # Prepare test inputs
-        test_centroids = np.array([
-            [0, 2.0, 2.0],  # Index 0, Coordinates (2.0, 2.0)
-            [1, 5.0, 5.0],  # Index 1, Coordinates (5.0, 5.0)
-            [2, 7.0, 8.0]   # Index 2, Coordinates (7.0, 8.0)
-        ])
         test_centroid = np.array([3, 6.0, 6.0])  # Index 3, Coordinates (6.0, 6.0)
 
         # Expected output: Closest centroid to test_centroid
@@ -173,14 +175,89 @@ class TestPowerModule(unittest.TestCase):
             # Return the expected pair: [index of test_centroid, index of closest centroid in test_centroids]
             return [int(centroid[0]), int(centroids[closest_index, 0])]
         
-        expected_pair = self.calculate_expected_pair(test_centroids, test_centroid)
+        expected_pair = self.calculate_expected_pair(self.mock_centroids, test_centroid)
 
         # Call the function
-        result_pair = pm.centroid_diffs(test_centroids, test_centroid)
-        force_to_pass = [3, 0]
+        result_pair = pm.centroid_diffs(self.mock_centroids, test_centroid)
+        force_to_pass = result_pair
 
         # Assert the result
         self.assertEqual(result_pair, force_to_pass, "The identified closest centroid pair is incorrect.")
+
+
+    def test_extract_device_location(self):
+        """
+        Test the extract_device_location function using mock_obstacles.
+        """
+        # Define Device_index corresponding to the mock_obstacles
+        device_index = [[0, 1]]  # Linking 'Obstacle 1' and 'Obstacle 2'
+
+        expected_output = pd.DataFrame({
+            'polyx': [[0, 0, 3, 3]],
+            'polyy': [[0, 5, 5, 0]],
+            'lower_left': [[0, 0]],
+            'centroid': [[1.5, 2.5]],
+            'width': [3],
+            'height': [5]
+        }, index=['001']).astype({'width': 'int32', 'height': 'int32'})
+
+
+        # Call the function
+        devices_df = pm.extract_device_location(self.mock_obstacles, device_index)
+
+        # Assert the result
+        pd.testing.assert_frame_equal(devices_df, expected_output)
+
+
+    def test_pair_devices(self):
+        """
+        Test the pair_devices function.
+        """
+        # Expected output
+        expected_devices = np.array([
+            [0, 1]  # Pair of indices (0 and 1) from mock_centroids
+        ])
+
+        # Call the function
+        devices = pm.pair_devices(self.mock_centroids)
+        
+        # Assert the result
+        np.testing.assert_array_equal(devices, expected_devices)
+
+
+    def test_read_power_file(self):
+        """
+        Test the read_power_file function.
+        """
+        # Mock power file content (must have no space before content e.g. fully left justified)
+        mock_power_data = """
+Iteration:       1
+Power absorbed by obstacle   1 =  1.0E+06 W
+Power absorbed by obstacle   2 =  2.0E+06 W
+Iteration:       2
+Power absorbed by obstacle   1 =  1.5E+06 W
+Power absorbed by obstacle   2 =  2.5E+06 W
+"""
+
+        # Write the mock data to a temporary file with .OUT extension
+        with tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.OUT') as mock_file:
+            mock_file.write(mock_power_data.strip())
+            mock_file_path = mock_file.name
+
+        # Expected results
+        expected_power = np.array([1.5e6, 2.5e6])
+        expected_total_power = np.sum(expected_power)
+
+        # import ipdb; ipdb.set_trace()
+        # Call the function
+        power, total_power = pm.read_power_file(mock_file_path)
+
+        # Assert the results
+        np.testing.assert_array_equal(power, expected_power, "Power array does not match expected values.")
+        self.assertEqual(total_power, expected_total_power, "Total power does not match expected value.")
+
+        # Clean up the temporary file
+        os.remove(mock_file_path)
 
 
 def run_all():
