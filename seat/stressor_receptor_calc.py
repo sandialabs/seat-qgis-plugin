@@ -24,6 +24,8 @@
     4. tested and created using QGIS v3.22
     5. added habitat for shear stress
 """
+    5. added habitat for shear stress
+"""
 import configparser
 import logging
 import os.path
@@ -616,6 +618,7 @@ class StressorReceptorCalc:
         result = self.dlg.exec_()
         # See if OK was pressed
         if result:
+            # Run Calculations
             # Run Calculations
             # this grabs the files for input and output
             #TODO Remove these and just query the dlg directly when needed
