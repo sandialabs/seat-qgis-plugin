@@ -22,11 +22,6 @@ from seat import power_module as pm
 # fmt: on
 
 
-# Mock Interface
-class MockIface:
-    pass
-
-
 class TestPowerModule(unittest.TestCase):
 
     @classmethod
