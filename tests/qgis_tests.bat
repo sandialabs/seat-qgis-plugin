@@ -16,5 +16,5 @@ set "PATH=%QGIS_ROOT%\bin;%QGIS_ROOT%\apps\qgis\bin;%PATH%"
 
 :: Run pytest on all test scripts in the directory
 "%QGIS_ROOT%\bin\python.exe" -m pytest .
-@REM "%QGIS_ROOT%\bin\python.exe" test_power_module.py
+@REM "%QGIS_ROOT%\bin\python.exe" test_stressor_receptor_calc.py
 
