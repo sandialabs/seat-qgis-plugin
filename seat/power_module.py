@@ -353,7 +353,6 @@ def calculate_power(power_files, probabilities_file, save_path, crs=None):
 
     datafiles = sort_data_files_by_runnumber(bc_data, datafiles_o)
 
-    assert save_path is not None, "Specify an output directory"
     os.makedirs(save_path, exist_ok=True)
 
     Total_Power = []
