@@ -45,7 +45,9 @@ class TestPowerModule(unittest.TestCase):
         cls.receptor = os.path.join(script_dir, "data/structured/receptor/grain_size_receptor.csv")
 
         cls.pol_file = os.path.join(script_dir, "data/structured/power_files/4x4/rect_4x4.pol")
-        cls.power_file = os.path.join(script_dir, "data/structured/power_files/4x4/POWER_ABS_001.OUT")
+        cls.power_file = os.path.join(script_dir, "data/structured/power_files/4x4/")
+        cls.hydrodynamic_probabilities = os.path.join(script_dir, "data/structured/probabilities/hydrodynamic_probabilities.csv")
+
 
         # Define mock obstacles
         cls.mock_obstacles = {
@@ -259,6 +261,34 @@ Power absorbed by obstacle   2 =  2.5E+06 W
         # Clean up the temporary file
         os.remove(mock_file_path)
 
+    def test_calculate_power(self):
+        """
+        Test the calculate_power function.
+        """
+        # Paths to the power and probabilities files as set up in setUpClass
+        power_files = self.power_file
+        probabilities_file = self.hydrodynamic_probabilities
+
+
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            pm.calculate_power(power_files, probabilities_file, tmpdirname)
+            # Check if the expected output files are created
+            expected_files = [
+                'BC_probability_wPower.csv',
+                'Total_Scaled_Power_Bars_per_Run.png',
+                'Device_Power.png',
+                'Power_per_device_annual.csv',
+                'Scaled_Power_per_device_per_scenario.png',
+                'Power_per_device_per_scenario.csv',
+                'Obstacle_Matching.csv',
+                'Device Number Location.png',
+                'Obstacle_Locations.png',
+                'Scaled_Power_Bars_per_run_obstacle.png',
+            ]
+            for file_name in expected_files:
+                self.assertTrue(os.path.exists(os.path.join(tmpdirname, file_name)),
+                                f"Expected output file {file_name} not found.")
 
 def run_all():
     suite = unittest.TestSuite()
