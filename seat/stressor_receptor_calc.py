@@ -24,8 +24,6 @@
     4. tested and created using QGIS v3.22
     5. added habitat for shear stress
 """
-    5. added habitat for shear stress
-"""
 import configparser
 import logging
 import os.path
@@ -349,7 +347,7 @@ class StressorReceptorCalc:
 
             self.dlg.output_folder.setText(config.get("Output", "output filepath"))
 
-            self.dlg.output_stylefile.setText(config.get("Input", "output style files"))
+            fin = config.get("Input", "output style files")
             self.test_exists(self.dlg.output_stylefile, fin, 'File')
 
         config.clear()
