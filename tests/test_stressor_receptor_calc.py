@@ -292,42 +292,39 @@ class TestStressorReceptorCalcModule(unittest.TestCase):
         temp_file.close()
         os.remove(temp_file.name)
 
-    # @patch('seat.stressor_receptor_calc.QgsProject')
-    # @patch('seat.stressor_receptor_calc.QgsRasterLayer')
-    # def test_style_layer(self, mock_QgsRasterLayer, mock_QgsProject):
-    #     """
-    #     Test the style_layer method.
-    #     """
-    #     mock_layer = MagicMock()
-    #     mock_QgsRasterLayer.return_value = mock_layer
-    #     mock_project = MagicMock()
-    #     mock_QgsProject.instance.return_value = mock_project
+    @patch('seat.stressor_receptor_calc.QgsRasterLayer')
+    @patch('seat.stressor_receptor_calc.QgsProject.instance')
+    def test_style_layer(self, mock_QgsProject_instance, mock_QgsRasterLayer):
+        mock_layer = MagicMock()
+        mock_QgsRasterLayer.return_value = mock_layer
+        mock_project = MagicMock()
+        mock_QgsProject_instance.return_value = mock_project
+        mock_project.addMapLayer.return_value = mock_layer
 
-    #     # Mock methods used in the function
-    #     mock_layer.loadNamedStyle = MagicMock()
-    #     mock_layer.triggerRepaint = MagicMock()
-    #     mock_layer.reload = MagicMock()
-    #     mock_layer.legendSymbologyItems = MagicMock(return_value=[('range1',), ('range2',)])
-    #     self.stressor_receptor_calc.iface.layerTreeView().refreshLayerSymbology = MagicMock()
-        
-    #     # Call the function with a style path
-    #     fpath = "test_fpath.tif"
-    #     stylepath = "test_style.qml"
-    #     result = self.stressor_receptor_calc.style_layer(fpath, stylepath)
+        # Set return values and mock methods
+        mock_layer.loadNamedStyle = MagicMock()
+        mock_layer.triggerRepaint = MagicMock()
+        mock_layer.reload = MagicMock()
+        mock_layer.legendSymbologyItems.return_value = [('range1',), ('range2',)]
 
-    #     # Assert that the style was applied and layer added to the project
-    #     mock_layer.loadNamedStyle.assert_called_once_with(stylepath)
-    #     mock_project.addMapLayer.assert_called_once_with(mock_layer)
-    #     self.assertEqual(result, ['range1', 'range2'])
+        # Call the function
+        fpath = "test_fpath.tif"
+        stylepath = "test_style.qml"
+        result = self.stressor_receptor_calc.style_layer(fpath, stylepath, checked=True, ranges=True)
 
-    #     # Test the function with an empty style path
-    #     mock_layer.reset_mock()
-    #     mock_project.reset_mock()
-    #     result = self.stressor_receptor_calc.style_layer(fpath, "")
+        # Assertions
+        mock_layer.loadNamedStyle.assert_called_once_with(stylepath)
+        mock_project.addMapLayer.assert_called_once_with(mock_layer)
+        self.assertEqual(result, ['range1', 'range2'])
 
-    #     # Assert that the style was not applied
-    #     mock_layer.loadNamedStyle.assert_not_called()
-    #     self.assertIsNone(result)
+        # Test the function with an empty style path
+        mock_layer.reset_mock()
+        mock_project.reset_mock()
+        result2 = self.stressor_receptor_calc.style_layer(fpath, "")
+
+        # Assert that the style was not applied
+        mock_layer.loadNamedStyle.assert_not_called()
+        self.assertEqual(result2, ['range1', 'range2'])
 
 def run_all():
     suite = unittest.TestSuite()
