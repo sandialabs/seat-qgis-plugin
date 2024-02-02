@@ -11,7 +11,7 @@ The secondary constraint input is currently applicable only for the ParAcousti m
 
   - Detailed information regarding the naming conventions of these files and the conditions they pertain to can be found in the Model Probabilities File.
 
-.. figure:: ../media/secondary_constraint_input.webp
+.. figure:: ../../media/secondary_constraint_input.webp
    :scale: 100 %
    :alt: Secondary Constraint
 

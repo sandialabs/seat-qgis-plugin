@@ -8,33 +8,36 @@ Welcome to the guide on how to navigate and utilize the SEAT's graphical user in
 Upon successfully installing the SEAT package in QGIS, you'll notice a new icon representing SEAT on your plugin toolbar.
 
 .. figure:: ../media/SEAT_Toolbar.webp
-   :scale: 50 %
+   :scale: 150 %
    :alt: SEAT icon located on the QGIS toolbar
 
 To launch the SEAT GUI, simply click on the SEAT icon.
 
-You'll then be presented with the SEAT GUI.
+You'll then be presented with the SEAT GUI. You are presented with Tabbed stressors (and Power) followed by the required  common configuration inputs below the tabbed area.
 
 .. figure:: ../media/SEAT_GUI.webp
    :scale: 90 %
    :alt: SEAT's main GUI window
 
+In SEAT, the stressor determines the type of analysis or data to be used. You can select your desired stressor from the from the Tabs. There are three stressor options:
+
+1. **Shear Stress Module**: Analyzes the spatial changes in bed mobility.
+2. **Velocity Module**: Investigates the spatial changes in larval motility.
+3. **ParAcousti Module**: Examines acoustic propagation and its thresholds.
 
 This documentation is organized into various sections to help you quickly navigate to specific functionalities and settings within the GUI. Below is a brief overview:
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
-   stressor.rst                 
-   coordinate_ref_sys.rst       
-   model_results_dir.rst        
-   probabilities.rst            
-   power_dir.rst                
-   receptor.rst                 
-   secondary_constraint.rst     
-   output_dir.rst               
-   output_style_files.rst       
-   save_load_config.rst
-     
+   shear_stress/shear_stress.rst
+   velocity/model_results_dir.rst
+   acoustics/model_results_dir.rst
+   power/power_dir.rst
+   coordinate_ref_sys.rst
+   output_dir.rst
+   output_style_files.rst
+   save_load_config.rst   
+   
 
 Feel free to navigate to the respective sections for detailed information and step-by-step instructions. Or click the next button below to step through the guide in order.

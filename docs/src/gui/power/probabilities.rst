@@ -1,3 +1,4 @@
+   
 Probabilities (optional)
 ------------------------
 
@@ -18,7 +19,7 @@ For added flexibility, you can incorporate an 'Exclude' column, enabling you to 
 
    If you include the 'Exclude' column, the `% of year` won't adjust to total 100%.
 
-.. figure:: ../media/probabilities_input.webp
+.. figure:: ../../media/probabilities_input.webp
    :scale: 100 %
    :alt: Interface depicting the Probabilities Input in SEAT's GUI.
 
