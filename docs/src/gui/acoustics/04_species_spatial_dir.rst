@@ -1,7 +1,7 @@
 Secondary Constraint Input
 ----------------------------
 
-The secondary constraint input is currently applicable only for the ParAcousti module. It is not utilized in the Shear Stress and Velocity modules. In ParAcousti, this input specifies the directory containing the essential data files: Species Percent and Species Density. Both files must be located within the same directory.
+In ParAcousti, this input specifies the directory containing: Species Percent and Species Density. Both files must be located within the same directory.
 
 - **Directory Structure**:
 

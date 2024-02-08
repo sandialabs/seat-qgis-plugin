@@ -1,9 +1,9 @@
-Velocity Larval Motility Threshold (Optional)
-------------------------------------------------
+Larval Motility
+-----------------------------
 
 The receptor file serves as an additional input to each module, which can either be in .csv or .tif format. 
 
-.. figure:: ../../media/receptor_file_input.webp
+.. figure:: ../../media/larval_motility_input.webp
    :scale: 100 %
    :alt: Receptor File
 

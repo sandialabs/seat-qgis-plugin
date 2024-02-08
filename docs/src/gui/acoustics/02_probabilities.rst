@@ -3,10 +3,6 @@ Probabilities (optional)
 
 The probabilities file, while optional, serves to enhance your analysis, providing insights into the run order and the likelihood of each model condition unfolding. Adhere to the prescribed naming convention (as delineated in the device/baseline model section). Note that this file correlates with the return interval in years.
 
-
-ParAcousti
-^^^^^^^^^^
-
 For ParAcousti analyses, the file format differs from that of shear stress and velocity.
 
 **Required Columns**:

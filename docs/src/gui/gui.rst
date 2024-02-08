@@ -30,10 +30,10 @@ This documentation is organized into various sections to help you quickly naviga
 .. toctree::
    :maxdepth: 2
 
-   shear_stress/shear_stress.rst
-   velocity/model_results_dir.rst
-   acoustics/model_results_dir.rst
-   power/power_dir.rst
+   shear_stress/00_shear_stress.rst
+   velocity/00_velocity.rst
+   acoustics/00_acoustics.rst
+   power/00_power.rst
    coordinate_ref_sys.rst
    output_dir.rst
    output_style_files.rst

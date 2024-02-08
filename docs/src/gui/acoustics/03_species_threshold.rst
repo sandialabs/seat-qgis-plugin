@@ -1,5 +1,5 @@
 Species Threshold File (Optional)
---------------------------------
+---------------------------------------
 
 The receptor file serves as an additional input to each module, which can either be in .csv or .tif format. 
 
@@ -7,10 +7,6 @@ The receptor file serves as an additional input to each module, which can either
    :scale: 100 %
    :alt: Receptor File
 
-
-
-3. ParAcousti Receptor
-^^^^^^^^^^^^^^^^^^^^^^^^
 
 Contains values indicating thresholds, grid scaling, and variable selections. 
 

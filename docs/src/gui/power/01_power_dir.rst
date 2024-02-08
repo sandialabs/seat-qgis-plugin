@@ -1,9 +1,4 @@
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-
-   probabilities.rst
-   
+  
 Power Files Directory (optional)
 --------------------------------
 

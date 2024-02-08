@@ -24,7 +24,8 @@ Each of these inputs is explored in more detail in the following sections.
 .. toctree::
    :maxdepth: 1
 
-   model_results_dir
-   probabilities.rst
-   receptor.rst
-   stressor.rst
+   01_model_results_dir
+   02_probabilities.rst
+   03_bed_sediment.rst
+   04_risk_layer.rst
+   05_temporal_avg.rst

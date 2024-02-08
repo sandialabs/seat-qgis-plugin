@@ -1,12 +1,3 @@
-Velocity
-===========
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-
-   probabilities.rst
-   receptor.rst
-
 Model Results Directories
 --------------------------------------
 
@@ -14,7 +5,7 @@ For a comprehensive analysis, you'll need to specify two distinct directories fr
   1. **Baseline Results Directory**: Contains the model results without any devices.
   2. **Model Results Directory**: Houses the model results with devices incorporated.
 
-.. figure:: ../../media/model_results_directory_input.webp
+.. figure:: ../../media/acoustics_model_dir_inputs.webp
    :scale: 100 %
    :alt: Interface to choose the Model Results Directory in SEAT's GUI.
 
