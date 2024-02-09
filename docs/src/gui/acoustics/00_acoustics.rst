@@ -15,5 +15,6 @@ ParAcousti Module: Examines acoustic propagation and its thresholds.
    02_probabilities.rst
    03_species_threshold.rst
    04_species_spatial_dir.rst
-   05_depth_avg.rst
+   05_risk_layer.rst
+   06_depth_avg.rst
 

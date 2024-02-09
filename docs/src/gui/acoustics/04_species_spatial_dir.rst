@@ -1,5 +1,5 @@
-Secondary Constraint Input
-----------------------------
+Species Spatial Probability / Density Directory
+------------------------------------------------
 
 In ParAcousti, this input specifies the directory containing: Species Percent and Species Density. Both files must be located within the same directory.
 
@@ -11,7 +11,7 @@ In ParAcousti, this input specifies the directory containing: Species Percent an
 
   - Detailed information regarding the naming conventions of these files and the conditions they pertain to can be found in the Model Probabilities File.
 
-.. figure:: ../../media/secondary_constraint_input.webp
+.. figure:: ../../media/acoustics_species_spatial_probability_density_dir.webp
    :scale: 100 %
    :alt: Secondary Constraint
 

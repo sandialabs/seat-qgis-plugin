@@ -3,7 +3,7 @@ Species Threshold File (Optional)
 
 The receptor file serves as an additional input to each module, which can either be in .csv or .tif format. 
 
-.. figure:: ../../media/receptor_file_input.webp
+.. figure:: ../../media/acoustics_species_threshold.webp
    :scale: 100 %
    :alt: Receptor File
 

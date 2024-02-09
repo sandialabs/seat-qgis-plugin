@@ -1,7 +1,7 @@
 Temporal Averaging (Optional)
 ---------------------------------------
 
-Its a thing you can do.
+TODO
 
 .. figure:: ../../media/temporal_avg.webp
    :scale: 100 %
