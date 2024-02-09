@@ -35,8 +35,8 @@ This documentation is organized into various sections to help you quickly naviga
    acoustics/00_acoustics.rst
    power/00_power.rst
    coordinate_ref_sys.rst
-   output_dir.rst
    output_style_files.rst
+   output_dir.rst
    save_load_config.rst   
    
 
