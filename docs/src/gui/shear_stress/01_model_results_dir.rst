@@ -1,11 +1,12 @@
+
 Model Results Directories
 --------------------------------------
 
 For a comprehensive analysis, you'll need to specify two distinct directories from your model results:
-  1. **Baseline Results Directory**: Contains the model results without any devices.
-  2. **Model Results Directory**: Houses the model results with devices incorporated.
+  1. **Baseline Model Results Directory**: Contains the model results without any devices.
+  2. **Device Model Results Directory**: Houses the model results with devices incorporated.
 
-.. figure:: ../media/model_results_directory_input.webp
+.. figure:: ../../media/model_results_directory_input.webp
    :scale: 100 %
    :alt: Interface to choose the Model Results Directory in SEAT's GUI.
 

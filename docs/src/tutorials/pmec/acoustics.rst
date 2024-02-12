@@ -20,7 +20,7 @@ Example use of the script is shown below. After running the script, .ini files w
    Where is your style_files folder? C:\\Users\\sterl\\OneDrive\\Desktop\\DEMO\\style_files
 
 
-To run this demonstration, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO/DEMO paracousti/demo_paracousti_with_receptor_219.ini`, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the :ref:`save_load_config` section in the :ref:`gui` documention.
+.. To run this demonstration, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO/DEMO paracousti/demo_paracousti_with_receptor_219.ini`, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the :ref:`save_load_config` section in the :ref:`gui` documention.
 
 
 After loading  ``DEMO paracousti/demo_paracousti_with_receptor_219.ini``, the input should resemble the following with your local paths:
