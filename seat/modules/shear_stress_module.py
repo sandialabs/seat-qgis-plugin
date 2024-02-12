@@ -317,8 +317,8 @@ def calculate_shear_stress_stressors(fpath_nodev,
         tau_nodev = np.nanmean(
             tau_nodev, axis=1, keepdims=True)  # mean over time
     elif value_selection == 'Final Timestep':
-        tau_dev = tau_dev[:, -2:-1, :]  # bottom bin over time
-        tau_nodev = tau_nodev[:, -2:-1, :]  # bottom bin over time
+        tau_dev = tau_dev[:, -2:-1, :]  # final timestep
+        tau_nodev = tau_nodev[:, -2:-1, :]  # final timestep
     else:
         tau_dev = np.nanmax(tau_dev, axis=1, keepdims=True)  # default to max over time
         tau_nodev = np.nanmax(tau_nodev, axis=1, keepdims=True)  # default to max over time
