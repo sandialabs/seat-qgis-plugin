@@ -354,5 +354,200 @@ class TestCalculateCellArea(unittest.TestCase):
         np.testing.assert_array_equal(rxm, expected_rxm)
         np.testing.assert_array_equal(rym, expected_rym)
 
+
+class TestBinData(unittest.TestCase):
+
+    def test_bin_data(self):
+        # Sample input data
+        zm = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        square_area = np.ones(zm.shape)  # Assume each cell has an area of 1 for simplicity
+        nbins = 5
+
+        # Expected output
+        expected_bins = {'bin start': np.array([1., 2.8, 4.6, 6.4, 8.2]),
+                        'bin end': np.array([2.8, 4.6, 6.4, 8.2, 10.]),
+                        'bin center': np.array([1.9, 3.7, 5.5, 7.3, 9.1]),
+                        'count': np.array([2, 2, 2, 2, 2]),
+                        'Area': np.array([2., 2., 2., 2., 2.])}
+
+        # Call the function
+        result = su.bin_data(zm, square_area, nbins)
+
+        # Assert the results
+        np.testing.assert_array_almost_equal(result['bin start'], expected_bins['bin start'])
+        np.testing.assert_array_almost_equal(result['bin end'], expected_bins['bin end'])
+        np.testing.assert_array_almost_equal(result['bin center'], expected_bins['bin center'])
+        np.testing.assert_array_equal(result['count'], expected_bins['count'])
+        np.testing.assert_array_equal(result['Area'], expected_bins['Area'])
+
+    def test_bin_data_with_varying_area(self):
+        # Sample input data with varying area
+        zm = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        square_area = np.array([1, 1, 2, 2, 3, 3, 4, 4, 5, 5])  # Varying area for each cell
+        nbins = 5
+
+        # Expected output with consideration for varying area
+        expected_bins = {'bin start': np.array([1., 2.8, 4.6, 6.4, 8.2]),
+                        'bin end': np.array([2.8, 4.6, 6.4, 8.2, 10.]),
+                        'bin center': np.array([1.9, 3.7, 5.5, 7.3, 9.1]),
+                        'count': np.array([2, 2, 2, 2, 2]),
+                        'Area': np.array([2., 4., 6., 8., 10.])}  # Area now reflects the input square_area
+
+        # Call the function
+        result = su.bin_data(zm, square_area, nbins)
+
+        # Assert the results with varying area
+        np.testing.assert_array_almost_equal(result['bin start'], expected_bins['bin start'])
+        np.testing.assert_array_almost_equal(result['bin end'], expected_bins['bin end'])
+        np.testing.assert_array_almost_equal(result['bin center'], expected_bins['bin center'])
+        np.testing.assert_array_equal(result['count'], expected_bins['count'])
+        np.testing.assert_array_equal(result['Area'], expected_bins['Area'])
+
+
+class TestBinReceptor(unittest.TestCase):
+
+    def setUp(self):
+        # Set up sample data for tests
+        self.zm = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        self.receptor = np.array([0, 0, 1, 1, 2, 2, 3, 3, 4, 4])
+        self.square_area = np.array([1, 1, 2, 2, 3, 3, 4, 4, 5, 5])  # Varying area for each cell
+        self.nbins = 5
+        self.receptor_names = ['Type A', 'Type B', 'Type C', 'Type D', 'Type E']
+
+    def test_bin_receptor_without_names(self):
+        # Test without passing receptor_names
+        result = su.bin_receptor(self.zm, self.receptor, self.square_area, self.nbins)
+
+        # Verifying that keys for each unique receptor value are present
+        for rval in np.unique(self.receptor):
+            self.assertIn(f'Area, receptor value {rval}', result)
+
+
+    def test_bin_receptor_with_names(self):
+        # Test with passing receptor_names
+        result = su.bin_receptor(self.zm, self.receptor, self.square_area, self.nbins, self.receptor_names)
+
+        # Verifying that the receptor names are used in the keys
+        for name in self.receptor_names:
+            self.assertIn(name, result)
+
+
+    def test_bin_receptor_calculation(self):
+        # Test comprehensive functionality including bin statistics and area percentage calculations
+        result = su.bin_receptor(self.zm, self.receptor, self.square_area, self.nbins)
+
+        # Expected bin statistics
+        expected_result = {
+            'bin start': np.array([1. , 2.8, 4.6, 6.4, 8.2]), 
+            'bin end': np.array([ 2.8,  4.6,  6.4,  8.2, 10. ]), 
+            'bin center': np.array([1.9, 3.7, 5.5, 7.3, 9.1]), 
+            'Area, receptor value 0':np. array([2., 0., 0., 0., 0.]), 
+            'Area percent, receptor value 0': np.array([100.,   0.,   0.,   0.,   0.]), 
+            'Area, receptor value 1': np.array([0., 4., 0., 0., 0.]),
+            'Area percent, receptor value 1': np.array([  0., 100.,   0.,   0.,   0.]), 
+            'Area, receptor value 2': np.array([0., 0., 6., 0., 0.]), 
+            'Area percent, receptor value 2': np.array([  0.,   0., 100.,   0.,   0.]), 
+            'Area, receptor value 3': np.array([0., 0., 0., 8., 0.]), 
+            'Area percent, receptor value 3': np.array([  0.,   0.,   0., 100.,   0.]), 
+            'Area, receptor value 4': np.array([ 0.,  0.,  0.,  0., 10.]), 
+            'Area percent, receptor value 4': np.array([  0.,   0.,   0.,   0., 100.])
+        }
+
+        # Verify bin statistics
+        np.testing.assert_array_almost_equal(result['bin start'], expected_result['bin start'])
+        np.testing.assert_array_almost_equal(result['bin end'], expected_result['bin end'])
+        np.testing.assert_array_almost_equal(result['bin center'], expected_result['bin center'])
+
+        # Directly verify area and area percent for each receptor value based on actual outputs
+        for rval in np.unique(self.receptor):
+            area_key = f'Area, receptor value {rval}'
+            area_percent_key = f'Area percent, receptor value {rval}'
+      
+            # Assert area and area percentages based on provided actual result
+            np.testing.assert_array_almost_equal(result[area_key], expected_result[area_key])
+            np.testing.assert_array_almost_equal(result[area_percent_key], expected_result[area_percent_key])
+
+class TestBinLayer(unittest.TestCase):
+    # TODO: Check correctness of values. 
+    #   Currently only checking if the function calls are made correctly
+    def setUp(self):
+        # Mock data setup
+        self.raster_filename = "path/to/raster.tif"
+        self.receptor_filename = "path/to/receptor.tif"
+
+        # Example raster data
+        self.rx = np.arange(0, 10)
+        self.ry = np.arange(0, 10)
+        self.z = np.random.rand(10, 10) * 100  # Example raster values
+        self.receptor = np.random.randint(0, 5, (10, 10))  # Example receptor values
+
+    @patch('seat.stressor_utils.read_raster')
+    @patch('seat.stressor_utils.calculate_cell_area')
+    @patch('seat.stressor_utils.resample_structured_grid')
+    @patch('pandas.DataFrame')
+    def test_bin_layer_without_receptor(self, mock_df, mock_resample, mock_calc_area, mock_read_raster):
+        # Mock the function calls inside bin_layer
+        mock_read_raster.return_value = (self.rx, self.ry, self.z)
+        mock_calc_area.return_value = (self.rx, self.ry, np.ones_like(self.z))  # Simplified square area
+        mock_resample.side_effect = lambda rx, ry, z, rxm, rym, **kwargs: z  # Simplified resample to return z directly
+
+        # Call the function under test
+        su.bin_layer(self.raster_filename)
+
+        # Check that read_raster was called with the raster_filename
+        mock_read_raster.assert_called_once_with(self.raster_filename)
+
+
+    @patch('seat.stressor_utils.read_raster')
+    @patch('seat.stressor_utils.calculate_cell_area')
+    @patch('seat.stressor_utils.resample_structured_grid')
+    @patch('pandas.DataFrame')
+    def test_bin_layer_with_receptor(self, mock_df, mock_resample, mock_calc_area, mock_read_raster):
+        # Mock setup for both raster and receptor
+        mock_read_raster.side_effect = [(self.rx, self.ry, self.z), (self.rx, self.ry, self.receptor)]
+        mock_calc_area.return_value = (self.rx, self.ry, np.ones_like(self.z))  # Simplified square area
+        mock_resample.side_effect = lambda rx, ry, z, rxm, rym, **kwargs: z  # Simplified resample to return z directly
+
+        # Call the function under test
+        su.bin_layer(self.raster_filename, self.receptor_filename)
+
+        # Check that read_raster was called correctly for both raster and receptor
+        calls = [unittest.mock.call(self.raster_filename), unittest.mock.call(self.receptor_filename)]
+        mock_read_raster.assert_has_calls(calls, any_order=True)
+
+class TestClassifyLayerArea(unittest.TestCase):
+    @patch('seat.stressor_utils.read_raster')
+    @patch('seat.stressor_utils.calculate_cell_area')
+    @patch('seat.stressor_utils.resample_structured_grid')
+    @patch('pandas.DataFrame')
+    def test_classify_layer_area_without_receptor(self, mock_df, mock_resample, mock_calc_area, mock_read_raster):
+        # Mock data and function return values
+        raster_filename = "path/to/raster.tif"
+        rx, ry = np.meshgrid(np.arange(5), np.arange(5))
+        z = np.array([[1, 2, 1, 2, 3], [2, 1, 3, 1, 2], [1, 2, 1, 2, 3], [2, 1, 3, 1, 2], [1, 2, 1, 2, 3]])
+        square_area = np.ones(z.shape).flatten()  # Assume each cell has an area of 1 for simplicity
+
+        mock_read_raster.return_value = (rx, ry, z)
+        mock_calc_area.return_value = (rx, ry, square_area)
+        mock_resample.side_effect = lambda rx, ry, z, rxm, rym, **kwargs: z.flatten()
+
+        # Call the function under test
+        su.classify_layer_area(raster_filename, at_values=[1, 2, 3], value_names=['One', 'Two', 'Three'])
+
+        # Assertions to check if the function behaved as expected
+        mock_read_raster.assert_called_once_with(raster_filename)
+        mock_calc_area.assert_called_once()
+        mock_resample.assert_called()
+        # Here, you'd also want to verify the DataFrame was created with the expected data structure
+        # For example:
+        # expected_data = {'value': [1, 2, 3], 'value name': ['One', 'Two', 'Three'], 'Area': [10, 10, 5], 'Area percent': [40, 40, 20]}
+        # mock_df.assert_called_once_with(expected_data)
+
+
+if __name__ == '__main__':
+    unittest.main()
+
+
+
 if __name__ == '__main__':
     unittest.main()
