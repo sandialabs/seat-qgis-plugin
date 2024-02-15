@@ -13,7 +13,7 @@ This section covers tutorials put together by the SEAT team to help users quickl
    prepare_style_files.rst
    quick_map_services.rst
    tanana/tanana.rst
-   pmec/pmec.rst
+   pacwave/pacwave.rst
 
 
 

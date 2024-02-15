@@ -43,28 +43,27 @@ Example use of the script is shown below. After running the script, .ini files w
   :caption: Tanana River Demo Files
 
    DEMO
-   └───DEMO unstructured
-      │   shear_stress_no_receptor_demo.default
-      │   shear_stress_with_receptor_demo.default
-      │   velocity_no_receptor_demo.default
-      │   velocity_with_receptor_demo.default
+   └───TananaRiver
+      │   Shear_and_Velocity_with_receptor.default
+      │   Shear_with_receptor.default
+      │   Velocity_with_receptor.default
       │
-      ├───receptor
-      │       grain_size_receptor.csv
-      │       velocity_receptor.csv
+      ├───tanana_nodev
+      │       0_tanana_1_map.nc
+      │       0_tanana_5_map.nc
+      │       0_tanana_10_map.nc
+      │       0_tanana_25_map.nc
+      │       0_tanana_50_map.nc
+      │       0_tanana_100_map.nc
       │
       ├───tanana_dev_9
-      │       9_tanana_100_map.nc
-      │       9_tanana_10_map.nc
       │       9_tanana_1_map.nc
+      │       9_tanana_5_map.nc
+      │       9_tanana_10_map.nc
       │       9_tanana_25_map.nc
       │       9_tanana_50_map.nc
-      │       9_tanana_5_map.nc
-      │
-      └───tanana_nodev
-            0_tanana_100_map.nc
-            0_tanana_10_map.nc
-            0_tanana_1_map.nc
-            0_tanana_25_map.nc
-            0_tanana_50_map.nc
-            0_tanana_5_map.nc
+      │       9_tanana_100_map.nc
+      |
+      └───receptor
+            grain_size_receptor.csv
+            velocity_receptor.csv
