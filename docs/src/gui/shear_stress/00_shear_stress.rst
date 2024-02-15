@@ -6,12 +6,13 @@ Shear Stress
 The shear stress module takes 3 required inputs: 
    1. Baseline Model Results
    2. Device Model Results
-   3. probabilities
+   3. Probabilities
+   4. Temporal Averaging
 
 The following are optional inputs:
-   4. Bed Sediment grain
-   5. Risk Layer
-   6. Temporal Averaging
+   5. Bed Sediment Grain Size
+   6. Risk Layer
+
 
 Each of these inputs is explored in more detail in the following sections.
 

@@ -13,8 +13,8 @@ Represents grain size, measured in microns (µm).
   
   - **Geotiff Details**:
 
-    - Interpolated to align with the model files' grid points (structured/unstructured).
     - Must have the same projection and datum as the model files.
+    - Will be interpolated to align with the model files' grid points (structured/unstructured).
 
   - **CSV Details**:
 

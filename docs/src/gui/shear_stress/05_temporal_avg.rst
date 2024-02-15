@@ -1,4 +1,4 @@
-Temporal Averaging (Optional)
+Temporal Averaging
 ---------------------------------------
 
 TODO

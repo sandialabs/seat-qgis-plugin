@@ -13,7 +13,7 @@ Upon successfully installing the SEAT package in QGIS, you'll notice a new icon 
 
 To launch the SEAT GUI, simply click on the SEAT icon.
 
-You'll then be presented with the SEAT GUI. You are presented with Tabbed stressors (and Power) followed by the required  common configuration inputs below the tabbed area.
+You'll then be presented with the SEAT GUI. You are presented with Tabbed stressors (and Power) followed by the required common configuration inputs below the tabbed area.
 
 .. figure:: ../media/SEAT_GUI.webp
    :scale: 90 %

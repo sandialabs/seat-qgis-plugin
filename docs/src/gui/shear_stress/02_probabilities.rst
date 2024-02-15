@@ -17,7 +17,7 @@ For added flexibility, you can incorporate an 'Exclude' column, enabling you to 
 
 .. note::
 
-   If you include the 'Exclude' column, the `% of year` won't adjust to total 100%.
+   If you include the 'Exclude' column, the `% of year` will rescale included run to total 100%.
 
 **Example of a Probabilities Input**
 
@@ -39,7 +39,7 @@ Key:
 
 - 'Hs': Wave height.
 - 'Tp': Wave period.
-- 'Dp': Direction.
+- 'Dp': Wave direction.
 - '% of dir bin': Proportion within a direction bin.
 - '% of yr': Percentage of the year.
 - 'run order': Execution sequence.
