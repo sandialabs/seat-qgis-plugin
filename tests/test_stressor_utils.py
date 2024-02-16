@@ -1,11 +1,8 @@
 import sys
 import os
-import netCDF4
 import unittest
 import numpy as np
 import pandas as pd
-from qgis.core import QgsApplication
-from osgeo import gdal, osr
 from unittest.mock import patch, MagicMock
 
 # Get the directory in which the current script is located
@@ -85,6 +82,7 @@ class TestRedefineStructuredGrid(unittest.TestCase):
         np.testing.assert_almost_equal(x_new[0, 1] - x_new[0, 0], dx)
         np.testing.assert_almost_equal(y_new[1, 0] - y_new[0, 0], dx)
 
+
 class TestResampleStructuredGrid(unittest.TestCase):
 
     def test_grid_resampling(self):
@@ -105,45 +103,61 @@ class TestResampleStructuredGrid(unittest.TestCase):
         # Assert the shape of the resampled grid
         self.assertEqual(z_resampled.shape, X_grid_out.shape)
 
-#TODO: Add tests for calc_receptor_array
-class TestCalcReceptorArray(unittest.TestCase):
-    pass
-    # @patch('seat.stressor_utils.gdal.Open')
-    # def test_with_tif_file(self, mock_gdal_open):
-    #     # Mock the behavior of gdal.Open for a .tif file
-    #     mock_gdal_open.return_value = MagicMock()
-    #     # ... Set up the necessary attributes and return values for the mock object ...
-        
-    #     x = np.array([0, 1, 2])
-    #     y = np.array([0, 1, 2])
 
-    #     receptor_array = su.calc_receptor_array('test.tif', x, y)
+class TestCalcReceptorArray(unittest.TestCase):
+
+    def setUp(self):
+        # Setup any common data used across tests
+        self.x = np.array([1, 2, 3])
+        self.y = np.array([1, 2, 3])
+
+    @patch('seat.stressor_utils.gdal.Open')
+    @patch('seat.stressor_utils.griddata', return_value=np.array([0, 1, 2]))
+    def test_with_tif_file(self, mock_griddata, mock_gdal_open):
+        # Configure the mock for gdal.Open to simulate a .tif file read
+        mock_dataset = MagicMock()
+        mock_band = MagicMock()
+        mock_band.ReadAsArray.return_value = np.array([0, 1, 2])
+        mock_dataset.GetRasterBand.return_value = mock_band
+        mock_dataset.GetGeoTransform.return_value = (0, 1, 0, 0, 0, -1)
+        mock_dataset.RasterXSize = 3
+        mock_dataset.RasterYSize = 3
+        mock_gdal_open.return_value = mock_dataset
+
+        receptor_filename = 'test.tif'
+        receptor_array = su.calc_receptor_array(receptor_filename, self.x, self.y)
 
         # Assert the output
-        # ... Add your assertions here ...
+        np.testing.assert_array_equal(receptor_array, np.array([0, 1, 2]))
+        mock_gdal_open.assert_called_once_with(receptor_filename)
+        mock_griddata.assert_called_once()
 
-    # @patch('seat.stressor_utils.pd.read_csv')
-    # def test_with_csv_file(self, mock_read_csv):
-    #     # Mock the behavior of pd.read_csv for a .csv file
-    #     mock_read_csv.return_value = pd.DataFrame([[1]])
+    @patch('seat.stressor_utils.pd.read_csv')
+    def test_with_csv_file(self, mock_read_csv):
+        # Mock the behavior of pd.read_csv for a .csv file
+        mock_read_csv.return_value = pd.DataFrame(data=[[1]])
+        receptor_filename = 'test.csv'
+        receptor_array = su.calc_receptor_array(receptor_filename, self.x, self.y)
 
-    #     x = np.array([0, 1, 2])
-    #     y = np.array([0, 1, 2])
+        # Assert the output
+        np.testing.assert_array_equal(receptor_array, np.ones(self.x.shape))
+        mock_read_csv.assert_called_once_with(receptor_filename, header=None, index_col=0)
 
-    #     receptor_array = su.calc_receptor_array('test.csv', x, y)
+    def test_without_file(self):
+        receptor_filename = ''
+        receptor_array = su.calc_receptor_array(receptor_filename, self.x, self.y)
 
-    #     # Assert the output
-    #     # ... Add your assertions here ...
+        # Assert the output
+        expected_array = 200e-6 * np.ones(self.x.shape)
+        np.testing.assert_array_almost_equal(receptor_array, expected_array,  decimal=6)
 
-    # def test_without_file(self):
-    #     x = np.array([0, 1, 2])
-    #     y = np.array([0, 1, 2])
+    def test_invalid_file_type(self):
+        receptor_filename = 'test.invalid'
+        with self.assertRaises(Exception) as context:
+            su.calc_receptor_array(receptor_filename, self.x, self.y)
+        
+        self.assertTrue("Invalid Recetpor File Type. Must be of type .tif or .csv" in str(context.exception))
 
-    #     receptor_array = su.calc_receptor_array('', x, y)
-
-    #     # Assert the output
-    #     expected_array = 200e-6 * np.ones(x.shape)
-    #     np.testing.assert_array_equal(receptor_array, expected_array)
 
 class TestTrimZeros(unittest.TestCase):
 
@@ -199,6 +213,7 @@ class TestCreateRaster(unittest.TestCase):
         # Assert that the function returns a mock raster object
         self.assertEqual(raster, mock_create.return_value)
 
+
 class TestNumpyArrayToRaster(unittest.TestCase):
 
     @patch('seat.stressor_utils.os.path.exists')
@@ -230,6 +245,7 @@ class TestNumpyArrayToRaster(unittest.TestCase):
         mock_band.ComputeStatistics.assert_called_once_with(False)
         self.assertEqual(result_path, output_path)
 
+
 class TestFindUtmSrid(unittest.TestCase):
 
     def test_northern_hemisphere(self):
@@ -260,65 +276,93 @@ class TestFindUtmSrid(unittest.TestCase):
         with self.assertRaises(AssertionError):
             su.find_utm_srid(lon, lat, srid)
 
-# TODO: Add tests for read_raster
+
 class TestReadRaster(unittest.TestCase):
-    pass
-    # @patch('seat.stressor_utils.gdal.Open')
-    # def test_read_raster(self, mock_gdal_open):
-    #     # Mock the behavior of gdal.Open and necessary methods
-    #     mock_data = MagicMock()
-    #     mock_band = MagicMock()
-    #     mock_data.GetRasterBand.return_value = mock_band
-    #     mock_band.ReadAsArray.return_value = np.array([[1, 2], [3, 4]])
-    #     mock_data.GetGeoTransform.return_value = (0, 1, 0, 0, 0, -1)
-    #     mock_data.RasterXSize = 2
-    #     mock_data.RasterYSize = 2
-    #     mock_gdal_open.return_value = mock_data
 
-    #     # Call the function
-    #     raster_name = 'test_raster.tif'
-    #     rx, ry, raster_array = su.read_raster(raster_name)
+    @patch('seat.stressor_utils.gdal.Open')
+    def test_read_raster(self, mock_gdal_open):
+        # Mock data setup
+        raster_name = 'path/to/raster.tif'
 
-    #     # Expected values
-    #     expected_rx = np.array([[0.5, 1.5], [0.5, 1.5]])
-    #     expected_ry = np.array([[0.5, 0.5], [-0.5, -0.5]])
-    #     expected_raster_array = np.array([[1, 2], [3, 4]])
+        # Create a mock object to simulate gdal.Dataset
+        mock_dataset = MagicMock()
+        mock_band = MagicMock()
+        # Simulate raster array returned by ReadAsArray
+        mock_raster_array = np.array([[1, 2], [3, 4]])
+        mock_band.ReadAsArray.return_value = mock_raster_array
+        mock_dataset.GetRasterBand.return_value = mock_band
+        # Simulate GetGeoTransform return value
+        mock_geo_transform = (0, 1, 0, 0, 0, -1)
+        mock_dataset.GetGeoTransform.return_value = mock_geo_transform
+        # Simulate raster size
+        mock_dataset.RasterXSize = 2
+        mock_dataset.RasterYSize = 2
 
-    #     # Asserts
-    #     np.testing.assert_array_equal(rx, expected_rx)
-    #     np.testing.assert_array_equal(ry, expected_ry)
-    #     np.testing.assert_array_equal(raster_array, expected_raster_array)
+        mock_gdal_open.return_value = mock_dataset
 
-#TODO: Add tests for secondary_constraint_geotiff_to_numpy
+        # Call the function under test
+        rx, ry, raster_array = su.read_raster(raster_name)
+
+        # Expected values
+        expected_rx = np.array([[0.5, 1.5], [0.5, 1.5]])
+        expected_ry = np.array([[-0.5, -0.5], [-1.5, -1.5]])
+        expected_raster_array = np.array([[1, 2], [3, 4]])
+
+        # Asserts
+        np.testing.assert_array_equal(rx, expected_rx)
+        np.testing.assert_array_equal(ry, expected_ry)
+        np.testing.assert_array_equal(raster_array, expected_raster_array)
+
+        # Verify that gdal.Open was called with the correct raster name
+        mock_gdal_open.assert_called_once_with(raster_name)
+
+
 class TestSecondaryConstraintGeotiffToNumpy(unittest.TestCase):
-    pass
-    # @patch('seat.stressor_utils.gdal.Open')
-    # def test_secondary_constraint_geotiff_to_numpy(self, mock_gdal_open):
-    #     # Mock the behavior of gdal.Open and necessary methods
-    #     mock_data = MagicMock()
-    #     mock_band = MagicMock()
-    #     mock_data.GetRasterBand.return_value = mock_band
-    #     mock_band.ReadAsArray.return_value = np.array([[1, 2], [3, 4]])
-    #     mock_data.GetGeoTransform.return_value = (0, 1, 0, 0, 0, -1)
-    #     mock_data.RasterXSize = 2
-    #     mock_data.RasterYSize = 2
-    #     # Use a valid WKT string (e.g., WGS 84)
-    #     mock_data.GetProjection.return_value = 'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433],AUTHORITY["EPSG","4326"]]'
-    #     mock_gdal_open.return_value = mock_data
 
-    #     # Call the function
-    #     filename = 'test_raster.tif'
-    #     x_grid, y_grid, array = su.secondary_constraint_geotiff_to_numpy(filename)
+    @patch('seat.stressor_utils.gdal.Open')
+    @patch('seat.stressor_utils.osr.SpatialReference')
+    def test_secondary_constraint_geotiff_to_numpy(self, mock_spatial_reference, mock_gdal_open):
+        # Mock setup for gdal.Open
+        raster_name = 'path/to/constraint.tif'
+        mock_dataset = MagicMock()
+        mock_band = MagicMock()
+        # Simulate raster array returned by ReadAsArray
+        mock_raster_array = np.array([[1, 2], [3, 4]])
+        mock_band.ReadAsArray.return_value = mock_raster_array
+        mock_dataset.GetRasterBand.return_value = mock_band
+        # Simulate GetGeoTransform return value
+        mock_geo_transform = (0, 1, 0, 0, 0, -1)
+        mock_dataset.GetGeoTransform.return_value = mock_geo_transform
+        # Simulate raster size and projection
+        mock_dataset.RasterXSize = 2
+        mock_dataset.RasterYSize = 2
+        mock_dataset.GetProjection.return_value = 'PROJECTION_WKT_HERE'
+        mock_gdal_open.return_value = mock_dataset
 
-    #     # Expected values
-    #     expected_x_grid = np.array([[0.5, 1.5], [0.5, 1.5]])
-    #     expected_y_grid = np.array([[0.5, 0.5], [-0.5, -0.5]])
-    #     expected_array = np.array([[1, 2], [3, 4]])
+        # Mock setup for osr.SpatialReference
+        mock_spatial_ref_instance = MagicMock()
+        mock_srs_attr_value = '4326'
+        mock_spatial_ref_instance.GetAttrValue.return_value = mock_srs_attr_value
+        mock_spatial_reference.return_value = mock_spatial_ref_instance
 
-    #     # Asserts
-    #     np.testing.assert_array_equal(x_grid, expected_x_grid)
-    #     np.testing.assert_array_equal(y_grid, expected_y_grid)
-    #     np.testing.assert_array_equal(array, expected_array)
+        # Expected values
+        expected_x_grid = np.array([[0.5, 1.5], [0.5, 1.5]])
+        expected_y_grid = np.array([[-0.5, -0.5], [-1.5, -1.5]])
+        expected_array = np.array([[1, 2], [3, 4]])
+
+        # Call the function under test
+        x_grid, y_grid, array = su.secondary_constraint_geotiff_to_numpy(raster_name)
+
+        # Asserts
+        np.testing.assert_array_equal(x_grid, expected_x_grid)
+        np.testing.assert_array_equal(y_grid, expected_y_grid)
+        np.testing.assert_array_equal(array, expected_array)
+
+        # Verify osr.SpatialReference was called with the projection WKT
+        mock_spatial_reference.assert_called_once_with(wkt='PROJECTION_WKT_HERE')
+        # Verify GetAttrValue was called to check for EPSG:4326
+        mock_spatial_ref_instance.GetAttrValue.assert_called_with('AUTHORITY', 1)
+
 
 class TestCalculateCellArea(unittest.TestCase):
 
@@ -467,6 +511,7 @@ class TestBinReceptor(unittest.TestCase):
             np.testing.assert_array_almost_equal(result[area_key], expected_result[area_key])
             np.testing.assert_array_almost_equal(result[area_percent_key], expected_result[area_percent_key])
 
+
 class TestBinLayer(unittest.TestCase):
     # TODO: Check correctness of values. 
     #   Currently only checking if the function calls are made correctly
@@ -515,7 +560,9 @@ class TestBinLayer(unittest.TestCase):
         calls = [unittest.mock.call(self.raster_filename), unittest.mock.call(self.receptor_filename)]
         mock_read_raster.assert_has_calls(calls, any_order=True)
 
+
 class TestClassifyLayerArea(unittest.TestCase):
+    # TODO: Check correctness of values. 
     @patch('seat.stressor_utils.read_raster')
     @patch('seat.stressor_utils.calculate_cell_area')
     @patch('seat.stressor_utils.resample_structured_grid')
@@ -538,15 +585,45 @@ class TestClassifyLayerArea(unittest.TestCase):
         mock_read_raster.assert_called_once_with(raster_filename)
         mock_calc_area.assert_called_once()
         mock_resample.assert_called()
-        # Here, you'd also want to verify the DataFrame was created with the expected data structure
-        # For example:
-        # expected_data = {'value': [1, 2, 3], 'value name': ['One', 'Two', 'Three'], 'Area': [10, 10, 5], 'Area percent': [40, 40, 20]}
-        # mock_df.assert_called_once_with(expected_data)
 
 
-if __name__ == '__main__':
-    unittest.main()
+class TestClassifyLayerArea2ndConstraint(unittest.TestCase):
+    # TODO: Check correctness of values.     
+    @patch('seat.stressor_utils.read_raster')
+    @patch('seat.stressor_utils.calculate_cell_area')
+    @patch('seat.stressor_utils.resample_structured_grid')
+    # Add more decorators as needed to mock dependencies
+    def test_classify_layer_area_2nd_constraint(self, mock_resample, mock_calc_area, mock_read_raster):
+        # Mock setup for reading the raster and secondary constraint
+        raster_filename = "path/to/primary_raster.tif"
+        secondary_constraint_filename = "path/to/secondary_constraint.tif"
+        
+        # Example mock return values (simplified)
+        rx, ry = np.meshgrid(np.arange(5), np.arange(5))  # Example coordinates
+        primary_raster_z = np.random.rand(5, 5) * 100  # Example primary raster values
+        secondary_raster_z = np.random.randint(0, 2, (5, 5))  # Example binary constraint raster
+        square_area = np.ones(primary_raster_z.shape).flatten()  # Simplified square area
 
+        mock_read_raster.side_effect = [(rx, ry, primary_raster_z), (rx, ry, secondary_raster_z)]
+        mock_calc_area.return_value = (rx, ry, square_area)
+        mock_resample.side_effect = lambda rx, ry, z, rxm, rym, **kwargs: z.flatten()
+        
+        at_raster_values = [10, 20, 30]  # Example value thresholds
+        at_raster_value_names = ['Low', 'Medium', 'High']  # Corresponding names
+        limit_constraint_range = (0, 1)  # Example constraint range
+        latlon = True  # Assuming geographic coordinates
+
+        # Call the function under test
+        result = su.classify_layer_area_2nd_Constraint(
+            raster_filename,
+            secondary_constraint_filename,
+            at_raster_values,
+            at_raster_value_names,
+            limit_constraint_range,
+            latlon
+        )
+        
+        self.assertIsInstance(result, pd.DataFrame)
 
 
 if __name__ == '__main__':
