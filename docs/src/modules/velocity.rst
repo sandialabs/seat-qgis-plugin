@@ -18,29 +18,40 @@ Input
 Output 
 """"""
 - GeoTIFF raster files: Visualize velocity with and without devices, velocity changes, and motility classifications.
+- Output is saved in the **Velocity Module** subdirectory.
 
     - Output layers are interpolated onto structured grids.
-    - **calculated_stressor.tif** : The probability weight difference between with devices and baseline models results. 
-
-
-    - **calculated_stressor_with_receptor.tif**
-    
-        * Velocity: the motility (Vel/VelCrit) difference using the critical velocity in the receptor file.
-
-    - **receptor.tif** : the receptor file interpolated to the same grid as the output
-    - **calculated_stressor_reclassified.tif** : 
-    
-        * Velocity : reclassified into increase motility or no change compared to the no device model run.
+    - **velocity_magnitude_with_devices**: The probability weighted velocity with devides.
+    - **velocity_magnitude_without_devices.tif**: The probability weighted velocity without devices.    
+    - **velocity_magnitude_difference.tif** : The probability weight difference between with devices and baseline models results. 
+    - **motility_with_devices**: The motility (Vel/VelCrit) with devices using the critical velocity receptor file.
+    - **motility_without_devices**: The motility (Vel/VelCrit) without devices using the critical velocity receptor file.
+    - **motility_difference**: The motility (Vel/VelCrit) difference between motility with devices and baseline models results  using the critical velocity receptor file.
+    - **critical_velocity.tif** : the receptor file interpolated to the same grid as the output
+    - **motility_classified.tif** : reclassified into increased motility or decreased motility compared to the baseline model run.
+    - **velocity_risk_layer.tif** :  the risk layer interpolated to the same grid as the output
 
 - CSV files: Contain statistics of area changes and motility classifications.
+  * The stressor values are binned into 25 bins and the surface area in which that change occurred, the percent of the overall model domain, and number of cells within the stressor is saved to a csv file. 
+    - Output includes:
+        - **velocity_magnitude_difference.csv**
+        - **motility_difference.csv**
+        - **motility_classified.csv**
 
-  * The stressor values are binned into 25 bins and the surface area in which that change occurred, the percent of the overall model domain, and number of cells within the stressor is saved to a csv file.   
+    - When a critical velocity receptor is included, the values are further segmented by unique grain size values.
+    - Output includes:
+        - **velocity_magnitude_difference_at_critical_velocity.csv**
+        - **motility_difference_at_critical_velocity.csv**
+        - **motility_classified_at_critical_velocity.csv**
+
+    - When a risk layer receptor is included, the values are further segmented by unique risk layer values.
+    - Output includes:
+        - **velocity_magnitude_difference_at_velocity_risk_layer.csv**
+        - **motility_difference_at_velocity_risk_layer.csv**
+        - **motility_classified_at_velocity_risk_layer.csv**
+
     + Lat/Lon converted to UTM (meter) coordinates for calculation.
     + UTM remains in the original unit of measure
-
-- When a receptor is included, the stressor and stressor with receptor values are further segmented by unique receptor values.
-
-- For Velocity, the area of each unique reclassified value is defined and for each unique receptor value when included. 
 
 Sources
 """""""

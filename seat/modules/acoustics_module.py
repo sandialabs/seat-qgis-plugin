@@ -422,6 +422,12 @@ def run_acoustics_stressor(
                   latlon=crs == 4326).to_csv(os.path.join(output_path, "species_density.csv"), index=False)
         
         if not ((secondary_constraint_filename is None) or (secondary_constraint_filename == "")):
+            bin_layer(os.path.join(output_path, 'species_threshold_exceeded.tif'),
+                    receptor_filename=os.path.join(output_path, "paracousti_risk_layer.tif"),
+                    receptor_names=None,
+                    limit_receptor_range=[0, np.inf],
+                    latlon=crs == 4326).to_csv(os.path.join(output_path, "species_threshold_exceeded_at_paracousti_risk_layer.csv"), index=False) 
+            
             bin_layer(os.path.join(output_path, 'species_percent.tif'),
                     receptor_filename=os.path.join(output_path, "paracousti_risk_layer.tif"),
                     receptor_names=None,

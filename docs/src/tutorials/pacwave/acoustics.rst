@@ -25,7 +25,7 @@ Example use of the script is shown below. After running the script, .ini files w
 
 After loading  ``DEMO paracousti/demo_paracousti_with_receptor_219.ini``, the input should resemble the following with your local paths:
 
-.. figure:: ../../media/PMEC_acoustics_input_receptor.webp
+.. figure:: ../../media/PacWave_acoustics_input_receptor.webp
    :scale: 100 %
    :alt: PMEC Acoustics Receptor Input
 
@@ -40,7 +40,7 @@ For a given probability of occurrence of each wave condition, the combined annua
    :widths: 50 50
    :class: image-matrix
 
-   * - .. image:: ../../media/PMEC_acoustics_stressor_layers.webp
+   * - .. image:: ../../media/PacWave_acoustics_stressor_layers.webp
          :scale: 70 %
          :alt: Layers
          :align: center
@@ -49,7 +49,7 @@ For a given probability of occurrence of each wave condition, the combined annua
 
           <div style="text-align: center;">Layers Legend</div>
 
-     - .. image:: ../../media/PMEC_acoustics_calculated_stressor.webp
+     - .. image:: ../../media/PacWave_acoustics_calculated_stressor.webp
          :scale: 25 %
          :alt: Calculated Stressor
          :align: center
@@ -58,7 +58,7 @@ For a given probability of occurrence of each wave condition, the combined annua
 
           <div style="text-align: center;">Calculated Stressor</div>
 
-   * - .. image:: ../../media/PMEC_acoustics_calculated_paracousti.webp
+   * - .. image:: ../../media/PacWave_acoustics_calculated_paracousti.webp
          :scale: 25 %
          :alt: Calculated Paracousti
          :align: center
@@ -67,7 +67,7 @@ For a given probability of occurrence of each wave condition, the combined annua
 
           <div style="text-align: center;">Calculated Paracousti</div>
 
-     - .. image:: ../../media/PMEC_acoustics_threshold_exceeded_receptor.webp
+     - .. image:: ../../media/PacWave_acoustics_threshold_exceeded_receptor.webp
          :scale: 25 %
          :alt: Threshold Exceeded Receptor
          :align: center

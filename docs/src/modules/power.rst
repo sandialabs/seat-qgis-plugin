@@ -16,6 +16,7 @@ Input
 Output 
 """"""
 When a directory is specified for the device power the following are generated.
+- Output is saved in the **Power Module** subdirectory.
 
 - CSV:
 

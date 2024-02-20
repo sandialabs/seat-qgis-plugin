@@ -18,31 +18,37 @@ Input
 
 Output 
 """"""
+- Output is saved in the **Acoustics Module** subdirectory.
 - GeoTIFF raster files: Visualize calculated paracoustic, calculated stressor, threshold exceeded receptor, species percent and species density.
     
     - Output layers are interpolated onto structured grids.
-    - **calculated_stressor.tif** : The probability weight difference between with devices and baseline models results. 
-
-        * for acoustics assumes baseline=0 if no baseline model files provided.
-
-    - **receptor.tif** : the receptor file interpolated to the same grid as the output
-
-    * **calculate_paracousti.tif** : the calculated with device probability weighted paracousti file.
-    * **Threshold_exceeded_receptor.tif** : the percent of time the acoustic threshold was exceeded.
-    * **species_percent.tif** : the threshold exceeded and weighted species percent.
-    * **species_density.tif** : the threshold exceeded and weighted species density.
+    - **paracousti_stressor.tif** : The probability weight difference between with devices and baseline models results. 
+      * for acoustics assumes baseline=0 if no baseline model files provided.
+    - **paracousti_with_devices.tif**: The probability weighted signal with devices
+    - **paracousti_without_devices.tif**: The probability weighted signal without devices (baseline)
+    - **species_threshold_exceeded.tif** : the percent of time the acoustic threshold was exceeded.
+    - **species_percent.tif** : the threshold exceeded and weighted species percent.
+    - **species_density.tif** : the threshold exceeded and weighted species density.
 
 - CSV files: Contain statistics of area calculations for various layers.
-
-  * The stressor values are binned into 25 bins and the surface area in which that change occurred, the percent of the overall model domain, and number of cells within the stressor is saved to a csv file.  
-   
     + Lat/Lon converted to UTM (meter) coordinates for calculation.
     + UTM remains in the original unit of measure
 
-- When a receptor is included, the stressor and stressor with receptor values are further segmented by unique receptor values.
-  
-  * For acoustics, the threshold exceeded, the species percent, and species density are generated.
+  * The stressor values are binned into 25 bins and the surface area in which that change occurred, the percent of the overall model domain, and number of cells within the stressor is saved to a csv file.  
+    - Output includes:
+        - **paracousti_stressor.csv**
+        - **paracousti_with_devices.csv**
+        - **paracousti_without_devices.csv**
+        - **species_threshold_exceeded.csv**
+        - **species_percent.csv**
+        - **species_density.csv**
 
+    - When a risk layer receptor is included, the values are further segmented by unique risk layer values.
+    - Output includes:
+        - **paracousti_stressor_at_paracousti_risk_layer.csv**
+        - **species_density_at_paracousti_risk_layer.csv**
+        - **species_percent_at_paracousti_risk_layer.csv**
+  
 
 Sources
 """""""
