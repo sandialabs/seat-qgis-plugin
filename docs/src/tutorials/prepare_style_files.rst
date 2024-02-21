@@ -24,24 +24,21 @@ The below shows the initial contents of the style_files folder. You will need to
 
     DEMO
     └───style_files
-        │   Acoustics_blue_whale.default
-        │   Acoustics_fake_whale.default
-        │   Shear_Stress - Structured.default
-        │   Shear_Stress - Unstructured.default
-        │   Velocity.default
-        │
+        │   style_files_all_modules.default
         └───Layer Style
                 acoustics_density_demo.qml
                 acoustics_percent_demo.qml
                 acoustics_stressor_bluewhale.qml
                 acoustics_stressor_demo.qml
                 acoustics_threshold_demo.qml
+                habitat_classification.qml
                 receptor_blues.qml
                 shear_stress_continuous.qml
                 shear_stress_continuous_unstructured.qml
                 shear_stress_receptor_classified.qml
                 shear_stress_receptor_continuous.qml
                 shear_stress_reclass.qml
+                shear_stress_risk_metric.qml
                 velocity_continuous_stressor_vik.qml
-                velocity_continuous_stressor_with_receptor.qml
+                velocity_motility.qml
                 velocity_motility_classification_vik.qml

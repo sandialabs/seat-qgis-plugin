@@ -6,14 +6,18 @@ PacWave Site
    :maxdepth: 1
    :hidden:
 
+   input.rst
    sedimentation.rst
+   velocity.rst
    acoustics.rst 
+   power.rst
 
 The PacWave is a designated area for marine energy testing on the coast of Oregon. This site has been the focus of model development and SEAT application. A coupled hydrodynamic and wave model was developed using SNL-SWAN and Delft3D-Flow. A range of site conditions is listed in the Model Probabilities File. This site includes information regarding sediment grain size, device power generation, and acoustic effects.
 
 **Accessing Demonstration Files**
 
-To access the demonstration files relevant to this analysis, please refer to the section :ref:`tutorial-files-access`. This demonstration utilizes the :file:`DEMO paracousti`, :file:`DEMO structured,` and :file:`style_files` folders as detailed in :ref:`DEMO_files`. A comprehensive list of files contained in the paracousti and structured folders is available in :ref:`pmec_files`.
+To access the demonstration files relevant to this analysis, please refer to the section :ref:`tutorial-files-access`. 
+This demonstration utilizes the :file:`DEMO PacWave` and :file:`style_files` folders as detailed in :ref:`DEMO_files`. A comprehensive list of files contained in the paracousti and structured folders is available in :ref:`_pacwave_files`.
 
 
 

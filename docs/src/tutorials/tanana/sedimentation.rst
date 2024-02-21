@@ -3,21 +3,6 @@ Sedimentation Analysis (Shear Stress)
 
 Evaluate the impact of CEC devices on sediment mobility considering a single median grain size receptor in a CSV file.
 
-Input
-""""""
-At this point you should have already setup the input files as detailed in :ref:`preparing_input_files` and prepared the style files as detailed in :ref:`prepare_style_files`. 
-
-.. To run this demonstration, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO/DEMO unstructured/shear_stress_with_receptor_demo.ini`, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the :ref:`save_load_config` section in the :ref:`gui` documention.
-
-To see a full list of files used in the demonstartion please refer to :ref:`unstructured_files`. In brief, the model data consists of individual .nc files for each flow return period. The period within the ``.nc`` filename determines the probability of occurrence. There is a set of results for no device and a set of results for 9 devices in the river.
-
-.. Important::
-   Before clicking OK ensure the complete path matches the location on your machine. Your paths will be different than the ones shown in the example below.
-
-.. figure:: ../../media/tanana_shear_stress_with_receptor_input.webp
-   :scale: 100 %
-   :alt: Tanana sedimentation example input
-
 Output
 """"""
 
@@ -72,14 +57,25 @@ Additional output files can be found in the specifed Output folder.
 
 .. code-block::
 
-    Output
-    └───Shear_stress_with_receptor
-         calculated_stressor.csv
-         calculated_stressor.tif
-         calculated_stressor_at_receptor.csv
-         calculated_stressor_reclassified.csv
-         calculated_stressor_reclassified.tif
-         calculated_stressor_reclassified_at_receptor.csv
-         calculated_stressor_with_receptor.csv
-         calculated_stressor_with_receptor.tif
-         receptor.tif
+   Output
+   └───Shear_and_Velocity
+       └───Shear Stress module
+            sediment_mobility_classified.csv
+            sediment_mobility_classified_at_sediment_grain_size.csv
+            sediment_mobility_difference.csv
+            sediment_mobility_difference_at_sediment_grain_size.csv
+            shear_stress_difference.csv
+            sediment_mobility_difference_at_sediment_grain_size.csv
+            shear_stress_difference.csv
+            shear_stress_difference_at_sediment_grain_size.csv
+            shear_stress_risk_metric.csv
+            shear_stress_risk_metric_at_sediment_grain_size.csv
+            sediment_grain_size.tif
+            sediment_mobility_classified.tif
+            sediment_mobility_difference.tif
+            sediment_mobility_with_devices.tif
+            sediment_mobility_without_devices.tif
+            shear_stress_difference.tif
+            shear_stress_risk_metric.tif
+            shear_stress_with_devices.tif
+            shear_stress_without_devices.tif

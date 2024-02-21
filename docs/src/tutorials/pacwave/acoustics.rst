@@ -3,31 +3,8 @@ Acoustic Effects
 
 The acoustic effects from the WEC array at PacWave can be evaluated using the Acoustic module in the SEAT GUI. This module reads in individual ParAcousti model .nc files that correspond to wave conditions. 
 
-Input
-""""""
-
-If you have not done so before, you will need to create input files for the default files provided. To do so, navigate to :file:`DEMO/DEMO paracousti/`. In that folder, you will find a number of .default files. You need to open these and replace `<input_folder>` with the path to the DEMO paracousti folder on your machine and ``<style_folder>`` with the path to the style_files folder on your machine. If you use python, a script titled ``localize_input_files.py`` will do this for you. You can run this script by navigating to the DEMO folder in a terminal and typing ``python localize_input_files.py``. If you do not have python, you can open the files in a text editor and replace the text manually or with a find and replace feature. If changing via a text editor, save the file as a .ini file.
-
-Example use of the script is shown below. After running the script, .ini files will appear in the DEMO paracousti folder. These are the files you will use to load the inputs into the SEAT GUI.
-
-.. code_block::bash
-   
-   $ python localize_input_files.py 
-
-.. code-block:: none
-
-   Where are your input files? C:\\Users\\sterl\\OneDrive\\Desktop\\DEMO\\DEMO DEMO paracousti
-   Where is your style_files folder? C:\\Users\\sterl\\OneDrive\\Desktop\\DEMO\\style_files
-
 
 .. To run this demonstration, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO/DEMO paracousti/demo_paracousti_with_receptor_219.ini`, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the :ref:`save_load_config` section in the :ref:`gui` documention.
-
-
-After loading  ``DEMO paracousti/demo_paracousti_with_receptor_219.ini``, the input should resemble the following with your local paths:
-
-.. figure:: ../../media/PacWave_acoustics_input_receptor.webp
-   :scale: 100 %
-   :alt: PMEC Acoustics Receptor Input
 
 
 Output
@@ -82,11 +59,23 @@ Additional output files can be found in the specifed Output folder
 
 .. code-block::
 
-    Output
-    └───Acoustics_with_receptor
-        calculated_paracousti.csv
-        calculated_paracousti.tif
-        calculated_stressor.csv
-        calculated_stressor.tif
-        threshold_exceeded_receptor.csv
-        threshold_exceeded_receptor.tif
+   Output
+   └───All_Modules
+       └───Acoustics Module
+            paracousti_stressor.csv
+            paracousti_stressor_at_paracousti_risk_layer.csv
+            paracousti_with_devices.csv
+            paracousti_without_devices.csv
+            species_density.csv
+            species_density_at_paracousti_risk_layer.csv
+            species_percent.csv
+            species_percent_at_paracousti_risk_layer.csv
+            species_threshold_exceeded.csv
+            species_threshold_exceeded_at_paracousti_risk_layer.csv
+            paracousti_risk_layer.tif
+            paracousti_stressor.tif
+            paracousti_with_devices.tif
+            paracousti_without_devices.tif
+            species_density.tif
+            species_percent.tif
+            species_threshold_exceeded.tif
