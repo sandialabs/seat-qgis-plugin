@@ -35,23 +35,27 @@ Output
 - CSV files: Contain statistics of area changes and mobility classifications.
 
   * The stressor values are binned into 25 bins and the surface area in which that change occurred, the percent of the overall model domain, and number of cells within the stressor is saved to a csv file. 
+    
     - Output includes:
-        - **shear_stress_difference.csv**
-        - **sediment_mobility_difference.csv**
-        - **sediment_mobility_classified.csv**
-        - **shear_stress_risk_metric.csv**
+    
+      - **shear_stress_difference.csv**
+      - **sediment_mobility_difference.csv**
+      - **sediment_mobility_classified.csv**
+      - **shear_stress_risk_metric.csv**
 
     - When a grain size receptor is included, the values are further segmented by unique grain size values.
     - Output includes:
-        - **shear_stress_difference_at_sediment_grain_size.csv**
-        - **sediment_mobility_difference_at_sediment_grain_size.csv**
-        - **sediment_mobility_classified_at_sediment_grain_size.csv**
-        - **shear_stress_risk_metric_at_sediment_grain_size**
+    
+      - **shear_stress_difference_at_sediment_grain_size.csv**
+      - **sediment_mobility_difference_at_sediment_grain_size.csv**
+      - **sediment_mobility_classified_at_sediment_grain_size.csv**
+      - **shear_stress_risk_metric_at_sediment_grain_size**
 
     - When a risk layer receptor is included, the values are further segmented by unique risk layer values.
     - Output includes:
-        - **sediment_mobility_difference_at_shear_stress_risk_layer.csv**
-        - **shear_stress_risk_metric_at_shear_stress_risk_layer.csv**
+    
+      - **sediment_mobility_difference_at_shear_stress_risk_layer.csv**
+      - **shear_stress_risk_metric_at_shear_stress_risk_layer.csv**
 
     + Lat/Lon converted to UTM (meter) coordinates for calculation.
     + UTM remains in the original unit of measure

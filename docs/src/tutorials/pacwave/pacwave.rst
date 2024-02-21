@@ -8,7 +8,6 @@ PacWave Site
 
    input.rst
    sedimentation.rst
-   velocity.rst
    acoustics.rst 
    power.rst
 
@@ -17,7 +16,7 @@ The PacWave is a designated area for marine energy testing on the coast of Orego
 **Accessing Demonstration Files**
 
 To access the demonstration files relevant to this analysis, please refer to the section :ref:`tutorial-files-access`. 
-This demonstration utilizes the :file:`DEMO PacWave` and :file:`style_files` folders as detailed in :ref:`DEMO_files`. A comprehensive list of files contained in the paracousti and structured folders is available in :ref:`_pacwave_files`.
+This demonstration utilizes the :file:`DEMO PacWave` and :file:`style_files` folders as detailed in :ref:`DEMO_files`. A comprehensive list of files contained in the paracousti and structured folders can be seen below.
 
 
 

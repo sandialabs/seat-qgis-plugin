@@ -13,7 +13,7 @@ The Tanana River, situated in central Alaska, is being evaluated as a potential 
 
 **Accessing Demonstration Files**
 
-To access the demonstration files relevant to this analysis, please refer to the :ref:`tutorial-files-access` section. This demonstration utilizes the :file:`DEMO Tanan River` and :file:`style_files` folders as detailed in :ref:`DEMO_files`. A comprehensive list of files contained in the unstructured folder is available in :ref:`_tanana_river_filesfiles`.
+To access the demonstration files relevant to this analysis, please refer to the :ref:`tutorial-files-access` section. This demonstration utilizes the :file:`DEMO Tanan River` and :file:`style_files` folders as detailed in :ref:`DEMO_files`. A comprehensive list of files contained in the unstructured folder is available in :ref:`tanana_river_files`.
 
 
 .. _preparing_input_files:

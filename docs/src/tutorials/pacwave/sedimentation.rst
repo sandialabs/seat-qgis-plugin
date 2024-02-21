@@ -45,12 +45,10 @@ The sedimentation analysis indicates a predominant decrease in sediment erosion 
           <div style="text-align: center;">Stressor</div>
 
 
-The specified output folder contains the following files. Highlighted lines will be shown below.
+The specified output folder contains the following files.
 
 .. code-block::
   :caption: Output Files created
-  :emphasize-lines: 3,13,25  
-  :linenos:
 
    Output
    └───Shear_and_Velocity
