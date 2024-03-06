@@ -5,7 +5,7 @@ For a comprehensive analysis, you'll need to specify two distinct directories fr
   1. **Baseline Results Directory**: Contains the model results without any devices.
   2. **Model Results Directory**: Houses the model results with devices incorporated.
 
-.. figure:: ../../media/acoustics_model_dir_inputs.webp
+.. figure:: ../../media/model_results_directory_input.webp
    :scale: 100 %
    :alt: Interface to choose the Model Results Directory in SEAT's GUI.
 
