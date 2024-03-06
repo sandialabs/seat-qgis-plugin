@@ -22,8 +22,6 @@ For added flexibility, you can incorporate an 'Exclude' column, enabling you to 
 
    If you include the 'Exclude' column, the `% of year` won't adjust to total 100%.
 
-
-
 **Example of a Probabilities Input**
 
 +------+--------+--------+-------------+---------+-----------+---------+
