@@ -17,7 +17,7 @@ The following are optional inputs:
 Each of these inputs is explored in more detail in the following sections.
 
 
-.. figure:: ../../media/shear_stress_gui.webp
+.. figure:: ../../media/SEAT_GUI.webp
    :scale: 90 %
    :alt: SEAT's main GUI window
 
