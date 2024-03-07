@@ -9,7 +9,9 @@ At this point you should have already setup the input files as detailed in :ref:
 
 .. To run this demonstration, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO/DEMO unstructured/shear_stress_with_receptor_demo.ini`, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the :ref:`save_load_config` section in the :ref:`gui` documention.
 
-To see a full list of files used in the demonstartion please refer to :ref:`unstructured_files`. In brief, the model data consists of individual .nc files for each flow return period. The period within the ``.nc`` filename determines the probability of occurrence. There is a set of results for no device and a set of results for 9 devices in the river.
+.. To see a full list of files used in the demonstartion please refer to :ref:`unstructured_files`. 
+
+In brief, the model data consists of individual .nc files for each flow return period. The period within the ``.nc`` filename determines the probability of occurrence. There is a set of results for no device and a set of results for 9 devices in the river.
 
 .. Important::
    Before clicking OK ensure the complete path matches the location on your machine. Your paths will be different than the ones shown in the example below.

@@ -5,7 +5,6 @@ Tanana River Site
    :maxdepth: 1
    :hidden:
 
-   input.rst
    sedimentation.rst
    velocity.rst 
 
