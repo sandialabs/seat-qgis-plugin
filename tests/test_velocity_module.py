@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 from unittest.mock import patch, MagicMock, PropertyMock
 import netCDF4
+from os.path import join
+import shutil
 
 # Get the directory in which the current script is located
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -162,49 +164,29 @@ class TestCalculateVelocityStressors(unittest.TestCase):
         self.assertEqual(len(result), 6)
 
 
-# class TestRunVelocityStressor(unittest.TestCase):
-#     @patch('seat.velocity_module.calculate_velocity_stressors')
-#     @patch('seat.stressor_utils.secondary_constraint_geotiff_to_numpy')
-#     @patch('seat.stressor_utils.create_raster')
-#     @patch('seat.stressor_utils.numpy_array_to_raster')
-#     @patch('os.path.exists')
-#     @patch('os.makedirs')
-#     def test_run_velocity_stressor_with_basic_setup(self, mock_makedirs, mock_path_exists, mock_array_to_raster, mock_create_raster, mock_secondary_constraint, mock_calculate_velocity_stressors):
-#         # Example shape and data for mock numpy arrays
-#         example_shape = (5, 5)
-#         example_data = np.random.rand(*example_shape)  # Generate random data
+class TestRunVelocityStressor(unittest.TestCase):
 
-#         # Mock numpy arrays with example data and shape
-#         placeholder_numpy_arrays = [MagicMock(spec=np.ndarray, shape=example_shape) for _ in range(8)]
-#         for mock_array in placeholder_numpy_arrays:
-#             mock_array.mean.return_value = example_data.mean()
-#             mock_array.max.return_value = example_data.max()
-#             type(mock_array).shape = PropertyMock(return_value=example_shape)
-
-#         # Correct return values for rx, ry to be numpy arrays
-#         rx = np.arange(5)
-#         ry = np.arange(5)
-
-#         mock_calculate_velocity_stressors.return_value = (placeholder_numpy_arrays, rx, ry, 1, 1, 'structured')
-
-#         # Define inputs
-#         dev_present_file = 'data/structured/devices-present/'
-#         dev_notpresent_file = 'data/structured/devices-not-present/'
-#         probabilities_file = 'data/structured/probabilities/probabilities.csv'
-#         crs = 4326
-#         output_path = 'data/output'
-#         receptor_filename = None
-#         secondary_constraint_filename = None
-
-#         # Call the function under test
-#         result = vm.run_velocity_stressor(dev_present_file, dev_notpresent_file, probabilities_file, crs, output_path, receptor_filename, secondary_constraint_filename)
-
-
-#         # Assert that necessary directories were checked/created
-#         mock_makedirs.assert_called_with(output_path, exist_ok=True)
+    def test_run_velocity_stressor_with_basic_setup(self, ):
         
-#         # Additional assertions
-#         self.assertIsInstance(result, dict)
+        # Define inputs
+        dev_present_file = join(script_dir, "data","structured","devices-present")
+        dev_not_present_file = join(script_dir, "data","structured","devices-not-present")
+        probabilities_file = join(script_dir, "data","structured","probabilities","probabilities.csv")
+        receptor_file = join(script_dir, "data","structured","receptor","grain_size_receptor.csv")
+        crs = 4326
+        secondary_constraint_filename = None
+        output_path = join(script_dir, "data", "output")
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+
+        # Call the function under test
+        result = vm.run_velocity_stressor(dev_present_file, dev_not_present_file, probabilities_file, crs, output_path, receptor_file, secondary_constraint_filename)
+
+        # Additional assertions
+        self.assertIsInstance(result, dict)
+
+        # Now remove the directory
+        shutil.rmtree(output_path)
 
 if __name__ == '__main__':
     unittest.main()
