@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-/***************************************************************************.
-
- stressor_receptor_calc.py
+""" stressor_receptor_calc.py
+ 
  Copyright 2023, Integral Consulting Inc. All rights reserved.
 
- PURPOSE: A QGIS plugin that calculates a probability weighted response layer from stressor and/or receptor layers
+ PURPOSE: A QGIS plugin that calculates a probability weighted response
+    layer from stressor and/or receptor layers
 
  PROJECT INFORMATION:
- Name: SEAT - Spatial and Environmental Assessment Toolkit (https://github.com/sandialabs/seat-qgis-plugin)
+ Name: SEAT - Spatial and Environmental Assessment Toolkit
  Number: C1308
 
  AUTHORS
@@ -20,7 +19,8 @@
  NOTES (Data descriptions and any script specific notes)
 	1. plugin template from Plugin Builder: http://g-sherman.github.io/Qgis-Plugin-Builder/
 	2. refer to documentation regarding installation and input formatting.
-    3. requires installation of NETCDF4 (https://unidata.github.io/netcdf4-python/) and QGIS (https://qgis.org/en/site/)
+    3. requires installation of NETCDF4 (https://unidata.github.io/netcdf4-python/) 
+       and QGIS (https://qgis.org/en/site/)
     4. tested and created using QGIS v3.22
     5. added habitat for shear stress
 """
@@ -32,12 +32,6 @@ from datetime import date
 import numpy as np
 import pandas as pd
 
-# import QGIS processing
-# import processing
-# from netCDF4 import Dataset
-# from osgeo import gdal
-# from PyQt5.QtCore import Qt
-# from qgis.analysis import QgsRasterCalculator, QgsRasterCalculatorEntry
 from qgis.core import (
     Qgis,
     QgsApplication,
@@ -48,19 +42,15 @@ from qgis.core import (
     QgsRasterLayer,
     QgsVectorLayer,
 )
-from qgis.gui import QgsProjectionSelectionDialog  # ,QgsLayerTreeView
+from qgis.gui import QgsProjectionSelectionDialog
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator
 from qgis.PyQt.QtGui import QIcon
-# , QGridLayout, QTableWidgetItem
 from qgis.PyQt.QtWidgets import QAction, QFileDialog
-
-# UTM finder
-# from .Find_UTM_srid import find_utm_srid
 
 # Initialize Qt resources from file resources.py
 from .resources import *
 
-# Import Modules
+# SEAT Modules
 from .shear_stress_module import run_shear_stress_stressor
 from .velocity_module import run_velocity_stressor
 from .acoustics_module import run_acoustics_stressor
@@ -103,7 +93,11 @@ class StressorReceptorCalc:
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value("locale/userLocale")[0:2]
+        locale = QSettings().value("locale/userLocale")
+        if locale:
+            locale = locale[0:2]
+        else:
+            locale = 'en'
         locale_path = os.path.join(
             self.plugin_dir,
             "i18n",
@@ -217,7 +211,7 @@ class StressorReceptorCalc:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ":/plugins/seat_qgis_plugin/icon.png"
+        icon_path = ":/plugins/seat/icon.png"
         self.add_action(
             icon_path,
             setText=self.tr(
@@ -286,14 +280,12 @@ class StressorReceptorCalc:
     def select_crs(self):
         """Input the crs using the QGIS widget box."""
 
-        projSelector = QgsProjectionSelectionDialog(None)
-        # set up a default one
+        proj_selector = QgsProjectionSelectionDialog(None)
         crs = QgsCoordinateReferenceSystem()
         crs.createFromId(4326)
-        projSelector.setCrs(crs)
-        projSelector.exec()
-        # projSelector.exec_()
-        self.dlg.crs.setText(projSelector.crs().authid().split(":")[1])
+        proj_selector.setCrs(crs)
+        proj_selector.exec()
+        self.dlg.crs.setText(proj_selector.crs().authid().split(":")[1])
 
     def select_receptor_file(self):
         """Input the receptor file."""
@@ -407,8 +399,6 @@ class StressorReceptorCalc:
         # refresh legend entries
         self.iface.layerTreeView().refreshLayerSymbology(layer.id())
 
-        # self.iface.legendInterface().refreshLayerSymbology(layer)
-
         # do we want the layer visible in the map?
         if not checked:
             root = QgsProject.instance().layerTreeRoot()
@@ -424,7 +414,7 @@ class StressorReceptorCalc:
 
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
-        if self.first_start == True:
+        if self.first_start is True:
             self.first_start = False
             self.dlg = StressorReceptorCalcDialog()
 
@@ -451,7 +441,8 @@ class StressorReceptorCalc:
             )
 
             # set the probabilities
-            self.dlg.probabilities_pushButton.clicked.connect(self.select_probabilities_file)
+            self.dlg.probabilities_pushButton.clicked.connect(
+                self.select_probabilities_file)
 
             self.dlg.power_files_pushButton.clicked.connect(
                 self.select_power_files_folder)
@@ -526,15 +517,15 @@ class StressorReceptorCalc:
             # add ch to logger
             logger.addHandler(fh)
 
-            logger.info("Device present File: {}".format(dpresentfname))
-            logger.info("Device not present File: {}".format(dnotpresentfname))
-            logger.info("Probabilities File: {}".format(probabilities_fname))
-            logger.info("Power Files: {}".format(power_files_folder))
-            logger.info("Stressor: {}".format(svar))
-            logger.info("CRS: {}".format(crs))
-            logger.info("Secondary Constraint File: {}".format(scfilename))
-            logger.info("Output Folder: {}".format(output_folder_name))
-            
+            logger.info("Device present File: %s", dpresentfname)
+            logger.info("Device not present File: %s", dnotpresentfname)
+            logger.info("Probabilities File: %s", probabilities_fname)
+            logger.info("Power Files: %s", power_files_folder)
+            logger.info("Stressor: %s", svar)
+            logger.info("CRS: %s", crs)
+            logger.info("Secondary Constraint File: %s", scfilename)
+            logger.info("Output Folder: %s", output_folder_name)
+
             # if the output file path is empty display a warning
             if output_folder_name == "":
                 QgsMessageLog.logMessage(
@@ -544,7 +535,7 @@ class StressorReceptorCalc:
 
             # Calculate Power Files
             if power_files_folder is not "":
-                logger.info("Power File Folder: {}".format(power_files_folder))
+                logger.info("Power File Folder: %s", power_files_folder)
                 calculate_power(power_files_folder, probabilities_fname,
                                 save_path=output_folder_name,
                                 crs=crs)
@@ -552,7 +543,8 @@ class StressorReceptorCalc:
             if svar == "Shear Stress":
 
                 if not ((scfilename is None) or (scfilename == "")):
-                    scfilename=[os.path.join(scfilename, i) for i in os.listdir(scfilename) if i.endswith('tif')][0]
+                    scfilename = [os.path.join(scfilename, i) for i in os.listdir(
+                        scfilename) if i.endswith('tif')][0]
 
                 sfilenames = run_shear_stress_stressor(
                     dev_present_file=dpresentfname,
@@ -594,19 +586,25 @@ class StressorReceptorCalc:
                 self.style_layer(srfilename, sstylefile, ranges=True)
                 # self.calc_area_change(srfilename, crs)
                 if not ((rfilename is None) or (rfilename == "")):  # if receptor present
-                    self.style_layer(sfilenames['calculated_stressor_with_receptor'] , swrstylefile, ranges=True)# streessor with receptor
-                    self.style_layer(sfilenames['calculated_stressor_reclassified'], rcstylefile, ranges=True)  # reclassified
-                    self.style_layer(sfilenames['risk'], rskstylefile, ranges=True)                    
+                    # streessor with receptor
+                    self.style_layer(
+                        sfilenames['calculated_stressor_with_receptor'], swrstylefile, ranges=True)
+                    self.style_layer(
+                        sfilenames['calculated_stressor_reclassified'], rcstylefile, ranges=True)  # reclassified
+                    self.style_layer(
+                        sfilenames['risk'], rskstylefile, ranges=True)
                     if rfilename.endswith('.tif'):
                         self.style_layer(rfilename, rstylefile, checked=False)
 
                 if not ((scfilename is None) or (scfilename == "")):
                     if scfilename.endswith('.tif'):
-                        self.style_layer(sfilenames['secondary_constraint'], scstylefile, checked=False)
+                        self.style_layer(
+                            sfilenames['secondary_constraint'], scstylefile, checked=False)
 
             if svar == "Velocity":
                 if not ((scfilename is None) or (scfilename == "")):
-                    scfilename=[os.path.join(scfilename, i) for i in os.listdir(scfilename) if i.endswith('tif')][0]
+                    scfilename = [os.path.join(scfilename, i) for i in os.listdir(
+                        scfilename) if i.endswith('tif')][0]
 
                 sfilenames = run_velocity_stressor(
                     dev_present_file=dpresentfname,
@@ -649,8 +647,10 @@ class StressorReceptorCalc:
                 self.style_layer(srfilename, sstylefile, ranges=True)
                 # self.calc_area_change(srfilename, crs)
                 if not ((rfilename is None) or (rfilename == "")):  # if receptor present
-                    swrfilename = sfilenames['calculated_stressor_with_receptor']  # streessor with receptor
-                    classifiedfilename = sfilenames['calculated_stressor_reclassified']  # reclassified
+                    # streessor with receptor
+                    swrfilename = sfilenames['calculated_stressor_with_receptor']
+                    # reclassified
+                    classifiedfilename = sfilenames['calculated_stressor_reclassified']
                     self.style_layer(swrfilename, swrstylefile, ranges=True)
                     self.style_layer(classifiedfilename,
                                      rcstylefile, ranges=True)
@@ -659,7 +659,8 @@ class StressorReceptorCalc:
 
                 if not ((scfilename is None) or (scfilename == "")):
                     if scfilename.endswith('.tif'):
-                        self.style_layer(sfilenames['secondary_constraint'], scstylefile, checked=False)                    
+                        self.style_layer(
+                            sfilenames['secondary_constraint'], scstylefile, checked=False)
 
             if svar == "Acoustics":
                 sfilenames = run_acoustics_stressor(
@@ -670,7 +671,7 @@ class StressorReceptorCalc:
                     output_path=output_folder_name,
                     receptor_filename=rfilename,
                     species_folder=scfilename
-                ) #TODO: Make output a dictionary for consistency
+                )  # TODO: Make output a dictionary for consistency
                 # numpy_arrays = [0] PARACOUSTI
                 #               [1] stressor
                 #               [2] threshold_exceeded
