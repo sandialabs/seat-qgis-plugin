@@ -32,23 +32,28 @@ Output
     - **velocity_risk_layer.tif** :  the risk layer interpolated to the same grid as the output
 
 - CSV files: Contain statistics of area changes and motility classifications.
+
   * The stressor values are binned into 25 bins and the surface area in which that change occurred, the percent of the overall model domain, and number of cells within the stressor is saved to a csv file. 
+    
     - Output includes:
-        - **velocity_magnitude_difference.csv**
-        - **motility_difference.csv**
-        - **motility_classified.csv**
+     
+      - **velocity_magnitude_difference.csv**
+      - **motility_difference.csv**
+      - **motility_classified.csv**
 
     - When a critical velocity receptor is included, the values are further segmented by unique grain size values.
     - Output includes:
-        - **velocity_magnitude_difference_at_critical_velocity.csv**
-        - **motility_difference_at_critical_velocity.csv**
-        - **motility_classified_at_critical_velocity.csv**
+    
+      - **velocity_magnitude_difference_at_critical_velocity.csv**
+      - **motility_difference_at_critical_velocity.csv**
+      - **motility_classified_at_critical_velocity.csv**
 
     - When a risk layer receptor is included, the values are further segmented by unique risk layer values.
     - Output includes:
-        - **velocity_magnitude_difference_at_velocity_risk_layer.csv**
-        - **motility_difference_at_velocity_risk_layer.csv**
-        - **motility_classified_at_velocity_risk_layer.csv**
+    
+      - **velocity_magnitude_difference_at_velocity_risk_layer.csv**
+      - **motility_difference_at_velocity_risk_layer.csv**
+      - **motility_classified_at_velocity_risk_layer.csv**
 
     + Lat/Lon converted to UTM (meter) coordinates for calculation.
     + UTM remains in the original unit of measure

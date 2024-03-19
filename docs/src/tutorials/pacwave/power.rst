@@ -83,11 +83,10 @@ PacWave power generated per hydrodynamic scenario
 +-------+-------+-------+---------------+-------+----------+--------+--------------------+-------------------+
 
 
-The specified output folder contains the following files. Highlighted lines will be shown below.
+The specified output folder contains the following files.
 
 .. code-block::
   :caption: Output Files created
-  :emphasize-lines: 3,13,25  
   :linenos:
 
    Output

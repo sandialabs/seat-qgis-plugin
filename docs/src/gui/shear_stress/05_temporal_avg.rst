@@ -7,7 +7,8 @@ The Temporal Averaging drop down box serves as an option to determine the tempor
    :scale: 100 %
    :alt: Temporal Averaging
 
-Option temporal selection options for shear stress are:
+Temporal selection options for shear stress are:
+
 1. **Maximum**: Maximum value over time.
 2. **Mean**: Mean value over time.
 3. **Final Timestep**: Final simulated time.
