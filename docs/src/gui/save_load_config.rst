@@ -3,7 +3,7 @@
 Save & Load Configuration
 ---------------------------
 
-This feature allows users to save the current configuration to a `.ini` file, which can be reloaded later to quickly restore the configuration settings.
+Found in the bottom left corner, this feature allows users to save the current configuration to a `.ini` file, which can be reloaded later to quickly restore the configuration settings.
 
 - **Saving Configuration**:
 
@@ -21,6 +21,6 @@ This feature allows users to save the current configuration to a `.ini` file, wh
   .. note:: 
     The example `.ini` files are provided for demonstration purposes only. They are not intended to be used as-is. Users should update the file paths in the example `.ini` files to match their local setup.
 
-.. figure:: ../media/SEAT_input_complete_eg.webp
-   :scale: 80%
-   :alt: Save & Load Configuration Example
+.. figure:: ../media/SEAT_GUI.webp
+   :scale: 90 %
+   :alt: SEAT's main GUI window

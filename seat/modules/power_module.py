@@ -48,28 +48,29 @@ def read_obstacle_polygon_file(power_device_configuration_file):
         xy of each obstacle.
 
     """
-    inf = io.open(power_device_configuration_file, "r")
-    lines = inf.readlines()
-    ic = 0
-    Obstacles = {}
-    while ic < len(lines)-1:
-        if lines[ic].find('Obstacle') >= 0:
-            # print(lines[ic])
-            obstacle = lines[ic].strip()
-            Obstacles[obstacle] = {}
-            ic += 1  # skip to next line
-            nrows, ncols = [int(i) for i in lines[ic].split()]
-            ic += 1  # skip to next line
-            x = []
-            y = []
-            for n in range(nrows):  # read polygon
-                xi, yi = [float(i) for i in lines[ic].split()]
-                x = np.append(x, xi)
-                y = np.append(y, yi)
+    # inf = io.open(power_device_configuration_file, "r")
+    with io.open(power_device_configuration_file, "r") as inf:
+        lines = inf.readlines()
+        ic = 0
+        Obstacles = {}
+        while ic < len(lines)-1:
+            if lines[ic].find('Obstacle') >= 0:
+                # print(lines[ic])
+                obstacle = lines[ic].strip()
+                Obstacles[obstacle] = {}
                 ic += 1  # skip to next line
-            Obstacles[obstacle] = np.vstack((x, y)).T
-        else:
-            ic += 1
+                nrows, ncols = [int(i) for i in lines[ic].split()]
+                ic += 1  # skip to next line
+                x = []
+                y = []
+                for n in range(nrows):  # read polygon
+                    xi, yi = [float(i) for i in lines[ic].split()]
+                    x = np.append(x, xi)
+                    y = np.append(y, yi)
+                    ic += 1  # skip to next line
+                Obstacles[obstacle] = np.vstack((x, y)).T
+            else:
+                ic += 1
     return Obstacles
 
 
@@ -292,14 +293,14 @@ def read_power_file(datafile):
         Total power from all observations.
 
     """
-    inf = io.open(datafile, "r")  # Read datafile
-    for line in inf:  # iterate through each line
-        if re.match('Iteration:', line):
-            Power = []  # If a new iteration is found, initalize varialbe or overwrite existing iteration
-        else:  # data
-            # extract float variable from line
-            power = float(line.split('=')[-1].split('W')[0].strip())
-            Power = np.append(Power, power)  # append data for each observation
+    with io.open(datafile, "r") as inf:# = io.open(datafile, "r")  # Read datafile
+        for line in inf:  # iterate through each line
+            if re.match('Iteration:', line):
+                Power = []  # If a new iteration is found, initalize varialbe or overwrite existing iteration
+            else:  # data
+                # extract float variable from line
+                power = float(line.split('=')[-1].split('W')[0].strip())
+                Power = np.append(Power, power)  # append data for each observation
     Total_Power = np.nansum(Power)  # Total power from all observations
     return Power, Total_Power
 
@@ -348,6 +349,12 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
         Total annual power per device.
 
     """
+
+    if not os.path.exists(power_files):
+        raise FileNotFoundError(f"The directory {power_files} does not exist.")
+    if not os.path.exists(probabilities_file):
+        raise FileNotFoundError(f"The file {probabilities_file} does not exist.")
+    
     datafiles_o = [s for s in os.listdir(power_files) if s.endswith('.OUT')]
     bc_data = pd.read_csv(probabilities_file)
     datafiles = sort_data_files_by_runnumber(bc_data, datafiles_o)
