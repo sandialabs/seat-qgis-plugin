@@ -29,17 +29,15 @@ The below shows the initial contents of the style_files folder. You will need to
         └───Layer Style
                 acoustics_density_demo.qml
                 acoustics_percent_demo.qml
-                acoustics_stressor_bluewhale.qml
                 acoustics_stressor_demo.qml
                 acoustics_threshold_demo.qml
                 habitat_classification.qml
-                receptor_blues.qml
+                receptor_grain_size_blues.qml
                 receptor_grain_size_single_250.qml
                 shear_stress_continuous.qml
                 shear_stress_continuous_unstructured.qml
                 shear_stress_receptor_classified.qml
                 shear_stress_receptor_continuous.qml
-                shear_stress_reclass.qml
                 shear_stress_risk_metric.qml
                 velocity_continuous_stressor_vik.qml
                 velocity_motility.qml
