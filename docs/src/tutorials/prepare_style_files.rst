@@ -24,7 +24,8 @@ The below shows the initial contents of the style_files folder. You will need to
 
     DEMO
     └───style_files
-        │   style_files_all_modules.default
+        │   PacWave_style_files_all_modules.default
+        |   Tanana_style_files_all_modules.default
         └───Layer Style
                 acoustics_density_demo.qml
                 acoustics_percent_demo.qml
@@ -33,6 +34,7 @@ The below shows the initial contents of the style_files folder. You will need to
                 acoustics_threshold_demo.qml
                 habitat_classification.qml
                 receptor_blues.qml
+                receptor_grain_size_single_250.qml
                 shear_stress_continuous.qml
                 shear_stress_continuous_unstructured.qml
                 shear_stress_receptor_classified.qml
