@@ -10,7 +10,7 @@ This section covers tutorials put together by the SEAT team to help users quickl
    :hidden:
    
    file_access.rst
-   prepare_style_files.rst
+   prepare_tutorial_files.rst
    quick_map_services.rst
    tanana/tanana.rst
    pacwave/pacwave.rst

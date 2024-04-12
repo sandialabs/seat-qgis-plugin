@@ -1,9 +1,11 @@
-.. _map:
+.. _quick_map_services:
 
 Quick Map Services
 ==================
 
 QuickMapServices is a QGIS plugin that allows users to add basemaps from many different sources to their project. 
+
+It is useful if you want to project SEAT results over stalite imagery or other basemaps.
 
 
 Install Plugin

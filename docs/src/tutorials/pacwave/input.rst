@@ -41,4 +41,4 @@ If you are using the default QGIS layout, after succesfully running SEAT you wil
    :scale: 75 %
    :alt: PacWave Result Layers
 
-Each layer will group corresponds to the module output as shown below. To add the map layer, see the :ref:`map` section.
+Each layer will group corresponds to the module output as shown below. To add the map layer, see the :ref:`quick_map_services` section.
