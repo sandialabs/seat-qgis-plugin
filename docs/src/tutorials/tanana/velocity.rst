@@ -86,5 +86,4 @@ Additional output files can be found in the specifed Output folder.
          velocity_magnitude_difference.csv
          velocity_magnitude_difference.tif
          velocity_magnitude_difference_at_critical_velocity.csv
-         velocity_magnitude_without_devices.tif
          velocity_magnitude_with_devices.tif
