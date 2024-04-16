@@ -320,11 +320,11 @@ def calculate_velocity_stressors(fpath_nodev,
         mag_combined_dev = mag_combined_dev + prob * mag_dev[run_number, :]
 
     mag_diff = mag_combined_dev - mag_combined_nodev
-    velcrit = calc_receptor_array(receptor_filename, xcor, ycor, latlon=latlon)
+    velcrit = calc_receptor_array(receptor_filename, xcor, ycor, latlon=latlon, maks=~np.isnan(mag_diff))
     motility_nodev = mag_combined_nodev / velcrit
-    motility_nodev = np.where(velcrit == 0, np.nan, motility_nodev)
+    # motility_nodev = np.where(velcrit == 0, np.nan, motility_nodev)
     motility_dev = mag_combined_dev / velcrit
-    motility_dev = np.where(velcrit == 0, np.nan, motility_dev)
+    # motility_dev = np.where(velcrit == 0, np.nan, motility_dev)
     # Calculate risk metrics over all runs
 
     motility_diff = motility_dev - motility_nodev
