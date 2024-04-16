@@ -3,8 +3,8 @@
 Setting Up Style Files
 ======================
 
-Below shows the initial contents of the style_files folder. 
-The \*.default files will need to be converted to \*.csv, and paths will need to be updated as explained below to use them in the demo.
+Below shows the initial contents of the style_files folder. In order to use the demo, 
+the \*.default files will need to be converted to \*.csv, and the paths within the \*.default files will need to be updated as explained below.
 
 ..  code-block:: none
     :caption: style_files Folder Contents
@@ -58,5 +58,3 @@ Option 2: Manual
    .. figure:: ../media/default_files.webp
       :scale: 60 %
       :alt: Edit the highlighted fields with the path and proper file extension.
-
-
