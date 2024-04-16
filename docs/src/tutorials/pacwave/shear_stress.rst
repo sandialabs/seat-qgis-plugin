@@ -1,22 +1,21 @@
 Sedimentation Analysis (Shear Stress)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This tutorial will use SEAT to evaluate the impact of CEC devices on sediment mobility considering a single median grain size receptor.
+This tutorial will use SEAT to evaluate the impact of WEC devices.
 
 Input
 """"""
 At this point you should have setup the input files and style files as detailed in :ref:`prepare_tutorial_files`.
 
-To run this demonstration, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO/tanana_river/shear_with_receptor.ini`, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the :ref:`save_load_config` section in the :ref:`gui` documention.
+To run this demonstration, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO/pacwave/shear_stress_module.ini`, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the :ref:`save_load_config` section in the :ref:`gui` documention.
 
-In brief, the model data consists of individual .nc files for each flow return period. The period within the ``.nc`` filename determines the probability of occurrence. There is a set of results for no device and a set of results for 9 devices in the river.
 
 .. Note::
    Your paths will differ than the ones shown in the example below. If you get an error double check the paths making sure the files exist at the specified location.
 
-.. figure:: ../../media/tanana_shear_stress_with_receptor_input.webp
+.. figure:: ../../media/pacwave_shear_stress_input.webp
    :scale: 100 %
-   :alt: Tanana sedimentation example input
+   :alt: PacWave sedimentation example input
 
 Output
 """"""
@@ -29,7 +28,7 @@ Some example output layers are shwown in the Figure below. To add the map layer 
    :widths: 50 50
    :class: image-matrix
 
-   * - .. image:: ../../media/tanana_shear_stress_layers.webp
+   * - .. image:: ../../media/pacwave_shear_stress_layers.webp
          :scale: 100 %
          :alt: Layers
          :align: center
@@ -38,17 +37,17 @@ Some example output layers are shwown in the Figure below. To add the map layer 
 
           <div style="text-align: center">Layers Legend</div>
 
-     - .. image:: ../../media/tanana_shear_stress_stressor_reclassified.webp
-         :scale: 25 %
-         :alt: Sediment Mobitility Classified
+     - .. image:: ../../media/pacwave_shear_stress_risk_layer.webp
+         :scale: 35 %
+         :alt: Sediment Risk Layer
          :align: center
 
        .. raw:: html
 
-          <div style="text-align: center;">Sediment Mobitility Classified</div>
+          <div style="text-align: center;">Sediment Risk Layer</div>
 
-   * - .. image:: ../../media/tanana_shear_stress_stressor_with_receptor.webp
-         :scale: 25 %
+   * - .. image:: ../../media/pacwave_shear_stress_mobility_difference.webp
+         :scale: 35 %
          :alt: Sediment Mobitility Difference
          :align: center
 
@@ -56,8 +55,8 @@ Some example output layers are shwown in the Figure below. To add the map layer 
 
           <div style="text-align: center;">Sediment Mobitility Difference</div>
 
-     - .. image:: ../../media/tanana_shear_stress_stressor.webp
-         :scale: 25 %
+     - .. image:: ../../media/pacwave_shear_stress_stressor.webp
+         :scale: 35 %
          :alt: Shear Stress Difference
          :align: center
 
@@ -72,9 +71,9 @@ Additional output files can be found in the specifed Output folder.
 
 .. code-block::
 
-    Output
-    └───Shear_stress_with_receptor
-        └───Shear Stress Module
+   Output
+   └───Shear_Stress_Module
+      └───Shear Stress Module
                sediment_grain_size.tif
                sediment_mobility_classified.csv
                sediment_mobility_classified.tif
@@ -82,13 +81,17 @@ Additional output files can be found in the specifed Output folder.
                sediment_mobility_difference.csv
                sediment_mobility_difference.tif
                sediment_mobility_difference_at_sediment_grain_size.csv
+               sediment_mobility_difference_at_shear_stress_risk_layer.csv
                sediment_mobility_without_devices.tif
                sediment_mobility_with_devices.tif
                shear_stress_difference.csv
                shear_stress_difference.tif
+               shear_stress_difference_at_secondary_constraint.csv
                shear_stress_difference_at_sediment_grain_size.csv
+               shear_stress_risk_layer.tif
                shear_stress_risk_metric.csv
                shear_stress_risk_metric.tif
                shear_stress_risk_metric_at_sediment_grain_size.csv
+               shear_stress_risk_metric_at_shear_stress_risk_layer.csv
                shear_stress_without_devices.tif
                shear_stress_with_devices.tif
