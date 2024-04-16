@@ -2,6 +2,7 @@
 *.tif
 *cache*
 *env*
+*test_*
 
 # Sphinx documentation html
 docs/_build/*
