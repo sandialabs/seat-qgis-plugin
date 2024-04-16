@@ -55,6 +55,6 @@ Option 2: Manual
 2. Replace ``<style_folder>`` with ``C:\Your\StyleFile\Path\Here\style_files``. 
 3. Replace ``.default`` with ``.csv``. 
 
-   .. figure:: ../media/default_files.webp
+   .. figure:: ../media/default_style_files.webp
       :scale: 60 %
       :alt: Edit the highlighted fields with the path and proper file extension.
