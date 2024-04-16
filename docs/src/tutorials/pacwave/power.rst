@@ -1,6 +1,25 @@
 Power Generation Analysis
 --------------------------------------------
 
+Input
+""""""
+
+At this point you should have already setup the input files and style files as detailed in :ref:`prepare_tutorial_files`.
+
+To run this demonstration, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO/pacwave/all_modules.ini`, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the :ref:`save_load_config` section in the :ref:`gui` documention.
+
+
+.. Note::
+   Your paths will differ than the ones shown in the example below. If you get an error double check the paths making sure the files exist at the specified location.
+
+.. figure:: ../../media/pacwave_power_input.webp
+   :scale: 100 %
+   :alt: Tanana sedimentation example input
+
+
+Output
+""""""""
+
 The power generation is saved as individual images and tables in the selected output folder.
 
 .. list-table::
@@ -92,15 +111,15 @@ The specified output folder contains the following files.
    Output
    └───All_Modules
        └───Power Module
-            BC_probability_wPower.csv
-            Obstacle_Matching.csv
-            Power_per_device_annual.csv
-            Power_per_device_per_scenario.csv
-            Device Number Location.png
-            Device_Power.png
-            Obstacle_Locations.png
-            Scaled_Power_Bars_per_run_obstacle.png
-            Scaled_Power_per_device_per_scenario.png
-            Total_Scaled_Power_Bars_per_obstacle.png
-            Total_Scaled_Power_Bars_per_Run.png
-            Total_Scaled_Power_per_Device_.png
+          BC_probability_wPower.csv
+          Device Number Location.png
+          Device_Power.png
+          Obstacle_Locations.png
+          Obstacle_Matching.csv
+          Power_per_device_annual.csv
+          Power_per_device_per_scenario.csv
+          Scaled_Power_Bars_per_run_obstacle.png
+          Scaled_Power_per_device_per_scenario.png
+          Total_Scaled_Power_Bars_per_obstacle.png
+          Total_Scaled_Power_Bars_per_Run.png
+          Total_Scaled_Power_per_Device_.png
