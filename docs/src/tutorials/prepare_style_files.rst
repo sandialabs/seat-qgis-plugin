@@ -3,21 +3,8 @@
 Setting Up Style Files
 ======================
 
-In the tutorial files, we have provided style files to use with SEAT in a folder named ``style_files``. Before you can use the style files you need to modify the ``.default`` files with the full file path to the style files and then save them as csv files. The file extension is set as ``.default`` to prevent the user from loading the file into SEAT without making the necessary adjustments. For example, if you have placed the style files folder in ``C:\Users\USER\Desktop\DEMO\style_files`` you would open each ``.default`` file and replace ``<style_folder>`` with ``C:\Users\USER\Desktop\DEMO\style_files``. 
-
-If you do not have python, you can open the csv files in a text editor and replace ``<style_folder>`` with the path to the style_folder on your machine. If you do have python on your machine, there is a python script provided that will adjust the paths and save the files as a csv for you. You can call `localize_style_path.py` from the command line in the provided Demo files folder: 
-
-.. code-block:: bash
-    :caption: localize_style_path.py
-
-    python localize_style_files.py
-    Please enter the path to the directory containing default files:
-    C:\Users\sterl\OneDrive\Desktop\DEMO\style_files
-
-    Paths in default files in directory C:\Users\sterl\OneDrive\Desktop\DEMO\style_files have been updated and saved as CSV.
-
-
-The below shows the initial contents of the style_files folder. You will need to convert each of these to  csv files as described above to use them in the demo.
+Below shows the initial contents of the style_files folder. 
+The \*.default files will need to be converted to \*.csv, and paths will need to be updated as explained below to use them in the demo.
 
 ..  code-block:: none
     :caption: style_files Folder Contents
@@ -42,3 +29,34 @@ The below shows the initial contents of the style_files folder. You will need to
                 velocity_continuous_stressor_vik.qml
                 velocity_motility.qml
                 velocity_motility_classification_vik.qml
+
+
+
+In the tutorial files, we have provided style files to use with SEAT in a folder named ``style_files``. 
+Before you can use the style files you need to modify the ``.default`` files to point to the full file path. A python module is available which will update the files for you, or you can do by hand.
+
+Option 1: Python
+^^^^^^^^^^^^^^^^^^^^
+If you do have python on your machine, there is a python script provided that will adjust the paths and save the files as a csv for you. You can call `adjust_style_path.py` from the command line in the provided Demo files folder: 
+
+.. code-block:: bash
+    :caption: adjust_style_path.py
+
+    python adjust_style_path.py
+    Please enter the path to the directory containing default files:
+    C:\Your\StyleFile\Path\Here\style_files
+
+    Paths in default files in directory C:\Your\StyleFile\Path\Here\style_files have been updated and saved as CSV.
+
+Option 2: Manual
+^^^^^^^^^^^^^^^^^^^^
+
+1. Open the style files path and open a ``.default`` file in a text editor.
+2. Replace ``<style_folder>`` with ``C:\Your\StyleFile\Path\Here\style_files``. 
+3. Replace ``.default`` with ``.csv``. 
+
+   .. figure:: ../media/default_files.webp
+      :scale: 60 %
+      :alt: Edit the highlighted fields with the path and proper file extension.
+
+
