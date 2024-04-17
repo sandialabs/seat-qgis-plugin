@@ -350,7 +350,8 @@ class StressorReceptorCalc:
             fin = config.get("Input", "output style files")
             self.test_exists(self.dlg.output_stylefile, fin, 'File')
 
-        config.clear()
+        if 'config' in locals(): #prevents error if window to closed without running
+            config.clear()
         
     def save_in(self):
         """Select and save an input file."""

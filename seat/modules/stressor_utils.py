@@ -171,7 +171,7 @@ def resample_structured_grid(x_grid, y_grid, z, X_grid_out, Y_grid_out, interpme
     return griddata((x_grid.flatten(), y_grid.flatten()), z.flatten(), (X_grid_out, Y_grid_out), method=interpmethod, fill_value=0)
 
 
-def calc_receptor_array(receptor_filename, x, y, latlon=False):
+def calc_receptor_array(receptor_filename, x, y, latlon=False, mask=None):
     """
     Creates an array from either a .tif or .csv file.
 
@@ -226,6 +226,8 @@ def calc_receptor_array(receptor_filename, x, y, latlon=False):
         # taucrit without a receptor
         # Assume the following grain sizes and conditions for typical beach sand (Nielsen, 1992 p.108)
         receptor_array = 200*1e-6 * np.ones(x.shape)
+    if mask is not None:
+        receptor_array = np.where(mask, receptor_array, np.nan)
     return receptor_array
 
 
