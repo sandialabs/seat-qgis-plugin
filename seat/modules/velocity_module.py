@@ -320,7 +320,7 @@ def calculate_velocity_stressors(fpath_nodev,
         mag_combined_dev = mag_combined_dev + prob * mag_dev[run_number, :]
 
     mag_diff = mag_combined_dev - mag_combined_nodev
-    velcrit = calc_receptor_array(receptor_filename, xcor, ycor, latlon=latlon, maks=~np.isnan(mag_diff))
+    velcrit = calc_receptor_array(receptor_filename, xcor, ycor, latlon=latlon, mask=~np.isnan(mag_diff))
     motility_nodev = mag_combined_nodev / velcrit
     # motility_nodev = np.where(velcrit == 0, np.nan, motility_nodev)
     motility_dev = mag_combined_dev / velcrit
@@ -336,8 +336,6 @@ def calculate_velocity_stressors(fpath_nodev,
         dy = np.nanmean(np.diff(ycor[0, :]))
         rx = xcor
         ry = ycor
-        # listOfFiles = [mag_combined_dev, mag_combined_nodev, mag_diff, motility_nodev,
-        #                motility_dev, motility_diff, motility_classification, velcrit]
         dict_of_arrays = {'velocity_magnitude_without_devices':mag_combined_nodev,
                         'velocity_magnitude_with_devices': mag_combined_dev,
                         'velocity_magnitude_difference': mag_diff,
