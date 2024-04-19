@@ -3,24 +3,13 @@
 Prepare Tutorial Files
 ==========================
 
-In the tutorial files, we have provided ``.default`` files which need the full path on your local machine. The file extension is set as ``.default`` to prevent the user from loading the file into SEAT without making the necessary adjustments. 
+There are two sets of files that need to be modified before using the demo:
 
+1. Style files
+2. Input files
 
-Using Python
------------- 
-.. code-block:: bash
-    :caption: localize_tutorial_files.py
+In order to use the demo, the \*.default files will need to be converted to \*.csv, and the paths within the \*.default files will need to be updated. There are two ways to modify the files, explained below.
 
-    python localize_style_files.py
-
-The above will look for the folders mentioned in the :ref:`tutorial-files-access` (pacwave, tanana, and style_files) and update the paths in the ``.default`` files to match the path on your machine.
-
-Manually
---------
-
-If you do not want to use python you can open each ``.default`` file in a text editor and replace ``<style_folder>`` or ``<input_folder>``  with full path to the location on your machine. After updating you must save the file as an \*.ini file for the Pacwave or Tanana River examples. The style files must be saved as \*.csv. 
-
-You must setup the style file for the Pacwave or Tanana River examples to use the style files. If you only want to run specific Tanana River or Pacwave examples you only need to update the default file of interest. All of the included default files are listed below.
 
 ..  code-block:: none
     :caption: Tutorial file default files
@@ -45,7 +34,28 @@ You must setup the style file for the Pacwave or Tanana River examples to use th
         shear_with_receptor.default
         velocity_with_receptor.default
 
-For example, if you have placed the style files folder in ``C:\Users\USER\Desktop\DEMO\style_files`` you would open each ``.default`` file and replace ``<style_folder>`` with ``C:\Users\USER\Desktop\DEMO\style_files``. 
+
+
+Option 1: Python
+^^^^^^^^^^^^^^^^^^^^
+.. code-block:: bash
+    :caption: localize_tutorial_files.py
+
+    python localize_tutorial_files.py
+    Where are your input files for pacwave?:
+    C:\Your\Path\Here\pacwave
+
+
+The above will look for the folders mentioned in the :ref:`tutorial-files-access` (pacwave, tanana, and style_files) and update the paths in the ``.default`` files to match the path on your machine.
+
+Option 2: Manually
+^^^^^^^^^^^^^^^^^^^^
+
+If you do not want to use python you can open each ``.default`` file in a text editor and replace ``<style_folder>`` or ``<input_folder>``  with full path to the location on your machine. After updating you must save the file as an \*.ini file for the Pacwave or Tanana River examples. The style files must be saved as \*.csv. 
+
+
+
+For example, if you have placed the style files folder in ``C:\Your\Path\Here\style_files`` you would open each ``.default`` file and replace ``<style_folder>`` with ``C:\Users\USER\Desktop\DEMO\style_files``. 
 
 ..  code-block:: none
     :caption: Style Folder \*.default: Replace <style_folder> save as csv
