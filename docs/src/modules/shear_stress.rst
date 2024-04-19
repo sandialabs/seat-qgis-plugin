@@ -5,6 +5,8 @@ Shear Stress Module
 The `shear_stress_module.py` is a component of SEAT. It's aimed at assessing the impact of shear stressors on sediment mobility in aquatic environments. This module provides insights into how various devices or conditions can affect shear stress by allowing comparison between scenarios with and without these elements present.
 
 
+
+
 Data
 ^^^^
 Input 
