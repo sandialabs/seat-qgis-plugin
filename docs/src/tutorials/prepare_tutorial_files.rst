@@ -8,14 +8,11 @@ There are two sets of files that need to be modified before using the demo:
 1. Style files
 2. Input files
 
-In order to use the demo, the \*.default files will need to be converted to \*.csv, and the paths within the \*.default files will need to be updated. There are two ways to modify the files, explained below.
-
-
 ..  code-block:: none
     :caption: Tutorial file default files
 
     DEMO 
-    ├───pacwave
+    ├───pacwave (input files)
     │   acoustics_module _100db_threshold.default
     │   acoustics_module_120dB_threshold.default
     │   acoustics_module_219dB_threshold.default
@@ -25,28 +22,36 @@ In order to use the demo, the \*.default files will need to be converted to \*.c
     │   velocity_module.default
     │   velocity_module_no_receptor.default
     │
-    ├───style_files
+    ├───style_files (style files)
     │   pacwave_style_files_all_modules.default
     │   tanana_style_files_all_modules.default
     │
-    └───tanana_river
+    └───tanana_river (input files)
         shear_and_velocity_with_receptor.default
         shear_with_receptor.default
         velocity_with_receptor.default
+
+In order to use the demo, the \*.default files need to be converted to \*.csv, 
+and the paths within the \*.default files need to be updated to point to the correct location. There are two ways to modify the files, explained below.
+
+
+
 
 
 
 Option 1: Python
 ^^^^^^^^^^^^^^^^^^^^
+The localize_tutorial_files.py will look for the folders in the :ref:`tutorial-files-access` (pacwave, tanana, and style_files) and update the paths in the ``.default`` files to match the path on your machine.
+
 .. code-block:: bash
     :caption: localize_tutorial_files.py
 
     python localize_tutorial_files.py
-    Where are your input files for pacwave?:
-    C:\Your\Path\Here\pacwave
+    Are your style_files files located in this directory?
+    C:\Your\Path\Here\style_files    
+    Y or N?Y
+    Finished updating file paths and extensions. Tutorial docs are now ready
 
-
-The above will look for the folders mentioned in the :ref:`tutorial-files-access` (pacwave, tanana, and style_files) and update the paths in the ``.default`` files to match the path on your machine.
 
 Option 2: Manually
 ^^^^^^^^^^^^^^^^^^^^
