@@ -31,8 +31,8 @@ There are two sets of files that need to be modified before using the demo:
         shear_with_receptor.default
         velocity_with_receptor.default
 
-In order to use the demo, the \*.default files need to be converted to \*.csv, 
-and the paths within the \*.default files need to be updated to point to the correct location. There are two ways to modify the files, explained below.
+In order to use the demo, paths within the ``\*.default`` files need to be updated to point to the correct location. The ``\*.default`` files then need to be converted to ``\*.csv`` if it's a style file or ``\*.ini`` if it's an input file. 
+
 
 
 
@@ -56,11 +56,15 @@ The localize_tutorial_files.py will look for the folders in the :ref:`tutorial-f
 Option 2: Manually
 ^^^^^^^^^^^^^^^^^^^^
 
-If you do not want to use python you can open each ``.default`` file in a text editor and replace ``<style_folder>`` or ``<input_folder>``  with full path to the location on your machine. After updating you must save the file as an \*.ini file for the Pacwave or Tanana River examples. The style files must be saved as \*.csv. 
+If you do not want to use python you can update the files manually. 
 
+1)  Update style files 
+""""""""""""""""""""""""
 
+Within the style files directory, open each ``.default`` file in a text editor and replace ``<style_folder>`` with full path to the location on your machine. 
+Then, save the style file as a csv.
 
-For example, if you have placed the style files folder in ``C:\Your\Path\Here\style_files`` you would open each ``.default`` file and replace ``<style_folder>`` with ``C:\Users\USER\Desktop\DEMO\style_files``. 
+For example, if you have placed the style files folder in ``C:\Users\USER\Desktop\DEMO\style_files`` you would open each ``.default`` file and replace ``<style_folder>`` with ``C:\Users\USER\Desktop\DEMO\style_files``. 
 
 ..  code-block:: none
     :caption: Style Folder \*.default: Replace <style_folder> save as csv
@@ -71,11 +75,24 @@ For example, if you have placed the style files folder in ``C:\Your\Path\Here\st
     shear_stress_difference,<style_folder>\layer_style\shear_stress_continuous.qml
     ...
 
-
-The below shows the initial contents of the style_files folder. You will need to convert each of these to csv files as described above to use them in the demo.
+Then, save the ``.default`` file as a ``.csv``
 
 ..  code-block:: none
-    :caption: Pacwave or Tanana River \*.default: Replace <input_folder> & <style_folder> save as \*.ini
+    :caption: Save output files with ``.csv`` file extension
+
+    ├───style_files (style files)
+    │   pacwave_style_files_all_modules.csv
+    │   tanana_style_files_all_modules.csv
+    
+
+2) Update input files  
+"""""""""""""""""""""
+
+Within the input files directory, open each ``.default`` file in a text editor and replace ``<input_folder>`` or ``<style_folder>`` with full path to the correct locations on your machine. 
+
+
+..  code-block:: none
+    :caption: Pacwave or Tanana River \*.default: Replace <input_folder> & <style_folder> 
 
     [Input]
     shear stress device present filepath = <input_folder>/mec_present
@@ -87,3 +104,15 @@ The below shows the initial contents of the style_files folder. You will need to
 
     [Output]
     output filepath = <input_folder>/Output/Shear_with_receptor
+
+Then, save the input file as a ``.ini``.
+
+..  code-block:: none
+    :caption: Save output files with ``.ini`` file extension
+
+    └───tanana_river (input files)
+        shear_and_velocity_with_receptor.ini
+        shear_with_receptor.ini
+        velocity_with_receptor.ini
+    
+    
