@@ -8,7 +8,7 @@ Found in the bottom left corner, this feature allows users to save the current c
 - **Saving Configuration**:
 
   - Ensure all desired fields are populated.
-  - Save the current configuration to a `.ini` file for future use.
+  - Save the current configuration to a `.ini` file for future use by clicking on the "Save GUI Inputs" button.
 
 - **Loading Configuration**:
 
