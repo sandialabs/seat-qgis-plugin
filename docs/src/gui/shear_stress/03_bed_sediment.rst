@@ -1,7 +1,7 @@
 Bed Sediment Size (Optional)
 --------------------------------
 
-The bed sediment size is a receptor file serves as an additional input to each module, which can either be in .csv or .tif format. 
+The bed sediment size is a receptor file that serves as an additional input to each module, which can either be in .csv or .tif format. 
 
 .. figure:: ../../media/shear_stress_bed_sediment_size.webp
    :scale: 100 %
@@ -22,6 +22,7 @@ Represents grain size, measured in microns (µm).
     - No column headers required; the file should contain the grain size value directly.
     - E.g.:
 
+    
     +-------------+-------+
     | grain size  |  250  |
     +-------------+-------+

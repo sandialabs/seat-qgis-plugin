@@ -6,7 +6,7 @@ Shear Stress
 The shear stress module takes 3 required inputs: 
    1. Baseline Model Results
    2. Device Model Results
-   3. Probabilities
+   3. Model Probabilities
    4. Temporal Averaging
 
 The following are optional inputs:
