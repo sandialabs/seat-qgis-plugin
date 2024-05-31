@@ -9,11 +9,12 @@
    :maxdepth: 4
    :hidden:
 
-   overview.rst
+   about/about.rst
    installation.rst
-   gui/gui.rst
+   seat_qgis_plugin/seat_qgis_plugin.rst
    tutorials/tutorials.rst
    modules/modules.rst
+   API/API.rst
 
 .. raw:: html
 

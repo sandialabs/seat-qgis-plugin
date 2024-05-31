@@ -5,7 +5,7 @@ Shear Stress Module
 The shear stress module determines how instruments might change the shear stress and sediment mobility. 
 
 Input (how is this different from Sources?)
-^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 - NetCDF files: Contain shear stress data for scenarios with and without devices present.
 - Optional:
 
@@ -20,7 +20,7 @@ GeoTIFF raster files
 Visualize shear stress with and without devices, shear stress changes, and mobility classifications.
 Output is saved in the **Shear Stress** subdirectory. The output layers are interpolated onto structured grids.
 
-  - **shear_stress_with_devices.tif**: The probability weighted shear stress with devides.
+  - **shear_stress_with_devices.tif**: The probability weighted shear stress with devices.
   - **shear_stress_without_devices.tif**: The probability weighted shear stress without devices.
   - **shear_stress_difference.tif** : The probability weight difference between shear stress with devices and baseline models results. 
   - **sediment_mobility_with_devices**: The mobility (Tau/TauCrit) with devices using the grain size in the receptor file.
@@ -65,12 +65,12 @@ Default
 SEAT is designed to read shear stress and velocity variables from Delft3D, DelftFM \*.map data files for either structured or unstructured grids. The coordinates are determined from the variable attributes
 
 
-- Shear Stress variables:
+Shear Stress variables:
 
   * Structured : TAUMAX
   * Unstructured : taus
 
-- Velocity variables:
+Velocity variables:
 
   * Structured : U1, V1
   * Unstructured : ucxa, ucya
