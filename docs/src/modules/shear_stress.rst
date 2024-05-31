@@ -2,12 +2,10 @@
 Shear Stress Module
 -------------------
 
-The `shear_stress_module.py` is a component of SEAT. It's aimed at assessing the impact of shear stressors on sediment mobility in aquatic environments. This module provides insights into how various devices or conditions can affect shear stress by allowing comparison between scenarios with and without these elements present.
+The shear stress module determines how instruments might change the shear stress and sediment mobility. 
 
-Data
-^^^^
-Input 
-""""""
+Input (how is this different from Sources?)
+^^^^^^
 - NetCDF files: Contain shear stress data for scenarios with and without devices present.
 - Optional:
 
@@ -15,11 +13,13 @@ Input
   - Probability/Boundary Condition file: Used to weight different run scenarios.
 
 Output 
-""""""
-- GeoTIFF raster files: Visualize shear stress with and without devices, shear stress changes, and mobility classifications.
-- Output is saved in the **Shear Stress** subdirectory.
+^^^^^^^
 
-  - Output layers are interpolated onto structured grids.
+GeoTIFF raster files
+""""""""""""""""""""""
+Visualize shear stress with and without devices, shear stress changes, and mobility classifications.
+Output is saved in the **Shear Stress** subdirectory. The output layers are interpolated onto structured grids.
+
   - **shear_stress_with_devices.tif**: The probability weighted shear stress with devides.
   - **shear_stress_without_devices.tif**: The probability weighted shear stress without devices.
   - **shear_stress_difference.tif** : The probability weight difference between shear stress with devices and baseline models results. 
@@ -31,33 +31,29 @@ Output
   - **shear_stress_risk_layer.tif** :  the risk layer interpolated to the same grid as the output
   - **shear_stress_risk_metric.tif** : A quantified risk metric based on Jones et al. (2018) Equation 7. <https://doi.org/10.3390/en11082036>
 
-- CSV files: Contain statistics of area changes and mobility classifications.
+CSV files
+""""""""""""
+These files contain statistics of shear stress changes in different areas. In these files, latitude and longitude are converted to UTM coordinates and meters from the UTM grid are used as measurements.
+The stressor values are binned into 25 bins and the surface area in which that change occurred, 
+the percent of the overall model domain, and number of cells within the stressor is saved to a csv file. 
 
-  * The stressor values are binned into 25 bins and the surface area in which that change occurred, the percent of the overall model domain, and number of cells within the stressor is saved to a csv file. 
-    
-    - Output includes:
-    
       - **shear_stress_difference.csv**
       - **sediment_mobility_difference.csv**
       - **sediment_mobility_classified.csv**
       - **shear_stress_risk_metric.csv**
 
-    - When a grain size receptor is included, the values are further segmented by unique grain size values.
-    - Output includes:
+Segmented by grain size:
     
       - **shear_stress_difference_at_sediment_grain_size.csv**
       - **sediment_mobility_difference_at_sediment_grain_size.csv**
       - **sediment_mobility_classified_at_sediment_grain_size.csv**
       - **shear_stress_risk_metric_at_sediment_grain_size**
 
-    - When a risk layer receptor is included, the values are further segmented by unique risk layer values.
-    - Output includes:
-    
+Segmented with respect to risk layer: 
+
       - **sediment_mobility_difference_at_shear_stress_risk_layer.csv**
       - **shear_stress_risk_metric_at_shear_stress_risk_layer.csv**
 
-    + Lat/Lon converted to UTM (meter) coordinates for calculation.
-    + UTM remains in the original unit of measure
 
 
 Sources
@@ -66,7 +62,8 @@ Sources
 Default
 +++++++
 
-SEAT is designed to read Delft3D, DelftFM \*.map data files with structured and unstructured grids for shear stress and velocity.
+SEAT is designed to read shear stress and velocity variables from Delft3D, DelftFM \*.map data files for either structured or unstructured grids. The coordinates are determined from the variable attributes
+
 
 - Shear Stress variables:
 
@@ -78,7 +75,7 @@ SEAT is designed to read Delft3D, DelftFM \*.map data files with structured and 
   * Structured : U1, V1
   * Unstructured : ucxa, ucya
 
-Coordinates are determined from the variable attributes
+
 
 Alternative
 +++++++++++
