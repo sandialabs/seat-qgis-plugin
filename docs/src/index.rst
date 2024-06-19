@@ -14,7 +14,7 @@
    seat_qgis_plugin/seat_qgis_plugin.rst
    tutorials/tutorials.rst
    modules/modules.rst
-   API/API.rst
+
 
 .. raw:: html
 
