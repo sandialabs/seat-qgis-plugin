@@ -21,7 +21,7 @@ Tutorial files are available upon request. To gain access, please follow the ema
     - Your Company/Institution
     - Intended Use of the Tutorial Files
 
-Upon approval, you will receive access to a collection of folders containing the tutorial files. The directory structure is outlined below. Each of the four provided folders is highlighted for emphasis, namely `DEMO paracousti`, `DEMO structured`, `DEMO unstructured`, and `style_files`.
+Upon processing, you will receive access to a collection of folders containing the tutorial files. The directory structure is outlined below.
 
 .. _DEMO_files:
 
@@ -29,22 +29,22 @@ Upon approval, you will receive access to a collection of folders containing the
     :caption: DEMO Directory Structure
 
       DEMO
-      ├───DEMO paracousti
+      ├───pacwave
+      │   ├───mec_not_present
+      │   ├───mec_present
       │   ├───paracousti_files
-      │   ├───probabilities
-      │   ├───receptor
-      │   └───species
-      ├───DEMO structured
-      │   ├───devices-not-present
-      │   ├───devices-present
       │   ├───power_files
       │   │   ├───16x6
       │   │   └───4x4
       │   ├───probabilities
-      │   └───receptor
-      ├───DEMO unstructured
       │   ├───receptor
-      │   ├───tanana_dev_9
-      │   └───tanana_nodev
+      │   ├───risk_layer
+      │   └───species
+      │
+      ├───tanana_river
+      │    ├───mec_not_present
+      │    ├───mec_present
+      │    └───receptor
+      │
       └───style_files
-          └───Layer Style
+           └───layer_style   
