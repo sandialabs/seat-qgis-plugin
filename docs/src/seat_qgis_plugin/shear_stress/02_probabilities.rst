@@ -1,23 +1,27 @@
-Probabilities
+Model Probabilities
 ------------------------
 
-The probabilities file, serves to enhance your analysis, providing insights into the run order and the likelihood of each model condition unfolding. Adhere to the prescribed naming convention (as delineated in the device/baseline model section). Note that this file correlates with the return interval in years.
+The model probabilities file serves to enhance your analysis by 
+providing insights into the run order and the likelihood of each model condition unfolding. 
+Adhere to the prescribed naming convention. 
+Note that this file correlates with the return interval in years.
 
 .. figure:: ../../media/probabilities_input.webp
    :scale: 100 %
    :alt: Interface depicting the Probabilities Input in SEAT's GUI.
 
-For these types of analyses:
+- **File Type**: .csv file format.
 
-- `run order`: Represents the sequence of each condition.
-- `% of year`: Indicates the probability of a given condition arising within a year.
-- While you may include optional columns such as `wave height` or `period`, they won't impact the analysis.
+  - **File structure**:
+      - 'Hs': Wave height.
+      - 'Tp': Wave period.
+      - 'Dp': Wave direction.
+      - '% of dir bin': Proportion within a direction bin.
+      - '% of yr': The probability of a given condition arising within a year.
+      - 'run order': Execution sequence.
+      - 'Exclude': Designation for excluding runs.
 
-For added flexibility, you can incorporate an 'Exclude' column, enabling you to earmark certain runs for omission.
 
-.. note::
-
-   If you include the 'Exclude' column, the `% of year` will rescale included run to total 100%.
 
 **Example of a Probabilities Input**
 
@@ -35,13 +39,12 @@ For added flexibility, you can incorporate an 'Exclude' column, enabling you to 
 | 7.05 |  12.6  | 223.6  |    3.42     |   0.086 |   24      |    x    |
 +------+--------+--------+-------------+---------+-----------+---------+
 
-Key:
 
-- 'Hs': Wave height.
-- 'Tp': Wave period.
-- 'Dp': Wave direction.
-- '% of dir bin': Proportion within a direction bin.
-- '% of yr': Percentage of the year.
-- 'run order': Execution sequence.
-- 'Exclude': Designation for excluding runs.
+While you may include optional columns such as `wave height` or `period`, they won't impact the analysis.
+The 'Exclude' column enables you to earmark certain runs for omission.
+
+.. note::
+
+   If you include the 'Exclude' column, the `% of year` will rescale included run to total 100%.
+
 

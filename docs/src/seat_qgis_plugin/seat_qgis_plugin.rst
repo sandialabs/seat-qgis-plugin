@@ -1,6 +1,6 @@
-.. _gui:
+.. _seat_qgis_plugin:
 
-Graphical User Interface 
+SEAT QGIS Plugin 
 =========================
 
 Welcome to the guide on how to navigate and utilize the SEAT's graphical user interface (GUI). SEAT's GUI is designed as a QGIS plugin, making your analysis and visualization in QGIS both efficient and user-friendly. 

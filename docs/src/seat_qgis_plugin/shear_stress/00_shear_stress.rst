@@ -1,12 +1,14 @@
 Shear Stress
 =====================
 
-**Shear Stress Module**: Analyzes the spatial changes in bed mobility. 
+**Shear Stress Module**: Analyzes the spatial changes in bed mobility. For input and output requirements, see :ref:`modules`
 
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The shear stress module takes 3 required inputs: 
    1. Baseline Model Results
    2. Device Model Results
-   3. Probabilities
+   3. Model Probabilities
    4. Temporal Averaging
 
 The following are optional inputs:
@@ -15,7 +17,8 @@ The following are optional inputs:
 
 
 Each of these inputs is explored in more detail in the following sections.
-
+TO Here
+^^^^^^^^^^^^^^^^
 
 .. figure:: ../../media/SEAT_GUI.webp
    :scale: 90 %

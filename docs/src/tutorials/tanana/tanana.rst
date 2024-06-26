@@ -8,15 +8,20 @@ Tanana River Site
    sedimentation.rst
    velocity.rst 
 
-The Tanana River, situated in central Alaska, is being evaluated as a potential site for harnessing current energy. The nearby town of Nenana, nestled on the inner bank of a river bend, could significantly benefit from local energy generation as opposed to relying on diesel generators. A current energy capture device has undergone testing on-site, and ongoing data collection pertaining to local fish populations and benthic characteristics is expected to provide a robust understanding of the long-term impact of device deployment on the ecosystem. A model was created on an unstructured grid using DFlow-FM to simulate various flow return periods with device arrays. The flow scenarios are examined both under baseline conditions (no devices present) and with devices deployed.
+The Tanana River, situated in central Alaska, is being evaluated as a potential site for harnessing current energy. 
+The nearby town of Nenana, nestled on the inner bank of a river bend, could significantly benefit from local energy generation as opposed to relying on 
+diesel generators. A current energy capture device has undergone testing on-site, and ongoing data collection pertaining to local fish populations and benthic 
+characteristics is expected to provide a robust understanding of the long-term impact of device deployment on the ecosystem. 
+A model was created on an unstructured grid using DFlow-FM to simulate various flow return periods with device arrays. 
+The flow scenarios are examined both under baseline conditions (no devices present) and with devices deployed.
 
 **Accessing Demonstration Files**
 
-To access the demonstration files relevant to this analysis, please refer to the :ref:`tutorial-files-access` section. This demonstration utilizes the :file:`tanana_tiver` and :file:`style_files` folders as detailed in :ref:`DEMO_files`. A comprehensive list of files provided is available below in :ref:`tanana_river_files`.
+To access the demonstration files relevant to this analysis, please refer to the :ref:`tutorial-files-access` section. This demonstration utilizes the :file:`tanana_river` and :file:`style_files` folders as detailed in :ref:`DEMO_files`. A comprehensive list of files provided is available below in :ref:`tanana_river_files`.
 
 **Preparing Demonstration Files**
 
-At this point you should have prepared the demonstration files as detailed in :ref:`prepare_tutorial_files`. Please follow the instructions in the :ref:`prepare_tutorial_files` section before proceeding with the Tanana River demonstration.
+The demonstration files should be prepared as detailed in :ref:`prepare_tutorial_files`. Please follow the instructions in the :ref:`prepare_tutorial_files` section before proceeding with the Tanana River demonstration.
 
 **QuickMapServices**
 

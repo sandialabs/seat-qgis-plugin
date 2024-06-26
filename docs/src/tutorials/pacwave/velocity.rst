@@ -8,7 +8,7 @@ Input
 
 At this point you should have already setup the input files and style files as detailed in :ref:`prepare_tutorial_files`.
 
-To run this demonstration, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO/pacwave/velocity_module.ini`, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the :ref:`save_load_config` section in the :ref:`gui` documention.
+To run this demonstration, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO/pacwave/velocity_module.ini`, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the :ref:`save_load_config` section in the :ref:`seat_qgis_plugin` documention.
 
 .. Note::
    Your paths will differ than the ones shown in the example below. If you get an error double check the paths making sure the files exist at the specified location.
