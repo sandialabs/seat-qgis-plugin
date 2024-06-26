@@ -176,7 +176,7 @@
     <enum>QTabWidget::Triangular</enum>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>2</number>
    </property>
    <property name="iconSize">
     <size>
@@ -697,7 +697,7 @@ p, li { white-space: pre-wrap; }
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>801</width>
+       <width>701</width>
        <height>231</height>
       </rect>
      </property>
@@ -918,7 +918,7 @@ p, li { white-space: pre-wrap; }
       <attribute name="title">
        <string>Species Properties</string>
       </attribute>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>11</x>
