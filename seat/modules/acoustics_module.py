@@ -25,7 +25,7 @@ from netCDF4 import Dataset
 import pandas as pd
 from osgeo import gdal, osr
 import numpy as np
-from .stressor_utils import (
+from ..utils.stressor_utils import (
     redefine_structured_grid,
     create_raster,
     numpy_array_to_raster,
