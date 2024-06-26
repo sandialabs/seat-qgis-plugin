@@ -25,24 +25,24 @@
     5. added habitat for shear stress
 """
 import configparser
-import logging
+# import logging
 import os.path
 import xml.etree.ElementTree as ET
-from datetime import date
-import numpy as np
+# from datetime import date
+# import numpy as np
 import pandas as pd
 
 from qgis.core import (# type: ignore
     Qgis,
-    QgsApplication,
+    # QgsApplication,
     QgsCoordinateReferenceSystem,
     QgsMessageLog,
     QgsProject,
-    QgsRasterBandStats,
+    # QgsRasterBandStats,
     QgsRasterLayer,
-    QgsVectorLayer,
-    QgsLayerTreeGroup,
-    QgsMapLayerStyleManager
+    # QgsVectorLayer,
+    # QgsLayerTreeGroup,
+    # QgsMapLayerStyleManager
 )# type: ignore
 from qgis.gui import QgsProjectionSelectionDialog  # ,QgsLayerTreeView # type: ignore
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator  # type: ignore
@@ -56,7 +56,7 @@ from .resources import *
 # Import Modules
 from .modules.shear_stress_module import run_shear_stress_stressor
 from .modules.velocity_module import run_velocity_stressor
-from .modules.acoustics_module import run_acoustics_stressor
+from .modules.acoustics_module import run_acoustics_stressor, find_acoustic_metrics
 from .modules.power_module import calculate_power
 
 # Import the code for the dialog
@@ -337,6 +337,8 @@ class StressorReceptorCalc:
             fin = config.get("Input", "paracousti species filepath")
             self.test_exists(self.dlg.paracousti_species_directory, fin, 'Directory')
             self.dlg.paracousti_averaging_combobox.setCurrentText(config.get("Input", "paracousti averaging"))
+            self.dlg.paracousti_metric_selection_combobox.setCurrentText(config.get("Input", "paracousti metric"))
+            self.dlg.paracousti_weighting_combobox.setCurrentText(config.get("Input", "paracousti weighting"))
                                                 
             fin = config.get("Input", "power files filepath")
             self.test_exists(self.dlg.power_files, fin, 'Directory')                
@@ -385,9 +387,10 @@ class StressorReceptorCalc:
             "paracousti threshold file": self.dlg.paracousti_threshold_file.text(),
             "paracousti risk layer file": self.dlg.paracousti_risk_file.text(),
             "paracousti species filepath" : self.dlg.paracousti_species_directory.text(),
+            "paracousti metric" : self.dlg.paracousti_metric_selection_combobox.currentText(),
+            "paracousti weighting" : self.dlg.paracousti_weighting_combobox.currentText(),
             "power files filepath": self.dlg.power_files.text(),
             "power probabilities file": self.dlg.power_probabilities_file.text(),
-
             "coordinate reference system": self.dlg.crs.text(),
             "output style files": self.dlg.output_stylefile.text(),
         }
@@ -431,6 +434,16 @@ class StressorReceptorCalc:
             layer.reload()            
         # refresh legend entries
             self.iface.layerTreeView().refreshLayerSymbology(layer.id())
+            
+    def update_weights(self):
+        if not ((self.dlg.paracousti_device_present.text() is None) or (self.dlg.paracousti_device_present.text() == "")):
+            if  os.path.exists(self.dlg.paracousti_device_present.text()):
+                #read variables in a single .nc file to determine metrics present and weighting
+                filelist = [i for i in os.listdir(self.dlg.paracousti_device_present.text()) if i.endswith(r".nc")]  
+                weights, unweighted_vars, weigthed_vars = find_acoustic_metrics(os.path.join(self.dlg.paracousti_device_present.text(), filelist[0]))
+                self.dlg.paracousti_metric_selection_combobox.clear()
+                self.dlg.paracousti_weighting_combobox.clear()
+                self.dlg.paracousti_weighting_combobox.addItems(weights)  
 
     def select_folder_module(self, module=None, option=None):
         directory = self.select_folder()
@@ -452,6 +465,7 @@ class StressorReceptorCalc:
             if option=='device_present':
                 self.dlg.paracousti_device_present.setText(directory)
                 self.dlg.paracousti_device_present.setStyleSheet("color: black;")
+                self.update_weights() 
             if option=="device_not_present":
                 self.dlg.paracousti_device_not_present.setText(directory)  
                 self.dlg.paracousti_device_not_present.setStyleSheet("color: black;")         
@@ -513,14 +527,22 @@ class StressorReceptorCalc:
             file = self.select_file(filter="*.csv")
             self.dlg.output_stylefile.setText(file)      
             self.dlg.output_stylefile.setStyleSheet("color: black;")
-        
-                    
+
+    def updateparacoustimetrics(self, index=None):
+        self.dlg.paracousti_metric_selection_combobox.clear()
+        if not(self.dlg.paracousti_device_present.text()==''):
+            _, unweighted_vars, weigthed_vars = find_acoustic_metrics(os.path.join(self.dlg.paracousti_device_present.text(),
+                [i for i in os.listdir(self.dlg.paracousti_device_present.text()) if i.endswith(r".nc")][0]))
+            if self.dlg.paracousti_weighting_combobox.currentText() == "None": # disply unweighted variables
+                self.dlg.paracousti_metric_selection_combobox.addItems(unweighted_vars)
+            else: # display weighted variables
+                self.dlg.paracousti_metric_selection_combobox.addItems(weigthed_vars)
     def run(self):
         """Run method that performs all the real work."""
 
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
-        if self.first_start == True:
+        if self.first_start is True:
             self.first_start = False
             self.dlg = StressorReceptorCalcDialog()
 
@@ -546,6 +568,12 @@ class StressorReceptorCalc:
             ]
             self.dlg.paracousti_averaging_combobox.addItems(paracousti_average_fields)
 
+            paracousti_weighting_fields = [] # empty until directory selected
+            self.dlg.paracousti_weighting_combobox.addItems(paracousti_weighting_fields)       
+
+            paracousti_metric_fields = [] # empty until directory selected
+            self.dlg.paracousti_metric_selection_combobox.addItems(paracousti_metric_fields)    
+
             # this connects the input file chooser
             self.dlg.load_input.clicked.connect(
                 lambda: self.select_and_load_in())
@@ -553,7 +581,6 @@ class StressorReceptorCalc:
             # this connects the input file creator
             self.dlg.save_input.clicked.connect(lambda: self.save_in())
 
-                  
             # set the present and not present files. Either .nc files or .tif folders
             
             #directories
@@ -561,8 +588,8 @@ class StressorReceptorCalc:
             self.dlg.shear_no_device_pushButton.clicked.connect(lambda: self.select_folder_module(module="shear", option="device_not_present"))
             self.dlg.velocity_device_pushButton.clicked.connect(lambda: self.select_folder_module(module="velocity", option="device_present"))
             self.dlg.velocity_no_device_pushButton.clicked.connect(lambda: self.select_folder_module(module="velocity", option="device_not_present"))           
-            self.dlg.paracousti_device_pushButton.clicked.connect(lambda: self.select_folder_module(module="paracousti", option="device_present"))
             self.dlg.paracousti_no_device_pushButton.clicked.connect(lambda: self.select_folder_module(module="paracousti", option="device_not_present"))
+            self.dlg.paracousti_device_pushButton.clicked.connect(lambda: self.select_folder_module(module="paracousti", option="device_present"))
             self.dlg.paracousti_species_directory_button.clicked.connect(lambda: self.select_folder_module(module="paracousti", option="species_directory"))
             self.dlg.power_files_pushButton.clicked.connect(lambda: self.select_folder_module(module="power"))
             self.dlg.output_pushButton.clicked.connect(lambda: self.select_folder_module(module="output"))
@@ -582,7 +609,10 @@ class StressorReceptorCalc:
             
             self.dlg.copy_shear_to_velocity_button.clicked.connect(self.copy_shear_input_to_velocity)  
             self.dlg.crs_button.clicked.connect(self.select_crs)
-                          
+
+            self.dlg.paracousti_weighting_combobox.currentIndexChanged.connect(lambda: self.updateparacoustimetrics())
+            self.dlg.paracousti_device_present.textChanged.connect(lambda: self.update_weights())
+
         self.dlg.shear_device_present.clear()
         self.dlg.velocity_device_present.clear()
         self.dlg.paracousti_device_present.clear()
@@ -632,7 +662,7 @@ class StressorReceptorCalc:
             paracousti_device_present_directory = self.dlg.paracousti_device_present.text()
             if not ((paracousti_device_present_directory is None) or (paracousti_device_present_directory == "")):
                 if not os.path.exists(paracousti_device_present_directory):
-                    raise FileNotFoundError(f"The directory {paracousti_device_present_directory} does not exist.")                 
+                    raise FileNotFoundError(f"The directory {paracousti_device_present_directory} does not exist.")      
             power_files_directory = self.dlg.power_files.text()
             if not ((power_files_directory is None) or (power_files_directory == "")):
                 if not os.path.exists(power_files_directory):
@@ -704,7 +734,8 @@ class StressorReceptorCalc:
             paracousti_averaging = self.dlg.paracousti_averaging_combobox.currentText()                   
             
             output_folder_name = self.dlg.output_folder.text()
-            os.makedirs(output_folder_name, exist_ok=True) # create output directory if it doesn't exist
+            if not ((output_folder_name is None) or (output_folder_name == "")):
+                os.makedirs(output_folder_name, exist_ok=True) # create output directory if it doesn't exist
 
             crs = int(self.dlg.crs.text())
             
@@ -717,7 +748,7 @@ class StressorReceptorCalc:
                 stylefiles_DF = None
 
             initialize_group  = True
-                                  
+
             # if the output file path is empty display a warning
             if output_folder_name == "":
                 QgsMessageLog.logMessage("Output file path not given.", level=Qgis.MessageLevel.Warnin)
