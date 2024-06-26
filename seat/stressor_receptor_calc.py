@@ -728,6 +728,9 @@ class StressorReceptorCalc:
             if not ((paracousti_species_directory is None) or (paracousti_species_directory == "")):
                 if not os.path.exists(paracousti_species_directory):
                     raise FileNotFoundError(f"The directory {paracousti_species_directory} does not exist.")  
+
+            paracousti_weighting = self.dlg.paracousti_weighting_combobox.currentText()
+            paracousti_metric = self.dlg.paracousti_metric_selection_combobox.currentText()
             
             shear_stress_averaging = self.dlg.shear_averaging_combobox.currentText()              
             velocity_averaging = self.dlg.velocity_averaging_combobox.currentText()                   
@@ -831,6 +834,8 @@ class StressorReceptorCalc:
                     crs=crs,
                     output_path=os.path.join(output_folder_name, 'Acoustics Module'),
                     receptor_filename=paracousti_threshold_file,
+                    paracousti_weighting = paracousti_weighting,
+                    paracousti_metric = paracousti_metric,
                     species_folder=paracousti_species_directory,
                     Averaging = paracousti_averaging,
                     secondary_constraint_filename=paracousti_risk_layer_file)
