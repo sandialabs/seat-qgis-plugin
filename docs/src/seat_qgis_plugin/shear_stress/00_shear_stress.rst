@@ -17,8 +17,7 @@ The following are optional inputs:
 
 
 Each of these inputs is explored in more detail in the following sections.
-TO Here
-^^^^^^^^^^^^^^^^
+
 
 .. figure:: ../../media/SEAT_GUI.webp
    :scale: 90 %
