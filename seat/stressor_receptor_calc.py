@@ -354,7 +354,14 @@ class StressorReceptorCalc:
 
         if 'config' in locals(): #prevents error if window to closed without running
             config.clear()
-        
+
+    def is_float(self, value):
+        try:
+            float(value)
+            return True
+        except ValueError:
+            return False
+    
     def save_in(self):
         """Select and save an input file."""
         filename, _filter = QFileDialog.getSaveFileName(
@@ -511,10 +518,10 @@ class StressorReceptorCalc:
                 file = self.select_file(filter="*.csv")
                 self.dlg.paracousti_probabilities_file.setText(file)      
                 self.dlg.paracousti_probabilities_file.setStyleSheet("color: black;")
-            if option=="thresholds":
-                file = self.select_file(filter="*.csv")
-                self.dlg.paracousti_threshold_file.setText(file)      
-                self.dlg.paracousti_threshold_file.setStyleSheet("color: black;")
+            # if option=="thresholds":
+            #     file = self.select_file(filter="*.csv")
+            #     self.dlg.paracousti_threshold_file.setText(file)      
+            #     self.dlg.paracousti_threshold_file.setStyleSheet("color: black;")
             if option=="risk_file":
                 file = self.select_file(filter="*.tif")
                 self.dlg.paracousti_risk_file.setText(file)         
@@ -535,8 +542,27 @@ class StressorReceptorCalc:
                 [i for i in os.listdir(self.dlg.paracousti_device_present.text()) if i.endswith(r".nc")][0]))
             if self.dlg.paracousti_weighting_combobox.currentText() == "None": # disply unweighted variables
                 self.dlg.paracousti_metric_selection_combobox.addItems(unweighted_vars)
+                self.dlg.paracousti_threshold_units.setText("dB re 1 μPa")
             else: # display weighted variables
                 self.dlg.paracousti_metric_selection_combobox.addItems(weigthed_vars)
+                self.dlg.paracousti_threshold_units.setText("dB re 1 μPa<sup>2</sup>∙s")
+
+    def checkparacoustithreshold(self):
+        if self.is_float(self.dlg.paracousti_threshold_value.text()):
+            self.dlg.paracousti_threshold_value.setStyleSheet("color: black;")
+        else:
+            print(f"\'{self.dlg.paracousti_threshold_value.text()}\' is not a valid threshold (must be a number).")
+            self.dlg.setText(f"{self.dlg.paracousti_threshold_value.text()} is not a valid threshold (must be a number).")
+            self.dlg.paracousti_threshold_value.setStyleSheet("color: red;")
+
+    def checkparacoustiresolution(self):
+        if self.is_float(self.dlg.paracousti_species_grid_resolution.text()):
+            self.dlg.paracousti_species_grid_resolution.setStyleSheet("color: black;")
+        else:
+            print(f"\'{self.dlg.paracousti_species_grid_resolution.text()}\' is not a valid resolution (must be a number).")
+            self.dlg.setText(f"{self.dlg.paracousti_species_grid_resolution.text()} is not a valid resolution (must be a number).")
+            self.dlg.paracousti_species_grid_resolution.setStyleSheet("color: red;")
+                
     def run(self):
         """Run method that performs all the real work."""
 
@@ -602,7 +628,7 @@ class StressorReceptorCalc:
             self.dlg.velocity_threshold_button.clicked.connect(lambda: self.select_files_module(module='velocity', option='thresholds'))
             self.dlg.velocity_risk_pushButton.clicked.connect(lambda: self.select_files_module(module='velocity', option='risk_file'))                
             self.dlg.paracousti_probabilities_pushButton.clicked.connect(lambda: self.select_files_module(module='paracousti', option='probabilities_file'))
-            self.dlg.paracousti_threshold_button.clicked.connect(lambda: self.select_files_module(module='paracousti', option='thresholds'))
+            # self.dlg.paracousti_threshold_button.clicked.connect(lambda: self.select_files_module(module='paracousti', option='thresholds'))
             self.dlg.paracousti_risk_pushButton.clicked.connect(lambda: self.select_files_module(module='paracousti', option='risk_file'))                
             self.dlg.power_probabilities_pushButton.clicked.connect(lambda: self.select_files_module(module='power'))     
             self.dlg.select_stylefile_button.clicked.connect(lambda: self.select_files_module(module='style_files'))   
@@ -610,8 +636,10 @@ class StressorReceptorCalc:
             self.dlg.copy_shear_to_velocity_button.clicked.connect(self.copy_shear_input_to_velocity)  
             self.dlg.crs_button.clicked.connect(self.select_crs)
 
+            self.dlg.paracousti_threshold_value.currentIndexChanged.connect(lambda: self.checkparacoustithreshold())
             self.dlg.paracousti_weighting_combobox.currentIndexChanged.connect(lambda: self.updateparacoustimetrics())
             self.dlg.paracousti_device_present.textChanged.connect(lambda: self.update_weights())
+            self.dlg.paracousti_species_grid_resolution.textChanged.connect(lambda: self.checkparacoustiresolution())
 
         self.dlg.shear_device_present.clear()
         self.dlg.velocity_device_present.clear()
@@ -629,7 +657,8 @@ class StressorReceptorCalc:
 
         self.dlg.shear_grain_size_file.clear()
         self.dlg.velocity_threshold_file.clear()
-        self.dlg.paracousti_threshold_file.clear()
+        self.dlg.paracousti_threshold_value.clear()
+        self.dlg.paracousti_species_grid_resolution.clear()
         
         self.dlg.shear_risk_file.clear()
         self.dlg.velocity_risk_file.clear()
@@ -705,12 +734,7 @@ class StressorReceptorCalc:
             velocity_threshold_file = self.dlg.velocity_threshold_file.text()     
             if not ((velocity_threshold_file is None) or (velocity_threshold_file == "")):
                 if not os.path.exists(velocity_threshold_file):
-                    raise FileNotFoundError(f"The file {velocity_threshold_file} does not exist.")   
-            paracousti_threshold_file = self.dlg.paracousti_threshold_file.text()     
-            if not ((paracousti_threshold_file is None) or (paracousti_threshold_file == "")):
-                if not os.path.exists(paracousti_threshold_file):
-                    raise FileNotFoundError(f"The file {paracousti_threshold_file} does not exist.")   
-            
+                    raise FileNotFoundError(f"The file {velocity_threshold_file} does not exist.") 
             shear_risk_layer_file = self.dlg.shear_risk_file.text()     
             if not ((shear_risk_layer_file is None) or (shear_risk_layer_file == "")):
                 if not os.path.exists(shear_risk_layer_file):
@@ -731,7 +755,14 @@ class StressorReceptorCalc:
 
             paracousti_weighting = self.dlg.paracousti_weighting_combobox.currentText()
             paracousti_metric = self.dlg.paracousti_metric_selection_combobox.currentText()
-            
+            paracousti_threshold_value = self.dlg.paracousti_threshold_value.currentText()
+            if self.is_float(paracousti_threshold_value):
+                paracousti_threshold_value = float(paracousti_threshold_value)
+                
+            paracousti_species_grid_resolution = self.dlg.paracousti_species_grid_resolution.currentText()
+            if self.is_float(paracousti_species_grid_resolution):
+                paracousti_species_grid_resolution = float(paracousti_species_grid_resolution)
+                            
             shear_stress_averaging = self.dlg.shear_averaging_combobox.currentText()              
             velocity_averaging = self.dlg.velocity_averaging_combobox.currentText()                   
             paracousti_averaging = self.dlg.paracousti_averaging_combobox.currentText()                   
@@ -833,10 +864,11 @@ class StressorReceptorCalc:
                     probabilities_file=paracousti_probabilities_fname,
                     crs=crs,
                     output_path=os.path.join(output_folder_name, 'Acoustics Module'),
-                    receptor_filename=paracousti_threshold_file,
-                    paracousti_weighting = paracousti_weighting,
-                    paracousti_metric = paracousti_metric,
+                    receptor_filename=paracousti_threshold_value,
+                    paracousti_weighting=paracousti_weighting,
+                    paracousti_metric=paracousti_metric,
                     species_folder=paracousti_species_directory,
+                    paracousti_species_grid_resolution=paracousti_species_grid_resolution,
                     Averaging = paracousti_averaging,
                     secondary_constraint_filename=paracousti_risk_layer_file)
                 
