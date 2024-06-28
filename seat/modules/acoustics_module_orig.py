@@ -120,15 +120,15 @@ def find_acoustic_metrics(paracousti_file):
         weigthed_vars = sorted(set([i[i.find("_") + 1 :] for i in weighted_varnames]))
     return weights, unweighted_vars, weigthed_vars
 
-
 def calculate_acoustic_stressors(
     fpath_dev,
     probabilities_file,
-    receptor_filename,
+    paracousti_threshold_value,
     paracousti_weighting,
     paracousti_metric,
     fpath_nodev=None,
     species_folder=None,  # secondary constraint
+    species_grid_resolution=None,
     latlon=True,
     Averaging=None,
 ):
@@ -174,8 +174,8 @@ def calculate_acoustic_stressors(
         raise FileNotFoundError(f"The directory {fpath_dev} does not exist.")
     if not os.path.exists(probabilities_file):
         raise FileNotFoundError(f"The file {probabilities_file} does not exist.")
-    if not os.path.exists(receptor_filename):
-        raise FileNotFoundError(f"The file {receptor_filename} does not exist.")
+    # if not os.path.exists(receptor_filename):
+    #     raise FileNotFoundError(f"The file {receptor_filename} does not exist.")
 
     paracousti_files = [
         os.path.join(fpath_dev, i) for i in os.listdir(fpath_dev) if i.endswith(".nc")
@@ -187,26 +187,22 @@ def calculate_acoustic_stressors(
         boundary_conditions["% of yr"] / boundary_conditions["% of yr"].sum()
     )
 
-    receptor = pd.read_csv(receptor_filename, index_col=0, header=None).T
-    Threshold = receptor["Threshold (dB re 1uPa)"].astype(float).to_numpy().item()
+    # receptor = pd.read_csv(receptor_filename, index_col=0, header=None).T
+    Threshold = float(paracousti_threshold_value)
     if not (
-        (receptor["species file averaged area (km2)"].values is None)
-        or (receptor["species file averaged area (km2)"].values == "")
+        (species_grid_resolution is None)
+        or (species_grid_resolution == "")
     ):
-        grid_res_species = (
-            receptor["species file averaged area (km2)"].astype(float).to_numpy().item()
-            * 1.0e6
-        )  # converted to m2
+        grid_res_species = float(species_grid_resolution) * 1.0e6 # converted to m2
     else:
         grid_res_species = 0.0
     # Averaging = receptor['Depth Averaging'].values.item()
-    variable = receptor["Paracousti Variable"].values.item()
 
     for ic, paracousti_file in enumerate(paracousti_files):
         with Dataset(paracousti_file) as ds:
             # ds = Dataset(paracousti_file)
-            acoust_var = ds.variables[variable][:].data
-            cords = ds.variables[variable].coordinates.split()
+            acoust_var = ds.variables[paracousti_metric][:].data
+            cords = ds.variables[paracousti_metric].coordinates.split()
             X = ds.variables[cords[0]][:].data
             Y = ds.variables[cords[1]][:].data
             if X.shape[0] != acoust_var.shape[0]:
@@ -242,8 +238,8 @@ def calculate_acoustic_stressors(
         for ic, baseline_file in enumerate(baseline_files):
             with Dataset(baseline_file) as ds:
                 # ds = Dataset(baseline_file)
-                baseline = ds.variables[variable][:].data
-                cords = ds.variables[variable].coordinates.split()
+                baseline = ds.variables[paracousti_metric][:].data
+                cords = ds.variables[paracousti_metric].coordinates.split()
                 if ds.variables[cords[0]][:].data.shape[0] != baseline.shape[0]:
                     baseline = np.transpose(baseline, (1, 2, 0))
                 if ic == 0:
@@ -356,10 +352,11 @@ def run_acoustics_stressor(
     probabilities_file,
     crs,
     output_path,
-    receptor_filename,
+    paracousti_threshold_value,
     paracousti_weighting,
     paracousti_metric,
     species_folder=None,
+    paracousti_species_grid_resolution=None,
     Averaging=None,
     secondary_constraint_filename=None,
 ):
@@ -404,11 +401,12 @@ def run_acoustics_stressor(
     dict_of_arrays, rx, ry, dx, dy = calculate_acoustic_stressors(
         fpath_dev=dev_present_file,
         probabilities_file=probabilities_file,
-        receptor_filename=receptor_filename,
+        paracousti_threshold_value=paracousti_threshold_value,
         paracousti_weighting=paracousti_weighting,
         paracousti_metric=paracousti_metric,
         fpath_nodev=dev_notpresent_file,
         species_folder=species_folder,
+        species_grid_resolution=paracousti_species_grid_resolution,
         latlon=crs == 4326,
         Averaging=Averaging,
     )
