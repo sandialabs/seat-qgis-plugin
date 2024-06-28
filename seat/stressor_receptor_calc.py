@@ -542,10 +542,8 @@ class StressorReceptorCalc:
                 [i for i in os.listdir(self.dlg.paracousti_device_present.text()) if i.endswith(r".nc")][0]))
             if self.dlg.paracousti_weighting_combobox.currentText() == "None": # disply unweighted variables
                 self.dlg.paracousti_metric_selection_combobox.addItems(unweighted_vars)
-                self.dlg.paracousti_threshold_units.setText("dB re 1 μPa")
             else: # display weighted variables
                 self.dlg.paracousti_metric_selection_combobox.addItems(weigthed_vars)
-                self.dlg.paracousti_threshold_units.setText("dB re 1 μPa<sup>2</sup>∙s")
 
     def checkparacoustithreshold(self):
         if self.is_float(self.dlg.paracousti_threshold_value.text()):
@@ -636,9 +634,9 @@ class StressorReceptorCalc:
             self.dlg.copy_shear_to_velocity_button.clicked.connect(self.copy_shear_input_to_velocity)  
             self.dlg.crs_button.clicked.connect(self.select_crs)
 
-            self.dlg.paracousti_threshold_value.currentIndexChanged.connect(lambda: self.checkparacoustithreshold())
             self.dlg.paracousti_weighting_combobox.currentIndexChanged.connect(lambda: self.updateparacoustimetrics())
             self.dlg.paracousti_device_present.textChanged.connect(lambda: self.update_weights())
+            self.dlg.paracousti_threshold_value.textChanged.connect(lambda: self.checkparacoustithreshold())
             self.dlg.paracousti_species_grid_resolution.textChanged.connect(lambda: self.checkparacoustiresolution())
 
         self.dlg.shear_device_present.clear()

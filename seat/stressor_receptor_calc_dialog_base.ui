@@ -28,6 +28,11 @@
     <height>591</height>
    </size>
   </property>
+  <property name="font">
+   <font>
+    <pointsize>9</pointsize>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Spatial Environmental Assessment Toolkit</string>
   </property>
@@ -60,7 +65,7 @@
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>30</y>
+     <y>10</y>
      <width>141</width>
      <height>41</height>
     </rect>
@@ -85,7 +90,7 @@
    <property name="geometry">
     <rect>
      <x>225</x>
-     <y>30</y>
+     <y>10</y>
      <width>401</width>
      <height>41</height>
     </rect>
@@ -105,7 +110,7 @@
     <rect>
      <x>40</x>
      <y>510</y>
-     <width>243</width>
+     <width>264</width>
      <height>48</height>
     </rect>
    </property>
@@ -160,9 +165,9 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>100</y>
+     <y>70</y>
      <width>721</width>
-     <height>281</height>
+     <height>311</height>
     </rect>
    </property>
    <property name="font">
@@ -176,7 +181,7 @@
     <enum>QTabWidget::Triangular</enum>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>0</number>
    </property>
    <property name="iconSize">
     <size>
@@ -198,9 +203,9 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>10</y>
+       <y>20</y>
        <width>691</width>
-       <height>241</height>
+       <height>251</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout_2" columnstretch="2,3,0">
@@ -459,7 +464,7 @@ p, li { white-space: pre-wrap; }
        <x>16</x>
        <y>40</y>
        <width>681</width>
-       <height>211</height>
+       <height>231</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout_6" columnstretch="2,3,0">
@@ -698,14 +703,14 @@ p, li { white-space: pre-wrap; }
        <x>10</x>
        <y>10</y>
        <width>701</width>
-       <height>231</height>
+       <height>261</height>
       </rect>
      </property>
      <property name="tabShape">
       <enum>QTabWidget::Triangular</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <property name="iconSize">
       <size>
@@ -721,9 +726,9 @@ p, li { white-space: pre-wrap; }
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>10</y>
+         <y>20</y>
          <width>661</width>
-         <height>191</height>
+         <height>201</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_10" rowstretch="0,0,0,0,0" columnstretch="0,0,0" rowminimumheight="0,0,0,0,0">
@@ -922,12 +927,18 @@ p, li { white-space: pre-wrap; }
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>25</y>
+         <y>10</y>
          <width>671</width>
-         <height>170</height>
+         <height>211</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_3" columnstretch="3,3,1">
+        <property name="horizontalSpacing">
+         <number>5</number>
+        </property>
+        <property name="verticalSpacing">
+         <number>3</number>
+        </property>
         <item row="0" column="0">
          <widget class="QLabel" name="label_19">
           <property name="toolTip">
@@ -1019,6 +1030,14 @@ p, li { white-space: pre-wrap; }
          <widget class="QLineEdit" name="paracousti_threshold_units">
           <property name="enabled">
            <bool>true</bool>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+            <weight>50</weight>
+            <italic>true</italic>
+            <bold>false</bold>
+           </font>
           </property>
           <property name="readOnly">
            <bool>true</bool>
