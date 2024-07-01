@@ -545,6 +545,13 @@ class StressorReceptorCalc:
             else: # display weighted variables
                 self.dlg.paracousti_metric_selection_combobox.addItems(weigthed_vars)
 
+    def updateparacoustiunits(self, value=None):
+        if 'spl'.casefold() in self.dlg.paracousti_metric_selection_combobox.currentText().casefold():
+            self.dlg.paracousti_threshold_units.setText("dB re 1 μPa")
+        elif 'sel'.casefold() in  self.dlg.paracousti_metric_selection_combobox.currentText().casefold():
+            self.dlg.paracousti_threshold_units.setText("dB re 1 μPa²∙s")
+            
+
     def checkparacoustithreshold(self):
         if self.is_float(self.dlg.paracousti_threshold_value.text()):
             self.dlg.paracousti_threshold_value.setStyleSheet("color: black;")
@@ -634,8 +641,9 @@ class StressorReceptorCalc:
             self.dlg.copy_shear_to_velocity_button.clicked.connect(self.copy_shear_input_to_velocity)  
             self.dlg.crs_button.clicked.connect(self.select_crs)
 
-            self.dlg.paracousti_weighting_combobox.currentIndexChanged.connect(lambda: self.updateparacoustimetrics())
             self.dlg.paracousti_device_present.textChanged.connect(lambda: self.update_weights())
+            self.dlg.paracousti_weighting_combobox.currentIndexChanged.connect(lambda: self.updateparacoustimetrics())
+            self.dlg.paracousti_metric_selection_combobox.currentIndexChanged.connect(lambda: self.updateparacoustiunits())
             self.dlg.paracousti_threshold_value.textChanged.connect(lambda: self.checkparacoustithreshold())
             self.dlg.paracousti_species_grid_resolution.textChanged.connect(lambda: self.checkparacoustiresolution())
 

@@ -923,7 +923,7 @@ p, li { white-space: pre-wrap; }
       <attribute name="title">
        <string>Species Properties</string>
       </attribute>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>10</x>
