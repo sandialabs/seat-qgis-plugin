@@ -121,17 +121,120 @@ def find_acoustic_metrics(paracousti_file):
     return weights, unweighted_vars, weigthed_vars
 
 
+def calc_SEL_cum(SEL, duration_seconds):
+    """    
+    SEL from single second to cummulative
+    derived from BOEM 2023 equation 7 for multiple strikes
+
+    Args:
+        SEL (array): single second SEL
+        duration_seconds (float): duration in seconds
+
+    Returns:
+        array : cumulative SEL
+    """
+    return SEL + 10 * np.log10(duration_seconds)
+
+def calc_stressor(
+    paracousti_files,
+    boundary_conditions,
+    Threshold,
+    ACOUST_VAR,
+    Baseline,
+    XCOR,
+    YCOR,
+    latlon,
+    metric_calc = 'SPL',
+    species_folder=None,
+    grid_res_species=0
+):
+
+    probability = boundary_conditions.loc[os.path.basename(paracousti_files)]["% of yr"] / 100
+    if metric_calc =='SEL':
+        frac_of_day = 24 * 60 * 60 * probability
+    # SPL stressor calculations
+    for ic, file in enumerate(paracousti_files):
+        # paracousti files might not have regular grid spacing.
+        rx, ry, device_ss = redefine_structured_grid(XCOR, YCOR, ACOUST_VAR[ic, :])
+        baseline_ss = resample_structured_grid(XCOR, YCOR, Baseline[ic, :], rx, ry)
+
+        if ic == 0:
+            device = np.zeros(rx.shape)
+            baseline = np.zeros(rx.shape)
+            stressor = np.zeros(rx.shape)
+            threshold_exceeded = np.zeros(rx.shape)
+            percent_scaled = np.zeros(rx.shape)
+            density_scaled = np.zeros(rx.shape)
+
+        if metric_calc.casfold() == 'SEL'.casefold():
+            device_scaled = calc_SEL_cum(device_ss, frac_of_day[ic])
+            baseline_scaled = calc_SEL_cum(baseline_ss, frac_of_day[ic])
+        else: #SPL
+            device_scaled = probability * device_ss
+            baseline_scaled = probability * baseline_ss
+        
+        device = device + device_scaled
+        baseline = baseline + baseline_scaled
+        stressor = stressor + (device_scaled - baseline_scaled)
+        threshold_mask = device_scaled > Threshold
+        threshold_exceeded[threshold_mask] += probability[ic] * 100
+
+        if not ((species_folder is None) or (species_folder == "")):
+            if not os.path.exists(species_folder):
+                raise FileNotFoundError(
+                    f"The directory {species_folder} does not exist."
+                )
+            species_percent_filename = boundary_conditions.loc[
+                os.path.basename(paracousti_files[0])
+            ]["Species Percent Occurance File"]
+            species_density_filename = boundary_conditions.loc[
+                os.path.basename(paracousti_files[0])
+            ]["Species Density File"]
+            parray = create_species_array(
+                os.path.join(species_folder, species_percent_filename),
+                rx,
+                ry,
+                variable="percent",
+                latlon=True,
+            )
+            darray = create_species_array(
+                os.path.join(species_folder, species_density_filename),
+                rx,
+                ry,
+                variable="density",
+                latlon=True,
+            )
+            _, _, square_area = calculate_cell_area(rx, ry, latlon is True)
+            # square area of each grid cell
+            square_area = np.nanmean(square_area)
+            if grid_res_species != 0:
+                # ratio of grid cell to species averaged, now prob/density per each grid cell
+                ratio = square_area / grid_res_species
+            else:
+                ratio = 1
+            parray_scaled = parray * ratio
+            darray_scaled = darray * ratio
+            percent_scaled[threshold_mask] += (
+                probability * parray_scaled[threshold_mask]
+            )
+            density_scaled[threshold_mask] += (
+                probability * darray_scaled[threshold_mask]
+            )
+    return device, baseline, stressor, threshold_exceeded, percent_scaled, density_scaled, rx, ry
+
 def calculate_acoustic_stressors(
     fpath_dev,
     probabilities_file,
-    receptor_filename,
-    paracousti_weighting,
+    paracousti_threshold_value,
     paracousti_metric,
     fpath_nodev=None,
     species_folder=None,  # secondary constraint
+    species_grid_resolution=None,
     latlon=True,
     Averaging=None,
 ):
+
+    
     """
     Calculates the stressor layers as arrays from model and parameter input.
 
@@ -174,8 +277,8 @@ def calculate_acoustic_stressors(
         raise FileNotFoundError(f"The directory {fpath_dev} does not exist.")
     if not os.path.exists(probabilities_file):
         raise FileNotFoundError(f"The file {probabilities_file} does not exist.")
-    if not os.path.exists(receptor_filename):
-        raise FileNotFoundError(f"The file {receptor_filename} does not exist.")
+    # if not os.path.exists(receptor_filename):
+    #     raise FileNotFoundError(f"The file {receptor_filename} does not exist.")
 
     paracousti_files = [
         os.path.join(fpath_dev, i) for i in os.listdir(fpath_dev) if i.endswith(".nc")
@@ -187,26 +290,22 @@ def calculate_acoustic_stressors(
         boundary_conditions["% of yr"] / boundary_conditions["% of yr"].sum()
     )
 
-    receptor = pd.read_csv(receptor_filename, index_col=0, header=None).T
-    Threshold = receptor["Threshold (dB re 1uPa)"].astype(float).to_numpy().item()
+    # receptor = pd.read_csv(receptor_filename, index_col=0, header=None).T
+    Threshold = float(paracousti_threshold_value)
     if not (
-        (receptor["species file averaged area (km2)"].values is None)
-        or (receptor["species file averaged area (km2)"].values == "")
+        (species_grid_resolution is None)
+        or (species_grid_resolution == "")
     ):
-        grid_res_species = (
-            receptor["species file averaged area (km2)"].astype(float).to_numpy().item()
-            * 1.0e6
-        )  # converted to m2
+        grid_res_species = float(species_grid_resolution) * 1.0e6 # converted to m2
     else:
         grid_res_species = 0.0
     # Averaging = receptor['Depth Averaging'].values.item()
-    variable = receptor["Paracousti Variable"].values.item()
 
     for ic, paracousti_file in enumerate(paracousti_files):
         with Dataset(paracousti_file) as ds:
             # ds = Dataset(paracousti_file)
-            acoust_var = ds.variables[variable][:].data
-            cords = ds.variables[variable].coordinates.split()
+            acoust_var = ds.variables[paracousti_metric][:].data
+            cords = ds.variables[paracousti_metric].coordinates.split()
             X = ds.variables[cords[0]][:].data
             Y = ds.variables[cords[1]][:].data
             if X.shape[0] != acoust_var.shape[0]:
@@ -242,8 +341,8 @@ def calculate_acoustic_stressors(
         for ic, baseline_file in enumerate(baseline_files):
             with Dataset(baseline_file) as ds:
                 # ds = Dataset(baseline_file)
-                baseline = ds.variables[variable][:].data
-                cords = ds.variables[variable].coordinates.split()
+                baseline = ds.variables[paracousti_metric][:].data
+                cords = ds.variables[paracousti_metric].coordinates.split()
                 if ds.variables[cords[0]][:].data.shape[0] != baseline.shape[0]:
                     baseline = np.transpose(baseline, (1, 2, 0))
                 if ic == 0:
@@ -274,71 +373,32 @@ def calculate_acoustic_stressors(
     else:
         ACOUST_VAR = np.nanmax(ACOUST_VAR, axis=3)
         Baseline = np.nanmax(Baseline, axis=3)
+        
 
-    for ic, file in enumerate(paracousti_files):
-        # paracousti files might not have regular grid spacing.
-        rx, ry, acoust_var = redefine_structured_grid(XCOR, YCOR, ACOUST_VAR[ic, :])
-        baseline = resample_structured_grid(XCOR, YCOR, Baseline[ic, :], rx, ry)
+    #TODO Add 95th percentile
+    #TODO need different analysis for SPL and SEL metrics
+    #TODO need to add analysis for each hydrodynamic probability
+    
+    metric_calc = 'SPL' if 'spl'.casefold in paracousti_metric else 'SEL'
+    
+    paracousti_with_device, baseline_without_device, stressor, threshold_exceeded, percent_scaled, density_scaled, rx, ry = calc_stressor(
+    paracousti_files,
+    boundary_conditions,
+    Threshold,
+    ACOUST_VAR,
+    Baseline,
+    XCOR,
+    YCOR,
+    latlon,
+    metric_calc = metric_calc,
+    species_folder=species_folder,
+    grid_res_species=grid_res_species
+    )
 
-        if ic == 0:
-            PARACOUSTI = np.zeros(rx.shape)
-            stressor = np.zeros(rx.shape)
-            threshold_exceeded = np.zeros(rx.shape)
-            percent_scaled = np.zeros(rx.shape)
-            density_scaled = np.zeros(rx.shape)
-
-        probability = boundary_conditions.loc[os.path.basename(file)]["% of yr"] / 100
-
-        PARACOUSTI = PARACOUSTI + probability * acoust_var
-        stressor = stressor + probability * (acoust_var - baseline)
-        threshold_mask = acoust_var > Threshold
-        threshold_exceeded[threshold_mask] += probability * 100
-
-        if not ((species_folder is None) or (species_folder == "")):
-            if not os.path.exists(species_folder):
-                raise FileNotFoundError(
-                    f"The directory {species_folder} does not exist."
-                )
-            species_percent_filename = boundary_conditions.loc[
-                os.path.basename(paracousti_file)
-            ]["Species Percent Occurance File"]
-            species_density_filename = boundary_conditions.loc[
-                os.path.basename(paracousti_file)
-            ]["Species Density File"]
-            parray = create_species_array(
-                os.path.join(species_folder, species_percent_filename),
-                rx,
-                ry,
-                variable="percent",
-                latlon=True,
-            )
-            darray = create_species_array(
-                os.path.join(species_folder, species_density_filename),
-                rx,
-                ry,
-                variable="density",
-                latlon=True,
-            )
-            _, _, square_area = calculate_cell_area(rx, ry, latlon is True)
-            # square area of each grid cell
-            square_area = np.nanmean(square_area)
-            if grid_res_species != 0:
-                # ratio of grid cell to species averaged, now prob/density per each grid cell
-                ratio = square_area / grid_res_species
-            else:
-                ratio = 1
-            parray_scaled = parray * ratio
-            darray_scaled = darray * ratio
-            percent_scaled[threshold_mask] += (
-                probability * parray_scaled[threshold_mask]
-            )
-            density_scaled[threshold_mask] += (
-                probability * darray_scaled[threshold_mask]
-            )
 
     dict_of_arrays = {
-        "paracousti_without_devices": baseline,
-        "paracousti_with_devices": PARACOUSTI,
+        "paracousti_without_devices": baseline_without_device,
+        "paracousti_with_devices": paracousti_with_device,
         "paracousti_stressor": stressor,
         "species_threshold_exceeded": threshold_exceeded,
         "species_percent": percent_scaled,
@@ -356,15 +416,15 @@ def run_acoustics_stressor(
     probabilities_file,
     crs,
     output_path,
-    receptor_filename,
+    paracousti_threshold_value,
     paracousti_weighting,
     paracousti_metric,
     species_folder=None,
+    paracousti_species_grid_resolution=None,
     Averaging=None,
     secondary_constraint_filename=None,
 ):
     """
-
 
     Parameters
     ----------
@@ -404,11 +464,12 @@ def run_acoustics_stressor(
     dict_of_arrays, rx, ry, dx, dy = calculate_acoustic_stressors(
         fpath_dev=dev_present_file,
         probabilities_file=probabilities_file,
-        receptor_filename=receptor_filename,
+        paracousti_threshold_value=paracousti_threshold_value,
         paracousti_weighting=paracousti_weighting,
         paracousti_metric=paracousti_metric,
         fpath_nodev=dev_notpresent_file,
         species_folder=species_folder,
+        species_grid_resolution=paracousti_species_grid_resolution,
         latlon=crs == 4326,
         Averaging=Averaging,
     )
