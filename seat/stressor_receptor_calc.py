@@ -864,7 +864,7 @@ class StressorReceptorCalc:
             # Run Acoustics Module
             if not ((paracousti_device_present_directory is None) or (paracousti_device_present_directory == "")): # if svar == "Acoustics":
 
-                pfilenames = run_acoustics_stressor(
+                pfilenames_probabilistic, pfilenames_nonprobabilistic = run_acoustics_stressor(
                     dev_present_file=paracousti_device_present_directory,
                     dev_notpresent_file=paracousti_device_not_present_directory,
                     probabilities_file=paracousti_probabilities_fname,
@@ -881,20 +881,32 @@ class StressorReceptorCalc:
                 if initialize_group:
                     root = QgsProject.instance().layerTreeRoot()
                     group = root.addGroup("temporary")
-                    self.add_layer(pfilenames[list(pfilenames.keys())[0]], root=root, group=group)
+                    self.add_layer(pfilenames_probabilistic[list(pfilenames_probabilistic.keys())[0]], root=root, group=group)
                     initialize_group = False
                 
-                group_name = "Acoustic Stressor"
+                group_name = "Acoustic Stressor - Probabilistic"
                 root = QgsProject.instance().layerTreeRoot()
                 group = root.findGroup(group_name)
                 if group is None:
                     group = root.addGroup(group_name)
-                for key in pfilenames.keys(): #add styles files and/or display
+                for key in pfilenames_probabilistic.keys(): #add styles files and/or display
 
                     if stylefiles_DF is None:
-                        self.add_layer(pfilenames[key], root=root, group=group)
+                        self.add_layer(pfilenames_probabilistic[key], root=root, group=group)
                     else:
-                        self.style_layer(pfilenames[key] , stylefiles_DF.loc[key].item(), root=root, group=group)
+                        self.style_layer(pfilenames_probabilistic[key] , stylefiles_DF.loc[key].item(), root=root, group=group)
+
+                group_name = "Acoustic Stressor - Non-Probilistic"
+                root = QgsProject.instance().layerTreeRoot()
+                group = root.findGroup(group_name)
+                if group is None:
+                    group = root.addGroup(group_name)
+                for key in pfilenames_nonprobabilistic.keys(): #add styles files and/or display
+                    for var in pfilenames_nonprobabilistic[key]:
+                        if stylefiles_DF is None:
+                            self.add_layer(pfilenames_nonprobabilistic[key][var], root=root, group=group)
+                        else:
+                            self.style_layer(pfilenames_nonprobabilistic[key][var], stylefiles_DF.loc[key].item(), root=root, group=group)                        
 
             #remove temproary layer group
             root = QgsProject.instance().layerTreeRoot()
