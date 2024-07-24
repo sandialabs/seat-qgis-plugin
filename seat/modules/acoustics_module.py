@@ -516,6 +516,156 @@ def calculate_acoustic_stressors(
     dy = np.nanmean(np.diff(ry[:, 0]))
     return dict_of_arrays_prob, dict_of_arrays_single, rx, ry, dx, dy
 
+def create_output_rasters_each_prob(use_single_arrays, dict_of_arrays_single, crs, dx, dy, rx, ry, output_path):
+    output_rasters = {}
+    cell_resolution = [dx, dy]
+    if crs == 4326:
+        rxx = np.where(rx > 180, rx - 360, rx)
+        bounds = [rxx.min() - dx / 2, ry.max() - dy / 2]
+    else:
+        bounds = [rx.min() - dx / 2, ry.max() - dy / 2]    
+        
+    for var in use_single_arrays:
+        output_rasters[var] = []
+        for key in dict_of_arrays_single[var].keys():
+            array_name = var + key + ".tif"
+            numpy_array = np.flip(dict_of_arrays_single[var][key], axis=0)
+            rows, cols = numpy_array.shape
+            output_rasters[var].append(os.path.join(output_path, array_name))
+            output_raster = create_raster(
+                os.path.join(output_path, array_name), cols, rows, nbands=1
+            )
+            numpy_array_to_raster(
+                output_raster,
+                numpy_array,
+                bounds,
+                cell_resolution,
+                crs,
+                os.path.join(output_path, array_name),
+            )
+            output_raster = None
+    return output_rasters
+
+def create_output_rasters(use_numpy_arrays, dict_of_arrays, crs, dx, dy, rx, ry, output_path):
+    numpy_array_names = [i + ".tif" for i in use_numpy_arrays]
+    output_rasters = []
+    cell_resolution = [dx, dy]
+    if crs == 4326:
+        rxx = np.where(rx > 180, rx - 360, rx)
+        bounds = [rxx.min() - dx / 2, ry.max() - dy / 2]
+    else:
+        bounds = [rx.min() - dx / 2, ry.max() - dy / 2]    
+        
+    for array_name, use_numpy_array in zip(numpy_array_names, use_numpy_arrays):
+        numpy_array = np.flip(dict_of_arrays[use_numpy_array], axis=0)
+        rows, cols = numpy_array.shape
+        # create an ouput raster given the stressor file path
+        output_rasters.append(os.path.join(output_path, array_name))
+        output_raster = create_raster(
+            os.path.join(output_path, array_name), cols, rows, nbands=1
+        )
+
+        # post processing of numpy array to output raster
+        numpy_array_to_raster(
+            output_raster,
+            numpy_array,
+            bounds,
+            cell_resolution,
+            crs,
+            os.path.join(output_path, array_name),
+        )
+        output_raster = None
+    return output_rasters
+
+def create_binned_csv(output_path, crs, secondary_constraint_filename=None, species_folder=None):
+    
+    # Area calculations
+    # ParAcousti Area
+
+    vars = ["paracousti_without_devices", "paracousti_with_devices", "paracousti_stressor", "species_threshold_exceeded"]
+    for var in vars:
+        bin_layer(
+            os.path.join(output_path, var + ".tif"), latlon=crs == 4326
+            ).to_csv(os.path.join(output_path, var + ".csv"), index=False)
+
+    if not (
+        (secondary_constraint_filename is None) or (secondary_constraint_filename == "")
+    ):
+        bin_layer(
+            os.path.join(output_path, "paracousti_stressor.tif"),
+            receptor_filename=os.path.join(output_path, "paracousti_risk_layer.tif"),
+            receptor_names=None,
+            limit_receptor_range=[0, np.inf],
+            latlon=crs == 4326,
+        ).to_csv(
+            os.path.join(
+                output_path, "paracousti_stressor_at_paracousti_risk_layer.csv"
+            ),
+            index=False,
+        )
+
+    if not ((species_folder is None) or (species_folder == "")):
+        vars = ["species_percent", "species_density"]
+        for var in vars:
+            bin_layer(
+                os.path.join(output_path, var + ".tif"), latlon=crs == 4326
+                ).to_csv(os.path.join(output_path, var + ".csv"), index=False)
+
+        if not (
+            (secondary_constraint_filename is None)
+            or (secondary_constraint_filename == "")
+        ):
+
+            vars = ["species_threshold_exceeded", "species_percent", "species_density"]
+            for var in vars:
+                bin_layer(
+                    os.path.join(output_path, var + ".tif"),
+                    receptor_filename=os.path.join(output_path, "paracousti_risk_layer.tif"),
+                    receptor_names=None,
+                    limit_receptor_range=[0, np.inf],
+                    latlon=crs == 4326,
+                ).to_csv(
+                    os.path.join(
+                        output_path, var + "_at_paracousti_risk_layer.csv"
+                    ),
+                    index=False,
+                )
+
+def create_each_prob_binned_csv(output_path, output_rasters, crs, secondary_constraint_filename=None, species_folder=None):
+
+    vars = ["paracousti_without_devices", "paracousti_with_devices", "paracousti_stressor", "species_threshold_exceeded"]
+    for var in vars:
+        for key in output_rasters[var]:
+            bin_layer(
+                os.path.join(output_path, output_rasters[var][key] + ".tif"), latlon=crs == 4326
+                ).to_csv(os.path.join(output_path, output_rasters[var][key] + ".csv"), index=False)
+            
+    if not ((species_folder is None) or (species_folder == "")):
+        vars = ["species_percent", "species_density", "paracousti_stressor", "species_threshold_exceeded"]
+        for var in vars:
+            for key in output_rasters[var]:
+                bin_layer(
+                    os.path.join(output_path, output_rasters[var][key] + ".tif"), latlon=crs == 4326
+                    ).to_csv(os.path.join(output_path, output_rasters[var][key] + ".csv"), index=False)
+
+    if not (
+        (secondary_constraint_filename is None) or (secondary_constraint_filename == "")
+    ):
+        vars = ["paracousti_stressor", "species_threshold_exceeded", "species_percent", "species_density"]
+        for var in vars:
+            for key in output_rasters[var]:
+                bin_layer(
+                    os.path.join(output_path, output_rasters[var][key] + ".tif"),
+                    receptor_filename=os.path.join(output_path, "paracousti_risk_layer.tif"),
+                    receptor_names=None,
+                    limit_receptor_range=[0, np.inf],
+                    latlon=crs == 4326,
+                ).to_csv(
+                    os.path.join(
+                        output_path, output_rasters[var][key] + "_at_paracousti_risk_layer.csv"
+                    ),
+                    index=False,
+                )
 
 def run_acoustics_stressor(
     dev_present_file,
@@ -590,13 +740,27 @@ def run_acoustics_stressor(
             "species_percent",
             "species_density",
         ]
+        use_single_arrays = [
+            "paracousti_without_devices",
+            "paracousti_with_devices",
+            "paracousti_stressor",
+            "species_threshold_exceeded",
+            "species_percent",
+            "species_density",
+        ]
     else:
         use_numpy_arrays = [
-            "paracousti_without_devices" "paracousti_with_devices",
+            "paracousti_without_devices",
+            "paracousti_with_devices",
             "paracousti_stressor",
             "species_threshold_exceeded",
         ]
-
+        use_single_arrays = [
+            "paracousti_without_devices",
+            "paracousti_with_devices",
+            "paracousti_stressor",
+            "species_threshold_exceeded",
+        ]
     if not (
         (secondary_constraint_filename is None) or (secondary_constraint_filename == "")
     ):
@@ -612,136 +776,18 @@ def run_acoustics_stressor(
         )
         use_numpy_arrays.append("paracousti_risk_layer")
 
-    numpy_array_names = [i + ".tif" for i in use_numpy_arrays]
+    output_rasters = create_output_rasters(use_numpy_arrays, dict_of_arrays, crs, dx, dy, rx, ry, output_path)
+    create_binned_csv(output_path, crs, secondary_constraint_filename=secondary_constraint_filename, species_folder=species_folder)
+    
+    output_rasters_each_prob = create_output_rasters_each_prob(use_numpy_arrays, dict_of_arrays, crs, dx, dy, rx, ry, output_path)
+    create_each_prob_binned_csv(output_path, output_rasters_each_prob, crs, secondary_constraint_filename=secondary_constraint_filename, species_folder=species_folder)
 
-    output_rasters = []
-    for array_name, use_numpy_array in zip(numpy_array_names, use_numpy_arrays):
-        numpy_array = np.flip(dict_of_arrays[use_numpy_array], axis=0)
-        cell_resolution = [dx, dy]
-        # output_rasters = []
-        # for array_name, use_numpy_array in zip(numpy_array_names, use_numpy_arrays):
-        # numpy_array = np.flip(numpy_array, axis=0)
-        # cell_resolution = [dx, dy]
-        if crs == 4326:
-            rxx = np.where(rx > 180, rx - 360, rx)
-            bounds = [rxx.min() - dx / 2, ry.max() - dy / 2]
-        else:
-            bounds = [rx.min() - dx / 2, ry.max() - dy / 2]
-        rows, cols = numpy_array.shape
-        # create an ouput raster given the stressor file path
-        output_rasters.append(os.path.join(output_path, array_name))
-        output_raster = create_raster(
-            os.path.join(output_path, array_name), cols, rows, nbands=1
-        )
-
-        # post processing of numpy array to output raster
-        numpy_array_to_raster(
-            output_raster,
-            numpy_array,
-            bounds,
-            cell_resolution,
-            crs,
-            os.path.join(output_path, array_name),
-        )
-        output_raster = None
-
-    # Area calculations
-    # ParAcousti Area
-
-    bin_layer(
-        os.path.join(output_path, "paracousti_without_devices.tif"), latlon=crs == 4326
-    ).to_csv(os.path.join(output_path, "paracousti_without_devices.csv"), index=False)
-
-    bin_layer(
-        os.path.join(output_path, "paracousti_with_devices.tif"), latlon=crs == 4326
-    ).to_csv(os.path.join(output_path, "paracousti_with_devices.csv"), index=False)
-
-    # Stressor Area
-    bin_layer(
-        os.path.join(output_path, "paracousti_stressor.tif"), latlon=crs == 4326
-    ).to_csv(os.path.join(output_path, "paracousti_stressor.csv"), index=False)
-
-    # threshold exeeded Area
-    bin_layer(
-        os.path.join(output_path, "species_threshold_exceeded.tif"), latlon=crs == 4326
-    ).to_csv(os.path.join(output_path, "species_threshold_exceeded.csv"), index=False)
-
-    if not (
-        (secondary_constraint_filename is None) or (secondary_constraint_filename == "")
-    ):
-        bin_layer(
-            os.path.join(output_path, "paracousti_stressor.tif"),
-            receptor_filename=os.path.join(output_path, "paracousti_risk_layer.tif"),
-            receptor_names=None,
-            limit_receptor_range=[0, np.inf],
-            latlon=crs == 4326,
-        ).to_csv(
-            os.path.join(
-                output_path, "paracousti_stressor_at_paracousti_risk_layer.csv"
-            ),
-            index=False,
-        )
-
-    if not ((species_folder is None) or (species_folder == "")):
-        bin_layer(
-            os.path.join(output_path, "species_percent.tif"), latlon=crs == 4326
-        ).to_csv(os.path.join(output_path, "species_percent.csv"), index=False)
-
-        bin_layer(
-            os.path.join(output_path, "species_density.tif"), latlon=crs == 4326
-        ).to_csv(os.path.join(output_path, "species_density.csv"), index=False)
-
-        if not (
-            (secondary_constraint_filename is None)
-            or (secondary_constraint_filename == "")
-        ):
-            bin_layer(
-                os.path.join(output_path, "species_threshold_exceeded.tif"),
-                receptor_filename=os.path.join(
-                    output_path, "paracousti_risk_layer.tif"
-                ),
-                receptor_names=None,
-                limit_receptor_range=[0, np.inf],
-                latlon=crs == 4326,
-            ).to_csv(
-                os.path.join(
-                    output_path,
-                    "species_threshold_exceeded_at_paracousti_risk_layer.csv",
-                ),
-                index=False,
-            )
-
-            bin_layer(
-                os.path.join(output_path, "species_percent.tif"),
-                receptor_filename=os.path.join(
-                    output_path, "paracousti_risk_layer.tif"
-                ),
-                receptor_names=None,
-                limit_receptor_range=[0, np.inf],
-                latlon=crs == 4326,
-            ).to_csv(
-                os.path.join(
-                    output_path, "species_percent_at_paracousti_risk_layer.csv"
-                ),
-                index=False,
-            )
-
-            bin_layer(
-                os.path.join(output_path, "species_density.tif"),
-                receptor_filename=os.path.join(
-                    output_path, "paracousti_risk_layer.tif"
-                ),
-                receptor_names=None,
-                limit_receptor_range=[0, np.inf],
-                latlon=crs == 4326,
-            ).to_csv(
-                os.path.join(
-                    output_path, "species_density_at_paracousti_risk_layer.csv"
-                ),
-                index=False,
-            )
 
     OUTPUT = {}
     for val in output_rasters:
         OUTPUT[os.path.basename(os.path.normpath(val)).split(".")[0]] = val
-    return OUTPUT
+    OUTOUT_each_prob = {}
+    for val in output_rasters_each_prob:
+        OUTOUT_each_prob[os.path.basename(os.path.normpath(val)).split(".")[0]] = val
+    return OUTPUT, OUTOUT_each_prob
+
