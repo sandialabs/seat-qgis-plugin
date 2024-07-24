@@ -130,7 +130,7 @@ def centroid_diffs(Centroids, centroid):
     Parameters
     ----------
     Centroids : Dict
-        DESCRIPTION.
+        dimensions M,N with each M [index, x , y]
     centroid : array
         single x,y.
 
@@ -324,7 +324,7 @@ def roundup(x, base=5):
     return base * round(x/base)
 
 
-def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
+def calculate_power(power_files, probabilities_file, save_path, crs=None):
     """
     Reads the power files and calculates the total annual power based on hydrdynamic probabilities in probabilities_file. Data are saved as a csv files.
     Three files are output:
@@ -357,9 +357,9 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
     
     datafiles_o = [s for s in os.listdir(power_files) if s.endswith('.OUT')]
     bc_data = pd.read_csv(probabilities_file)
+
     datafiles = sort_data_files_by_runnumber(bc_data, datafiles_o)
 
-    assert save_path is not None, "Specify an output directory"
     os.makedirs(save_path, exist_ok=True)
 
     Total_Power = []

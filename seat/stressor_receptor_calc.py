@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-"""
-/***************************************************************************.
-
- stressor_receptor_calc.py
+""" stressor_receptor_calc.py
+ 
  Copyright 2023, Integral Consulting Inc. All rights reserved.
 
- PURPOSE: A QGIS plugin that calculates a probability weighted response layer from stressor and/or receptor layers
+ PURPOSE: A QGIS plugin that calculates a probability weighted response
+    layer from stressor and/or receptor layers
 
  PROJECT INFORMATION:
- Name: SEAT - Spatial and Environmental Assessment Toolkit (https://github.com/sandialabs/seat-qgis-plugin)
+ Name: SEAT - Spatial and Environmental Assessment Toolkit
  Number: C1308
 
  AUTHORS
@@ -20,7 +19,8 @@
  NOTES (Data descriptions and any script specific notes)
 	1. plugin template from Plugin Builder: http://g-sherman.github.io/Qgis-Plugin-Builder/
 	2. refer to documentation regarding installation and input formatting.
-    3. requires installation of NETCDF4 (https://unidata.github.io/netcdf4-python/) and QGIS (https://qgis.org/en/site/)
+    3. requires installation of NETCDF4 (https://unidata.github.io/netcdf4-python/) 
+       and QGIS (https://qgis.org/en/site/)
     4. tested and created using QGIS v3.22
     5. added habitat for shear stress
 """
@@ -96,7 +96,11 @@ class StressorReceptorCalc:
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value("locale/userLocale")[0:2]
+        locale = QSettings().value("locale/userLocale")
+        if locale:
+            locale = locale[0:2]
+        else:
+            locale = 'en'
         locale_path = os.path.join(
             self.plugin_dir,
             "i18n",
@@ -210,7 +214,7 @@ class StressorReceptorCalc:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ":/plugins/seat_qgis_plugin/icon.png"
+        icon_path = ":/plugins/seat/icon.png"
         self.add_action(
             icon_path,
             setText=self.tr(
@@ -520,7 +524,7 @@ class StressorReceptorCalc:
 
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
-        if self.first_start == True:
+        if self.first_start is True:
             self.first_start = False
             self.dlg = StressorReceptorCalcDialog()
 
