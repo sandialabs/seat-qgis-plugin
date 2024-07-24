@@ -717,6 +717,8 @@ def run_acoustics_stressor(
     os.makedirs(
         output_path, exist_ok=True
     )  # create output directory if it doesn't exist
+    # TODO : rename dict_of_arrays to dict_probablistic_arrays
+    # TODO : rename dict_of_arrays_single to dict_nonprobablisitc_arrays
 
     dict_of_arrays, dict_of_arrays_single, rx, ry, dx, dy = calculate_acoustic_stressors(
         fpath_dev=dev_present_file,
@@ -779,7 +781,7 @@ def run_acoustics_stressor(
     output_rasters = create_output_rasters(use_numpy_arrays, dict_of_arrays, crs, dx, dy, rx, ry, output_path)
     create_binned_csv(output_path, crs, secondary_constraint_filename=secondary_constraint_filename, species_folder=species_folder)
     
-    output_rasters_each_prob = create_output_rasters_each_prob(use_numpy_arrays, dict_of_arrays, crs, dx, dy, rx, ry, output_path)
+    output_rasters_each_prob = create_output_rasters_each_prob(use_single_arrays, dict_of_arrays_single, crs, dx, dy, rx, ry, output_path)
     create_each_prob_binned_csv(output_path, output_rasters_each_prob, crs, secondary_constraint_filename=secondary_constraint_filename, species_folder=species_folder)
 
 
@@ -787,7 +789,11 @@ def run_acoustics_stressor(
     for val in output_rasters:
         OUTPUT[os.path.basename(os.path.normpath(val)).split(".")[0]] = val
     OUTOUT_each_prob = {}
-    for val in output_rasters_each_prob:
-        OUTOUT_each_prob[os.path.basename(os.path.normpath(val)).split(".")[0]] = val
+    
+    for var_fname in output_rasters_each_prob.keys():
+        var = os.path.basename(os.path.normpath(var_fname)).split(".")[0]
+        OUTOUT_each_prob[var] = {}
+        for val in output_rasters_each_prob[var]:
+            OUTOUT_each_prob[var][val] = val
     return OUTPUT, OUTOUT_each_prob
 
