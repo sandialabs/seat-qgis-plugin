@@ -38,6 +38,9 @@ jobs:
       - name: Check Docker container logs
         run: docker logs qgis-testing-environment
 
+      - name: Check directory structure
+        run: docker exec qgis-testing-environment sh -c "pwd && ls -R /tests_directory"
+        
       - name: Install python dependencies in a virtual environment
         run: |
           docker exec qgis-testing-environment sh -c "python3 -m venv /tests_directory/venv"
