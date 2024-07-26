@@ -3,6 +3,7 @@ import os
 import unittest
 import numpy as np
 import pandas as pd
+from osgeo import gdal
 from unittest.mock import patch, MagicMock
 
 # Get the directory in which the current script is located
@@ -13,7 +14,7 @@ parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
 # fmt: off
-from seat import stressor_utils as su
+from seat.modules import stressor_utils as su
 
 # fmt: on
 # from seat.stressor_utils import estimate_grid_spacing
@@ -111,8 +112,8 @@ class TestCalcReceptorArray(unittest.TestCase):
         self.x = np.array([1, 2, 3])
         self.y = np.array([1, 2, 3])
 
-    @patch('seat.stressor_utils.gdal.Open')
-    @patch('seat.stressor_utils.griddata', return_value=np.array([0, 1, 2]))
+    @patch('seat.modules.stressor_utils.gdal.Open')
+    @patch('seat.modules.stressor_utils.griddata', return_value=np.array([0, 1, 2]))
     def test_with_tif_file(self, mock_griddata, mock_gdal_open):
         # Configure the mock for gdal.Open to simulate a .tif file read
         mock_dataset = MagicMock()
@@ -132,7 +133,7 @@ class TestCalcReceptorArray(unittest.TestCase):
         mock_gdal_open.assert_called_once_with(receptor_filename)
         mock_griddata.assert_called_once()
 
-    @patch('seat.stressor_utils.pd.read_csv')
+    @patch('seat.modules.stressor_utils.pd.read_csv')
     def test_with_csv_file(self, mock_read_csv):
         # Mock the behavior of pd.read_csv for a .csv file
         mock_read_csv.return_value = pd.DataFrame(data=[[1]])
@@ -156,7 +157,7 @@ class TestCalcReceptorArray(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             su.calc_receptor_array(receptor_filename, self.x, self.y)
         
-        self.assertTrue("Invalid Recetpor File Type. Must be of type .tif or .csv" in str(context.exception))
+        self.assertTrue(f"Invalid Receptor File {receptor_filename}. Must be of type .tif or .csv" in str(context.exception))
 
 
 class TestTrimZeros(unittest.TestCase):
@@ -189,7 +190,7 @@ class TestTrimZeros(unittest.TestCase):
 
 class TestCreateRaster(unittest.TestCase):
 
-    @patch('seat.stressor_utils.gdal.GetDriverByName')
+    @patch('seat.modules.stressor_utils.gdal.GetDriverByName')
     def test_create_raster(self, mock_get_driver_by_name):
         # Mock the GDAL driver and its Create method
         mock_driver = MagicMock()
@@ -216,9 +217,9 @@ class TestCreateRaster(unittest.TestCase):
 
 class TestNumpyArrayToRaster(unittest.TestCase):
 
-    @patch('seat.stressor_utils.os.path.exists')
-    @patch('seat.stressor_utils.gdal')
-    @patch('seat.stressor_utils.osr.SpatialReference')
+    @patch('seat.modules.stressor_utils.os.path.exists')
+    @patch('seat.modules.stressor_utils.gdal')
+    @patch('seat.modules.stressor_utils.osr.SpatialReference')
     def test_numpy_array_to_raster(self, mock_spatial_reference, mock_gdal, mock_os_path_exists):
         # Mock the behavior of GDAL and os.path.exists
         mock_os_path_exists.return_value = True
@@ -279,7 +280,7 @@ class TestFindUtmSrid(unittest.TestCase):
 
 class TestReadRaster(unittest.TestCase):
 
-    @patch('seat.stressor_utils.gdal.Open')
+    @patch('seat.modules.stressor_utils.gdal.Open')
     def test_read_raster(self, mock_gdal_open):
         # Mock data setup
         raster_name = 'path/to/raster.tif'
@@ -319,8 +320,8 @@ class TestReadRaster(unittest.TestCase):
 
 class TestSecondaryConstraintGeotiffToNumpy(unittest.TestCase):
 
-    @patch('seat.stressor_utils.gdal.Open')
-    @patch('seat.stressor_utils.osr.SpatialReference')
+    @patch('seat.modules.stressor_utils.gdal.Open')
+    @patch('seat.modules.stressor_utils.osr.SpatialReference')
     def test_secondary_constraint_geotiff_to_numpy(self, mock_spatial_reference, mock_gdal_open):
         # Mock setup for gdal.Open
         raster_name = 'path/to/constraint.tif'
@@ -526,9 +527,9 @@ class TestBinLayer(unittest.TestCase):
         self.z = np.random.rand(10, 10) * 100  # Example raster values
         self.receptor = np.random.randint(0, 5, (10, 10))  # Example receptor values
 
-    @patch('seat.stressor_utils.read_raster')
-    @patch('seat.stressor_utils.calculate_cell_area')
-    @patch('seat.stressor_utils.resample_structured_grid')
+    @patch('seat.modules.stressor_utils.read_raster')
+    @patch('seat.modules.stressor_utils.calculate_cell_area')
+    @patch('seat.modules.stressor_utils.resample_structured_grid')
     @patch('pandas.DataFrame')
     def test_bin_layer_without_receptor(self, mock_df, mock_resample, mock_calc_area, mock_read_raster):
         # Mock the function calls inside bin_layer
@@ -543,9 +544,9 @@ class TestBinLayer(unittest.TestCase):
         mock_read_raster.assert_called_once_with(self.raster_filename)
 
 
-    @patch('seat.stressor_utils.read_raster')
-    @patch('seat.stressor_utils.calculate_cell_area')
-    @patch('seat.stressor_utils.resample_structured_grid')
+    @patch('seat.modules.stressor_utils.read_raster')
+    @patch('seat.modules.stressor_utils.calculate_cell_area')
+    @patch('seat.modules.stressor_utils.resample_structured_grid')
     @patch('pandas.DataFrame')
     def test_bin_layer_with_receptor(self, mock_df, mock_resample, mock_calc_area, mock_read_raster):
         # Mock setup for both raster and receptor
@@ -563,9 +564,9 @@ class TestBinLayer(unittest.TestCase):
 
 class TestClassifyLayerArea(unittest.TestCase):
     # TODO: Check correctness of values. 
-    @patch('seat.stressor_utils.read_raster')
-    @patch('seat.stressor_utils.calculate_cell_area')
-    @patch('seat.stressor_utils.resample_structured_grid')
+    @patch('seat.modules.stressor_utils.read_raster')
+    @patch('seat.modules.stressor_utils.calculate_cell_area')
+    @patch('seat.modules.stressor_utils.resample_structured_grid')
     @patch('pandas.DataFrame')
     def test_classify_layer_area_without_receptor(self, mock_df, mock_resample, mock_calc_area, mock_read_raster):
         # Mock data and function return values
@@ -589,9 +590,9 @@ class TestClassifyLayerArea(unittest.TestCase):
 
 class TestClassifyLayerArea2ndConstraint(unittest.TestCase):
     # TODO: Check correctness of values.     
-    @patch('seat.stressor_utils.read_raster')
-    @patch('seat.stressor_utils.calculate_cell_area')
-    @patch('seat.stressor_utils.resample_structured_grid')
+    @patch('seat.modules.stressor_utils.read_raster')
+    @patch('seat.modules.stressor_utils.calculate_cell_area')
+    @patch('seat.modules.stressor_utils.resample_structured_grid')
     # Add more decorators as needed to mock dependencies
     def test_classify_layer_area_2nd_constraint(self, mock_resample, mock_calc_area, mock_read_raster):
         # Mock setup for reading the raster and secondary constraint

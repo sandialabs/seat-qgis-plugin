@@ -3,6 +3,7 @@ import os
 import netCDF4
 import unittest
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FormatStrFormatter
 import numpy as np
 import pandas as pd
 import tempfile
@@ -17,8 +18,8 @@ parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
 # fmt: off
-from seat import shear_stress_module as ssm
-from seat import power_module as pm
+from seat.modules import shear_stress_module as ssm
+from seat.modules import power_module as pm
 # fmt: on
 
 
@@ -221,6 +222,44 @@ class TestPowerModule(unittest.TestCase):
         # Assert the result
         np.testing.assert_array_equal(devices, expected_devices)
 
+    def test_create_power_heatmap(self):
+        """
+        Test the create_power_heatmap function.
+        """
+        # Create mock DEVICE_POWER dataframe
+        mock_device_power = pd.DataFrame({
+            'lower_left': [[0, 0], [1, 1], [2, 2], [3, 3]],
+            'width': [1, 1, 1, 1],
+            'height': [1, 1, 1, 1],
+            'Power [W]': [1e6, 2e6, 3e6, 4e6]
+        })
+
+        # Test with default CRS
+        fig = pm.create_power_heatmap(mock_device_power)
+        self.assertIsInstance(fig, plt.Figure, "The output should be a matplotlib figure.")
+        
+        # Test with specific CRS (4326)
+        fig = pm.create_power_heatmap(mock_device_power, crs=4326)
+        self.assertIsInstance(fig, plt.Figure, "The output should be a matplotlib figure.")
+        
+        # Check that the color bar label is 'MW'
+        colorbar = fig.axes[1]  # colorbar is the second axes in the figure
+        self.assertEqual(colorbar.get_ylabel(), 'MW', "The color bar label should be 'MW'.")
+        
+        # Check axis labels and tick format
+        ax = fig.axes[0]  # main plot is the first axes in the figure
+        self.assertEqual(ax.get_xlabel(), 'Longitude [deg]', "The x-axis label should be 'Longitude [deg]'.")
+        self.assertEqual(ax.get_ylabel(), 'Latitude [deg]', "The y-axis label should be 'Latitude [deg]'.")
+        
+        for label in ax.get_xticklabels():
+            self.assertEqual(label.get_ha(), 'right', "X-axis tick labels should be right-aligned.")
+            self.assertEqual(label.get_rotation(), 45, "X-axis tick labels should be rotated 45 degrees.")
+        
+        self.assertIsInstance(ax.xaxis.get_major_formatter(), FormatStrFormatter, 
+                              "X-axis major formatter should be an instance of FormatStrFormatter.")
+        self.assertEqual(ax.xaxis.get_major_formatter().fmt, '%0.4f', 
+                         "X-axis major formatter format string should be '%0.4f'.")
+
 
     def test_read_power_file(self):
         """
@@ -255,6 +294,56 @@ Power absorbed by obstacle   2 =  2.5E+06 W
 
         # Clean up the temporary file
         os.remove(mock_file_path)
+
+    def test_sort_data_files_by_runnumber(self):
+        bc_data = pd.DataFrame({
+            'run number': [3, 1, 2],
+            'original_order': [2, 0, 1]
+        })
+        datafiles = ['file3.out', 'file1.out', 'file2.out']
+        sorted_files = pm.sort_data_files_by_runnumber(bc_data, datafiles)
+        self.assertEqual(sorted_files, ['file1.out', 'file2.out', 'file3.out'])
+
+    def test_sort_bc_data_by_runnumber(self):
+        # Mock bc_data DataFrame
+        bc_data = pd.DataFrame({
+            'run number': [3, 1, 2],
+            'value': [30, 10, 20]
+        })
+
+        # Add 'original_order' column manually as it would be added in the function
+        expected = bc_data.copy()
+        expected['original_order'] = range(0, len(expected))
+        expected = expected.sort_values(by='run number')
+
+        # Call the function
+        sorted_bc_data = pm.sort_bc_data_by_runnumber(bc_data.copy())
+
+        # Assert the result
+        pd.testing.assert_frame_equal(sorted_bc_data.reset_index(drop=True), expected.reset_index(drop=True))
+
+    def test_reset_bc_data_order(self):
+        # Mock bc_data DataFrame
+        bc_data = pd.DataFrame({
+            'run number': [3, 1, 2],
+            'value': [30, 10, 20],
+            'original_order': [2, 0, 1]
+        })
+
+        with self.assertRaises(AttributeError):
+            pm.reset_bc_data_order(bc_data)
+
+    def test_roundup(self): 
+
+        # Test cases for the original function's behavior
+        self.assertEqual(pm.roundup(7, 5), 5)   # 7 rounds to 5 (nearest multiple of 5)
+        self.assertEqual(pm.roundup(3, 5), 5)   # 3 rounds to 5 (nearest multiple of 5)
+        self.assertEqual(pm.roundup(5, 5), 5)   # 5 stays 5 (nearest multiple of 5)
+        self.assertEqual(pm.roundup(12, 5), 10) # 12 rounds to 10 (nearest multiple of 5)
+        self.assertEqual(pm.roundup(-2, 5), 0)  # -2 rounds to 0 (nearest multiple of 5)
+        self.assertEqual(pm.roundup(0, 5), 0)   # 0 stays 0 (nearest multiple of 5)
+        self.assertEqual(pm.roundup(1, 5), 0)   # 1 rounds to 0 (nearest multiple of 5)
+        self.assertEqual(pm.roundup(-5, 5), -5) # -5 stays -5 (nearest multiple of 5)
 
     def test_calculate_power(self):
         """

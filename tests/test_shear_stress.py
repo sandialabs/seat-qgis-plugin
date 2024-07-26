@@ -15,7 +15,7 @@ parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
 # fmt: off
-from seat import shear_stress_module as ssm
+from seat.modules import shear_stress_module as ssm
 # fmt: on
 
 
@@ -161,13 +161,13 @@ class TestShearStress(unittest.TestCase):
         """
         Test the calculate_shear_stress_stressors function.
         """
-        numpy_arrays, rx, ry, dx, dy, gridtype = ssm.calculate_shear_stress_stressors(
+        dict_output, rx, ry, dx, dy, gridtype = ssm.calculate_shear_stress_stressors(
             self.dev_not_present,
             self.dev_present,
             self.probabilities,
         )
 
-        self.assertIsInstance(numpy_arrays, list)
+        self.assertIsInstance(dict_output, dict)
         self.assertIsInstance(rx, np.ndarray)
         self.assertIsInstance(ry, np.ndarray)
         self.assertTrue(isinstance(dx, float) or isinstance(dx, np.floating))
@@ -196,9 +196,11 @@ class TestShearStress(unittest.TestCase):
             )
 
             # Verify that the function returns a dictionary with the expected keys
-            expected_keys = ['calculated_stressor', 'calculated_stressor_with_receptor',
-                            'calculated_stressor_reclassified', 'receptor', 'tau_with_devices',
-                            'tau_without_devices', 'risk']
+            expected_keys = [
+            'shear_stress_without_devices', 'shear_stress_with_devices', 'shear_stress_difference',
+            'sediment_mobility_without_devices', 'sediment_mobility_with_devices', 'sediment_mobility_difference',
+            'sediment_mobility_classified', 'sediment_grain_size', 'shear_stress_risk_metric'
+        ]
             self.assertIsInstance(result, dict)
             for key in expected_keys:
                 self.assertIn(key, result)

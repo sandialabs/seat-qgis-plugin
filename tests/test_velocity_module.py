@@ -16,7 +16,7 @@ parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
 # fmt: off
-from seat import velocity_module as vm
+from seat.modules import velocity_module as vm
 
 # fmt: on
 # from seat.stressor_utils import estimate_grid_spacing

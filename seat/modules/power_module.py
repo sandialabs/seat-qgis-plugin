@@ -323,7 +323,6 @@ def reset_bc_data_order(bc_data):
 def roundup(x, base=5):
     return base * round(x/base)
 
-
 def calculate_power(power_files, probabilities_file, save_path, crs=None):
     """
     Reads the power files and calculates the total annual power based on hydrdynamic probabilities in probabilities_file. Data are saved as a csv files.
