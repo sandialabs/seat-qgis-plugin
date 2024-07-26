@@ -40,12 +40,12 @@ jobs:
 
       - name: Check directory structure
         run: docker exec qgis-testing-environment sh -c "pwd && ls -R /tests_directory"
-        
+
       - name: Install python dependencies in a virtual environment
         run: |
           docker exec qgis-testing-environment sh -c "python3 -m venv /tests_directory/venv"
           docker exec qgis-testing-environment sh -c "/tests_directory/venv/bin/pip install --upgrade pip"
-          docker exec qgis-testing-environment sh -c "/tests_directory/venv/bin/pip install -r /tests_directory/tests/install_dependencies.txt"
+          docker exec qgis-testing-environment sh -c "/tests_directory/venv/bin/pip install -r /tests_directory/tests/install_dependencies.py"
            
       - name: Setup QGIS and enable the plugin
         run: |
