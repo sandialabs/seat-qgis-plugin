@@ -30,7 +30,7 @@ jobs:
           -e DISPLAY=:99 qgis/qgis:latest
 
       - name: Sleep for Xvfb
-        run: sleep 10
+        run: sleep 60
 
       - name: Install python dependencies
         run: |
