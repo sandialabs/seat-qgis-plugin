@@ -38,14 +38,11 @@ jobs:
       - name: Check Docker container logs
         run: docker logs qgis-testing-environment
 
-      - name: Check directory structure
-        run: docker exec qgis-testing-environment sh -c "pwd && ls -R /"
+      - name: Verify Mounted Volumes
+        run: docker exec qgis-testing-environment sh -c "mount | grep tests_directory"
 
-      - name: Install python dependencies in a virtual environment
-        run: |
-          docker exec qgis-testing-environment sh -c "python3 -m venv /tests_directory/venv"
-          docker exec qgis-testing-environment sh -c "/tests_directory/venv/bin/pip install --upgrade pip"
-          docker exec qgis-testing-environment sh -c "/tests_directory/venv/bin/python /tests_directory/tests/install_dependencies.py /tests_directory/venv/bin/python"
+      - name: Check Full Directory Structure
+        run: docker exec qgis-testing-environment sh -c "find / -type d -name qgis_resources"
 
       - name: Find qgis_setup.sh script
         run: docker exec qgis-testing-environment sh -c "find / -name qgis_setup.sh"
