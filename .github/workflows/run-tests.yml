@@ -39,7 +39,7 @@ jobs:
         run: docker logs qgis-testing-environment
 
       - name: Check directory structure
-        run: docker exec qgis-testing-environment sh -c "pwd && ls -R /tests_directory"
+        run: docker exec qgis-testing-environment sh -c "pwd && ls -R /"
 
       - name: Install python dependencies in a virtual environment
         run: |
