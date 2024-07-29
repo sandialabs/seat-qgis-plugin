@@ -41,12 +41,16 @@ jobs:
       - name: Verify Mounted Volumes
         run: docker exec qgis-testing-environment sh -c "mount | grep tests_directory"
 
-      - name: Check Higher-Level Directories
-        run: |
-          docker exec qgis-testing-environment sh -c "ls -l /usr/share/qgis/.docker/"
-          docker exec qgis-testing-environment sh -c "ls -l /usr/share/qgis/"
+      - name: Explore `/usr/share/qgis` Directory
+        run: docker exec qgis-testing-environment sh -c "ls -l /usr/share/qgis"
 
-      - name: Find qgis_setup.sh script
+      - name: Explore Root Directory
+        run: docker exec qgis-testing-environment sh -c "ls -l /"
+
+      - name: Explore `/tests_directory` Directory
+        run: docker exec qgis-testing-environment sh -c "ls -l /tests_directory"
+
+      - name: Find `qgis_setup.sh` Script
         run: docker exec qgis-testing-environment sh -c "find / -name qgis_setup.sh"
 
       - name: Setup QGIS and enable the plugin
