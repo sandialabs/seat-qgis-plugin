@@ -28,9 +28,14 @@ jobs:
           docker run -d --name qgis-testing-environment \
           -v ${GITHUB_WORKSPACE}:/tests_directory \
           -e DISPLAY=:99 qgis/qgis:latest
+          docker ps -a
+          docker logs qgis-testing-environment
 
       - name: Sleep for Xvfb
-        run: sleep 20
+        run: sleep 30 
+
+      - name: Check Docker Container Status
+        run: docker ps -a
 
       - name: Install python dependencies
         run: |
@@ -45,4 +50,4 @@ jobs:
 
       - name: Run Tests
         run: |
-          docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/test_shear_stress.py"          
+          docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/test_shear_stress.py"
