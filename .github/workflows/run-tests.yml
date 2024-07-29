@@ -41,6 +41,9 @@ jobs:
       - name: Check directory structure
         run: docker exec qgis-testing-environment sh -c "pwd && ls -R /"
 
+      - name: Install python3-venv package
+        run: docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-venv"
+
       - name: Install python dependencies in a virtual environment
         run: |
           docker exec qgis-testing-environment sh -c "python3 -m venv /tests_directory/venv"
