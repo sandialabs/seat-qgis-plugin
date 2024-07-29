@@ -41,11 +41,11 @@ jobs:
       - name: Check root directory structure
         run: docker exec qgis-testing-environment sh -c "ls -la /"
 
-      - name: Check /qgis directory structure
-        run: docker exec qgis-testing-environment sh -c "ls -la /qgis"
+      - name: Check /tests_directory structure
+        run: docker exec qgis-testing-environment sh -c "ls -la /tests_directory"
 
-      - name: Check /qgis/docker directory structure
-        run: docker exec qgis-testing-environment sh -c "ls -la /qgis/docker"
+      - name: Check /tests_directory recursively
+        run: docker exec qgis-testing-environment sh -c "ls -R /tests_directory"
 
       - name: Install python dependencies in a virtual environment
         run: |
@@ -54,14 +54,11 @@ jobs:
           docker exec qgis-testing-environment sh -c "/tests_directory/venv/bin/python /tests_directory/tests/install_dependencies.py /tests_directory/venv/bin/python"
 
       - name: Find qgis_setup.sh script
-        run: docker exec qgis-testing-environment sh -c "find / -name qgis_setup.sh"
-
-      - name: Debug - List Files in Container
-        run: docker exec qgis-testing-environment ls -la /qgis/docker/qgis_resources/test_runner/
+        run: docker exec qgis-testing-environment sh -c "find /tests_directory -name qgis_setup.sh"
 
       - name: Setup QGIS and enable the plugin
         run: |
-          docker exec qgis-testing-environment sh -c "sh /qgis/.docker/qgis_resources/test_runner/qgis_setup.sh seat"
+          docker exec qgis-testing-environment sh -c "sh /tests_directory/path/to/qgis_setup.sh seat" # Adjust the path once found
           docker exec qgis-testing-environment sh -c "rm -f /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
           docker exec qgis-testing-environment sh -c "ln -s /tests_directory /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
       
