@@ -53,7 +53,7 @@ jobs:
 
       - name: Setup QGIS and enable the plugin
         run: |
-          docker exec qgis-testing-environment sh -c "sh /usr/share/qgis/.docker/qgis_resources/test_runner/qgis_setup.sh seat"
+          docker exec qgis-testing-environment sh -c "sh /QGIS/.docker/qgis_resources/test_runner/qgis_setup.sh seat"
           docker exec qgis-testing-environment sh -c "rm -f /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
           docker exec qgis-testing-environment sh -c "ln -s /tests_directory /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
        
