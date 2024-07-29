@@ -3,7 +3,6 @@ import os
 import netCDF4
 import unittest
 import numpy as np
-from qgis.core import QgsApplication
 
 from os.path import join
 
