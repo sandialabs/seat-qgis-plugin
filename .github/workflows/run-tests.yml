@@ -29,8 +29,9 @@ jobs:
           -v ${GITHUB_WORKSPACE}:/tests_directory \
           -e DISPLAY=:99 qgis/qgis:latest tail -f /dev/null
 
-      - name: Sleep for Xvfb
-        run: sleep 10
+      - name: Wait for Docker to be ready
+        run: |
+          until docker exec qgis-testing-environment sh -c "ls /"; do sleep 1; done
 
       - name: Create and activate virtual environment, install dependencies
         run: |
