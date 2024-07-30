@@ -56,7 +56,7 @@ jobs:
       - name: Install QGIS Plugin from Zip
         run: |
           # Define plugin path
-          PLUGIN_ZIP_PATH=/tests_directory/seat_qgis_plugin.zip
+          PLUGIN_ZIP_PATH=/seat_qgis_plugin.zip
           PLUGIN_DIR=/usr/share/qgis/python/plugins
 
           # Extract the plugin zip to the QGIS plugin directory
