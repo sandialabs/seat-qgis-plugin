@@ -22,21 +22,6 @@ jobs:
       - name: Checkout qgis-plugin
         uses: actions/checkout@v4
 
-      - name: List directory contents for debugging
-        run: ls -aR
-
-      # - name: Build QGIS Docker container
-      #   run: |
-      #     docker build -t qgis/qgis:latest \
-      #       --build-arg DOCKER_TAG=latest \
-      #       -f .docker/qgis.dockerfile .
-
-      # - name: Run QGIS Docker container
-      #   run: |
-      #     docker run --rm -d --name qgis \
-      #       -v /tmp/.X11-unix:/tmp/.X11-unix  \
-      #       qgis/qgis:latest
-
       - name: Run QGIS Docker container
         run: |
           docker run -d --name qgis-testing-environment \
@@ -52,9 +37,13 @@ jobs:
       #     -v ${GITHUB_WORKSPACE}:/tests_directory \
       #     -e DISPLAY=:99 qgis/qgis:latest tail -f /dev/null
 
-      # - name: Wait for Docker to be ready
-      #   run: |
-      #     until docker exec qgis-testing-environment sh -c "ls /"; do sleep 1; done
+      - name: Wait for Docker to be ready
+        run: |
+          until docker exec qgis-testing-environment sh -c "ls /"; do sleep 1; done
+
+      - name: Locate QGIS executable
+        run: |
+          docker exec qgis-testing-environment which qgis
 
       # - name: Install Dependencies
       #   run: docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/install_dependencies.py"
