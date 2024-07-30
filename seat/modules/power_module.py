@@ -320,7 +320,7 @@ def reset_bc_data_order(bc_data):
         bc_data = bc_data.sort()
 
 
-def roundup(x, decimal=5):
+def roundup_placevalue(x, decimal=5):
     #Round up to the nearest place
     # +decimal = round up to the defined decimal place
     # -decimal = round up to the nearest 10
@@ -330,6 +330,12 @@ def roundup(x, decimal=5):
         rounded = np.ceil(x * 10**decimal) / 10**decimal
     else:
         rounded = np.ceil(x / 10**(-1*decimal)) * 10**(-1*decimal)
+    return rounded
+
+def roundup(x, val=2):
+    rounded = np.ceil(x)
+    while np.mod(rounded, val) != 0:
+        rounded += 1
     return rounded
 
 
@@ -408,7 +414,7 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
         foo).astype(int), sharex=True, sharey=True, figsize=(12, 10))
     nr, nc = AX.shape
     AX = AX.flatten()
-    mxy = roundup(np.log10(Power_Scaled.max().max()), decimal=-2)
+    mxy = roundup(np.log10(Power_Scaled.max().max()))
     ndx = np.ceil(Power_Scaled.shape[0]/6)
     for ic in range(Power_Scaled.shape[1]):
         # fig,ax = plt.subplots()
@@ -495,7 +501,7 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
             foo).astype(int), sharex=True, sharey=True, figsize=(12, 10))
         nr, nc = AX.shape
         AX = AX.flatten()
-        mxy = roundup(np.log10(Devices.max().max()), decimal=-2)
+        mxy = roundup(np.log10(Devices.max().max()))
         ndx = np.ceil(Devices.shape[0]/6)
         for ic, col in enumerate(Devices.columns):
             # fig,ax = plt.subplots()
