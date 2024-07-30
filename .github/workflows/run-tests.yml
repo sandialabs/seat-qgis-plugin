@@ -33,11 +33,15 @@ jobs:
         run: |
           until docker exec qgis-testing-environment sh -c "ls /"; do sleep 1; done
 
-      - name: Setup QGIS Python environment
+      - name: Setup QGIS Python environment and verify
         run: |
           docker exec qgis-testing-environment sh -c "export QGIS_ROOT=/usr"
           docker exec qgis-testing-environment sh -c "export PYTHONPATH=$QGIS_ROOT/share/qgis/python:$PYTHONPATH"
           docker exec qgis-testing-environment sh -c "export PATH=$QGIS_ROOT/bin:$PATH"
+          docker exec qgis-testing-environment sh -c "echo QGIS_ROOT=$QGIS_ROOT"
+          docker exec qgis-testing-environment sh -c "echo PYTHONPATH=$PYTHONPATH"
+          docker exec qgis-testing-environment sh -c "echo PATH=$PATH"
+          docker exec qgis-testing-environment sh -c "which python3"
 
       - name: Install dependencies
         run: |
