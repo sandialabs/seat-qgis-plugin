@@ -25,17 +25,27 @@ jobs:
       - name: List directory contents for debugging
         run: ls -aR
 
-      - name: Build QGIS Docker container
-        run: |
-          docker build -t qgis/qgis:latest \
-            --build-arg DOCKER_TAG=latest \
-            -f .docker/qgis.dockerfile .
+      # - name: Build QGIS Docker container
+      #   run: |
+      #     docker build -t qgis/qgis:latest \
+      #       --build-arg DOCKER_TAG=latest \
+      #       -f .docker/qgis.dockerfile .
+
+      # - name: Run QGIS Docker container
+      #   run: |
+      #     docker run --rm -d --name qgis \
+      #       -v /tmp/.X11-unix:/tmp/.X11-unix  \
+      #       qgis/qgis:latest
 
       - name: Run QGIS Docker container
         run: |
-          docker run --rm -d --name qgis \
-            -v /tmp/.X11-unix:/tmp/.X11-unix  \
-            qgis/qgis:latest
+          docker run -d --name qgis-testing-environment \
+          -v ${GITHUB_WORKSPACE}:/tests_directory \
+          -e DISPLAY=:99 qgis/qgis:latest
+
+      - name: List directory contents for debugging
+        run: ls -aR
+
       # - name: Run QGIS Docker container
       #   run: |
       #     docker run -d --name qgis-testing-environment \
