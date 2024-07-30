@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       docker:
-        image: qgis/qgis:latest
+        image: qgis/qgis:final-3_28_15
         options: --user root
         ports:
           - 99:99
@@ -44,7 +44,7 @@ jobs:
         run: |
           docker run -d --name qgis-testing-environment \
           -v ${GITHUB_WORKSPACE}:/tests_directory \
-          -e DISPLAY=:99 qgis/qgis:latest tail -f /dev/null
+          -e DISPLAY=:99 qgis/qgis:final-3_28_15 tail -f /dev/null
 
       - name: List root directory contents inside container
         run: |
