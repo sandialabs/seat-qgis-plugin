@@ -330,8 +330,8 @@ class StressorReceptorCalc:
             self.test_exists(self.dlg.paracousti_device_not_present, fin, 'Directory')
             fin = config.get("Input", "paracousti probabilities file")
             self.test_exists(self.dlg.paracousti_probabilities_file, fin, 'File')
-            fin = config.get("Input", "paracousti threshold file")
-            self.test_exists(self.dlg.paracousti_threshold_file, fin, 'File')
+            self.dlg.paracousti_threshold_value.setText(config.get("Input", "paracousti_threshold_value"))
+            self.dlg.paracousti_species_grid_resolution.setText(config.get("Input", "paracousti_species_grid_resolution"))
             fin = config.get("Input", "paracousti risk layer file")
             self.test_exists(self.dlg.paracousti_risk_file, fin, 'File')
             fin = config.get("Input", "paracousti species filepath")
@@ -391,11 +391,12 @@ class StressorReceptorCalc:
             "paracousti device not present filepath": self.dlg.paracousti_device_not_present.text(),            
             "paracousti averaging": self.dlg.paracousti_averaging_combobox.currentText(),
             "paracousti probabilities file": self.dlg.paracousti_probabilities_file.text(),
-            "paracousti threshold file": self.dlg.paracousti_threshold_file.text(),
+            "paracousti_threshold_value": self.dlg.paracousti_threshold_value.text(),
             "paracousti risk layer file": self.dlg.paracousti_risk_file.text(),
             "paracousti species filepath" : self.dlg.paracousti_species_directory.text(),
             "paracousti metric" : self.dlg.paracousti_metric_selection_combobox.currentText(),
             "paracousti weighting" : self.dlg.paracousti_weighting_combobox.currentText(),
+            "paracousti_species_grid_resolution" :self.dlg.paracousti_species_grid_resolution.text(),
             "power files filepath": self.dlg.power_files.text(),
             "power probabilities file": self.dlg.power_probabilities_file.text(),
             "coordinate reference system": self.dlg.crs.text(),
@@ -557,7 +558,7 @@ class StressorReceptorCalc:
             self.dlg.paracousti_threshold_value.setStyleSheet("color: black;")
         else:
             print(f"\'{self.dlg.paracousti_threshold_value.text()}\' is not a valid threshold (must be a number).")
-            self.dlg.setText(f"{self.dlg.paracousti_threshold_value.text()} is not a valid threshold (must be a number).")
+            self.dlg.paracousti_threshold_value.setText(f"{self.dlg.paracousti_threshold_value.text()} is not a valid threshold (must be a number).")
             self.dlg.paracousti_threshold_value.setStyleSheet("color: red;")
 
     def checkparacoustiresolution(self):
@@ -761,11 +762,11 @@ class StressorReceptorCalc:
 
             paracousti_weighting = self.dlg.paracousti_weighting_combobox.currentText()
             paracousti_metric = self.dlg.paracousti_metric_selection_combobox.currentText()
-            paracousti_threshold_value = self.dlg.paracousti_threshold_value.currentText()
+            paracousti_threshold_value = self.dlg.paracousti_threshold_value.text()
             if self.is_float(paracousti_threshold_value):
                 paracousti_threshold_value = float(paracousti_threshold_value)
                 
-            paracousti_species_grid_resolution = self.dlg.paracousti_species_grid_resolution.currentText()
+            paracousti_species_grid_resolution = self.dlg.paracousti_species_grid_resolution.text()
             if self.is_float(paracousti_species_grid_resolution):
                 paracousti_species_grid_resolution = float(paracousti_species_grid_resolution)
                             
@@ -870,7 +871,7 @@ class StressorReceptorCalc:
                     probabilities_file=paracousti_probabilities_fname,
                     crs=crs,
                     output_path=os.path.join(output_folder_name, 'Acoustics Module'),
-                    receptor_filename=paracousti_threshold_value,
+                    paracousti_threshold_value=paracousti_threshold_value,
                     paracousti_weighting=paracousti_weighting,
                     paracousti_metric=paracousti_metric,
                     species_folder=paracousti_species_directory,

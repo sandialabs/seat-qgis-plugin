@@ -148,10 +148,10 @@ def calc_stressor(
     species_folder=None,
     grid_res_species=0
 ):
-
-    probability = boundary_conditions.loc[os.path.basename(paracousti_files)]["% of yr"] / 100
+    # TODO: this is not working. 
+    probability = boundary_conditions["% of yr"] / 100
     if metric_calc =='SEL':
-        frac_of_day = 24 * 60 * 60 * probability
+        seconds_of_day = 24 * 60 * 60 * probability
     # SPL stressor calculations
     for ic, paracousti_file in enumerate(paracousti_files):
         # paracousti files might not have regular grid spacing.
@@ -166,18 +166,18 @@ def calc_stressor(
             percent_scaled = np.zeros(rx.shape)
             density_scaled = np.zeros(rx.shape)
 
-        if metric_calc.casfold() == 'SEL'.casefold():
-            device_scaled = calc_SEL_cum(device_ss, frac_of_day[ic])
-            baseline_scaled = calc_SEL_cum(baseline_ss, frac_of_day[ic])
+        if metric_calc.casefold() == 'SEL'.casefold():
+            device_scaled = calc_SEL_cum(device_ss, seconds_of_day.loc[os.path.basename(paracousti_file)])
+            baseline_scaled = calc_SEL_cum(baseline_ss, seconds_of_day.loc[os.path.basename(paracousti_file)])
         else: #SPL
-            device_scaled = probability * device_ss
-            baseline_scaled = probability * baseline_ss
+            device_scaled = probability.loc[os.path.basename(paracousti_file)] * device_ss
+            baseline_scaled = probability.loc[os.path.basename(paracousti_file)] * baseline_ss
         
         device = device + device_scaled
         baseline = baseline + baseline_scaled
         stressor = stressor + (device_scaled - baseline_scaled)
         threshold_mask = device_scaled > Threshold
-        threshold_exceeded[threshold_mask] += probability[ic] * 100
+        threshold_exceeded[threshold_mask] += probability.loc[os.path.basename(paracousti_file)] * 100
 
         if not ((species_folder is None) or (species_folder == "")):
             if not os.path.exists(species_folder):
@@ -215,10 +215,10 @@ def calc_stressor(
             parray_scaled = parray * ratio
             darray_scaled = darray * ratio
             percent_scaled[threshold_mask] += (
-                probability * parray_scaled[threshold_mask]
+                probability.loc[os.path.basename(paracousti_file)] * parray_scaled[threshold_mask]
             )
             density_scaled[threshold_mask] += (
-                probability * darray_scaled[threshold_mask]
+                probability.loc[os.path.basename(paracousti_file)] * darray_scaled[threshold_mask]
             )
     return device, baseline, stressor, threshold_exceeded, percent_scaled, density_scaled, rx, ry
 
@@ -248,12 +248,12 @@ def calc_single_condition(
         duration_seconds = sel_hours * 60 * 60
 
     for ic, paracousti_file in enumerate(paracousti_files):
-        pname = os.path.basename(paracousti_file).split('.')
+        pname = ".".join(os.path.basename(paracousti_file).split('.')[:-1])
         # paracousti files might not have regular grid spacing.
         rx, ry, device_ss = redefine_structured_grid(XCOR, YCOR, ACOUST_VAR[ic, :])
         baseline_ss = resample_structured_grid(XCOR, YCOR, Baseline[ic, :], rx, ry)
 
-        if metric_calc.casfold() == 'SEL'.casefold():
+        if metric_calc.casefold() == 'SEL'.casefold():
             device_scaled = calc_SEL_cum(device_ss, duration_seconds)
             baseline_scaled = calc_SEL_cum(baseline_ss, duration_seconds)
         else: #SPL
@@ -310,6 +310,7 @@ def calculate_acoustic_stressors(
     probabilities_file,
     paracousti_threshold_value,
     paracousti_metric,
+    paracousti_weighting,
     fpath_nodev=None,
     species_folder=None,  # secondary constraint
     species_grid_resolution=None,
@@ -387,8 +388,8 @@ def calculate_acoustic_stressors(
     for ic, paracousti_file in enumerate(paracousti_files):
         with Dataset(paracousti_file) as ds:
             # ds = Dataset(paracousti_file)
-            acoust_var = ds.variables[paracousti_metric][:].data
-            cords = ds.variables[paracousti_metric].coordinates.split()
+            acoust_var = ds.variables[f"{paracousti_weighting}_{paracousti_metric}"][:].data
+            cords = ds.variables[f"{paracousti_weighting}_{paracousti_metric}"].coordinates.split()
             X = ds.variables[cords[0]][:].data
             Y = ds.variables[cords[1]][:].data
             if X.shape[0] != acoust_var.shape[0]:
@@ -424,8 +425,8 @@ def calculate_acoustic_stressors(
         for ic, baseline_file in enumerate(baseline_files):
             with Dataset(baseline_file) as ds:
                 # ds = Dataset(baseline_file)
-                baseline = ds.variables[paracousti_metric][:].data
-                cords = ds.variables[paracousti_metric].coordinates.split()
+                baseline = ds.variables[f"{paracousti_weighting}_{paracousti_metric}"][:].data
+                cords = ds.variables[f"{paracousti_weighting}_{paracousti_metric}"].coordinates.split()
                 if ds.variables[cords[0]][:].data.shape[0] != baseline.shape[0]:
                     baseline = np.transpose(baseline, (1, 2, 0))
                 if ic == 0:
@@ -462,7 +463,7 @@ def calculate_acoustic_stressors(
     #TODO need different analysis for SPL and SEL metrics
     #TODO need to add analysis for each hydrodynamic probability
     
-    metric_calc = 'SPL' if 'spl'.casefold in paracousti_metric else 'SEL'
+    metric_calc = 'SPL' if 'spl'.casefold() in paracousti_metric.casefold() else 'SEL'
     
     paracousti_with_device, baseline_without_device, stressor, threshold_exceeded, percent_scaled, density_scaled, rx, ry = calc_stressor(
     paracousti_files,
@@ -528,7 +529,7 @@ def create_output_rasters_each_prob(use_single_arrays, dict_of_arrays_single, cr
     for var in use_single_arrays:
         output_rasters[var] = []
         for key in dict_of_arrays_single[var].keys():
-            array_name = var + key + ".tif"
+            array_name = var + "_" + key + ".tif" #file name of raster using analysis type and probability filename
             numpy_array = np.flip(dict_of_arrays_single[var][key], axis=0)
             rows, cols = numpy_array.shape
             output_rasters[var].append(os.path.join(output_path, array_name))
@@ -635,34 +636,34 @@ def create_each_prob_binned_csv(output_path, output_rasters, crs, secondary_cons
 
     vars = ["paracousti_without_devices", "paracousti_with_devices", "paracousti_stressor", "species_threshold_exceeded"]
     for var in vars:
-        for key in output_rasters[var]:
+        for file in output_rasters[var]:
             bin_layer(
-                os.path.join(output_path, output_rasters[var][key] + ".tif"), latlon=crs == 4326
-                ).to_csv(os.path.join(output_path, output_rasters[var][key] + ".csv"), index=False)
+                os.path.join(output_path, file), latlon=crs == 4326
+                ).to_csv(os.path.join(output_path, file.split('.tif')[0] + ".csv"), index=False)
             
     if not ((species_folder is None) or (species_folder == "")):
         vars = ["species_percent", "species_density", "paracousti_stressor", "species_threshold_exceeded"]
         for var in vars:
-            for key in output_rasters[var]:
+            for file in output_rasters[var]:
                 bin_layer(
-                    os.path.join(output_path, output_rasters[var][key] + ".tif"), latlon=crs == 4326
-                    ).to_csv(os.path.join(output_path, output_rasters[var][key] + ".csv"), index=False)
+                    os.path.join(output_path, file), latlon=crs == 4326
+                    ).to_csv(os.path.join(output_path,file.split('.tif')[0] + ".csv"), index=False)
 
     if not (
         (secondary_constraint_filename is None) or (secondary_constraint_filename == "")
     ):
         vars = ["paracousti_stressor", "species_threshold_exceeded", "species_percent", "species_density"]
         for var in vars:
-            for key in output_rasters[var]:
+            for file in output_rasters[var]:
                 bin_layer(
-                    os.path.join(output_path, output_rasters[var][key] + ".tif"),
+                    os.path.join(output_path, file),
                     receptor_filename=os.path.join(output_path, "paracousti_risk_layer.tif"),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
                     latlon=crs == 4326,
                 ).to_csv(
                     os.path.join(
-                        output_path, output_rasters[var][key] + "_at_paracousti_risk_layer.csv"
+                        output_path, file.split('.tif')[0] + "_at_paracousti_risk_layer.csv"
                     ),
                     index=False,
                 )
@@ -724,8 +725,8 @@ def run_acoustics_stressor(
         fpath_dev=dev_present_file,
         probabilities_file=probabilities_file,
         paracousti_threshold_value=paracousti_threshold_value,
-        paracousti_weighting=paracousti_weighting,
         paracousti_metric=paracousti_metric,
+        paracousti_weighting=paracousti_weighting,
         fpath_nodev=dev_notpresent_file,
         species_folder=species_folder,
         species_grid_resolution=paracousti_species_grid_resolution,
@@ -779,7 +780,7 @@ def run_acoustics_stressor(
         use_numpy_arrays.append("paracousti_risk_layer")
 
     output_rasters = create_output_rasters(use_numpy_arrays, dict_of_arrays, crs, dx, dy, rx, ry, output_path)
-    create_binned_csv(output_path, crs, secondary_constraint_filename=secondary_constraint_filename, species_folder=species_folder)
+    # create_binned_csv(output_path, crs, secondary_constraint_filename=secondary_constraint_filename, species_folder=species_folder)
     
     output_rasters_each_prob = create_output_rasters_each_prob(use_single_arrays, dict_of_arrays_single, crs, dx, dy, rx, ry, output_path)
     create_each_prob_binned_csv(output_path, output_rasters_each_prob, crs, secondary_constraint_filename=secondary_constraint_filename, species_folder=species_folder)
@@ -788,8 +789,8 @@ def run_acoustics_stressor(
     OUTPUT = {}
     for val in output_rasters:
         OUTPUT[os.path.basename(os.path.normpath(val)).split(".")[0]] = val
+
     OUTOUT_each_prob = {}
-    
     for var_fname in output_rasters_each_prob.keys():
         var = os.path.basename(os.path.normpath(var_fname)).split(".")[0]
         OUTOUT_each_prob[var] = {}
