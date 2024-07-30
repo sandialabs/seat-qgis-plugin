@@ -26,7 +26,7 @@ jobs:
         run: |
           docker build -t qgis/qgis:latest \
             --build-arg DOCKER_TAG=latest \
-            -f .docker/qgis.dockerfile
+            -f .docker/qgis.dockerfile .
 
       - name: Run QGIS Docker container
         run: |
