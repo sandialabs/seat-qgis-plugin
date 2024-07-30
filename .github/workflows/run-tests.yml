@@ -78,9 +78,9 @@ jobs:
         run: |
           docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/install_dependencies.py"
 
-      - name: Install Dependencies in Container
+      - name: Install Dependencies using apt
         run: |
-          docker exec qgis-testing-environment sh -c "pip install pandas netCDF4 pytest"
+          docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-pandas python3-netcdf4 python3-pytest"
 
       - name: Verify Plugin Installation
         run: |
