@@ -61,10 +61,6 @@ jobs:
         run: |
           docker exec qgis-testing-environment ls -la /tests_directory/seat
 
-      - name: Debug seat directory top level
-        run: |
-          docker exec qgis-testing-environment ls -la ./seat
-
       - name: Install QGIS Plugin from Directory
         run: |
           PLUGIN_SRC_PATH=/tests_directory/seat
