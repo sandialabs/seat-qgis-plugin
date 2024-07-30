@@ -29,10 +29,22 @@ jobs:
           -v ${GITHUB_WORKSPACE}:/tests_directory \
           -e DISPLAY=:99 qgis/qgis:latest tail -f /dev/null
 
-      - name: List directory contents
+      - name: List root directory contents
         run: |
-          docker exec qgis-testing-environment sh -c "ls -l /tests_directory/.docker/qgis_resources/test_runner/"
-          
+          docker exec qgis-testing-environment sh -c "ls -l /tests_directory"
+
+      - name: List .docker directory contents
+        run: |
+          docker exec qgis-testing-environment sh -c "ls -l /tests_directory/.docker"
+
+      - name: List qgis_resources directory contents
+        run: |
+          docker exec qgis-testing-environment sh -c "ls -l /tests_directory/.docker/qgis_resources"
+
+      - name: List test_runner directory contents
+        run: |
+          docker exec qgis-testing-environment sh -c "ls -l /tests_directory/.docker/qgis_resources/test_runner"
+
       - name: Sleep for Xvfb
         run: sleep 10
 
