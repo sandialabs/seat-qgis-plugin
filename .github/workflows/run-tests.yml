@@ -74,6 +74,24 @@ jobs:
         run: |
           docker exec qgis-testing-environment ls /usr/share/qgis/python/plugins/seat
 
+      - name: Install Dependencies
+        run: |
+          docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/install_dependencies.py"
+
+      - name: Verify Plugin Installation
+        run: |
+          docker exec qgis-testing-environment ls /usr/share/qgis/python/plugins/seat
+
+      - name: Run QGIS with Plugin
+        run: |
+          docker exec qgis-testing-environment python3 -c "
+          import sys
+          sys.path.append('/usr/lib/python3/dist-packages')
+          import qgis
+          import qgis.utils
+          qgis.utils.startPlugin('seat')
+          "
+
       # - name: Install Dependencies
       #   run: docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/install_dependencies.py"
 
