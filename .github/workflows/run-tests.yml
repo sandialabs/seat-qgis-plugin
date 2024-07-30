@@ -52,6 +52,20 @@ jobs:
       - name: Find QGIS libraries
         run: |
           docker exec qgis-testing-environment find / -name "*.so*" 2>/dev/null | grep qgis
+
+      - name: Install QGIS Plugin from Zip
+        run: |
+          # Define plugin path
+          PLUGIN_ZIP_PATH=/tests_directory/seat_qgis_plugin.zip
+          PLUGIN_DIR=/usr/share/qgis/python/plugins
+
+          # Extract the plugin zip to the QGIS plugin directory
+          docker exec qgis-testing-environment unzip $PLUGIN_ZIP_PATH -d $PLUGIN_DIR
+
+      - name: Verify Plugin Installation
+        run: |
+          docker exec qgis-testing-environment ls /usr/share/qgis/python/plugins
+
       # - name: Install Dependencies
       #   run: docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/install_dependencies.py"
 
