@@ -23,12 +23,14 @@ jobs:
       - name: Checkout qgis-plugin
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Fetch all history for all branches and tags
-          # Ensure all submodules are fetched
-          submodules: true
+          fetch-depth: 0  # Ensure full checkout
+          submodules: true  # Ensure submodules are checked out
 
       - name: Verify directory structure
         run: ls -la
+
+      - name: Verify .docker directory existence
+        run: ls -la .docker
 
       - name: Run QGIS Docker container
         run: |
@@ -36,11 +38,11 @@ jobs:
           -v ${GITHUB_WORKSPACE}:/tests_directory \
           -e DISPLAY=:99 qgis/qgis:latest tail -f /dev/null
 
-      - name: List root directory contents
+      - name: List root directory contents in container
         run: |
           docker exec qgis-testing-environment sh -c "ls -l /tests_directory"
 
-      - name: List .docker directory contents
+      - name: List .docker directory contents in container
         run: |
           docker exec qgis-testing-environment sh -c "ls -l /tests_directory/.docker"
 
