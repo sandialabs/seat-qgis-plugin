@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  test:
+  test-seat-package:
     runs-on: ubuntu-latest
     services:
       docker:
@@ -45,6 +45,13 @@ jobs:
         run: |
           docker exec qgis-testing-environment which qgis
 
+      - name: Find QGIS related files
+        run: |
+          docker exec qgis-testing-environment find / -name "*qgis*" -type f 2>/dev/null
+
+      - name: Find QGIS libraries
+        run: |
+          docker exec qgis-testing-environment find / -name "*.so*" 2>/dev/null | grep qgis
       # - name: Install Dependencies
       #   run: docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/install_dependencies.py"
 
