@@ -22,6 +22,9 @@ jobs:
       - name: Checkout qgis-plugin
         uses: actions/checkout@v4
 
+      - name: List directory contents for debugging
+        run: ls -aR
+
       - name: Build QGIS Docker container
         run: |
           docker build -t qgis/qgis:latest \
