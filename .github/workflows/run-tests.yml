@@ -23,14 +23,22 @@ jobs:
       - name: Checkout qgis-plugin
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Ensure full checkout
-          submodules: true  # Ensure submodules are checked out
+          fetch-depth: 0  # Fetch all history for all branches and tags
+          submodules: true  # Ensure all submodules are fetched
 
-      - name: Verify directory structure
+      - name: Verify root directory structure
         run: ls -la
 
-      - name: Verify .docker directory existence
-        run: ls -la .docker
+      - name: Fetch hidden directories and verify .docker
+        run: |
+          git fetch --all
+          git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)
+          if [ -d ".docker" ]; then
+            echo ".docker directory exists"
+            ls -la .docker
+          else
+            echo ".docker directory does not exist"
+          fi
 
       - name: Run QGIS Docker container
         run: |
@@ -38,19 +46,23 @@ jobs:
           -v ${GITHUB_WORKSPACE}:/tests_directory \
           -e DISPLAY=:99 qgis/qgis:latest tail -f /dev/null
 
-      - name: List root directory contents in container
+      - name: List root directory contents inside container
         run: |
           docker exec qgis-testing-environment sh -c "ls -l /tests_directory"
 
-      - name: List .docker directory contents in container
+      - name: List .docker directory contents inside container
         run: |
-          docker exec qgis-testing-environment sh -c "ls -l /tests_directory/.docker"
+          if docker exec qgis-testing-environment sh -c "ls -l /tests_directory/.docker"; then
+            echo ".docker directory exists inside the container"
+          else
+            echo ".docker directory does not exist inside the container"
+          fi
 
-      - name: List qgis_resources directory contents
+      - name: List qgis_resources directory contents inside container
         run: |
           docker exec qgis-testing-environment sh -c "ls -l /tests_directory/.docker/qgis_resources"
 
-      - name: List test_runner directory contents
+      - name: List test_runner directory contents inside container
         run: |
           docker exec qgis-testing-environment sh -c "ls -l /tests_directory/.docker/qgis_resources/test_runner"
 
