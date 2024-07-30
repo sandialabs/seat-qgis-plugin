@@ -47,3 +47,9 @@ jobs:
       - name: Run Tests
         run: |
           docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/test_shear_stress.py"
+
+      - name: Clean up Docker container
+        if: always()
+        run: |
+          docker stop qgis-testing-environment
+          docker rm qgis-testing-environment
