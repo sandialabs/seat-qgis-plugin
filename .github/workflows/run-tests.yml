@@ -50,21 +50,21 @@ jobs:
         run: |
           docker exec qgis-testing-environment sh -c "ls -l /tests_directory"
 
-      - name: List .docker directory contents inside container
-        run: |
-          if docker exec qgis-testing-environment sh -c "ls -l /tests_directory/.docker"; then
-            echo ".docker directory exists inside the container"
-          else
-            echo ".docker directory does not exist inside the container"
-          fi
-
       - name: List qgis_resources directory contents inside container
         run: |
-          docker exec qgis-testing-environment sh -c "ls -l /tests_directory/.docker/qgis_resources"
+          docker exec qgis-testing-environment sh -c "ls -l /tests_directory/seat"
 
       - name: List test_runner directory contents inside container
         run: |
-          docker exec qgis-testing-environment sh -c "ls -l /tests_directory/.docker/qgis_resources/test_runner"
+          docker exec qgis-testing-environment sh -c "ls -l /tests_directory/tests"
+
+      - name: List test_runner directory contents inside container
+        run: |
+          docker exec qgis-testing-environment sh -c "ls -l /tests_directory/."
+
+      - name: List test_runner directory contents inside container
+        run: |
+          docker exec qgis-testing-environment sh -c "ls -l /tests_directory/.."
 
       - name: Sleep for Xvfb
         run: sleep 10
