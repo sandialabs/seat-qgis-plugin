@@ -22,6 +22,10 @@ jobs:
     steps:
       - name: Checkout qgis-plugin
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch all history for all branches and tags
+          # Ensure all submodules are fetched
+          submodules: true
 
       - name: Verify directory structure
         run: ls -la
@@ -34,7 +38,19 @@ jobs:
 
       - name: List root directory contents
         run: |
-          docker exec qgis-testing-environment sh -c "ls -l /"
+          docker exec qgis-testing-environment sh -c "ls -l /tests_directory"
+
+      - name: List .docker directory contents
+        run: |
+          docker exec qgis-testing-environment sh -c "ls -l /tests_directory/.docker"
+
+      - name: List qgis_resources directory contents
+        run: |
+          docker exec qgis-testing-environment sh -c "ls -l /tests_directory/.docker/qgis_resources"
+
+      - name: List test_runner directory contents
+        run: |
+          docker exec qgis-testing-environment sh -c "ls -l /tests_directory/.docker/qgis_resources/test_runner"
 
       - name: Sleep for Xvfb
         run: sleep 10
