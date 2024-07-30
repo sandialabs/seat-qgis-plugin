@@ -33,10 +33,15 @@ jobs:
         run: |
           until docker exec qgis-testing-environment sh -c "ls /"; do sleep 1; done
 
-      - name: Create and activate virtual environment, install dependencies
+      - name: Setup QGIS Python environment
         run: |
-          docker exec qgis-testing-environment sh -c "python3 -m venv /tests_directory/venv"
-          docker exec qgis-testing-environment sh -c "/tests_directory/venv/bin/pip install -r /tests_directory/tests/requirements.txt"
+          docker exec qgis-testing-environment sh -c "export QGIS_ROOT=/usr"
+          docker exec qgis-testing-environment sh -c "export PYTHONPATH=$QGIS_ROOT/share/qgis/python:$PYTHONPATH"
+          docker exec qgis-testing-environment sh -c "export PATH=$QGIS_ROOT/bin:$PATH"
+
+      - name: Install dependencies
+        run: |
+          docker exec qgis-testing-environment sh -c "pip3 install -r /tests_directory/tests/requirements.txt"
 
       - name: Setup QGIS and enable the plugin
         run: |
