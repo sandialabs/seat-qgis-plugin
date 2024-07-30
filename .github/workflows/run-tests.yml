@@ -34,19 +34,7 @@ jobs:
 
       - name: List root directory contents
         run: |
-          docker exec qgis-testing-environment sh -c "ls -l /tests_directory"
-
-      - name: List .docker directory contents
-        run: |
-          docker exec qgis-testing-environment sh -c "ls -l /tests_directory/.docker"
-
-      - name: List qgis_resources directory contents
-        run: |
-          docker exec qgis-testing-environment sh -c "ls -l /tests_directory/.docker/qgis_resources"
-
-      - name: List test_runner directory contents
-        run: |
-          docker exec qgis-testing-environment sh -c "ls -l /tests_directory/.docker/qgis_resources/test_runner"
+          docker exec qgis-testing-environment sh -c "ls -l /"
 
       - name: Sleep for Xvfb
         run: sleep 10
