@@ -23,6 +23,9 @@ jobs:
       - name: Checkout qgis-plugin
         uses: actions/checkout@v3
 
+      - name: Verify directory structure
+        run: ls -la
+
       - name: Run QGIS Docker container
         run: |
           docker run -d --name qgis-testing-environment \
