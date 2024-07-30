@@ -26,7 +26,7 @@ jobs:
         run: |
           docker run -d --name qgis-testing-environment \
           -v ${GITHUB_WORKSPACE}:/tests_directory \
-          -e DISPLAY=:99 qgis/qgis:latest
+          -e DISPLAY=:99 qgis/qgis:latest tail -f /dev/null
 
       - name: List directory contents for debugging
         run: ls -aR
