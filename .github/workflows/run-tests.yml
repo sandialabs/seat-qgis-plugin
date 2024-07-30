@@ -61,13 +61,14 @@ jobs:
         run: |
           docker exec qgis-testing-environment ls -la /tests_directory/seat
 
-      - name: Install QGIS Plugin from Directory
+      - name: Copy plugin directory
         run: |
+          docker exec qgis-testing-environment sh -c '
           PLUGIN_SRC_PATH=/tests_directory/seat
           PLUGIN_DEST_DIR=/usr/share/qgis/python/plugins/seat
-
-          docker exec qgis-testing-environment mkdir -p $PLUGIN_DEST_DIR
-          docker exec qgis-testing-environment cp -r $PLUGIN_SRC_PATH/* $PLUGIN_DEST_DIR/
+          mkdir -p $PLUGIN_DEST_DIR
+          cp -r $PLUGIN_SRC_PATH/* $PLUGIN_DEST_DIR/
+          '
 
       - name: Verify Plugin Installation
         run: |
