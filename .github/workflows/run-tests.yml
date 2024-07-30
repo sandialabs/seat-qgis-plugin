@@ -22,46 +22,39 @@ jobs:
       - name: Checkout qgis-plugin
         uses: actions/checkout@v4
 
+      - name: Build QGIS Docker container
+        run: |
+          docker build -t qgis/qgis:latest \
+            --build-arg DOCKER_TAG=latest \
+            -f .docker/qgis.dockerfile
+
       - name: Run QGIS Docker container
         run: |
-          docker run -d --name qgis-testing-environment \
-          -v ${GITHUB_WORKSPACE}:/tests_directory \
-          -e DISPLAY=:99 qgis/qgis:latest tail -f /dev/null
+          docker run --rm -d --name qgis \
+            -v /tmp/.X11-unix:/tmp/.X11-unix  \
+            qgis/qgis:latest
+      # - name: Run QGIS Docker container
+      #   run: |
+      #     docker run -d --name qgis-testing-environment \
+      #     -v ${GITHUB_WORKSPACE}:/tests_directory \
+      #     -e DISPLAY=:99 qgis/qgis:latest tail -f /dev/null
 
-      - name: Wait for Docker to be ready
-        run: |
-          until docker exec qgis-testing-environment sh -c "ls /"; do sleep 1; done
+      # - name: Wait for Docker to be ready
+      #   run: |
+      #     until docker exec qgis-testing-environment sh -c "ls /"; do sleep 1; done
 
-      - name: Create environment setup script
-        run: |
-          echo '#!/bin/bash' > setup_env.sh
-          echo 'export QGIS_ROOT=/usr' >> setup_env.sh
-          echo 'export PYTHONPATH=$QGIS_ROOT/share/qgis/python:$PYTHONPATH' >> setup_env.sh
-          echo 'export PATH=$QGIS_ROOT/bin:$PATH' >> setup_env.sh
-          echo 'echo QGIS_ROOT=$QGIS_ROOT' >> setup_env.sh
-          echo 'echo PYTHONPATH=$PYTHONPATH' >> setup_env.sh
-          echo 'echo PATH=$PATH' >> setup_env.sh
-          echo 'which python3' >> setup_env.sh
-          chmod +x setup_env.sh
-          docker cp setup_env.sh qgis-testing-environment:/setup_env.sh
+      # - name: Install Dependencies
+      #   run: docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/install_dependencies.py"
 
-      - name: Setup QGIS Python environment and verify
-        run: |
-          docker exec qgis-testing-environment sh -c "/setup_env.sh"
-
-      - name: Install dependencies
-        run: |
-          docker exec qgis-testing-environment sh -c "/setup_env.sh && pip3 install -r /tests_directory/tests/requirements.txt"
-
-      - name: Setup QGIS and enable the plugin
-        run: |
-          docker exec qgis-testing-environment sh -c "/setup_env.sh && sh /tests_directory/.docker/qgis_resources/test_runner/qgis_setup.sh seat"
-          docker exec qgis-testing-environment sh -c "/setup_env.sh && rm -f /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
-          docker exec qgis-testing-environment sh -c "/setup_env.sh && ln -s /tests_directory /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
-
-      - name: Run Tests
-        run: |
-          docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/test_shear_stress.py"
+      # - name: Setup QGIS and enable the plugin
+      #   run: |
+      #     docker exec qgis-testing-environment sh -c "qgis_setup.sh seat"
+      #     docker exec qgis-testing-environment sh -c "rm -f /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
+      #     docker exec qgis-testing-environment sh -c "ln -s /tests_directory /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
+      # #docker exec qgis-testing-environment sh -c "ln -s /tests_directory/seat /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
+      # - name: Run tests
+      #   run: |
+      #     docker exec qgis-testing-environment sh -c "export PYTHONPATH=/tests_directory:\$PYTHONPATH && qgis_testrunner.sh tests.test_example.run_all"
 
       - name: Clean up Docker container
         if: always()
