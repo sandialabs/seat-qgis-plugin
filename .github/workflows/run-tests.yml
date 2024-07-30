@@ -55,7 +55,7 @@ jobs:
 
       - name: Install QGIS Plugin from Directory
         run: |
-          PLUGIN_SRC_PATH=./seat
+          PLUGIN_SRC_PATH=/tests_directory/seat
           PLUGIN_DEST_DIR=/usr/share/qgis/python/plugins/seat
 
           docker exec qgis-testing-environment mkdir -p $PLUGIN_DEST_DIR
