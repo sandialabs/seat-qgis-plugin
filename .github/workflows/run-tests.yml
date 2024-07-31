@@ -28,40 +28,11 @@ jobs:
           -v ${GITHUB_WORKSPACE}:/tests_directory \
           -e DISPLAY=:99 qgis/qgis:latest tail -f /dev/null
 
-      - name: List directory contents for debugging
-        run: ls -aR
-
-      # - name: Run QGIS Docker container
-      #   run: |
-      #     docker run -d --name qgis-testing-environment \
-      #     -v ${GITHUB_WORKSPACE}:/tests_directory \
-      #     -e DISPLAY=:99 qgis/qgis:latest tail -f /dev/null
-
       - name: Wait for Docker to be ready
         run: |
           until docker exec qgis-testing-environment sh -c "ls /"; do sleep 1; done
 
-      - name: Locate QGIS executable
-        run: |
-          docker exec qgis-testing-environment which qgis
-
-      - name: Find QGIS related files
-        run: |
-          docker exec qgis-testing-environment find / -name "*qgis*" -type f 2>/dev/null
-
-      - name: Find QGIS libraries
-        run: |
-          docker exec qgis-testing-environment find / -name "*.so*" 2>/dev/null | grep qgis
-
-      - name: Debug mounted directory
-        run: |
-          docker exec qgis-testing-environment ls -la /tests_directory
-
-      - name: Debug seat directory
-        run: |
-          docker exec qgis-testing-environment ls -la /tests_directory/seat
-
-      - name: Copy plugin directory
+      - name: Install plugin by manually via Copy
         run: |
           docker exec qgis-testing-environment sh -c '
           PLUGIN_SRC_PATH=/tests_directory/seat
@@ -69,10 +40,6 @@ jobs:
           mkdir -p $PLUGIN_DEST_DIR
           cp -r $PLUGIN_SRC_PATH/* $PLUGIN_DEST_DIR/
           '
-
-      - name: Verify Plugin Installation
-        run: |
-          docker exec qgis-testing-environment ls /usr/share/qgis/python/plugins/seat
 
       - name: Install Dependencies
         run: |
@@ -82,29 +49,6 @@ jobs:
         run: |
           docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-pandas python3-netcdf4 python3-pytest"
 
-      - name: Verify Plugin Installation
-        run: |
-          docker exec qgis-testing-environment ls /usr/share/qgis/python/plugins/seat
-
-      - name: Run QGIS with Plugin
-        run: |
-          docker exec qgis-testing-environment python3 -c "
-          import sys
-          sys.path.append('/usr/lib/python3/dist-packages')
-          import qgis
-          import qgis.utils
-          qgis.utils.startPlugin('seat')
-          "
-
-      # - name: Install Dependencies
-      #   run: docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/install_dependencies.py"
-
-      # - name: Setup QGIS and enable the plugin
-      #   run: |
-      #     docker exec qgis-testing-environment sh -c "qgis_setup.sh seat"
-      #     docker exec qgis-testing-environment sh -c "rm -f /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
-      #     docker exec qgis-testing-environment sh -c "ln -s /tests_directory /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
-      # #docker exec qgis-testing-environment sh -c "ln -s /tests_directory/seat /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
       - name: Run Pytest
         run: |
           docker exec qgis-testing-environment pytest /tests_directory/tests
