@@ -108,6 +108,13 @@ def create_species_array(species_filename, x, y, variable="percent", latlon=Fals
 
 
 def find_acoustic_metrics(paracousti_file):
+    """_summary_
+
+    :param paracousti_file: _description_
+    :type paracousti_file: _type_
+    :return: _description_
+    :rtype: _type_
+    """
     ignore_vars = ["octSPL", "XCOR", "YCOR", "ZCOR", "Hw", "Fc", "press_muPa"]
     with Dataset(paracousti_file) as DS:
         avars = list(DS.variables)
@@ -148,7 +155,7 @@ def calc_SEL_cum(SEL, duration_seconds):
     """
     return SEL + 10 * np.log10(duration_seconds)
 
-def calc_stressor(
+def calc_probabilistic_metrics(
     paracousti_files,
     boundary_conditions,
     Threshold,
@@ -161,7 +168,34 @@ def calc_stressor(
     species_folder=None,
     grid_res_species=0
 ):
-    # TODO: this is not working. 
+    """_summary_
+
+    :param paracousti_files: _description_
+    :type paracousti_files: _type_
+    :param boundary_conditions: _description_
+    :type boundary_conditions: _type_
+    :param Threshold: _description_
+    :type Threshold: _type_
+    :param ACOUST_VAR: _description_
+    :type ACOUST_VAR: _type_
+    :param Baseline: _description_
+    :type Baseline: _type_
+    :param XCOR: _description_
+    :type XCOR: _type_
+    :param YCOR: _description_
+    :type YCOR: _type_
+    :param latlon: _description_
+    :type latlon: _type_
+    :param metric_calc: _description_, defaults to 'SPL'
+    :type metric_calc: str, optional
+    :param species_folder: _description_, defaults to None
+    :type species_folder: _type_, optional
+    :param grid_res_species: _description_, defaults to 0
+    :type grid_res_species: int, optional
+    :raises FileNotFoundError: _description_
+    :return: _description_
+    :rtype: _type_
+    """
     probability = boundary_conditions["% of yr"] / 100
     if metric_calc =='SEL':
         seconds_of_day = 24 * 60 * 60 * probability
@@ -241,7 +275,7 @@ def calc_stressor(
     stressor = device - baseline
     return device, baseline, stressor, threshold_exceeded, percent_scaled, density_scaled, rx, ry
 
-def calc_single_condition(
+def calc_nonprobabilistic_metrics(
     paracousti_files,
     boundary_conditions,
     Threshold,
@@ -255,6 +289,36 @@ def calc_single_condition(
     grid_res_species=0,
     sel_hours=24,
 ):
+    """_summary_
+
+    :param paracousti_files: _description_
+    :type paracousti_files: _type_
+    :param boundary_conditions: _description_
+    :type boundary_conditions: _type_
+    :param Threshold: _description_
+    :type Threshold: _type_
+    :param ACOUST_VAR: _description_
+    :type ACOUST_VAR: _type_
+    :param Baseline: _description_
+    :type Baseline: _type_
+    :param XCOR: _description_
+    :type XCOR: _type_
+    :param YCOR: _description_
+    :type YCOR: _type_
+    :param latlon: _description_
+    :type latlon: _type_
+    :param metric_calc: _description_, defaults to 'SPL'
+    :type metric_calc: str, optional
+    :param species_folder: _description_, defaults to None
+    :type species_folder: _type_, optional
+    :param grid_res_species: _description_, defaults to 0
+    :type grid_res_species: int, optional
+    :param sel_hours: _description_, defaults to 24
+    :type sel_hours: int, optional
+    :raises FileNotFoundError: _description_
+    :return: _description_
+    :rtype: _type_
+    """
 
     device = {}
     baseline = {}
@@ -482,7 +546,7 @@ def calculate_acoustic_stressors(
     
     metric_calc = 'SPL' if 'spl'.casefold() in paracousti_metric.casefold() else 'SEL'
     
-    paracousti_with_device, baseline_without_device, stressor, threshold_exceeded, percent_scaled, density_scaled, rx, ry = calc_stressor(
+    paracousti_with_device, baseline_without_device, stressor, threshold_exceeded, percent_scaled, density_scaled, rx, ry = calc_probabilistic_metrics(
     paracousti_files,
     boundary_conditions,
     Threshold,
@@ -496,7 +560,7 @@ def calculate_acoustic_stressors(
     grid_res_species=grid_res_species
     )
 
-    device_single, baseline_single, stressor_single, threshold_exceeded_single, percent_scaled_single, density_scaled_single, _, _ = calc_single_condition(
+    device_single, baseline_single, stressor_single, threshold_exceeded_single, percent_scaled_single, density_scaled_single, _, _ = calc_nonprobabilistic_metrics(
         paracousti_files,
         boundary_conditions,
         Threshold,
@@ -511,7 +575,7 @@ def calculate_acoustic_stressors(
         sel_hours=24,
     )
 
-    dict_of_arrays_prob = {
+    dict_of_probabilistic_arrays = {
         "paracousti_without_devices": baseline_without_device,
         "paracousti_with_devices": paracousti_with_device,
         "paracousti_stressor": stressor,
@@ -520,7 +584,7 @@ def calculate_acoustic_stressors(
         "species_density": density_scaled,
     }
 
-    dict_of_arrays_single = {
+    dict_of_nonprobabilistic_arrays = {
         "paracousti_without_devices": baseline_single,
         "paracousti_with_devices": device_single,
         "paracousti_stressor": stressor_single,
@@ -532,9 +596,30 @@ def calculate_acoustic_stressors(
 
     dx = np.nanmean(np.diff(rx[0, :]))
     dy = np.nanmean(np.diff(ry[:, 0]))
-    return dict_of_arrays_prob, dict_of_arrays_single, rx, ry, dx, dy
+    return dict_of_probabilistic_arrays, dict_of_nonprobabilistic_arrays, rx, ry, dx, dy
 
-def create_output_rasters_each_prob(use_single_arrays, dict_of_arrays_single, crs, dx, dy, rx, ry, output_path):
+def create_output_rasters_nonprobabilistic(use_nonprobabilistic_arrays, dict_of_nonprobabilistic_arrays, crs, dx, dy, rx, ry, output_path):
+    """_summary_
+
+    :param use_nonprobabilistic_arrays: _description_
+    :type use_nonprobabilistic_arrays: _type_
+    :param dict_of_nonprobabilistic_arrays: _description_
+    :type dict_of_nonprobabilistic_arrays: _type_
+    :param crs: _description_
+    :type crs: _type_
+    :param dx: _description_
+    :type dx: _type_
+    :param dy: _description_
+    :type dy: _type_
+    :param rx: _description_
+    :type rx: _type_
+    :param ry: _description_
+    :type ry: _type_
+    :param output_path: _description_
+    :type output_path: _type_
+    :return: _description_
+    :rtype: _type_
+    """
     output_rasters = {}
     cell_resolution = [dx, dy]
     if crs == 4326:
@@ -543,11 +628,11 @@ def create_output_rasters_each_prob(use_single_arrays, dict_of_arrays_single, cr
     else:
         bounds = [rx.min() - dx / 2, ry.max() - dy / 2]    
         
-    for var in use_single_arrays:
+    for var in use_nonprobabilistic_arrays:
         output_rasters[var] = []
-        for key in dict_of_arrays_single[var].keys():
+        for key in dict_of_nonprobabilistic_arrays[var].keys():
             array_name = var + "_" + key + ".tif" #file name of raster using analysis type and probability filename
-            numpy_array = np.flip(dict_of_arrays_single[var][key], axis=0)
+            numpy_array = np.flip(dict_of_nonprobabilistic_arrays[var][key], axis=0)
             rows, cols = numpy_array.shape
             output_rasters[var].append(os.path.join(output_path, array_name))
             output_raster = create_raster(
@@ -564,8 +649,8 @@ def create_output_rasters_each_prob(use_single_arrays, dict_of_arrays_single, cr
             output_raster = None
     return output_rasters
 
-def create_output_rasters(use_numpy_arrays, dict_of_arrays, crs, dx, dy, rx, ry, output_path):
-    numpy_array_names = [i + ".tif" for i in use_numpy_arrays]
+def create_output_rasters_probabilistic(use_probabilistic_arrays, dict_of_probabilistic_arrays, crs, dx, dy, rx, ry, output_path):
+    numpy_array_names = [i + ".tif" for i in use_probabilistic_arrays]
     output_rasters = []
     cell_resolution = [dx, dy]
     if crs == 4326:
@@ -574,8 +659,8 @@ def create_output_rasters(use_numpy_arrays, dict_of_arrays, crs, dx, dy, rx, ry,
     else:
         bounds = [rx.min() - dx / 2, ry.max() - dy / 2]    
         
-    for array_name, use_numpy_array in zip(numpy_array_names, use_numpy_arrays):
-        numpy_array = np.flip(dict_of_arrays[use_numpy_array], axis=0)
+    for array_name, use_numpy_array in zip(numpy_array_names, use_probabilistic_arrays):
+        numpy_array = np.flip(dict_of_probabilistic_arrays[use_numpy_array], axis=0)
         rows, cols = numpy_array.shape
         # create an ouput raster given the stressor file path
         output_rasters.append(os.path.join(output_path, array_name))
@@ -595,8 +680,18 @@ def create_output_rasters(use_numpy_arrays, dict_of_arrays, crs, dx, dy, rx, ry,
         output_raster = None
     return output_rasters
 
-def create_binned_csv(output_path, crs, secondary_constraint_filename=None, species_folder=None):
-    
+def create_probabilistic_binned_csv(output_path, crs, secondary_constraint_filename=None, species_folder=None):
+    """_summary_
+
+    :param output_path: _description_
+    :type output_path: _type_
+    :param crs: _description_
+    :type crs: _type_
+    :param secondary_constraint_filename: _description_, defaults to None
+    :type secondary_constraint_filename: _type_, optional
+    :param species_folder: _description_, defaults to None
+    :type species_folder: _type_, optional
+    """
     # Area calculations
     # ParAcousti Area
 
@@ -649,7 +744,7 @@ def create_binned_csv(output_path, crs, secondary_constraint_filename=None, spec
                     index=False,
                 )
 
-def create_each_prob_binned_csv(output_path, output_rasters, crs, secondary_constraint_filename=None, species_folder=None):
+def create_nonprobabilistic_binned_csv(output_path, output_rasters, crs, secondary_constraint_filename=None, species_folder=None):
 
     vars = ["paracousti_without_devices", "paracousti_with_devices", "paracousti_stressor", "species_threshold_exceeded"]
     for var in vars:
@@ -735,10 +830,8 @@ def run_acoustics_stressor(
     os.makedirs(
         output_path, exist_ok=True
     )  # create output directory if it doesn't exist
-    # TODO : rename dict_of_arrays to dict_probablistic_arrays
-    # TODO : rename dict_of_arrays_single to dict_nonprobablisitc_arrays
 
-    dict_of_arrays, dict_of_arrays_single, rx, ry, dx, dy = calculate_acoustic_stressors(
+    dict_of_probabilistic_arrays, dict_of_nonprobabilistic_arrays, rx, ry, dx, dy = calculate_acoustic_stressors(
         fpath_dev=dev_present_file,
         probabilities_file=probabilities_file,
         paracousti_threshold_value=paracousti_threshold_value,
@@ -752,7 +845,7 @@ def run_acoustics_stressor(
     )
 
     if not ((species_folder is None) or (species_folder == "")):
-        use_numpy_arrays = [
+        use_probabilistic_arrays = [
             "paracousti_without_devices",
             "paracousti_with_devices",
             "paracousti_stressor",
@@ -760,7 +853,7 @@ def run_acoustics_stressor(
             "species_percent",
             "species_density",
         ]
-        use_single_arrays = [
+        use_nonprobabilistic_arrays = [
             "paracousti_without_devices",
             "paracousti_with_devices",
             "paracousti_stressor",
@@ -769,13 +862,13 @@ def run_acoustics_stressor(
             "species_density",
         ]
     else:
-        use_numpy_arrays = [
+        use_probabilistic_arrays = [
             "paracousti_without_devices",
             "paracousti_with_devices",
             "paracousti_stressor",
             "species_threshold_exceeded",
         ]
-        use_single_arrays = [
+        use_nonprobabilistic_arrays = [
             "paracousti_without_devices",
             "paracousti_with_devices",
             "paracousti_stressor",
@@ -791,27 +884,27 @@ def run_acoustics_stressor(
         rrx, rry, constraint = secondary_constraint_geotiff_to_numpy(
             secondary_constraint_filename
         )
-        dict_of_arrays["paracousti_risk_layer"] = resample_structured_grid(
+        dict_of_probabilistic_arrays["paracousti_risk_layer"] = resample_structured_grid(
             rrx, rry, constraint, rx, ry, interpmethod="nearest"
         )
-        use_numpy_arrays.append("paracousti_risk_layer")
+        dict_of_nonprobabilistic_arrays.append("paracousti_risk_layer")
 
-    output_rasters = create_output_rasters(use_numpy_arrays, dict_of_arrays, crs, dx, dy, rx, ry, output_path)
-    # create_binned_csv(output_path, crs, secondary_constraint_filename=secondary_constraint_filename, species_folder=species_folder)
+    output_rasters_probabilistic = create_output_rasters_probabilistic(use_probabilistic_arrays, dict_of_probabilistic_arrays, crs, dx, dy, rx, ry, output_path)
+    create_probabilistic_binned_csv(output_path, crs, secondary_constraint_filename=secondary_constraint_filename, species_folder=species_folder)
     
-    output_rasters_each_prob = create_output_rasters_each_prob(use_single_arrays, dict_of_arrays_single, crs, dx, dy, rx, ry, output_path)
-    create_each_prob_binned_csv(output_path, output_rasters_each_prob, crs, secondary_constraint_filename=secondary_constraint_filename, species_folder=species_folder)
+    output_rasters_nonprobabilistic = create_output_rasters_nonprobabilistic(use_nonprobabilistic_arrays, dict_of_nonprobabilistic_arrays, crs, dx, dy, rx, ry, output_path)
+    create_nonprobabilistic_binned_csv(output_path, output_rasters_nonprobabilistic, crs, secondary_constraint_filename=secondary_constraint_filename, species_folder=species_folder)
 
 
-    OUTPUT = {}
-    for val in output_rasters:
-        OUTPUT[os.path.basename(os.path.normpath(val)).split(".")[0]] = val
+    OUTPUT_probabilistic = {}
+    for val in output_rasters_probabilistic:
+        OUTPUT_probabilistic[os.path.basename(os.path.normpath(val)).split(".")[0]] = val
 
-    OUTOUT_each_prob = {}
-    for var_fname in output_rasters_each_prob.keys():
+    OUTOUT_nonprobabilistic = {}
+    for var_fname in output_rasters_nonprobabilistic.keys():
         var = os.path.basename(os.path.normpath(var_fname)).split(".")[0]
-        OUTOUT_each_prob[var] = {}
-        for val in output_rasters_each_prob[var]:
-            OUTOUT_each_prob[var][val] = val
-    return OUTPUT, OUTOUT_each_prob
+        OUTOUT_nonprobabilistic[var] = {}
+        for val in output_rasters_nonprobabilistic[var]:
+            OUTOUT_nonprobabilistic[var][val] = val
+    return OUTPUT_probabilistic, OUTOUT_nonprobabilistic
 
