@@ -120,10 +120,23 @@ def find_acoustic_metrics(paracousti_file):
         weigthed_vars = sorted(set([i[i.find("_") + 1 :] for i in weighted_varnames]))
     return weights, unweighted_vars, weigthed_vars
 
+def sum_SEL(x):
+    """
+    function for summing an array of SEL to get cumulative SEL
+
+    x = list of values (in dB)
+
+    returns single value of total SEL (in dB)
+    """
+    x_dB = np.asarray(x)
+    x_uPa2s = 10 ** (x_dB / 10)
+    sum_uPa2s = sum(x_uPa2s)
+    sum_dB = 10 * np.log10(sum_uPa2s)
+    return sum_dB
 
 def calc_SEL_cum(SEL, duration_seconds):
     """    
-    SEL from single second to cummulative
+    SEL from single second to cumulative
     derived from BOEM 2023 equation 7 for multiple strikes
 
     Args:
@@ -157,7 +170,6 @@ def calc_stressor(
         # paracousti files might not have regular grid spacing.
         rx, ry, device_ss = redefine_structured_grid(XCOR, YCOR, ACOUST_VAR[ic, :])
         baseline_ss = resample_structured_grid(XCOR, YCOR, Baseline[ic, :], rx, ry)
-
         if ic == 0:
             device = np.zeros(rx.shape)
             baseline = np.zeros(rx.shape)
@@ -165,17 +177,22 @@ def calc_stressor(
             threshold_exceeded = np.zeros(rx.shape)
             percent_scaled = np.zeros(rx.shape)
             density_scaled = np.zeros(rx.shape)
-
+            
         if metric_calc.casefold() == 'SEL'.casefold():
             device_scaled = calc_SEL_cum(device_ss, seconds_of_day.loc[os.path.basename(paracousti_file)])
             baseline_scaled = calc_SEL_cum(baseline_ss, seconds_of_day.loc[os.path.basename(paracousti_file)])
+            if ic==0:
+                device = device + device_scaled
+                baseline = baseline + baseline_scaled
+            else:
+                device = sum_SEL([device.flatten(), device_scaled.flatten()]).reshape(rx.shape)
+                baseline = sum_SEL([baseline.flatten(), baseline_scaled.flatten()]).reshape(rx.shape)
         else: #SPL
             device_scaled = probability.loc[os.path.basename(paracousti_file)] * device_ss
             baseline_scaled = probability.loc[os.path.basename(paracousti_file)] * baseline_ss
+            device = device + device_scaled
+            baseline = baseline + baseline_scaled
         
-        device = device + device_scaled
-        baseline = baseline + baseline_scaled
-        stressor = stressor + (device_scaled - baseline_scaled)
         threshold_mask = device_scaled > Threshold
         threshold_exceeded[threshold_mask] += probability.loc[os.path.basename(paracousti_file)] * 100
 
@@ -220,6 +237,8 @@ def calc_stressor(
             density_scaled[threshold_mask] += (
                 probability.loc[os.path.basename(paracousti_file)] * darray_scaled[threshold_mask]
             )
+
+    stressor = device - baseline
     return device, baseline, stressor, threshold_exceeded, percent_scaled, density_scaled, rx, ry
 
 def calc_single_condition(
@@ -459,9 +478,7 @@ def calculate_acoustic_stressors(
         Baseline = np.nanmax(Baseline, axis=3)
         
 
-    #TODO Add 95th percentile
-    #TODO need different analysis for SPL and SEL metrics
-    #TODO need to add analysis for each hydrodynamic probability
+    #TODO Add 95th percentile ?
     
     metric_calc = 'SPL' if 'spl'.casefold() in paracousti_metric.casefold() else 'SEL'
     
