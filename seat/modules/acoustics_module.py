@@ -887,7 +887,13 @@ def run_acoustics_stressor(
         dict_of_probabilistic_arrays["paracousti_risk_layer"] = resample_structured_grid(
             rrx, rry, constraint, rx, ry, interpmethod="nearest"
         )
-        dict_of_nonprobabilistic_arrays.append("paracousti_risk_layer")
+        use_probabilistic_arrays.append("paracousti_risk_layer")
+        
+        # dict_of_nonprobabilistic_arrays["paracousti_risk_layer"] = resample_structured_grid(
+        #     rrx, rry, constraint, rx, ry, interpmethod="nearest"
+        # )
+        # use_nonprobabilistic_arrays.append("paracousti_risk_layer")
+
 
     output_rasters_probabilistic = create_output_rasters_probabilistic(use_probabilistic_arrays, dict_of_probabilistic_arrays, crs, dx, dy, rx, ry, output_path)
     create_probabilistic_binned_csv(output_path, crs, secondary_constraint_filename=secondary_constraint_filename, species_folder=species_folder)
