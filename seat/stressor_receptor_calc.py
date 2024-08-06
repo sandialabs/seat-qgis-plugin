@@ -25,30 +25,21 @@
     5. added habitat for shear stress
 """
 import configparser
-# import logging
 import os.path
 import xml.etree.ElementTree as ET
-# from datetime import date
-# import numpy as np
 import pandas as pd
 
 from qgis.core import (# type: ignore
     Qgis,
-    # QgsApplication,
     QgsCoordinateReferenceSystem,
     QgsMessageLog,
     QgsProject,
-    # QgsRasterBandStats,
     QgsRasterLayer,
-    # QgsVectorLayer,
-    # QgsLayerTreeGroup,
-    # QgsMapLayerStyleManager
 )# type: ignore
 from qgis.gui import QgsProjectionSelectionDialog  # ,QgsLayerTreeView # type: ignore
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator  # type: ignore
 from qgis.PyQt.QtGui import QIcon  # type: ignore
 from qgis.PyQt.QtWidgets import QAction, QFileDialog  # type: ignore
-
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -519,10 +510,6 @@ class StressorReceptorCalc:
                 file = self.select_file(filter="*.csv")
                 self.dlg.paracousti_probabilities_file.setText(file)      
                 self.dlg.paracousti_probabilities_file.setStyleSheet("color: black;")
-            # if option=="thresholds":
-            #     file = self.select_file(filter="*.csv")
-            #     self.dlg.paracousti_threshold_file.setText(file)      
-            #     self.dlg.paracousti_threshold_file.setStyleSheet("color: black;")
             if option=="risk_file":
                 file = self.select_file(filter="*.tif")
                 self.dlg.paracousti_risk_file.setText(file)         
@@ -634,7 +621,6 @@ class StressorReceptorCalc:
             self.dlg.velocity_threshold_button.clicked.connect(lambda: self.select_files_module(module='velocity', option='thresholds'))
             self.dlg.velocity_risk_pushButton.clicked.connect(lambda: self.select_files_module(module='velocity', option='risk_file'))                
             self.dlg.paracousti_probabilities_pushButton.clicked.connect(lambda: self.select_files_module(module='paracousti', option='probabilities_file'))
-            # self.dlg.paracousti_threshold_button.clicked.connect(lambda: self.select_files_module(module='paracousti', option='thresholds'))
             self.dlg.paracousti_risk_pushButton.clicked.connect(lambda: self.select_files_module(module='paracousti', option='risk_file'))                
             self.dlg.power_probabilities_pushButton.clicked.connect(lambda: self.select_files_module(module='power'))     
             self.dlg.select_stylefile_button.clicked.connect(lambda: self.select_files_module(module='style_files'))   
