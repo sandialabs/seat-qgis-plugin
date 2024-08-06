@@ -379,7 +379,7 @@ def numpy_array_to_raster(
         False,
     )  # you want this false, true will make computed results, but is faster, could be a setting in the UI perhaps, esp for large rasters?
 
-    if os.path.exists(output_path) == False:
+    if os.path.exists(output_path) is False:
         raise Exception("Failed to create raster: %s" % output_path)
 
     # this closes the file
@@ -501,7 +501,7 @@ def calculate_cell_area(rx, ry, latlon=True):
     import numpy as np
     from pyproj import Geod
 
-    if latlon == True:
+    if latlon is True:
         geod = Geod(ellps="WGS84")
         lon2D, lat2D = np.where(rx > 180, rx-360, rx), ry
         _, _, distEW = geod.inv(
@@ -733,7 +733,7 @@ def classify_layer_area(raster_filename, receptor_filename=None, at_values=None,
     return pd.DataFrame(DATA)
 
 
-def classify_layer_area_2nd_Constraint(raster_to_sample, secondary_constraint_filename, at_raster_values, at_raster_value_names, limit_constraint_range, latlon):
+def classify_layer_area_2nd_constraint(raster_to_sample, secondary_constraint_filename, at_raster_values, at_raster_value_names, limit_constraint_range, latlon):
     rx, ry, z = read_raster(raster_to_sample)
     rxm, rym, square_area = calculate_cell_area(rx, ry, latlon=latlon)
     square_area = square_area.flatten()
@@ -773,103 +773,3 @@ def classify_layer_area_2nd_Constraint(raster_to_sample, secondary_constraint_fi
                 DATA[f'Area percent, constraint value {rval}'] = 100 * \
                     DATA[rcolname]/DATA[rcolname].sum()
     return pd.DataFrame(DATA)
-
-    # def calc_area_change(self, ofilename, crs, stylefile=None):
-    #     """Export the areas of the given file. Find a UTM of the given crs and calculate in m2."""
-
-    #     cfile = ofilename.replace(".tif", ".csv")
-    #     if os.path.isfile(cfile):
-    #         os.remove(cfile)
-
-    #     # if stylefile is not None:
-    #     #     sdf = df_from_qml(stylefile)
-
-    #     # get the basename and use the raster in the instance to get the min / max
-    #     basename = os.path.splitext(os.path.basename(ofilename))[0]
-    #     raster = QgsProject.instance().mapLayersByName(basename)[0]
-
-    #     xmin = raster.extent().xMinimum()
-    #     xmax = raster.extent().xMaximum()
-    #     ymin = raster.extent().yMinimum()
-    #     ymax = raster.extent().yMaximum()
-
-    #     # using the min and max make sure the crs doesn't change across grids
-    #     if crs==4326:
-    #         assert find_utm_srid(xmin, ymin, crs) == find_utm_srid(
-    #             xmax,
-    #             ymax,
-    #             crs,
-    #         ), "grid spans multiple utms"
-    #         crs_found = find_utm_srid(xmin, ymin, crs)
-
-    #         # create a temporary file for reprojection
-    #         outfile = tempfile.NamedTemporaryFile(suffix=".tif").name
-    #         # cmd = f'gdalwarp -s_srs EPSG:{crs} -t_srs EPSG:{crs_found} -r near -of GTiff {ofilename} {outfile}'
-    #         # os.system(cmd)
-
-    #         reproject_params = {
-    #             "INPUT": ofilename,
-    #             "SOURCE_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs}"),
-    #             "TARGET_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs_found}"),
-    #             "RESAMPLING": 0,
-    #             "NODATA": None,
-    #             "TARGET_RESOLUTION": None,
-    #             "OPTIONS": "",
-    #             "DATA_TYPE": 0,
-    #             "TARGET_EXTENT": None,
-    #             "TARGET_EXTENT_CRS": QgsCoordinateReferenceSystem(f"EPSG:{crs_found}"),
-    #             "MULTITHREADING": False,
-    #             "EXTRA": "",
-    #             "OUTPUT": outfile,
-    #         }
-
-    #         # reproject to a UTM crs for meters calculation
-    #         processing.run("gdal:warpreproject", reproject_params)
-
-    #         params = {
-    #             "BAND": 1,
-    #             "INPUT": outfile,
-    #             "OUTPUT_TABLE": cfile,
-    #         }
-
-    #         processing.run("native:rasterlayeruniquevaluesreport", params)
-    #         # remove the temporary file
-    #         os.remove(outfile)
-    #     else:
-    #         params = {
-    #             "BAND": 1,
-    #             "INPUT": ofilename,
-    #             "OUTPUT_TABLE": cfile,
-    #         }
-
-    #         processing.run("native:rasterlayeruniquevaluesreport", params)
-
-    #     df = pd.read_csv(cfile, encoding="cp1252")
-    #     if "m2" in df.columns:
-    #         df.rename(columns={"m2": "Area"}, inplace=True)
-    #     elif "m²" in df.columns:
-    #         df.rename(columns={"m²": "Area"}, inplace=True)
-    #     elif "Unnamed: 2" in df.columns:
-    #         df.rename(columns={"Unnamed: 2": "Area"}, inplace=True)
-    #     df = df.groupby(by=["value"]).sum().reset_index()
-
-    #     df["percentage"] = (df["Area"] / df["Area"].sum()) * 100.0
-
-    #     df["value"] = df["value"].astype(float)
-    #     # recode 0 to np.nan
-    #     df.loc[df["value"] == 0, "value"] = float("nan")
-    #     # sort ascending values
-    #     df = df.sort_values(by=["value"])
-
-    #     if stylefile is not None:
-    #         df = pd.merge(df, sdf, how="left", on="value")
-    #         df.loc[:, ["value", "label", "count", "Area", "percentage"]].to_csv(
-    #             cfile,
-    #             index=False,
-    #         )
-    #     else:
-    #         df.loc[:, ["value", "count", "Area", "percentage"]].to_csv(
-    #             cfile,
-    #             na_rep="NULL",
-    #             index=False,
-    #             )
