@@ -153,7 +153,7 @@ class TestCalculateVelocityStressors(unittest.TestCase):
             'X1': mock_xvar,
             'Y1': mock_yvar
         }
-        mock_dataset.return_value.__enter__.return_value = mock_ds_instance
+        mock_dataset.return_value = mock_ds_instance
 
         # Define inputs
         fpath_nodev = 'data/structured/devices-not-present/'
@@ -161,13 +161,12 @@ class TestCalculateVelocityStressors(unittest.TestCase):
         probabilities_file = 'data/structured/probabilities/probabilities.csv'
 
         # Execute the function under test
-        result = vm.calculate_velocity_stressors(fpath_nodev, fpath_dev, probabilities_file)
+        with patch('netCDF4.Dataset', return_value=mock_ds_instance):
+            result = vm.calculate_velocity_stressors(fpath_nodev, fpath_dev, probabilities_file)
 
         # Assertions to verify the expected outcomes
         self.assertIsInstance(result, tuple)
         self.assertEqual(len(result), 6)
-
-
 
 class TestRunVelocityStressor(unittest.TestCase):
 
