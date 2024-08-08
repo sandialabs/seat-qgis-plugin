@@ -124,6 +124,12 @@ class TestCalculateVelocityStressors(unittest.TestCase):
     @patch('os.listdir')
     @patch('netCDF4.Dataset') 
     def test_calculate_velocity_stressors(self, mock_dataset, mock_listdir):
+        current_working_directory = os.getcwd()
+        print(current_working_directory)
+
+        listed_files = os.listdir(current_working_directory)
+        print(listed_files)
+        
         # Setup mock for listdir to simulate finding specific .nc files
         mock_listdir.side_effect = lambda x: ['last_2_runs.nc'] if 'fpath_dev' in x else ['last_2_runs.nc']
 
