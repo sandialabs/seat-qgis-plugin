@@ -120,11 +120,14 @@ class TestCheckGridDefineVars(unittest.TestCase):
         # Assert
         self.assertEqual(result, expected)
 
+from unittest import mock
+
 class TestCalculateVelocityStressors(unittest.TestCase):
-    @patch('os.path.exists')
-    @patch('netCDF4.Dataset')
-    @patch('os.listdir')
-    def test_calculate_velocity_stressors(self, mock_listdir, mock_dataset, mock_exists):
+    @mock.patch('os.path.exists')
+    @mock.patch('netCDF4.Dataset')
+    @mock.patch('os.listdir')
+    @mock.patch('os.path.join', side_effect=lambda *args: '/'.join(args))
+    def test_calculate_velocity_stressors(self, mock_join, mock_listdir, mock_dataset, mock_exists):
         # Mock os.path.exists to return True for the test directories
         mock_exists.side_effect = lambda x: True
         
@@ -154,15 +157,14 @@ class TestCalculateVelocityStressors(unittest.TestCase):
             'Y1': mock_yvar
         }
         mock_dataset.return_value = mock_ds_instance
-
+    
         # Define inputs
         fpath_nodev = 'data/structured/devices-not-present/'
         fpath_dev = 'data/structured/devices-present/'
         probabilities_file = 'data/structured/probabilities/probabilities.csv'
 
         # Execute the function under test
-        with patch('netCDF4.Dataset', return_value=mock_ds_instance):
-            result = vm.calculate_velocity_stressors(fpath_nodev, fpath_dev, probabilities_file)
+        result = vm.calculate_velocity_stressors(fpath_nodev, fpath_dev, probabilities_file)
 
         # Assertions to verify the expected outcomes
         self.assertIsInstance(result, tuple)
