@@ -120,19 +120,12 @@ class TestCheckGridDefineVars(unittest.TestCase):
         # Assert
         self.assertEqual(result, expected)
 
-from unittest import mock
-
 class TestCalculateVelocityStressors(unittest.TestCase):
-    @mock.patch('os.path.exists')
-    @mock.patch('netCDF4.Dataset')
-    @mock.patch('os.listdir')
-    @mock.patch('os.path.join', side_effect=lambda *args: '/'.join(args))
-    def test_calculate_velocity_stressors(self, mock_join, mock_listdir, mock_dataset, mock_exists):
-        # Mock os.path.exists to return True for the test directories
-        mock_exists.side_effect = lambda x: True
-        
+    @patch('os.listdir')
+    @patch('netCDF4.Dataset') 
+    def test_calculate_velocity_stressors(self, mock_dataset, mock_listdir):
         # Setup mock for listdir to simulate finding specific .nc files
-        mock_listdir.side_effect = lambda x: ['last_2_runs_nodev.nc'] if 'devices-not-present' in x else ['last_2_runs_dev.nc']
+        mock_listdir.side_effect = lambda x: ['last_2_runs.nc'] if 'fpath_dev' in x else ['last_2_runs.nc']
 
         # Setup MagicMock for the netCDF dataset
         mock_u_data = np.random.rand(5, 5)  # Random data for demonstration
@@ -141,13 +134,13 @@ class TestCalculateVelocityStressors(unittest.TestCase):
         mock_y_data = np.arange(5)
 
         mock_uvar = MagicMock()
-        mock_uvar.__getitem__.return_value = mock_u_data
+        mock_uvar.data = mock_u_data
         mock_vvar = MagicMock()
-        mock_vvar.__getitem__.return_value = mock_v_data
+        mock_vvar.data = mock_v_data
         mock_xvar = MagicMock()
-        mock_xvar.__getitem__.return_value = mock_x_data
+        mock_xvar.data = mock_x_data
         mock_yvar = MagicMock()
-        mock_yvar.__getitem__.return_value = mock_y_data
+        mock_yvar.data = mock_y_data
 
         mock_ds_instance = MagicMock()
         mock_ds_instance.variables = {
@@ -157,7 +150,7 @@ class TestCalculateVelocityStressors(unittest.TestCase):
             'Y1': mock_yvar
         }
         mock_dataset.return_value = mock_ds_instance
-    
+
         # Define inputs
         fpath_nodev = 'data/structured/devices-not-present/'
         fpath_dev = 'data/structured/devices-present/'
@@ -169,6 +162,7 @@ class TestCalculateVelocityStressors(unittest.TestCase):
         # Assertions to verify the expected outcomes
         self.assertIsInstance(result, tuple)
         self.assertEqual(len(result), 6)
+
 
 class TestRunVelocityStressor(unittest.TestCase):
 
