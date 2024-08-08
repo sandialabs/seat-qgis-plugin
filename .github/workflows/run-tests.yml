@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       docker:
-        image: qgis/qgis:final-3_28_15
+        image: qgis/qgis:latest
         options: --user root
         ports:
           - 99:99
@@ -26,27 +26,7 @@ jobs:
         run: |
           docker run -d --name qgis-testing-environment \
           -v ${GITHUB_WORKSPACE}:/tests_directory \
-          -e DISPLAY=:99 qgis/qgis:final-3_28_15 tail -f /dev/null
-
-      - name: List root directory contents inside container
-        run: |
-          docker exec qgis-testing-environment sh -c "ls -l /tests_directory"
-
-      - name: List qgis_resources directory contents inside container
-        run: |
-          docker exec qgis-testing-environment sh -c "ls -l /tests_directory/seat"
-
-      - name: List test_runner directory contents inside container
-        run: |
-          docker exec qgis-testing-environment sh -c "ls -l /tests_directory/tests"
-
-      - name: List test_runner directory contents inside container
-        run: |
-          docker exec qgis-testing-environment sh -c "ls -l /tests_directory/."
-
-      - name: List test_runner directory contents inside container
-        run: |
-          docker exec qgis-testing-environment sh -c "ls -l /tests_directory/.."
+          -e DISPLAY=:99 qgis/qgis:latest tail -f /dev/null
 
       - name: Wait for Docker to be ready
         run: |
