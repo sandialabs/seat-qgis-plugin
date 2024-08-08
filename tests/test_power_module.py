@@ -197,7 +197,7 @@ class TestPowerModule(unittest.TestCase):
             'centroid': [[1.5, 2.5]],
             'width': [3],
             'height': [5]
-        }, index=['001']).astype({'width': 'int32', 'height': 'int32'})
+        }, index=['001']).astype({'width': 'int64', 'height': 'int64'})
 
 
         # Call the function
