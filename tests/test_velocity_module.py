@@ -138,13 +138,13 @@ class TestCalculateVelocityStressors(unittest.TestCase):
         mock_y_data = np.arange(5)
 
         mock_uvar = MagicMock()
-        mock_uvar.data = mock_u_data
+        mock_uvar.__getitem__.return_value = mock_u_data
         mock_vvar = MagicMock()
-        mock_vvar.data = mock_v_data
+        mock_vvar.__getitem__.return_value = mock_v_data
         mock_xvar = MagicMock()
-        mock_xvar.data = mock_x_data
+        mock_xvar.__getitem__.return_value = mock_x_data
         mock_yvar = MagicMock()
-        mock_yvar.data = mock_y_data
+        mock_yvar.__getitem__.return_value = mock_y_data
 
         mock_ds_instance = MagicMock()
         mock_ds_instance.variables = {
@@ -153,7 +153,7 @@ class TestCalculateVelocityStressors(unittest.TestCase):
             'X1': mock_xvar,
             'Y1': mock_yvar
         }
-        mock_dataset.return_value = mock_ds_instance
+        mock_dataset.return_value.__enter__.return_value = mock_ds_instance
 
         # Define inputs
         fpath_nodev = 'data/structured/devices-not-present/'
