@@ -7,10 +7,9 @@ on:
   push:
     branches:
       - main
-      - tests
 
 jobs:
-  test:
+  test-seat-package:
     runs-on: ubuntu-latest
     services:
       docker:
@@ -21,6 +20,7 @@ jobs:
 
     steps:
       - name: Checkout qgis-plugin
+<<<<<<< HEAD
         uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Fetch all history for all branches and tags
@@ -39,6 +39,9 @@ jobs:
           else
             echo ".docker directory does not exist"
           fi
+=======
+        uses: actions/checkout@v4
+>>>>>>> ab2d4cc1dece490a861369b6ec831ef17c359e49
 
       - name: Run QGIS Docker container
         run: |
@@ -66,20 +69,33 @@ jobs:
         run: |
           docker exec qgis-testing-environment sh -c "ls -l /tests_directory/.."
 
-      - name: Sleep for Xvfb
-        run: sleep 10
-
-      - name: Create and activate virtual environment, install dependencies
+      - name: Wait for Docker to be ready
         run: |
-          docker exec qgis-testing-environment sh -c "python3 -m venv /tests_directory/venv"
-          docker exec qgis-testing-environment sh -c "/tests_directory/venv/bin/pip install -r /tests_directory/tests/requirements.txt"
+          until docker exec qgis-testing-environment sh -c "ls /"; do sleep 1; done
 
-      - name: Setup QGIS and enable the plugin
+      - name: Install plugin by manually via Copy
         run: |
-          docker exec qgis-testing-environment sh -c "sh /tests_directory/.docker/qgis_resources/test_runner/qgis_setup.sh seat"
-          docker exec qgis-testing-environment sh -c "rm -f /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
-          docker exec qgis-testing-environment sh -c "ln -s /tests_directory /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/seat"
+          docker exec qgis-testing-environment sh -c '
+          PLUGIN_SRC_PATH=/tests_directory/seat
+          PLUGIN_DEST_DIR=/usr/share/qgis/python/plugins/seat
+          mkdir -p $PLUGIN_DEST_DIR
+          cp -r $PLUGIN_SRC_PATH/* $PLUGIN_DEST_DIR/
+          '
 
-      - name: Run Tests
+      - name: Install Dependencies
         run: |
-          docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/test_shear_stress.py"
+          docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/install_dependencies.py"
+
+      - name: Install Dependencies using apt
+        run: |
+          docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-pandas python3-netcdf4 python3-pytest"
+
+      - name: Run Pytest
+        run: |
+          docker exec qgis-testing-environment pytest /tests_directory/tests
+
+      - name: Clean up Docker container
+        if: always()
+        run: |
+          docker stop qgis-testing-environment
+          docker rm qgis-testing-environment
