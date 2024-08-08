@@ -152,9 +152,9 @@ class TestCalculateVelocityStressors(unittest.TestCase):
         mock_dataset.return_value = mock_ds_instance
 
         # Define inputs
-        fpath_nodev = 'data/structured/devices-not-present/'
-        fpath_dev = 'data/structured/devices-present/'
-        probabilities_file = 'data/structured/probabilities/probabilities.csv'
+        fpath_nodev = 'tests/data/structured/devices-not-present/'
+        fpath_dev = 'tests/data/structured/devices-present/'
+        probabilities_file = 'tests/data/structured/probabilities/probabilities.csv'
 
         # Execute the function under test
         result = vm.calculate_velocity_stressors(fpath_nodev, fpath_dev, probabilities_file)
