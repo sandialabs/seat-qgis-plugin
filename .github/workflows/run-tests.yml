@@ -20,28 +20,7 @@ jobs:
 
     steps:
       - name: Checkout qgis-plugin
-<<<<<<< HEAD
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Fetch all history for all branches and tags
-          submodules: true  # Ensure all submodules are fetched
-
-      - name: Verify root directory structure
-        run: ls -la
-
-      - name: Fetch hidden directories and verify .docker
-        run: |
-          git fetch --all
-          git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)
-          if [ -d ".docker" ]; then
-            echo ".docker directory exists"
-            ls -la .docker
-          else
-            echo ".docker directory does not exist"
-          fi
-=======
         uses: actions/checkout@v4
->>>>>>> ab2d4cc1dece490a861369b6ec831ef17c359e49
 
       - name: Run QGIS Docker container
         run: |
