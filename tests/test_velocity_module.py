@@ -124,14 +124,8 @@ class TestCalculateVelocityStressors(unittest.TestCase):
     @patch('os.listdir')
     @patch('netCDF4.Dataset') 
     def test_calculate_velocity_stressors(self, mock_dataset, mock_listdir):
-        current_working_directory = os.getcwd()
-        print(current_working_directory)
-
-        listed_files = os.listdir(current_working_directory)
-        print(listed_files)
-        
         # Setup mock for listdir to simulate finding specific .nc files
-        mock_listdir.side_effect = lambda x: ['last_2_runs.nc'] if 'fpath_dev' in x else ['last_2_runs.nc']
+        mock_listdir.side_effect = lambda x: ['last_2_runs.nc'] if 'devices-present' in x else ['last_2_runs.nc']
 
         # Setup MagicMock for the netCDF dataset
         mock_u_data = np.random.rand(5, 5)  # Random data for demonstration
@@ -140,13 +134,13 @@ class TestCalculateVelocityStressors(unittest.TestCase):
         mock_y_data = np.arange(5)
 
         mock_uvar = MagicMock()
-        mock_uvar.data = mock_u_data
+        mock_uvar.__getitem__.return_value = mock_u_data
         mock_vvar = MagicMock()
-        mock_vvar.data = mock_v_data
+        mock_vvar.__getitem__.return_value = mock_v_data
         mock_xvar = MagicMock()
-        mock_xvar.data = mock_x_data
+        mock_xvar.__getitem__.return_value = mock_x_data
         mock_yvar = MagicMock()
-        mock_yvar.data = mock_y_data
+        mock_yvar.__getitem__.return_value = mock_y_data
 
         mock_ds_instance = MagicMock()
         mock_ds_instance.variables = {
@@ -157,18 +151,17 @@ class TestCalculateVelocityStressors(unittest.TestCase):
         }
         mock_dataset.return_value = mock_ds_instance
 
-        # Define inputs
-        fpath_nodev = 'tests/data/structured/devices-not-present/'
-        fpath_dev = 'tests/data/structured/devices-present/'
-        probabilities_file = 'tests/data/structured/probabilities/probabilities.csv'
+        # Define inputs using os.path.join
+        current_working_directory = os.getcwd()
+        fpath_nodev = os.path.join(current_working_directory, 'tests', 'data', 'structured', 'devices-not-present')
+        fpath_dev = os.path.join(current_working_directory, 'tests', 'data', 'structured', 'devices-present')
 
         # Execute the function under test
-        result = vm.calculate_velocity_stressors(fpath_nodev, fpath_dev, probabilities_file)
+        result = vm.calculate_velocity_stressors(fpath_nodev, fpath_dev)
 
         # Assertions to verify the expected outcomes
         self.assertIsInstance(result, tuple)
         self.assertEqual(len(result), 6)
-
 
 class TestRunVelocityStressor(unittest.TestCase):
 
