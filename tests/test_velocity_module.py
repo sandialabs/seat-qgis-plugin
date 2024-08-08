@@ -155,9 +155,10 @@ class TestCalculateVelocityStressors(unittest.TestCase):
         current_working_directory = os.getcwd()
         fpath_nodev = os.path.join(current_working_directory, 'tests', 'data', 'structured', 'devices-not-present')
         fpath_dev = os.path.join(current_working_directory, 'tests', 'data', 'structured', 'devices-present')
+        probabilities_file = os.path.join(current_working_directory, 'tests', 'data', 'structured', 'probabilities', 'probabilities.csv')
 
         # Execute the function under test
-        result = vm.calculate_velocity_stressors(fpath_nodev, fpath_dev)
+        result = vm.calculate_velocity_stressors(fpath_nodev, fpath_dev, probabilities_file)
 
         # Assertions to verify the expected outcomes
         self.assertIsInstance(result, tuple)
