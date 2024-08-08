@@ -129,7 +129,7 @@ class TestCalculateVelocityStressors(unittest.TestCase):
         mock_exists.side_effect = lambda x: True
         
         # Setup mock for listdir to simulate finding specific .nc files
-        mock_listdir.side_effect = lambda x: ['last_2_runs.nc'] if 'fpath_dev' in x else ['last_2_runs.nc']
+        mock_listdir.side_effect = lambda x: ['last_2_runs_nodev.nc'] if 'devices-not-present' in x else ['last_2_runs_dev.nc']
 
         # Setup MagicMock for the netCDF dataset
         mock_u_data = np.random.rand(5, 5)  # Random data for demonstration
