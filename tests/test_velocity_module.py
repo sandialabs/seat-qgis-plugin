@@ -152,10 +152,9 @@ class TestCalculateVelocityStressors(unittest.TestCase):
         mock_dataset.return_value = mock_ds_instance
 
         # Define inputs using os.path.join
-        current_working_directory = os.getcwd()
-        fpath_nodev = os.path.join(current_working_directory, 'data', 'structured', 'devices-not-present')
-        fpath_dev = os.path.join(current_working_directory, 'data', 'structured', 'devices-present')
-        probabilities_file = os.path.join(current_working_directory, 'data', 'structured', 'probabilities', 'probabilities.csv')
+        fpath_nodev = os.path.join(script_dir, 'data', 'structured', 'devices-not-present')
+        fpath_dev = os.path.join(script_dir, 'data', 'structured', 'devices-present')
+        probabilities_file = os.path.join(script_dir, 'data', 'structured', 'probabilities', 'probabilities.csv')
 
         # Execute the function under test
         result = vm.calculate_velocity_stressors(fpath_nodev, fpath_dev, probabilities_file)
