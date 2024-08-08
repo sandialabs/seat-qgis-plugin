@@ -123,7 +123,7 @@ class TestCheckGridDefineVars(unittest.TestCase):
 class TestCalculateVelocityStressors(unittest.TestCase):
     @patch('os.listdir')
     @patch('netCDF4.Dataset') 
-    def test_calculate_velocity_stressors(self, mock_dataset, mock_listdir):
+    def test_calculate_velocity_stressors(self, mock_exists, mock_dataset, mock_listdir):
         # Setup mock for listdir to simulate finding specific .nc files
         mock_listdir.side_effect = lambda x: ['last_2_runs.nc'] if 'fpath_dev' in x else ['last_2_runs.nc']
 
@@ -150,6 +150,9 @@ class TestCalculateVelocityStressors(unittest.TestCase):
             'Y1': mock_yvar
         }
         mock_dataset.return_value = mock_ds_instance
+
+        # Mock os.path.exists to return True for the test directories
+        mock_exists.side_effect = lambda x: True
 
         # Define inputs
         fpath_nodev = 'data/structured/devices-not-present/'
