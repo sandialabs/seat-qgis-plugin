@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - main
+      - tests
 
 jobs:
   test-seat-package:
