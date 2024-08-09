@@ -34,7 +34,7 @@ from ..utils.stressor_utils import (
     numpy_array_to_raster,
     classify_layer_area,
     bin_layer,
-    classify_layer_area_2nd_Constraint,
+    classify_layer_area_2nd_constraint,
     resample_structured_grid,
     secondary_constraint_geotiff_to_numpy
 )
