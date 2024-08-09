@@ -57,9 +57,6 @@ jobs:
       - name: List files in the directory
         run: ls -la
 
-      - name: Display the contents of requirements.txt
-        run: cat /docs/requirements.txt
-
       - name: Run Pytest
         run: |
           docker exec qgis-testing-environment pytest /tests_directory/tests
