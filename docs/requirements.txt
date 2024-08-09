@@ -2,4 +2,3 @@ sphinx_rtd_theme
 sphinx_rtd_dark_mode
 sphinx_copybutton
 sphinx_autodoc_typehints
-pandas
