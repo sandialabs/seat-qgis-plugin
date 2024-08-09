@@ -320,18 +320,6 @@ def reset_bc_data_order(bc_data):
         bc_data = bc_data.sort()
 
 
-def roundup_placevalue(x, decimal=5):
-    #Round up to the nearest place
-    # +decimal = round up to the defined decimal place
-    # -decimal = round up to the nearest 10
-    # e.g. for value 100.12345, decimal -3 = 1000, decimal 3 = 100.124
-    decimal = float(decimal)
-    if decimal >= 0:
-        rounded = np.ceil(x * 10**decimal) / 10**decimal
-    else:
-        rounded = np.ceil(x / 10**(-1*decimal)) * 10**(-1*decimal)
-    return rounded
-
 def roundup(x, val=2):
     rounded = np.ceil(x)
     while np.mod(rounded, val) != 0:
