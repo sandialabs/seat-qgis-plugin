@@ -49,6 +49,10 @@ jobs:
         run: |
           docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-pandas python3-netcdf4 python3-pytest"
 
+      - name: Check pandas version
+        run: |
+          python -c "import pandas as pd; print(f'Pandas version: {pd.__version__}')"
+
       - name: Run Pytest
         run: |
           docker exec qgis-testing-environment pytest /tests_directory/tests
