@@ -221,7 +221,7 @@ def calc_receptor_array(receptor_filename, x, y, latlon=False, mask=None):
                 receptor_filename, header=None, index_col=0).to_numpy().item() * np.ones(x.shape)
         else:
             raise Exception(
-                f"Invalid Recetpor File {receptor_filename}. Must be of type .tif or .csv")
+                f"Invalid Receptor File {receptor_filename}. Must be of type .tif or .csv")
     else:
         # taucrit without a receptor
         # Assume the following grain sizes and conditions for typical beach sand (Nielsen, 1992 p.108)
