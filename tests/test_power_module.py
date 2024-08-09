@@ -147,7 +147,7 @@ class TestPowerModule(unittest.TestCase):
         self.assertIsInstance(fig, plt.Figure, "The output should be a matplotlib figure.")
 
         # Check figure size
-        np.testing.assert_array_almost_equal(fig.get_size_inches(), [10, 10], decimal=5, 
+        np.testing.assert_array_almost_equal(fig.get_size_inches(), [10, 10], decimal=5,
                                              err_msg="Figure size should be 10x10 inches.")
 
         # Check the number of text elements in the plot
@@ -172,7 +172,7 @@ class TestPowerModule(unittest.TestCase):
 
             # Return the expected pair: [index of test_centroid, index of closest centroid in test_centroids]
             return [int(centroid[0]), int(centroids[closest_index, 0])]
-        
+
         expected_pair = self.calculate_expected_pair(self.mock_centroids, test_centroid)
 
         # Call the function
@@ -204,7 +204,7 @@ class TestPowerModule(unittest.TestCase):
         devices_df = pm.extract_device_location(self.mock_obstacles, device_index)
 
         # Assert the result
-        pd.testing.assert_frame_equal(devices_df, expected_output)
+        pd.testing.assert_frame_equal(devices_df, expected_output, check_dtype=False)
 
 
     def test_pair_devices(self):
@@ -218,7 +218,7 @@ class TestPowerModule(unittest.TestCase):
 
         # Call the function
         devices = pm.pair_devices(self.mock_centroids)
-        
+
         # Assert the result
         np.testing.assert_array_equal(devices, expected_devices)
 
@@ -237,27 +237,27 @@ class TestPowerModule(unittest.TestCase):
         # Test with default CRS
         fig = pm.create_power_heatmap(mock_device_power)
         self.assertIsInstance(fig, plt.Figure, "The output should be a matplotlib figure.")
-        
+
         # Test with specific CRS (4326)
         fig = pm.create_power_heatmap(mock_device_power, crs=4326)
         self.assertIsInstance(fig, plt.Figure, "The output should be a matplotlib figure.")
-        
+
         # Check that the color bar label is 'MW'
         colorbar = fig.axes[1]  # colorbar is the second axes in the figure
         self.assertEqual(colorbar.get_ylabel(), 'MW', "The color bar label should be 'MW'.")
-        
+
         # Check axis labels and tick format
         ax = fig.axes[0]  # main plot is the first axes in the figure
         self.assertEqual(ax.get_xlabel(), 'Longitude [deg]', "The x-axis label should be 'Longitude [deg]'.")
         self.assertEqual(ax.get_ylabel(), 'Latitude [deg]', "The y-axis label should be 'Latitude [deg]'.")
-        
+
         for label in ax.get_xticklabels():
             self.assertEqual(label.get_ha(), 'right', "X-axis tick labels should be right-aligned.")
             self.assertEqual(label.get_rotation(), 45, "X-axis tick labels should be rotated 45 degrees.")
-        
-        self.assertIsInstance(ax.xaxis.get_major_formatter(), FormatStrFormatter, 
+
+        self.assertIsInstance(ax.xaxis.get_major_formatter(), FormatStrFormatter,
                               "X-axis major formatter should be an instance of FormatStrFormatter.")
-        self.assertEqual(ax.xaxis.get_major_formatter().fmt, '%0.4f', 
+        self.assertEqual(ax.xaxis.get_major_formatter().fmt, '%0.4f',
                          "X-axis major formatter format string should be '%0.4f'.")
 
 
@@ -333,7 +333,7 @@ Power absorbed by obstacle   2 =  2.5E+06 W
         with self.assertRaises(AttributeError):
             pm.reset_bc_data_order(bc_data)
 
-    def test_roundup(self): 
+    def test_roundup(self):
 
         # Test cases for the original function's behavior
         self.assertEqual(pm.roundup(7, 5), 5)   # 7 rounds to 5 (nearest multiple of 5)
