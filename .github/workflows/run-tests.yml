@@ -58,7 +58,7 @@ jobs:
         run: ls -la
 
       - name: Display the contents of requirements.txt
-        run: cat requirements.txt
+        run: cat /docs/requirements.txt
 
       - name: Run Pytest
         run: |
