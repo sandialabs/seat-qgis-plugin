@@ -321,10 +321,7 @@ def reset_bc_data_order(bc_data):
 
 
 def roundup(x, val=2):
-    rounded = np.ceil(x)
-    while np.mod(rounded, val) != 0:
-        rounded += 1
-    return rounded
+    return np.ceil(x / val) * val
 
 
 def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
