@@ -81,7 +81,7 @@ class TestShearStress(unittest.TestCase):
 
         This test checks if the critical shear stress values calculated by the
         critical_shear_stress function match the expected values for a given set of grain sizes.
-        The expected values are predetermined and the test checks for a close match with 
+        The expected values are predetermined and the test checks for a close match with
         a specific decimal precision.
 
         Parameters:
@@ -134,27 +134,59 @@ class TestShearStress(unittest.TestCase):
 
     def test_check_grid_define_vars(self):
         """
-        Test the check_grid_define_vars function with a mock dataset.
+        Test the check_grid_define_vars function with both structured and unstructured datasets.
 
         This test checks if the function correctly identifies the type of grid (structured or unstructured),
         along with the names of the x-coordinate, y-coordinate, and shear stress variables in the dataset.
         """
-        # Open and use the mock netCDF dataset
-        with netCDF4.Dataset(self.mock_netcdf_data, 'r') as mock_dataset:
-            expected_gridtype = 'structured'
-            expected_xvar = 'x_coord'
-            expected_yvar = 'y_coord'
-            expected_tauvar = 'TAUMAX'
 
-            # Call the function with the mock dataset
-            gridtype, xvar, yvar, tauvar = ssm.check_grid_define_vars(
-                mock_dataset)
+        # Specify the paths to the structured .nc files
+        structured_data_paths = [
+            'tests/data/structured/devices-not-present/last_2_runs.nc',
+            'tests/data/structured/devices-present/last_2_runs.nc'
+        ]
 
-            # Assert the function returns the expected values
-            self.assertEqual(gridtype, expected_gridtype)
-            self.assertEqual(xvar, expected_xvar)
-            self.assertEqual(yvar, expected_yvar)
-            self.assertEqual(tauvar, expected_tauvar)
+        # Specify the paths to the unstructured .nc files
+        unstructured_data_paths = [
+            'tests/data/unstructured/mec-not-present/0_tanana_1_map_downsampled.nc',
+            'tests/data/unstructured/mec-not-present/0_tanana_100_map_downsampled.nc',
+            'tests/data/unstructured/mec-present/9_tanana_1_map_downsampled.nc',
+            'tests/data/unstructured/mec-present/9_tanana_100_map_downsampled.nc'
+        ]
+
+        # Test structured data
+        for path in structured_data_paths:
+            with netCDF4.Dataset(path, 'r') as dataset:
+                expected_gridtype = 'structured'
+                expected_xvar = 'XZ'
+                expected_yvar = 'YZ'
+                expected_tauvar = 'TAUMAX'
+
+                # Call the function with the actual dataset
+                gridtype, xvar, yvar, tauvar = ssm.check_grid_define_vars(dataset)
+
+                # Assert the function returns the expected values
+                self.assertEqual(gridtype, expected_gridtype)
+                self.assertEqual(xvar, expected_xvar)
+                self.assertEqual(yvar, expected_yvar)
+                self.assertEqual(tauvar, expected_tauvar)
+
+        # Test unstructured data
+        for path in unstructured_data_paths:
+            with netCDF4.Dataset(path, 'r') as dataset:
+                expected_gridtype = 'unstructured'
+                expected_xvar = 'FlowElem_xcc'  # Adjust based on your variables
+                expected_yvar = 'FlowElem_ycc'  # Adjust based on your variables
+                expected_tauvar = 'taus'
+
+                # Call the function with the actual dataset
+                gridtype, xvar, yvar, tauvar = ssm.check_grid_define_vars(dataset)
+
+                # Assert the function returns the expected values
+                self.assertEqual(gridtype, expected_gridtype)
+                self.assertEqual(xvar, expected_xvar)
+                self.assertEqual(yvar, expected_yvar)
+                self.assertEqual(tauvar, expected_tauvar)
 
     def test_calculate_shear_stress_stressors(self):
         """
@@ -188,7 +220,7 @@ class TestShearStress(unittest.TestCase):
                 self.dev_present,
                 self.dev_not_present,
                 self.probabilities,
-                crs=4326,  
+                crs=4326,
                 output_path=output_path,
                 receptor_filename=self.receptor,
                 secondary_constraint_filename=None
