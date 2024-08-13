@@ -142,16 +142,16 @@ class TestShearStress(unittest.TestCase):
 
         # Specify the paths to the structured .nc files
         structured_data_paths = [
-            'tests/data/structured/devices-not-present/last_2_runs.nc',
-            'tests/data/structured/devices-present/last_2_runs.nc'
+            'tests_directory/tests/data/structured/devices-not-present/last_2_runs.nc',
+            'tests_directory/tests/data/structured/devices-present/last_2_runs.nc'
         ]
 
         # Specify the paths to the unstructured .nc files
         unstructured_data_paths = [
-            'tests/data/unstructured/mec-not-present/0_tanana_1_map_downsampled.nc',
-            'tests/data/unstructured/mec-not-present/0_tanana_100_map_downsampled.nc',
-            'tests/data/unstructured/mec-present/9_tanana_1_map_downsampled.nc',
-            'tests/data/unstructured/mec-present/9_tanana_100_map_downsampled.nc'
+            'tests_directory/tests/data/unstructured/mec-not-present/0_tanana_1_map_downsampled.nc',
+            'tests_directory/tests/data/unstructured/mec-not-present/0_tanana_100_map_downsampled.nc',
+            'tests_directory/tests/data/unstructured/mec-present/9_tanana_1_map_downsampled.nc',
+            'tests_directory/tests/data/unstructured/mec-present/9_tanana_100_map_downsampled.nc'
         ]
 
         # Test structured data
