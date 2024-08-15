@@ -900,6 +900,3 @@ class StressorReceptorCalc:
             group_layer = root.findGroup("temporary")
             if group_layer is not None:
                 root.removeChildNode(group_layer)
-            
-            # close and remove the filehandler
-        # fh.close()
