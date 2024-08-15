@@ -25,7 +25,7 @@ from netCDF4 import Dataset
 import pandas as pd
 from osgeo import gdal, osr
 import numpy as np
-from ..utils.stressor_utils import (
+from utils.stressor_utils import (
     redefine_structured_grid,
     create_raster,
     numpy_array_to_raster,
@@ -172,7 +172,9 @@ def calc_SEL_cum(SEL, duration_seconds):
     array 
         cumulative SEL
     """
-    return SEL + 10 * np.log10(duration_seconds)
+    with np.errstate(divide='ignore'):
+        cum_sel = SEL + 10 * np.log10(duration_seconds)
+    return cum_sel
 
 def calc_probabilistic_metrics(
     paracousti_files,
@@ -644,9 +646,9 @@ def calculate_acoustic_stressors(
         XCOR,
         YCOR,
         latlon,
-        metric_calc = 'SPL',
-        species_folder=None,
-        grid_res_species=0,
+        metric_calc = metric_calc,
+        species_folder=species_folder,
+        grid_res_species=grid_res_species,
         sel_hours=24,
     )
 
