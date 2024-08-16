@@ -3,6 +3,9 @@ import os
 import netCDF4
 import unittest
 import numpy as np
+import pandas as pd
+import rasterio
+import time
 
 from os.path import join
 
@@ -38,7 +41,13 @@ class TestShearStress(unittest.TestCase):
         cls.dev_present = join(script_dir, "data/structured/devices-present")
         cls.dev_not_present = join(script_dir, "data/structured/devices-not-present")
         cls.probabilities = join(script_dir, "data/structured/probabilities/probabilities.csv")
-        cls.receptor = join(script_dir, "data/structured/receptor/grain_size_receptor.csv")
+        cls.receptor_structured = join(script_dir, "data/structured/receptor/grain_size_receptor.csv")
+
+        # unstructured test cases
+        cls.mec_present = join(script_dir, "data/unstructured/mec-present")
+        cls.mec_not_present = join(script_dir, "data/unstructured/mec-not-present")
+        cls.receptor_unstructured = join(script_dir, "data/unstructured/receptor/grain_size_receptor.csv")
+
 
     @classmethod
     def tearDownClass(cls):
@@ -140,21 +149,12 @@ class TestShearStress(unittest.TestCase):
         along with the names of the x-coordinate, y-coordinate, and shear stress variables in the dataset.
         """
 
-        # Specify the paths to the structured .nc files
-        structured_data_paths = [
-            'tests_directory/tests/data/structured/devices-not-present/last_2_runs.nc',
-            'tests_directory/tests/data/structured/devices-present/last_2_runs.nc'
-        ]
-
-        # Specify the paths to the unstructured .nc files
-        unstructured_data_paths = [
-            'tests_directory/tests/data/unstructured/mec-not-present/0_tanana_1_map_downsampled.nc',
-            'tests_directory/tests/data/unstructured/mec-not-present/0_tanana_100_map_downsampled.nc',
-            'tests_directory/tests/data/unstructured/mec-present/9_tanana_1_map_downsampled.nc',
-            'tests_directory/tests/data/unstructured/mec-present/9_tanana_100_map_downsampled.nc'
-        ]
-
         # Test structured data
+        structured_data_paths = [
+            join(self.dev_not_present, 'downsampled_devices_not_present_data.nc'),
+            join(self.dev_present, 'downsampled_devices_present_data.nc')
+        ]
+
         for path in structured_data_paths:
             with netCDF4.Dataset(path, 'r') as dataset:
                 expected_gridtype = 'structured'
@@ -172,11 +172,18 @@ class TestShearStress(unittest.TestCase):
                 self.assertEqual(tauvar, expected_tauvar)
 
         # Test unstructured data
+        unstructured_data_paths = [
+            join(self.mec_not_present, 'downsampled_0_tanana_1_map.nc'),
+            join(self.mec_not_present, 'downsampled_0_tanana_100_map.nc'),
+            join(self.mec_present, 'downsampled_9_tanana_1_map.nc'),
+            join(self.mec_present, 'downsampled_9_tanana_100_map.nc')
+        ]
+
         for path in unstructured_data_paths:
             with netCDF4.Dataset(path, 'r') as dataset:
                 expected_gridtype = 'unstructured'
-                expected_xvar = 'FlowElem_xcc'  # Adjust based on your variables
-                expected_yvar = 'FlowElem_ycc'  # Adjust based on your variables
+                expected_xvar = 'FlowElem_xcc'
+                expected_yvar = 'FlowElem_ycc'
                 expected_tauvar = 'taus'
 
                 # Call the function with the actual dataset
@@ -188,15 +195,81 @@ class TestShearStress(unittest.TestCase):
                 self.assertEqual(yvar, expected_yvar)
                 self.assertEqual(tauvar, expected_tauvar)
 
-    def test_calculate_shear_stress_stressors(self):
+
+    def test_calculate_shear_stress_stressors_structured(self):
         """
-        Test the calculate_shear_stress_stressors function.
+        Test the calculate_shear_stress_stressors function on structured data.
         """
+        # Run the function
         dict_output, rx, ry, dx, dy, gridtype = ssm.calculate_shear_stress_stressors(
             self.dev_not_present,
             self.dev_present,
             self.probabilities,
+            self.receptor_structured
         )
+
+        # Define the expected sums
+        full_data_expected_sums = {
+            'shear_stress_without_devices': 110.32331474850807,
+            'shear_stress_with_devices': 106.63594042402838,
+            'shear_stress_difference': -3.687734244768775,
+            'sediment_mobility_without_devices': 642.1052266345778,
+            'sediment_mobility_with_devices': 620.6439214544148,
+            'sediment_mobility_difference': -21.461305180162974,
+            'sediment_mobility_classified': -3499.0,
+            'sediment_grain_size': 555750.0,
+            'shear_stress_risk_metric': -307.46130518016304
+        }
+
+        # Assert sums are almost equal to the expected values
+        for key, expected_sum in full_data_expected_sums.items():
+            actual_sum = np.nan_to_num(dict_output[key]).sum()
+            self.assertAlmostEqual(actual_sum, expected_sum, places=3, msg=f"Sum mismatch for {key}")
+
+        # Define expected values for spatial parameters
+        expected_rx_first_5 = [0.0, 235.7164, 235.7164, 235.7164, 235.7164]
+        expected_ry_first_5 = [0.0, 44.485, 44.489, 44.494, 44.5]
+        expected_dx = 4.2132072
+        expected_dy = 1.1755131
+        expected_gridtype = 'structured'
+
+        # Assert first values of rx, ry, and grid parameters
+        np.testing.assert_array_almost_equal(rx.flatten()[:5], expected_rx_first_5, decimal=3)
+        np.testing.assert_array_almost_equal(ry.flatten()[:5], expected_ry_first_5, decimal=3)
+        self.assertAlmostEqual(dx, expected_dx)
+        self.assertAlmostEqual(dy, expected_dy)
+        self.assertEqual(gridtype, expected_gridtype)
+
+
+    def test_calculate_shear_stress_stressors_unstructured(self):
+        """
+        Test the calculate_shear_stress_stressors function on unstructured data.
+        """
+        # Run the function
+        dict_output, rx, ry, dx, dy, gridtype = ssm.calculate_shear_stress_stressors(
+            self.mec_not_present,
+            self.mec_present,
+            probabilities_file='',
+            receptor_filename=self.receptor_unstructured
+        )
+
+        # Expected sums
+        full_data_expected_sums = {
+            'shear_stress_without_devices': 296.91102233867286,
+            'shear_stress_with_devices': 296.61976787324215,
+            'shear_stress_difference': -0.2912544653693292,
+            'sediment_mobility_without_devices': 1728.085488765766,
+            'sediment_mobility_with_devices': 1726.3903256457688,
+            'sediment_mobility_difference': -1.695163120500652,
+            'sediment_mobility_classified': -100961.0,
+            'sediment_grain_size': 44500.0,
+            'shear_stress_risk_metric': -524.3627767249327
+        }
+        expected_rx = 399974.68467022
+        expected_ry = 7160695.08352798
+        expected_dx = 37.78892640129551
+        expected_dy = 37.78892640129551
+        expected_gridtype = 'unstructured'
 
         self.assertIsInstance(dict_output, dict)
         self.assertIsInstance(rx, np.ndarray)
@@ -205,51 +278,169 @@ class TestShearStress(unittest.TestCase):
         self.assertTrue(isinstance(dy, float) or isinstance(dy, np.floating))
         self.assertIsInstance(gridtype, str)
 
+        # Calculate and assert sums
+        for key, expected_sum in full_data_expected_sums.items():
+            actual_sum = np.nan_to_num(dict_output[key]).sum()
+            self.assertAlmostEqual(actual_sum, expected_sum, places=4, msg=f"Sum mismatch for {key}")
 
-    def test_run_shear_stress_stressor(self):
-            """
-            Test the run_shear_stress_stressor function to ensure it correctly processes input data
-            and generates the expected geotiffs and area change statistics files.
-            """
-            output_path = "test_output"  # Define a directory for test outputs
-            if not os.path.exists(output_path):
-                os.makedirs(output_path)
+        np.testing.assert_array_almost_equal(rx[0,0], expected_rx)
+        np.testing.assert_array_almost_equal(ry[0,0], expected_ry)
+        self.assertAlmostEqual(dx, expected_dx)
+        self.assertAlmostEqual(dy, expected_dy)
+        self.assertEqual(gridtype, expected_gridtype)
 
-            # Call the function with test data
-            result = ssm.run_shear_stress_stressor(
-                self.dev_present,
-                self.dev_not_present,
-                self.probabilities,
-                crs=4326,
-                output_path=output_path,
-                receptor_filename=self.receptor,
-                secondary_constraint_filename=None
-            )
 
-            # Verify that the function returns a dictionary with the expected keys
-            expected_keys = [
+    def test_run_shear_stress_stressor_structured(self):
+        """
+        Test the run_shear_stress_stressor function to ensure it correctly processes input data,
+        generates the expected GeoTIFFs and area change statistics files, and print data values for inspection.
+        """
+        output_path = "test_output_structured"  # Define a directory for test outputs
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+
+        # Call the function with test data
+        result = ssm.run_shear_stress_stressor(
+            self.dev_present,
+            self.dev_not_present,
+            self.probabilities,
+            crs=4326,
+            output_path=output_path,
+            receptor_filename=self.receptor_structured,
+            secondary_constraint_filename=None
+        )
+
+        # Verify that the function returns a dictionary with the expected keys
+        expected_keys = [
             'shear_stress_without_devices', 'shear_stress_with_devices', 'shear_stress_difference',
             'sediment_mobility_without_devices', 'sediment_mobility_with_devices', 'sediment_mobility_difference',
             'sediment_mobility_classified', 'sediment_grain_size', 'shear_stress_risk_metric'
         ]
-            self.assertIsInstance(result, dict)
-            for key in expected_keys:
-                self.assertIn(key, result)
-                self.assertTrue(os.path.isfile(result[key]))
 
-            # Clean up test output files
-            for file_path in result.values():
-                if os.path.exists(file_path):
-                    os.remove(file_path)
+        # Hardcoded expected mean values
+        expected_means = {
+            'shear_stress_without_devices': 0.0496281236410141,
+            'shear_stress_with_devices': 0.047969382256269455,
+            'shear_stress_difference': -0.0016587378922849894,
+            'sediment_mobility_without_devices': 0.2888462543487549,
+            'sediment_mobility_with_devices': 0.2791920602321625,
+            'sediment_mobility_difference': -0.009654208086431026,
+            'sediment_mobility_classified': -1.573999047279358,
+            'sediment_grain_size': 250.0,
+            'shear_stress_risk_metric': -0.1478179395198822
+        }
 
-            # Remove any additional files in the directory
-            for file in os.listdir(output_path):
-                file_path = os.path.join(output_path, file)
-                if os.path.isfile(file_path):
-                    os.remove(file_path)
+        self.assertIsInstance(result, dict)
+        for key in expected_keys:
+            self.assertIn(key, result)
 
-            # Now remove the directory
-            os.rmdir(output_path)
+            # Check that the file was created
+            file_path = result[key]
+            self.assertTrue(os.path.isfile(file_path), f"GeoTIFF file '{file_path}' was not created.")
+
+            # Validate that the file is a valid GeoTIFF
+            with rasterio.open(file_path) as src:
+                self.assertEqual(src.count, 1, f"GeoTIFF '{file_path}' should have exactly one band.")
+                self.assertEqual(src.driver, 'GTiff', f"File '{file_path}' is not a valid GeoTIFF.")
+
+            # Calculate and assert the mean of the data in each GeoTIFF file
+            with rasterio.open(file_path) as src:
+                data = src.read(1)  # Read the first band (assuming it's single-band)
+                mean_value = np.nanmean(data)  # Calculate the mean, ignoring NaNs
+
+                # Assert the mean value is almost equal to the expected mean
+                self.assertAlmostEqual(mean_value, expected_means[key], places=5, msg=f"Mean mismatch for {key}")
+
+        # Clean up test output files
+        for file_path in result.values():
+            if os.path.exists(file_path):
+                os.remove(file_path)
+
+        # Remove any additional files in the directory
+        for file in os.listdir(output_path):
+            file_path = os.path.join(output_path, file)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+
+        # Now remove the directory
+        os.rmdir(output_path)
+
+    def test_run_shear_stress_stressor_unstructured(self):
+        """
+        Test the run_shear_stress_stressor function to ensure it correctly processes unstructured input data,
+        generates the expected GeoTIFFs and area change statistics files, and print data values for inspection.
+        """
+        output_path = "test_output_unstructured"  # Define a directory for test outputs
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+
+        # Call the function with unstructured test data
+        result = ssm.run_shear_stress_stressor(
+            self.mec_present,
+            self.mec_not_present,
+            probabilities_file='',
+            crs=4326,
+            output_path=output_path,
+            receptor_filename=self.receptor_unstructured,
+            secondary_constraint_filename=None
+        )
+
+        # Verify that the function returns a dictionary with the expected keys
+        expected_keys = [
+            'shear_stress_without_devices', 'shear_stress_with_devices', 'shear_stress_difference',
+            'sediment_mobility_without_devices', 'sediment_mobility_with_devices', 'sediment_mobility_difference',
+            'sediment_mobility_classified', 'sediment_grain_size', 'shear_stress_risk_metric'
+        ]
+
+        expected_means = {
+            'shear_stress_without_devices': 1.6680394411087036,
+            'shear_stress_with_devices': 1.66640305519104,
+            'shear_stress_difference': -0.001636261004023254,
+            'sediment_mobility_without_devices': 9.708345413208008,
+            'sediment_mobility_with_devices': 9.698822021484375,
+            'sediment_mobility_difference': -0.009523387998342514,
+            'sediment_mobility_classified': -84.84117889404297,
+            'sediment_grain_size': 250.0,
+            'shear_stress_risk_metric': -2.9458580017089844
+        }
+
+        self.assertIsInstance(result, dict)
+        for key in expected_keys:
+            self.assertIn(key, result)
+
+            # Check that the file was created
+            file_path = result[key]
+            self.assertTrue(os.path.isfile(file_path), f"GeoTIFF file '{file_path}' was not created.")
+
+            # Validate that the file is a valid GeoTIFF
+            with rasterio.open(file_path) as src:
+                self.assertEqual(src.count, 1, f"GeoTIFF '{file_path}' should have exactly one band.")
+                self.assertEqual(src.driver, 'GTiff', f"File '{file_path}' is not a valid GeoTIFF.")
+
+            # Calculate and assert the mean of the data in each GeoTIFF file
+            with rasterio.open(file_path) as src:
+                data = src.read(1)  # Read the first band (assuming it's single-band)
+                mean_value = np.nanmean(data)  # Calculate the mean, ignoring NaNs
+
+                # Assert the mean value is almost equal to the expected mean
+                self.assertAlmostEqual(mean_value, expected_means[key], places=5, msg=f"Mean mismatch for {key}")
+
+
+        # Clean up test output files
+        for file_path in result.values():
+            if os.path.exists(file_path):
+                os.remove(file_path)
+
+        # Remove any additional files in the directory
+        for file in os.listdir(output_path):
+            file_path = os.path.join(output_path, file)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+
+        # Now remove the directory
+        os.rmdir(output_path)
+
+
 
 def run_all():
     suite = unittest.TestSuite()

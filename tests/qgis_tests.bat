@@ -12,9 +12,11 @@ set "PYTHONHOME=%QGIS_ROOT%\apps\Python312"
 set "PATH=%QGIS_ROOT%\bin;%QGIS_ROOT%\apps\qgis-ltr\bin;%PATH%"
 
 :: Install dependencies
-@REM "%QGIS_ROOT%\bin\python.exe"  install_dependencies.py "C:\\Program Files\\QGIS 3.34.9\\bin\\python.exe"
+@REM "%QGIS_ROOT%\bin\python.exe"  tests\install_dependencies.py "C:\\Program Files\\QGIS 3.34.9\\bin\\python.exe"
 
 :: Run pytest on all test scripts in the directory
-"%QGIS_ROOT%\bin\python.exe" -m pytest .
-@REM "%QGIS_ROOT%\bin\python.exe" test_stressor_receptor_calc.py
+@REM "%QGIS_ROOT%\bin\python.exe" -m pytest .
+@REM "%QGIS_ROOT%\bin\python.exe" -m pytest -s tests\test_shear_stress.py
+
+"%QGIS_ROOT%\bin\python.exe" tests\test_shear_stress.py
 
