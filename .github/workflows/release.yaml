@@ -2,7 +2,7 @@ name: Release
 on:
   push:
     tags:
-      - "*"
+      - '*'
 
 jobs:
   build:
@@ -15,10 +15,14 @@ jobs:
           mv ./seat_qgis_plugin/seat/* ./seat_qgis_plugin
           rm -rf ./seat_qgis_plugin/seat create_zip.sh
           ls ./seat_qgis_plugin
+
       - name: Archive Release
         run: zip -qq -r ./seat_qgis_plugin.zip ./seat_qgis_plugin/
+
       - name: Upload Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "seat_qgis_plugin.zip"
+          artifacts: 'seat_qgis_plugin.zip'
           token: ${{ secrets.GITHUB_TOKEN }}
+          allowUpdates: true
+          tag: ${{ github.ref }}
