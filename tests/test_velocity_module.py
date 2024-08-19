@@ -125,7 +125,7 @@ class TestCalculateVelocityStressors(unittest.TestCase):
     @patch('netCDF4.Dataset')
     def test_calculate_velocity_stressors(self, mock_dataset, mock_listdir):
         # Setup mock for listdir to simulate finding specific .nc files
-        mock_listdir.side_effect = lambda x: ['downsampled_devices_present_data.nc'] if 'devices-present' in x else ['downsampled_devices_present_data.nc']
+        mock_listdir.side_effect = lambda x: ['downsampled_devices_present_data.nc'] if 'devices-present' in x else ['downsampled_devices_not_present_data.nc']
 
         # Setup MagicMock for the netCDF dataset
         mock_u_data = np.random.rand(5, 5)  # Random data for demonstration
