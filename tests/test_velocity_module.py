@@ -33,7 +33,7 @@ class TestClassifyMotility(unittest.TestCase):
             },
             {
                 "name": "Reduced Motility",
-                "dev": np.array([1.2, 1.0]), 
+                "dev": np.array([1.2, 1.0]),
                 "nodev": np.array([2.5, 2.1]),
                 "expected": np.array([1, 1]),
             },
@@ -122,10 +122,10 @@ class TestCheckGridDefineVars(unittest.TestCase):
 
 class TestCalculateVelocityStressors(unittest.TestCase):
     @patch('os.listdir')
-    @patch('netCDF4.Dataset') 
+    @patch('netCDF4.Dataset')
     def test_calculate_velocity_stressors(self, mock_dataset, mock_listdir):
         # Setup mock for listdir to simulate finding specific .nc files
-        mock_listdir.side_effect = lambda x: ['last_2_runs.nc'] if 'devices-present' in x else ['last_2_runs.nc']
+        mock_listdir.side_effect = lambda x: ['downsampled_devices_present_data.nc'] if 'devices-present' in x else ['downsampled_devices_present_data.nc']
 
         # Setup MagicMock for the netCDF dataset
         mock_u_data = np.random.rand(5, 5)  # Random data for demonstration
@@ -166,7 +166,7 @@ class TestCalculateVelocityStressors(unittest.TestCase):
 class TestRunVelocityStressor(unittest.TestCase):
 
     def test_run_velocity_stressor_with_basic_setup(self, ):
-        
+
         # Define inputs
         dev_present_file = join(script_dir, "data","structured","devices-present")
         dev_not_present_file = join(script_dir, "data","structured","devices-not-present")
