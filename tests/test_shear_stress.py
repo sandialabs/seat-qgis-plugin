@@ -20,12 +20,6 @@ sys.path.insert(0, parent_dir)
 from seat.modules import shear_stress_module as ssm
 # fmt: on
 
-
-# Mock Interface
-class MockIface:
-    pass
-
-
 class TestShearStress(unittest.TestCase):
 
     @classmethod
@@ -33,10 +27,6 @@ class TestShearStress(unittest.TestCase):
         """
         Class method called before tests in an individual class run.
         """
-        # Set up the mock netCDF file
-        cls.mock_netcdf_data = 'mock_netcdf.nc'
-        cls.create_mock_netcdf(cls.mock_netcdf_data)
-
         # Define paths with script_dir prepended
         cls.dev_present = join(script_dir, "data/structured/devices-present")
         cls.dev_not_present = join(script_dir, "data/structured/devices-not-present")
@@ -47,42 +37,6 @@ class TestShearStress(unittest.TestCase):
         cls.mec_present = join(script_dir, "data/unstructured/mec-present")
         cls.mec_not_present = join(script_dir, "data/unstructured/mec-not-present")
         cls.receptor_unstructured = join(script_dir, "data/unstructured/receptor/grain_size_receptor.csv")
-
-
-    @classmethod
-    def tearDownClass(cls):
-        """
-        Class method called after tests in an individual class are run.
-        """
-        # Clean up the mock netCDF file
-        if os.path.exists(cls.mock_netcdf_data):
-            os.remove(cls.mock_netcdf_data)
-
-    @staticmethod
-    def create_mock_netcdf(filename):
-        """
-        Create a mock netCDF file with predefined structure and variables.
-        The structure is tailored to test the check_grid_define_vars function.
-        """
-        with netCDF4.Dataset(filename, "w", format="NETCDF4") as dataset:
-            # Create dimensions
-            dataset.createDimension('x', None)
-            dataset.createDimension('y', None)
-
-            # Create coordinate variables
-            x = dataset.createVariable('x_coord', np.float32, ('x',))
-            y = dataset.createVariable('y_coord', np.float32, ('y',))
-
-            # Create a variable with coordinates attribute
-            taumax = dataset.createVariable('TAUMAX', np.float32, ('x', 'y'))
-            taumax.coordinates = 'x_coord y_coord'
-
-            # Add some data to the variables
-            x[:] = np.arange(0, 10, 1)
-            y[:] = np.arange(0, 20, 1)
-            taumax[:, :] = np.random.rand(10, 20)
-
-        return filename
 
     def test_critical_shear_stress(self):
         """
