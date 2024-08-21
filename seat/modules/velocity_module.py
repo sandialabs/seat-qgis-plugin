@@ -372,6 +372,7 @@ def calculate_velocity_stressors(fpath_nodev,
 
         motility_classification = classify_motility(
             motility_dev_struct, motility_nodev_struct)
+
         motility_classification = np.where(
             np.isnan(mag_diff_struct), -100, motility_classification)
         # listOfFiles = [mag_combined_dev_struct, mag_combined_nodev_struct, mag_diff_struct, motility_nodev_struct,

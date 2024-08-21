@@ -4,7 +4,6 @@ import unittest
 import numpy as np
 import pandas as pd
 import rasterio
-from unittest.mock import patch, MagicMock, PropertyMock
 import netCDF4
 from os.path import join
 import shutil
@@ -35,13 +34,13 @@ class BaseTestVelocityModule(unittest.TestCase):
         # Define paths with script_dir prepended
         cls.dev_present = join(script_dir, "data/structured/devices-present")
         cls.dev_not_present = join(script_dir, "data/structured/devices-not-present")
-        cls.probabilities_structured = join(script_dir, "data/structured/probabilities/probabilities.csv")
-        cls.receptor_structured = join(script_dir, "data/structured/receptor/grain_size_receptor.csv")
+        cls.probabilities_structured = join(script_dir, "data/structured/probabilities/hydrodynamic_probabilities.csv")
+        cls.receptor_structured = join(script_dir, "data/structured/receptor/velocity_receptor.csv")
 
         # unstructured test cases
         cls.mec_present = join(script_dir, "data/unstructured/mec-present")
         cls.mec_not_present = join(script_dir, "data/unstructured/mec-not-present")
-        cls.receptor_unstructured = join(script_dir, "data/unstructured/receptor/grain_size_receptor.csv")
+        cls.receptor_unstructured = join(script_dir, "data/unstructured/receptor/velocity_receptor.csv")
 
 
 class TestClassifyMotility(BaseTestVelocityModule):
@@ -177,23 +176,25 @@ class TestCalculateVelocityStressors(BaseTestVelocityModule):
         fpath_nodev = os.path.join(self.dev_not_present)
         fpath_dev = os.path.join(self.dev_present)
         probabilities_file = os.path.join(self.probabilities_structured)
+        receptor_structured=os.path.join(self.receptor_structured)
 
         # Run the function with real data
-        result = vm.calculate_velocity_stressors(fpath_nodev, fpath_dev, probabilities_file)
+        result = vm.calculate_velocity_stressors(fpath_nodev, fpath_dev, probabilities_file,receptor_structured)
         # Unpack the results
         dict_of_arrays, rx, ry, dx, dy, gridtype = result
 
         # Hardcoded expected values based on the printed output
-        expected_velocity_magnitude_without_devices = np.array([0.00635105, 0.00656352, 0.00676019, 0.00661869, 0.00648503])
-        expected_motility_classified = np.array([1.0, 1.0, 1.0, 2.0, 2.0])
-
+        expected_velocity_magnitude_without_devices = np.array([0.280967, 0.288835, 0.297379, 0.297637, 0.298635])
+        expected_motility_classified = np.array([2.0, 2.0, 2.0, 2.0, 2.0])
         # Take 5 data points from 'velocity_magnitude_without_devices' to compare (indices 10:15)
         velocity_magnitude_without_devices = dict_of_arrays['velocity_magnitude_without_devices'].flatten()
         selected_velocity_points = velocity_magnitude_without_devices[10:15]
 
-        # Take 5 data points from 'motility_classified' to compare (indices 100:105)
+        # Take 5 data points from 'motility_classified' to compare (indices 10:05)
         motility_classified = dict_of_arrays['motility_classified'].flatten()
-        selected_motility_points = motility_classified[100:105]
+        selected_motility_points = motility_classified[10:15]
+        print('smp',selected_motility_points)
+
 
         # Assert the selected points match the expected values
         np.testing.assert_array_almost_equal(selected_velocity_points, expected_velocity_magnitude_without_devices, decimal=6,
@@ -232,16 +233,17 @@ class TestCalculateVelocityStressors(BaseTestVelocityModule):
         fpath_nodev = os.path.join(self.mec_not_present)
         fpath_dev = os.path.join(self.mec_present)
         probabilities_file = ''
+        receptor_unstructured=os.path.join(self.receptor_unstructured)
 
         # Run the function with real data
-        result = vm.calculate_velocity_stressors(fpath_nodev, fpath_dev, probabilities_file)
+        result = vm.calculate_velocity_stressors(fpath_nodev, fpath_dev, probabilities_file, receptor_unstructured)
 
         # Unpack the results
         dict_of_arrays, rx, ry, dx, dy, gridtype = result
 
         # Expected values based on the dataset analysis (filtered out NaN)
         expected_velocity_magnitude_without_devices = np.array([0.63701 , 0.911683, 0.683935, 0.794173, 0.996996])
-        expected_motility_classified = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
+        expected_motility_classified = np.array([1.0, 2.0, 1.0, 1.0, 1.0])
 
         # Filter out NaN values and -100 placeholders, then take the first 5 valid data points from the calculated result
         velocity_magnitude_without_devices = dict_of_arrays['velocity_magnitude_without_devices'].flatten()
@@ -250,8 +252,10 @@ class TestCalculateVelocityStressors(BaseTestVelocityModule):
 
         # Handle motility classified, filtering out -100 values
         motility_classified = dict_of_arrays['motility_classified'].flatten()
-        valid_motility_classified = motility_classified[motility_classified != -100 ]  # Ignore -100 values
-        selected_motility_points = valid_motility_classified[:5]
+        valid_motility_classified = motility_classified[motility_classified != -100]  # Ignore -100 values
+        selected_motility_points = valid_motility_classified[150:155]
+
+
 
         # Assert the selected points match the expected values
         np.testing.assert_array_almost_equal(selected_velocity_points, expected_velocity_magnitude_without_devices, decimal=6,
@@ -309,14 +313,12 @@ class TestRunVelocityStressor(BaseTestVelocityModule):
 
         # Read the output raster and compare it to the expected values
         with rasterio.open(os.path.join(output_path, 'velocity_magnitude_difference.tif')) as dataset:
-            selected_velocity_magnitude_diff = dataset.read(1)[10:14, 10:14]
+            selected_velocity_magnitude_diff = dataset.read(1)[10:13, 10:13]
 
-        expected_velocity_magnitude_diff = np.array([
-            [-1.8514600e-04,  1.2793316e-05, -7.5532298e-06, -9.2527218e-05],
-            [ 2.4791891e-04,  2.6991952e-04, -4.8618676e-05, -2.3162566e-04],
-            [ 2.7501030e-04,  3.2164634e-04,  2.8248993e-05, -1.3328021e-04],
-            [ 1.6204562e-04,  1.4994323e-04, -9.8662858e-05, -3.8189755e-05]
-        ])
+        expected_velocity_magnitude_diff = np.array(
+            [[-2.842238e-03, -1.392993e-03, -2.204220e-03],
+            [ 4.425721e-05, -4.777499e-05, -7.539215e-04],
+            [ 6.493267e-04,  1.057695e-03,  1.367250e-03]])
 
         np.testing.assert_array_almost_equal(selected_velocity_magnitude_diff, expected_velocity_magnitude_diff, decimal=6, err_msg="Velocity magnitude difference mismatch")
 

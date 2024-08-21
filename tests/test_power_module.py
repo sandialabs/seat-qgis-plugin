@@ -1,13 +1,11 @@
 import sys
 import os
-import netCDF4
 import unittest
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 import numpy as np
 import pandas as pd
 import tempfile
-from qgis.core import QgsApplication
 
 
 # Get the directory in which the current script is located
@@ -28,68 +26,19 @@ class TestPowerModule(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """
-        Class method called before tests in an individual class run.
+        Class method called before tests in any class that inherits from this base class.
+        It initializes the file paths for structured and unstructured test cases.
         """
-        # Set up the mock netCDF file
-        cls.mock_netcdf_data = 'mock_netcdf.nc'
-        cls.create_mock_netcdf(cls.mock_netcdf_data)
-
         # Define paths with script_dir prepended
-        cls.dev_present = os.path.join(script_dir, "data/structured/devices-present")
-        cls.dev_not_present = os.path.join(script_dir, "data/structured/devices-not-present")
-        cls.probabilities = os.path.join(script_dir, "data/structured/probabilities/probabilities.csv")
-        cls.receptor = os.path.join(script_dir, "data/structured/receptor/grain_size_receptor.csv")
+        cls.dev_present = join(script_dir, "data/structured/devices-present")
+        cls.dev_not_present = join(script_dir, "data/structured/devices-not-present")
+        cls.probabilities_structured = join(script_dir, "data/structured/probabilities/probabilities.csv")
+        cls.receptor_structured = join(script_dir, "data/structured/receptor/grain_size_receptor.csv")
 
-        cls.pol_file = os.path.join(script_dir, "data/structured/power_files/4x4/rect_4x4.pol")
-        cls.power_file = os.path.join(script_dir, "data/structured/power_files/4x4/")
-        cls.hydrodynamic_probabilities = os.path.join(script_dir, "data/structured/probabilities/hydrodynamic_probabilities.csv")
-
-
-        # Define mock obstacles
-        cls.mock_obstacles = {
-            'Obstacle 1': np.array([[0, 0], [0, 2]]),
-            'Obstacle 2': np.array([[3, 3], [3, 5]])
-        }
-
-        cls.mock_centroids = np.array([
-            [0, 0.0, 1.0],  # Index 0, Coordinates (2.0, 2.0)
-            [1, 3.0, 4.0],  # Index 1, Coordinates (5.0, 5.0)
-        ])
-
-    @classmethod
-    def tearDownClass(cls):
-        """
-        Class method called after tests in an individual class are run.
-        """
-        # Clean up the mock netCDF file
-        if os.path.exists(cls.mock_netcdf_data):
-            os.remove(cls.mock_netcdf_data)
-
-    @staticmethod
-    def create_mock_netcdf(filename):
-        """
-        Create a mock netCDF file with predefined structure and variables.
-        The structure is tailored to test the check_grid_define_vars function.
-        """
-        with netCDF4.Dataset(filename, "w", format="NETCDF4") as dataset:
-            # Create dimensions
-            dataset.createDimension('x', None)
-            dataset.createDimension('y', None)
-
-            # Create coordinate variables
-            x = dataset.createVariable('x_coord', np.float32, ('x',))
-            y = dataset.createVariable('y_coord', np.float32, ('y',))
-
-            # Create a variable with coordinates attribute
-            taumax = dataset.createVariable('TAUMAX', np.float32, ('x', 'y'))
-            taumax.coordinates = 'x_coord y_coord'
-
-            # Add some data to the variables
-            x[:] = np.arange(0, 10, 1)
-            y[:] = np.arange(0, 20, 1)
-            taumax[:, :] = np.random.rand(10, 20)
-
-        return filename
+        # unstructured test cases
+        cls.mec_present = join(script_dir, "data/unstructured/mec-present")
+        cls.mec_not_present = join(script_dir, "data/unstructured/mec-not-present")
+        cls.receptor_unstructured = join(script_dir, "data/unstructured/receptor/grain_size_receptor.csv")
 
     @staticmethod
     def calculate_expected_pair(centroids, centroid):
