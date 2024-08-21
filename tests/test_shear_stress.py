@@ -30,7 +30,7 @@ class TestShearStress(unittest.TestCase):
         # Define paths with script_dir prepended
         cls.dev_present = join(script_dir, "data/structured/devices-present")
         cls.dev_not_present = join(script_dir, "data/structured/devices-not-present")
-        cls.probabilities = join(script_dir, "data/structured/probabilities/probabilities.csv")
+        cls.probabilities = join(script_dir, "data/structured/probabilities/hydrodynamic_probabilities.csv")
         cls.receptor_structured = join(script_dir, "data/structured/receptor/velocity_receptor.csv")
 
         # unstructured test cases
@@ -152,7 +152,7 @@ class TestShearStress(unittest.TestCase):
 
     def test_calculate_shear_stress_stressors_structured(self):
         """
-        Test the calculate_shear_stress_stressors function on structured data.
+        Test the calculate_shear_stress_stressors function on structured data using means.
         """
         # Run the function
         dict_output, rx, ry, dx, dy, gridtype = ssm.calculate_shear_stress_stressors(
@@ -162,23 +162,24 @@ class TestShearStress(unittest.TestCase):
             self.receptor_structured
         )
 
-        # Define the expected sums
-        full_data_expected_sums = {
-            'shear_stress_without_devices': 110.32331474850807,
-            'shear_stress_with_devices': 106.63594042402838,
-            'shear_stress_difference': -3.687734244768775,
-            'sediment_mobility_without_devices': 444405.8543352523,
-            'sediment_mobility_with_devices': 429552.3236861899,
-            'sediment_mobility_difference': -14853.530649062468,
-            'sediment_mobility_classified': 2719.0,
-            'sediment_grain_size': 111.14999999999998,
-            'shear_stress_risk_metric': -249013.53064906248
+        # Define the expected means
+        full_data_expected_means = {
+            'shear_stress_without_devices': 3.664708133906911,
+            'shear_stress_with_devices': 3.5320121139290905,
+            'shear_stress_difference': -0.13269601997782032,
+            'sediment_mobility_without_devices': 14762.226396577538,
+            'sediment_mobility_with_devices': 14227.698511338009,
+            'sediment_mobility_difference': -534.5278852395282,
+            'sediment_mobility_classified': 1.0805218173639226,
+            'sediment_grain_size': 0.04999999999999999,
+            'shear_stress_risk_metric': -13688.74627406984
         }
 
-        # Assert sums are almost equal to the expected values
-        for key, expected_sum in full_data_expected_sums.items():
-            actual_sum = np.nan_to_num(dict_output[key]).sum()
-            self.assertAlmostEqual(actual_sum, expected_sum, places=3, msg=f"Sum mismatch for {key}")
+        # Assert means are almost equal to the expected values
+        for key, expected_mean in full_data_expected_means.items():
+            actual_mean = np.nanmean(dict_output[key])
+            self.assertAlmostEqual(actual_mean, expected_mean, places=3, msg=f"Mean mismatch for {key}")
+
 
         # Define expected values for spatial parameters
         expected_rx_first_5 = [0.0, 235.7164, 235.7164, 235.7164, 235.7164]
@@ -197,7 +198,7 @@ class TestShearStress(unittest.TestCase):
 
     def test_calculate_shear_stress_stressors_unstructured(self):
         """
-        Test the calculate_shear_stress_stressors function on unstructured data.
+        Test the calculate_shear_stress_stressors function on unstructured data using means.
         """
         # Run the function
         dict_output, rx, ry, dx, dy, gridtype = ssm.calculate_shear_stress_stressors(
@@ -207,17 +208,17 @@ class TestShearStress(unittest.TestCase):
             receptor_filename=self.receptor_unstructured
         )
 
-        # Expected sums
-        full_data_expected_sums = {
-            'shear_stress_without_devices': 296.91102233867286,
-            'shear_stress_with_devices': 296.61976787324215,
-            'shear_stress_difference': -0.2912544653693292,
-            'sediment_mobility_without_devices': 1196020.9575367346,
-            'sediment_mobility_with_devices': 1194847.7223970378,
-            'sediment_mobility_difference': -1173.235138985281,
-            'sediment_mobility_classified': -100958.0,
-            'sediment_grain_size':  8.9,
-            'shear_stress_risk_metric': -362364.79339674674
+        # Expected means
+        full_data_expected_means = {
+            'shear_stress_without_devices': 1.6680394513408587,
+            'shear_stress_with_devices': 1.6664031902991132,
+            'shear_stress_difference': -0.001636261041400726,
+            'sediment_mobility_without_devices': 6719.218862565925,
+            'sediment_mobility_with_devices': 6712.627653915943,
+            'sediment_mobility_difference': -6.591208645984725,
+            'sediment_mobility_classified': -84.83865546218487,
+            'sediment_grain_size': 0.05,
+            'shear_stress_risk_metric': -2035.757266273858
         }
         expected_rx = 399974.68467022
         expected_ry = 7160695.08352798
@@ -232,16 +233,18 @@ class TestShearStress(unittest.TestCase):
         self.assertTrue(isinstance(dy, float) or isinstance(dy, np.floating))
         self.assertIsInstance(gridtype, str)
 
-        # Calculate and assert sums
-        for key, expected_sum in full_data_expected_sums.items():
-            actual_sum = np.nan_to_num(dict_output[key]).sum()
-            self.assertAlmostEqual(actual_sum, expected_sum, places=4, msg=f"Sum mismatch for {key}")
+        # Calculate and assert means
+        for key, expected_mean in full_data_expected_means.items():
+            actual_mean = np.nanmean(dict_output[key])
+            self.assertAlmostEqual(actual_mean, expected_mean, places=4, msg=f"Mean mismatch for {key}")
 
-        np.testing.assert_array_almost_equal(rx[0,0], expected_rx)
-        np.testing.assert_array_almost_equal(ry[0,0], expected_ry)
+        # Assert spatial parameters
+        np.testing.assert_array_almost_equal(rx[0, 0], expected_rx)
+        np.testing.assert_array_almost_equal(ry[0, 0], expected_ry)
         self.assertAlmostEqual(dx, expected_dx)
         self.assertAlmostEqual(dy, expected_dy)
         self.assertEqual(gridtype, expected_gridtype)
+
 
 
     def test_run_shear_stress_stressor_structured(self):
@@ -273,15 +276,15 @@ class TestShearStress(unittest.TestCase):
 
         # Hardcoded expected mean values
         expected_means = {
-            'shear_stress_without_devices': 0.0496281236410141,
-            'shear_stress_with_devices': 0.047969382256269455,
-            'shear_stress_difference': -0.0016587378922849894,
-            'sediment_mobility_without_devices': 199.91266,
-            'sediment_mobility_with_devices': 193.23093,
-            'sediment_mobility_difference': -6.68175,
-            'sediment_mobility_classified': 1.2231219,
-            'sediment_grain_size': 0.050000004,
-            'shear_stress_risk_metric': -119.71804
+            'shear_stress_without_devices': 3.664708375930786,
+            'shear_stress_with_devices': 3.5320122241973877,
+            'shear_stress_difference': -0.1326960176229477,
+            'sediment_mobility_without_devices': 14762.2265625,
+            'sediment_mobility_with_devices': 14227.6982421875,
+            'sediment_mobility_difference': -534.5278930664062,
+            'sediment_mobility_classified': 1.080521821975708,
+            'sediment_grain_size': 0.05000000447034836,
+            'shear_stress_risk_metric': -13688.7470703125
         }
 
         self.assertIsInstance(result, dict)
