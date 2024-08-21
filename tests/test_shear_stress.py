@@ -376,7 +376,6 @@ class TestShearStress(unittest.TestCase):
                 data = src.read(1)  # Read the first band (assuming it's single-band)
                 mean_value = np.nanmean(data)  # Calculate the mean, ignoring NaNs
 
-                print(f"Mean value for {key}: {mean_value}")
                 # Assert the mean value is almost equal to the expected mean
                 self.assertAlmostEqual(mean_value, expected_means[key], places=5, msg=f"Mean mismatch for {key}")
 
