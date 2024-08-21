@@ -499,13 +499,15 @@ def run_velocity_stressor(
                     receptor_filename=os.path.join(output_path, "velocity_risk_layer.tif"),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
-                    latlon=crs == 4326).to_csv(os.path.join(output_path, "velocity_magnitude_difference_at_velocity_risk_layer.csv"), index=False)
+                    latlon=crs == 4326,
+                    receptor_type='risk layer').to_csv(os.path.join(output_path, "velocity_magnitude_difference_at_velocity_risk_layer.csv"), index=False)
     if not ((receptor_filename is None) or (receptor_filename == "")):
         bin_layer(os.path.join(output_path, 'velocity_magnitude_difference.tif'),
                     receptor_filename=os.path.join(output_path, 'critical_velocity.tif'),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
-                    latlon=crs == 4326).to_csv(os.path.join(output_path, "velocity_magnitude_difference_at_critical_velocity.csv"), index=False)
+                    latlon=crs == 4326,
+                    receptor_type='critical velocity').to_csv(os.path.join(output_path, "velocity_magnitude_difference_at_critical_velocity.csv"), index=False)
         
         bin_layer(os.path.join(output_path, 'motility_difference.tif'),
                     receptor_filename=None,
@@ -517,7 +519,8 @@ def run_velocity_stressor(
                     receptor_filename=os.path.join(output_path, 'critical_velocity.tif'),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
-                    latlon=crs == 4326).to_csv(os.path.join(output_path, "motility_difference_at_critical_velocity.csv"), index=False)
+                    latlon=crs == 4326,
+                    receptor_type='critical velocity').to_csv(os.path.join(output_path, "motility_difference_at_critical_velocity.csv"), index=False)
         
         classify_layer_area(os.path.join(output_path, "motility_classified.tif"),
                             at_values=[-3, -2, -1, 0, 1, 2, 3],
@@ -531,14 +534,16 @@ def run_velocity_stressor(
                             value_names=['New Deposition', 'Increased Deposition', 'Reduced Deposition',
                                             'No Change', 'Reduced Erosion', 'Increased Erosion', 'New Erosion'],
                             limit_receptor_range=[0, np.inf],
-                            latlon=crs == 4326).to_csv(os.path.join(output_path, "motility_classified_at_critical_velocity.csv"), index=False)
+                            latlon=crs == 4326,
+                            receptor_type='critical velocity').to_csv(os.path.join(output_path, "motility_classified_at_critical_velocity.csv"), index=False)
         
         if not ((secondary_constraint_filename is None) or (secondary_constraint_filename == "")):
             bin_layer(os.path.join(output_path, 'motility_difference.tif'),
                     receptor_filename=os.path.join(output_path, "velocity_risk_layer.tif"),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
-                    latlon=crs == 4326).to_csv(os.path.join(output_path, "motility_difference_at_velocity_risk_layer.csv"), index=False)
+                    latlon=crs == 4326,
+                            receptor_type='risk layer').to_csv(os.path.join(output_path, "motility_difference_at_velocity_risk_layer.csv"), index=False)
 
             classify_layer_area_2nd_Constraint(raster_to_sample = os.path.join(output_path, "motility_classified.tif"),
                             secondary_constraint_filename=os.path.join(output_path, "velocity_risk_layer.tif"),
@@ -546,7 +551,8 @@ def run_velocity_stressor(
                             at_raster_value_names=['New Deposition', 'Increased Deposition', 'Reduced Deposition',
                                             'No Change', 'Reduced Erosion', 'Increased Erosion', 'New Erosion'],
                             limit_constraint_range=[0, np.inf],
-                            latlon=crs == 4326).to_csv(os.path.join(output_path, "motility_classified_at_velocity_risk_layer.csv"), index=False)
+                            latlon=crs == 4326,
+                            receptor_type='risk layer').to_csv(os.path.join(output_path, "motility_classified_at_velocity_risk_layer.csv"), index=False)
     OUTPUT = {}
     for val in output_rasters:
         OUTPUT[os.path.basename(os.path.normpath(val)).split('.')[0]] = val            
