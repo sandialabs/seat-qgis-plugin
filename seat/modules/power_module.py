@@ -323,7 +323,6 @@ def reset_bc_data_order(bc_data):
 def roundup(x, base=5):
     return base * round(x/base)
 
-
 def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
     """
     Reads the power files and calculates the total annual power based on hydrdynamic probabilities in probabilities_file. Data are saved as a csv files.
@@ -393,6 +392,7 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
     fig.tight_layout()
     fig.savefig(os.path.join(
         save_path, 'Total_Scaled_Power_Bars_per_Run.png'))
+    plt.close(fig) 
 
     foo = np.sqrt(np.shape(Power_Scaled)[1])
     fig, AX = plt.subplots(np.round(foo).astype(int), np.ceil(
@@ -419,6 +419,7 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
     fig.tight_layout()
     fig.savefig(os.path.join(
         save_path, 'Scaled_Power_Bars_per_run_obstacle.png'))
+    plt.close(fig) 
 
     fig, ax = plt.subplots(figsize=(9, 6))
     ax.bar(np.arange(np.shape(Power_Scaled)[
@@ -429,6 +430,7 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
     fig.tight_layout()
     fig.savefig(os.path.join(
         save_path, 'Total_Scaled_Power_Bars_per_obstacle.png'))
+    plt.close(fig) 
 
     power_device_configuration_file = [s for s in os.listdir(power_files) if (
         s.endswith('.pol') | s.endswith('.Pol') | s.endswith('.POL'))]
@@ -442,6 +444,7 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
             power_files, power_device_configuration_file[0]))
         fig = plot_test_obstacle_locations(Obstacles)
         fig.savefig(os.path.join(save_path, 'Obstacle_Locations.png'))
+        plt.close(fig) 
 
         Centroids = find_mean_point_of_obstacle_polygon(Obstacles)
         Centroids_DF = pd.DataFrame(
@@ -465,6 +468,7 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
             ax.text(DeviceindexDF.loc[device, 'X'],
                     DeviceindexDF.loc[device, 'Y'], device, fontsize=8)
         fig.savefig(os.path.join(save_path, 'Device Number Location.png'))
+        plt.close(fig) 
 
         device_power = np.empty((0, np.shape(Power)[1]), dtype=float)
         for ic0, ic1 in Device_index:
@@ -508,7 +512,7 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
         fig.tight_layout()
         fig.savefig(os.path.join(
             save_path, 'Scaled_Power_per_device_per_scenario.png'))
-
+        plt.close(fig) 
         # power per scenario per device
 
         # Sum power for the entire years (all datafiles) for each device
@@ -526,10 +530,12 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
         ax.set_xlabel('Device')
         fig.savefig(os.path.join(
             save_path, 'Total_Scaled_Power_per_Device_.png'))
+        plt.close(fig) 
 
         DEVICE_POWER = extract_device_location(Obstacles, Device_index)
         DEVICE_POWER['Power [W]'] = Devices_total['Power [W]'].values
         fig = create_power_heatmap(DEVICE_POWER, crs=crs)
         fig.savefig(os.path.join(save_path, 'Device_Power.png'), dpi=150)
-        # plt.close(fig)
-    return None
+        plt.close(fig) 
+
+    return DEVICE_POWER
