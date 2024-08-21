@@ -31,12 +31,12 @@ class TestShearStress(unittest.TestCase):
         cls.dev_present = join(script_dir, "data/structured/devices-present")
         cls.dev_not_present = join(script_dir, "data/structured/devices-not-present")
         cls.probabilities = join(script_dir, "data/structured/probabilities/probabilities.csv")
-        cls.receptor_structured = join(script_dir, "data/structured/receptor/grain_size_receptor.csv")
+        cls.receptor_structured = join(script_dir, "data/structured/receptor/velocity_receptor.csv")
 
         # unstructured test cases
         cls.mec_present = join(script_dir, "data/unstructured/mec-present")
         cls.mec_not_present = join(script_dir, "data/unstructured/mec-not-present")
-        cls.receptor_unstructured = join(script_dir, "data/unstructured/receptor/grain_size_receptor.csv")
+        cls.receptor_unstructured = join(script_dir, "data/unstructured/receptor/velocity_receptor.csv")
 
     def test_critical_shear_stress(self):
         """
@@ -167,12 +167,12 @@ class TestShearStress(unittest.TestCase):
             'shear_stress_without_devices': 110.32331474850807,
             'shear_stress_with_devices': 106.63594042402838,
             'shear_stress_difference': -3.687734244768775,
-            'sediment_mobility_without_devices': 642.1052266345778,
-            'sediment_mobility_with_devices': 620.6439214544148,
-            'sediment_mobility_difference': -21.461305180162974,
-            'sediment_mobility_classified': -3499.0,
-            'sediment_grain_size': 555750.0,
-            'shear_stress_risk_metric': -307.46130518016304
+            'sediment_mobility_without_devices': 444405.8543352523,
+            'sediment_mobility_with_devices': 429552.3236861899,
+            'sediment_mobility_difference': -14853.530649062468,
+            'sediment_mobility_classified': 2719.0,
+            'sediment_grain_size': 111.14999999999998,
+            'shear_stress_risk_metric': -249013.53064906248
         }
 
         # Assert sums are almost equal to the expected values
@@ -212,12 +212,12 @@ class TestShearStress(unittest.TestCase):
             'shear_stress_without_devices': 296.91102233867286,
             'shear_stress_with_devices': 296.61976787324215,
             'shear_stress_difference': -0.2912544653693292,
-            'sediment_mobility_without_devices': 1728.085488765766,
-            'sediment_mobility_with_devices': 1726.3903256457688,
-            'sediment_mobility_difference': -1.695163120500652,
-            'sediment_mobility_classified': -100961.0,
-            'sediment_grain_size': 44500.0,
-            'shear_stress_risk_metric': -524.3627767249327
+            'sediment_mobility_without_devices': 1196020.9575367346,
+            'sediment_mobility_with_devices': 1194847.7223970378,
+            'sediment_mobility_difference': -1173.235138985281,
+            'sediment_mobility_classified': -100958.0,
+            'sediment_grain_size':  8.9,
+            'shear_stress_risk_metric': -362364.79339674674
         }
         expected_rx = 399974.68467022
         expected_ry = 7160695.08352798
@@ -276,12 +276,12 @@ class TestShearStress(unittest.TestCase):
             'shear_stress_without_devices': 0.0496281236410141,
             'shear_stress_with_devices': 0.047969382256269455,
             'shear_stress_difference': -0.0016587378922849894,
-            'sediment_mobility_without_devices': 0.2888462543487549,
-            'sediment_mobility_with_devices': 0.2791920602321625,
-            'sediment_mobility_difference': -0.009654208086431026,
-            'sediment_mobility_classified': -1.573999047279358,
-            'sediment_grain_size': 250.0,
-            'shear_stress_risk_metric': -0.1478179395198822
+            'sediment_mobility_without_devices': 199.91266,
+            'sediment_mobility_with_devices': 193.23093,
+            'sediment_mobility_difference': -6.68175,
+            'sediment_mobility_classified': 1.2231219,
+            'sediment_grain_size': 0.050000004,
+            'shear_stress_risk_metric': -119.71804
         }
 
         self.assertIsInstance(result, dict)
@@ -350,12 +350,12 @@ class TestShearStress(unittest.TestCase):
             'shear_stress_without_devices': 1.6680394411087036,
             'shear_stress_with_devices': 1.66640305519104,
             'shear_stress_difference': -0.001636261004023254,
-            'sediment_mobility_without_devices': 9.708345413208008,
-            'sediment_mobility_with_devices': 9.698822021484375,
-            'sediment_mobility_difference': -0.009523387998342514,
-            'sediment_mobility_classified': -84.84117889404297,
-            'sediment_grain_size': 250.0,
-            'shear_stress_risk_metric': -2.9458580017089844
+            'sediment_mobility_without_devices':6719.21923828125,
+            'sediment_mobility_with_devices': 6712.6279296875,
+            'sediment_mobility_difference': -6.591207981109619,
+            'sediment_mobility_classified': -84.83865356445312,
+            'sediment_grain_size': 0.04999999701976776,
+            'shear_stress_risk_metric': -2035.75732421875
         }
 
         self.assertIsInstance(result, dict)
@@ -376,6 +376,7 @@ class TestShearStress(unittest.TestCase):
                 data = src.read(1)  # Read the first band (assuming it's single-band)
                 mean_value = np.nanmean(data)  # Calculate the mean, ignoring NaNs
 
+                print(f"Mean value for {key}: {mean_value}")
                 # Assert the mean value is almost equal to the expected mean
                 self.assertAlmostEqual(mean_value, expected_means[key], places=5, msg=f"Mean mismatch for {key}")
 
