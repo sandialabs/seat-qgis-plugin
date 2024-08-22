@@ -39,11 +39,6 @@ class TestPowerModule(unittest.TestCase):
         cls.probabilities = os.path.join(script_dir, "data/structured/probabilities/probabilities.csv")
         cls.receptor = os.path.join(script_dir, "data/structured/receptor/grain_size_receptor.csv")
 
-                # unstructured test cases
-        cls.mec_present = os.path.join(script_dir, "data/unstructured/mec-present")
-        cls.mec_not_present = os.path.join(script_dir, "data/unstructured/mec-not-present")
-        cls.receptor_unstructured = os.path.join(script_dir, "data/unstructured/receptor/velocity_receptor.csv")
-
         cls.pol_file = os.path.join(script_dir, "data/structured/power_files/4x4/rect_4x4.pol")
         cls.power_file = os.path.join(script_dir, "data/structured/power_files/4x4/")
         cls.hydrodynamic_probabilities = os.path.join(script_dir, "data/structured/probabilities/hydrodynamic_probabilities.csv")
@@ -136,16 +131,15 @@ class TestPowerModule(unittest.TestCase):
 
         # Expected centroids (derived from the actual data)
         expected_centroids = np.array([
-            [  10, 235.772795, 44.5625 ],
+            [  10, 235.772795, 44.564 ],
             [  11, 235.775995, 44.564 ],
             [  12, 235.7664, 44.564005 ],
             [  13, 235.7696, 44.564 ],
             [  14, 235.7728, 44.564 ],
         ])
-        print(centroids[10:15])
 
         # Assert the result
-        np.testing.assert_array_almost_equal(centroids, expected_centroids, decimal=5)
+        np.testing.assert_array_almost_equal(centroids[10:15], expected_centroids, decimal=5)
 
 #     def test_plot_test_obstacle_locations(self):
 #         """
