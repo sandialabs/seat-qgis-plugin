@@ -567,7 +567,7 @@ def bin_data(zm, square_area, nbins=25):
     return DATA
 
 
-def bin_receptor(zm, receptor, square_area, nbins=25, receptor_names=None):
+def bin_receptor(zm, receptor, square_area, nbins=25, receptor_names=None, receptor_type='receptor'):
     """
     Bins values into 25 bins and by unique values in the receptor.
 
@@ -584,6 +584,8 @@ def bin_receptor(zm, receptor, square_area, nbins=25, receptor_names=None):
         receptor_names
     receptor_names : list, opional
         optional names for each unique value in the receptor. the default is None.
+    receptor_type : str, optional
+        name to display in output (eg. grain size, risk layer). the default is receptor.
 
     Returns
     -------
@@ -594,6 +596,7 @@ def bin_receptor(zm, receptor, square_area, nbins=25, receptor_names=None):
             bin center: the center value of each bin
             count :number of cells in each bin
             Area : area overwhich the binned values occur.
+            Area percent : percent of the domain overwhich the binned values occur.
 
     """
     hist, bins = np.histogram(zm, bins=nbins)
@@ -605,7 +608,7 @@ def bin_receptor(zm, receptor, square_area, nbins=25, receptor_names=None):
     for ic, rval in enumerate(np.unique(receptor)):
         zz = zm[receptor == rval]
         sqa = square_area[receptor == rval]
-        rcolname = f'Area, receptor value {rval}' if receptor_names is None else receptor_names[
+        rcolname = f'Area, {receptor_type} value {rval}' if receptor_names is None else receptor_names[
             ic]
         DATA[rcolname] = np.zeros(hist.shape)
         for ic, (bin_start, bin_end) in enumerate(zip(bins[:-1], bins[1:])):
@@ -614,12 +617,12 @@ def bin_receptor(zm, receptor, square_area, nbins=25, receptor_names=None):
             else:
                 area_ix = np.flatnonzero((zz >= bin_start) & (zz <= bin_end))
             DATA[rcolname][ic] = np.sum(sqa[area_ix])
-        DATA[f'Area percent, receptor value {rval}'] = 100 * \
+        DATA[f'Area percent, {receptor_type} value {rval}'] = 100 * \
             DATA[rcolname]/DATA[rcolname].sum()
     return DATA
 
 
-def bin_layer(raster_filename, receptor_filename=None, receptor_names=None, limit_receptor_range=None, latlon=True):
+def bin_layer(raster_filename, receptor_filename=None, receptor_names=None, limit_receptor_range=None, latlon=True, receptor_type='receptor'):
     """
     creates a dataframe of binned raster values and associtaed area and percent of array.
 
@@ -635,7 +638,9 @@ def bin_layer(raster_filename, receptor_filename=None, receptor_names=None, limi
         Range over which to limit uniuqe raster values [start, stop]. The default is None.
     latlon : Bool, optional
         True is coordinates are lat/lon. The default is True.
-
+    receptor_type : str, optional
+        name to display in output (eg. grain size, risk layer). the default is receptor.
+        
     Returns
     -------
     DataFrame
@@ -661,11 +666,11 @@ def bin_layer(raster_filename, receptor_filename=None, receptor_names=None, limi
             receptor = np.where((receptor >= np.min(limit_receptor_range)) & (
                 receptor <= np.max(limit_receptor_range)), receptor, 0)
         DATA = bin_receptor(zm[np.invert(np.isnan(zm))], receptor[np.invert(np.isnan(
-            zm))], square_area[np.invert(np.isnan(zm))], receptor_names=receptor_names)
+            zm))], square_area[np.invert(np.isnan(zm))], receptor_names=receptor_names, receptor_type=receptor_type)
     return pd.DataFrame(DATA)
 
 
-def classify_layer_area(raster_filename, receptor_filename=None, at_values=None, value_names=None, limit_receptor_range=None, latlon=True):
+def classify_layer_area(raster_filename, receptor_filename=None, at_values=None, value_names=None, limit_receptor_range=None, latlon=True, receptor_type='receptor'):
     """
     Creates a dataframe of raster values and associtaed area and percent of array at specified raster values.
 
@@ -683,6 +688,8 @@ def classify_layer_area(raster_filename, receptor_filename=None, at_values=None,
         Range over which to limit uniuqe raster values [start, stop]. The default is None.
     latlon : Bool, optional
         True is coordinates are lat/lon. The default is True.
+    receptor_type : str, optional
+        name to display in output (eg. grain size, risk layer). the default is receptor.
 
 
     Returns
@@ -720,20 +727,20 @@ def classify_layer_area(raster_filename, receptor_filename=None, at_values=None,
         for ic, rval in enumerate(np.unique(receptor)):
             zz = zm[receptor == rval]
             sqa = square_area[receptor == rval]
-            rcolname = f'Area, receptor value {rval}'
-            ccolname = f'Count, receptor value {rval}'
+            rcolname = f'Area, {receptor_type} value {rval}'
+            ccolname = f'Count, {receptor_type} value {rval}'
             DATA[rcolname] = np.zeros(len(at_values))
             DATA[ccolname] = np.zeros(len(at_values))
             for iic, value in enumerate(at_values):
                 area_ix = np.flatnonzero(zz == value)
                 DATA[ccolname][iic] = len(area_ix)
                 DATA[rcolname][iic] = np.sum(sqa[area_ix])
-            DATA[f'Area percent, receptor value {rval}'] = 100 * \
+            DATA[f'Area percent, {receptor_type} value {rval}'] = 100 * \
                 DATA[rcolname]/DATA[rcolname].sum()
     return pd.DataFrame(DATA)
 
 
-def classify_layer_area_2nd_Constraint(raster_to_sample, secondary_constraint_filename, at_raster_values, at_raster_value_names, limit_constraint_range, latlon):
+def classify_layer_area_2nd_Constraint(raster_to_sample, secondary_constraint_filename, at_raster_values, at_raster_value_names, limit_constraint_range=None, latlon=True, receptor_type='receptor'):
     rx, ry, z = read_raster(raster_to_sample)
     rxm, rym, square_area = calculate_cell_area(rx, ry, latlon=latlon)
     square_area = square_area.flatten()
@@ -762,15 +769,15 @@ def classify_layer_area_2nd_Constraint(raster_to_sample, secondary_constraint_fi
             if ~np.isnan(rval):
                 zz = zm[constraint == rval]
                 sqa = square_area[constraint == rval]
-                rcolname = f'Area, constraint value {rval}'
-                ccolname = f'Count, constraint value {rval}'
+                rcolname = f'Area, {receptor_type} value {rval}'
+                ccolname = f'Count, {receptor_type} value {rval}'
                 DATA[rcolname] = np.zeros(len(at_values))
                 DATA[ccolname] = np.zeros(len(at_values))
                 for iic, value in enumerate(at_values):
                     area_ix = np.flatnonzero(zz == value)
                     DATA[ccolname][iic] = len(area_ix)
                     DATA[rcolname][iic] = np.sum(sqa[area_ix])
-                DATA[f'Area percent, constraint value {rval}'] = 100 * \
+                DATA[f'Area percent, {receptor_type} value {rval}'] = 100 * \
                     DATA[rcolname]/DATA[rcolname].sum()
     return pd.DataFrame(DATA)
 
