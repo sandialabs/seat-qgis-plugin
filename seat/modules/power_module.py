@@ -29,6 +29,8 @@ from matplotlib.patches import Rectangle
 from matplotlib.colors import ListedColormap
 from matplotlib.cm import ScalarMappable
 from matplotlib.ticker import FormatStrFormatter
+from shapely.geometry import Point, Polygon
+import geopandas as gpd
 
 # %% Obstacle Polygon and Device Positions
 
@@ -323,6 +325,18 @@ def reset_bc_data_order(bc_data):
 def roundup(x, base=5):
     return base * round(x/base)
 
+def create_shapefile(DEVICE_POWER, crs=None):
+    Power = []
+    Polys = []
+    for device_number, device in DEVICE_POWER.iterrows():
+        Polys.append(Polygon([Point(x,y) for x,y in zip(device["polyx"], device["polyy"])]))
+        Power.append(device['Power [W]']*1e-6)
+    GPD = gpd.GeoDataFrame({'Device':DEVICE_POWER.index.values,
+                        'Power MW' : Power},
+                        geometry = gpd.GeoSeries(Polys)).set_crs(epsg=crs)    
+    GPD = GPD.set_index('Device')
+    return GPD
+
 def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
     """
     Reads the power files and calculates the total annual power based on hydrdynamic probabilities in probabilities_file. Data are saved as a csv files.
@@ -538,4 +552,8 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
         fig.savefig(os.path.join(save_path, 'Device_Power.png'), dpi=150)
         plt.close(fig) 
 
-    return DEVICE_POWER
+        GPD = create_shapefile(DEVICE_POWER, crs=crs)
+        shp_file_name = os.path.join(save_path, 'Power_Generated_MW.shp')
+        GPD.to_file(shp_file_name)        
+
+    return shp_file_name
