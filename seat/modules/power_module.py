@@ -553,7 +553,8 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
         plt.close(fig) 
 
         GPD = create_shapefile(DEVICE_POWER, crs=crs)
-        shp_file_name = os.path.join(save_path, 'Power_Generated_MW.shp')
+        shp_file_name = os.path.join(save_path, 'power_generated_mw.shp')
         GPD.to_file(shp_file_name)        
 
-    return shp_file_name
+        output_dic = {"power_generated_mw": shp_file_name}
+    return output_dic
