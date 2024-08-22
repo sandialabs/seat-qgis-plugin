@@ -529,13 +529,15 @@ def run_shear_stress_stressor(
                     receptor_filename=os.path.join(output_path, "shear_stress_risk_layer.tif"),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
-                    latlon=crs == 4326).to_csv(os.path.join(output_path, "shear_stress_difference_at_secondary_constraint.csv"), index=False)
+                    latlon=crs == 4326,
+                    receptor_type='risk layer').to_csv(os.path.join(output_path, "shear_stress_difference_at_secondary_constraint.csv"), index=False)
     if not ((receptor_filename is None) or (receptor_filename == "")):
         bin_layer(os.path.join(output_path, 'shear_stress_difference.tif'),
                     receptor_filename=os.path.join(output_path, 'sediment_grain_size.tif'),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
-                    latlon=crs == 4326).to_csv(os.path.join(output_path, "shear_stress_difference_at_sediment_grain_size.csv"), index=False)
+                    latlon=crs == 4326,
+                    receptor_type='grain size').to_csv(os.path.join(output_path, "shear_stress_difference_at_sediment_grain_size.csv"), index=False)
 
         bin_layer(os.path.join(output_path, 'sediment_mobility_difference.tif'),
                     receptor_filename=None,
@@ -547,7 +549,8 @@ def run_shear_stress_stressor(
                     receptor_filename=os.path.join(output_path, 'sediment_grain_size.tif'),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
-                    latlon=crs == 4326).to_csv(os.path.join(output_path, "sediment_mobility_difference_at_sediment_grain_size.csv"), index=False)
+                    latlon=crs == 4326,
+                    receptor_type='grain size').to_csv(os.path.join(output_path, "sediment_mobility_difference_at_sediment_grain_size.csv"), index=False)
 
         bin_layer(os.path.join(output_path, 'shear_stress_risk_metric.tif'),
                     receptor_filename=None,
@@ -559,7 +562,8 @@ def run_shear_stress_stressor(
                     receptor_filename=os.path.join(output_path, 'sediment_grain_size.tif'),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
-                    latlon=crs == 4326).to_csv(os.path.join(output_path, "shear_stress_risk_metric_at_sediment_grain_size.csv"), index=False)
+                    latlon=crs == 4326,
+                    receptor_type='grain size').to_csv(os.path.join(output_path, "shear_stress_risk_metric_at_sediment_grain_size.csv"), index=False)
 
         classify_layer_area(os.path.join(output_path, "sediment_mobility_classified.tif"),
                             at_values=[-3, -2, -1, 0, 1, 2, 3],
@@ -573,20 +577,23 @@ def run_shear_stress_stressor(
                             value_names=['New Deposition', 'Increased Deposition', 'Reduced Deposition',
                                             'No Change', 'Reduced Erosion', 'Increased Erosion', 'New Erosion'],
                             limit_receptor_range=[0, np.inf],
-                            latlon=crs == 4326).to_csv(os.path.join(output_path, "sediment_mobility_classified_at_sediment_grain_size.csv"), index=False)
+                            latlon=crs == 4326,
+                            receptor_type='grain size').to_csv(os.path.join(output_path, "sediment_mobility_classified_at_sediment_grain_size.csv"), index=False)
 
         if not ((secondary_constraint_filename is None) or (secondary_constraint_filename == "")):
             bin_layer(os.path.join(output_path, 'sediment_mobility_difference.tif'),
                     receptor_filename=os.path.join(output_path, "shear_stress_risk_layer.tif"),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
-                    latlon=crs == 4326).to_csv(os.path.join(output_path, "sediment_mobility_difference_at_shear_stress_risk_layer.csv"), index=False)
+                    latlon=crs == 4326,
+                    receptor_type='risk layer').to_csv(os.path.join(output_path, "sediment_mobility_difference_at_shear_stress_risk_layer.csv"), index=False)
 
             bin_layer(os.path.join(output_path, 'shear_stress_risk_metric.tif'),
                     receptor_filename=os.path.join(output_path, "shear_stress_risk_layer.tif"),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
-                    latlon=crs == 4326).to_csv(os.path.join(output_path, "shear_stress_risk_metric_at_shear_stress_risk_layer.csv"), index=False)
+                    latlon=crs == 4326,
+                    receptor_type='risk layer').to_csv(os.path.join(output_path, "shear_stress_risk_metric_at_shear_stress_risk_layer.csv"), index=False)
 
             classify_layer_area_2nd_Constraint(raster_to_sample = os.path.join(output_path, "sediment_mobility_difference.tif"),
                             secondary_constraint_filename=os.path.join(output_path, "shear_stress_risk_layer.tif"),
@@ -594,7 +601,8 @@ def run_shear_stress_stressor(
                             at_raster_value_names=['New Deposition', 'Increased Deposition', 'Reduced Deposition',
                                             'No Change', 'Reduced Erosion', 'Increased Erosion', 'New Erosion'],
                             limit_constraint_range=[0, np.inf],
-                            latlon=crs == 4326).to_csv(os.path.join(output_path, "sediment_mobility_difference_at_shear_stress_risk_layer.csv"), index=False)
+                            latlon=crs == 4326,
+                            receptor_type='risk layer').to_csv(os.path.join(output_path, "sediment_mobility_difference_at_shear_stress_risk_layer.csv"), index=False)
     OUTPUT = {}
     for val in output_rasters:
         OUTPUT[os.path.basename(os.path.normpath(val)).split('.')[0]] = val

@@ -412,7 +412,8 @@ def run_acoustics_stressor(
                 receptor_filename=os.path.join(output_path, "paracousti_risk_layer.tif"),
                 receptor_names=None,
                 limit_receptor_range=[0, np.inf],
-                latlon=crs == 4326).to_csv(os.path.join(output_path, "paracousti_stressor_at_paracousti_risk_layer.csv"), index=False)
+                latlon=crs == 4326,
+                receptor_type='risk layer').to_csv(os.path.join(output_path, "paracousti_stressor_at_paracousti_risk_layer.csv"), index=False)
 
     if not ((species_folder is None) or (species_folder == "")):
         bin_layer(os.path.join(output_path, "species_percent.tif"),
@@ -426,19 +427,22 @@ def run_acoustics_stressor(
                     receptor_filename=os.path.join(output_path, "paracousti_risk_layer.tif"),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
-                    latlon=crs == 4326).to_csv(os.path.join(output_path, "species_threshold_exceeded_at_paracousti_risk_layer.csv"), index=False)
+                    latlon=crs == 4326,
+                    receptor_type='risk layer').to_csv(os.path.join(output_path, "species_threshold_exceeded_at_paracousti_risk_layer.csv"), index=False)
 
             bin_layer(os.path.join(output_path, 'species_percent.tif'),
                     receptor_filename=os.path.join(output_path, "paracousti_risk_layer.tif"),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
-                    latlon=crs == 4326).to_csv(os.path.join(output_path, "species_percent_at_paracousti_risk_layer.csv"), index=False)
+                    latlon=crs == 4326,
+                    receptor_type='risk layer').to_csv(os.path.join(output_path, "species_percent_at_paracousti_risk_layer.csv"), index=False)
 
             bin_layer(os.path.join(output_path, 'species_density.tif'),
                     receptor_filename=os.path.join(output_path, "paracousti_risk_layer.tif"),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
-                    latlon=crs == 4326).to_csv(os.path.join(output_path, "species_density_at_paracousti_risk_layer.csv"), index=False)
+                    latlon=crs == 4326,
+                    receptor_type='risk layer').to_csv(os.path.join(output_path, "species_density_at_paracousti_risk_layer.csv"), index=False)
 
     OUTPUT = {}
     for val in output_rasters:
