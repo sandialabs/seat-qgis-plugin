@@ -6,3 +6,4 @@
 
 # Sphinx documentation html
 docs/_build/*
+seat/tester.ipynb
