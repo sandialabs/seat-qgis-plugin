@@ -397,23 +397,67 @@ class StressorReceptorCalc:
         with open(filename, "w") as configfile:
             config.write(configfile)
             
+    # def add_layer(self, fpath, root=None, group=None): 
+    #     basename = os.path.splitext(os.path.basename(fpath))[0]
+    #     if group is not None:
+    #         vlayer = QgsRasterLayer(fpath, basename)
+    #         QgsProject.instance().addMapLayer(vlayer)
+    #         layer = root.findLayer(vlayer.id())
+    #         clone = layer.clone()
+    #         group.insertChildNode(0, clone)
+    #         root.removeChildNode(layer)
+    #     else:
+    #         layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))        
+
     def add_layer(self, fpath, root=None, group=None): 
         basename = os.path.splitext(os.path.basename(fpath))[0]
+        ftype = os.path.splitext(os.path.basename(fpath))[-1]
         if group is not None:
-            vlayer = QgsRasterLayer(fpath, basename)
+            if ftype == '.shp':
+                vlayer = QgsVectorLayer(fpath, basename)
+            else: #.tif
+                vlayer = QgsRasterLayer(fpath, basename)
             QgsProject.instance().addMapLayer(vlayer)
             layer = root.findLayer(vlayer.id())
             clone = layer.clone()
             group.insertChildNode(0, clone)
             root.removeChildNode(layer)
         else:
-            layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))        
+            layer = QgsProject.instance().addMapLayer(QgsVectorLayer(fpath, basename))                  
+
+    # def style_layer(self, fpath, stylepath=None, root=None, group=None):#, ranges=True):
+    #     """Style and add the result layer to map."""
+    #     basename = os.path.splitext(os.path.basename(fpath))[0]
+    #     if group is not None:
+    #         vlayer = QgsRasterLayer(fpath, basename)
+    #         QgsProject.instance().addMapLayer(vlayer)
+    #         root = QgsProject.instance().layerTreeRoot()
+    #         if stylepath is not None:
+    #             vlayer.loadNamedStyle(stylepath)
+    #             vlayer.triggerRepaint()
+    #             vlayer.reload() 
+    #         layer = root.findLayer(vlayer.id())
+    #         clone = layer.clone()
+    #         group.insertChildNode(0, clone)
+    #         root.removeChildNode(layer)
+    #     else:
+    #         layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))     
+    #         layer.loadNamedStyle(stylepath)
+    #         layer.triggerRepaint()
+    #         layer.reload()            
+    #     # refresh legend entries
+    #         self.iface.layerTreeView().refreshLayerSymbology(layer.id())
 
     def style_layer(self, fpath, stylepath=None, root=None, group=None):#, ranges=True):
         """Style and add the result layer to map."""
+        stylepath = stylepath.strip() #remove white space
         basename = os.path.splitext(os.path.basename(fpath))[0]
+        ftype = os.path.splitext(os.path.basename(fpath))[-1]
         if group is not None:
-            vlayer = QgsRasterLayer(fpath, basename)
+            if ftype == '.shp':
+                vlayer = QgsVectorLayer(fpath, basename)
+            else: #.tif
+                vlayer = QgsRasterLayer(fpath, basename)
             QgsProject.instance().addMapLayer(vlayer)
             root = QgsProject.instance().layerTreeRoot()
             if stylepath is not None:
@@ -425,12 +469,15 @@ class StressorReceptorCalc:
             group.insertChildNode(0, clone)
             root.removeChildNode(layer)
         else:
-            layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))     
+            if ftype == '.shp':
+                layer = QgsProject.instance().addMapLayer(QgsVectorLayer(fpath, basename)) 
+            else: #.tif
+                layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))          
             layer.loadNamedStyle(stylepath)
             layer.triggerRepaint()
             layer.reload()            
         # refresh legend entries
-            self.iface.layerTreeView().refreshLayerSymbology(layer.id())
+            self.iface.layerTreeView().refreshLayerSymbology(layer.id())            
 
     def select_folder_module(self, module=None, option=None):
         directory = self.select_folder()
@@ -520,7 +567,7 @@ class StressorReceptorCalc:
 
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
-        if self.first_start == True:
+        if self.first_start is True:
             self.first_start = False
             self.dlg = StressorReceptorCalcDialog()
 
@@ -553,7 +600,6 @@ class StressorReceptorCalc:
             # this connects the input file creator
             self.dlg.save_input.clicked.connect(lambda: self.save_in())
 
-                  
             # set the present and not present files. Either .nc files or .tif folders
             
             #directories
@@ -717,7 +763,7 @@ class StressorReceptorCalc:
                 stylefiles_DF = None
 
             initialize_group  = True
-                                  
+            
             # if the output file path is empty display a warning
             if output_folder_name == "":
                 QgsMessageLog.logMessage("Output file path not given.", level=Qgis.MessageLevel.Warnin)
@@ -726,11 +772,31 @@ class StressorReceptorCalc:
             if power_files_directory != "":
                 if ((power_probabilities_fname is None) or (power_probabilities_fname == "")):
                     power_probabilities_fname = shear_stress_probabilities_fname #default to shear stress probabilities if none given
-                calculate_power(power_files_directory, 
+                sfilenames = calculate_power(power_files_directory, 
                                 power_probabilities_fname,
                                 save_path=os.path.join(output_folder_name, 'Power Module'),
                                 crs=crs)
+                
+                if initialize_group:
+                    root = QgsProject.instance().layerTreeRoot()
+                    group = root.addGroup("temporary")
+                    self.add_layer(sfilenames[list(sfilenames.keys())[0]], root=root, group=group)
+                    initialize_group = False          
 
+                group_name = "Power"
+                root = QgsProject.instance().layerTreeRoot()
+                group = root.findGroup(group_name)
+                if group is None:
+                    group = root.addGroup(group_name)
+                for key in sfilenames.keys(): #add styles files and/or display
+                    if stylefiles_DF is None:
+                        self.add_layer(sfilenames[key], root=root, group=group)
+                    else:
+                        if key in stylefiles_DF.index.values:
+                            self.style_layer(sfilenames[key], stylefiles_DF.loc[key].item(), root=root, group=group)
+                        else:
+                            self.add_layer(sfilenames[key], root=root, group=group)
+                        
             # Run Shear Stress Module 
             if not ((shear_stress_device_present_directory is None) or (shear_stress_device_present_directory == "")): # svar == "Shear Stress":
                 sfilenames = run_shear_stress_stressor(
