@@ -328,8 +328,8 @@ def roundup(x, base=5):
 def create_shapefile(DEVICE_POWER, crs=None):
     Power = []
     Polys = []
-    for device_number, device in DEVICE_POWER.iterrows():
-        Polys.append(Polygon([Point(x,y) for x,y in zip(device["polyx"], device["polyy"])]))
+    for _, device in DEVICE_POWER.iterrows():
+        Polys.append(Polygon([Point(np.where(x > 180, x-360, x) if crs==4326 else x, y) for x,y in zip(device["polyx"], device["polyy"])]))
         Power.append(device['Power [W]']*1e-6)
     GPD = gpd.GeoDataFrame({'Device':DEVICE_POWER.index.values,
                         'Power MW' : Power},
