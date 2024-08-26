@@ -6,6 +6,7 @@ import pandas as pd
 from osgeo import gdal
 from osgeo import osr
 from unittest.mock import patch, MagicMock
+from os.path import join
 
 # Get the directory in which the current script is located
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -20,7 +21,19 @@ from seat.modules import stressor_utils as su
 # fmt: on
 # from seat.stressor_utils import estimate_grid_spacing
 
-class TestEstimateGridSpacing(unittest.TestCase):
+class TestStressorUtils(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        """
+        Class method to set up file paths for the tests
+        """
+        # Define paths with script_dir prepended, similar to the shear stress module pattern
+        cls.risk_layer_file = join(script_dir, "data/structured/risk-layer/habitat_classification.tif")
+        cls.grain_size_file = join(script_dir, "data/structured/receptor/grainsize_receptor.tif")
+        cls.receptor_filename_csv = os.path.join(script_dir, 'data/structured/receptor/grain_size_receptor.csv')
+
+class TestEstimateGridSpacing(TestStressorUtils):
 
     def test_evenly_spaced_points(self):
         # Evenly spaced points
@@ -44,7 +57,7 @@ class TestEstimateGridSpacing(unittest.TestCase):
         self.assertAlmostEqual(spacing, expected_spacing, delta=0.02)
 
 
-class TestCreateStructuredArrayFromUnstructured(unittest.TestCase):
+class TestCreateStructuredArrayFromUnstructured(TestStressorUtils):
 
     def test_structured_array_creation(self):
         # Example unstructured data (could be synthetic or based on a simple pattern)
@@ -64,7 +77,7 @@ class TestCreateStructuredArrayFromUnstructured(unittest.TestCase):
         np.testing.assert_array_almost_equal(refyg[:, 0], np.arange(0, 2, dxdy))
 
 
-class TestRedefineStructuredGrid(unittest.TestCase):
+class TestRedefineStructuredGrid(TestStressorUtils):
 
     def test_redefined_grid(self):
         # Example structured data
@@ -85,7 +98,7 @@ class TestRedefineStructuredGrid(unittest.TestCase):
         np.testing.assert_almost_equal(y_new[1, 0] - y_new[0, 0], dx)
 
 
-class TestResampleStructuredGrid(unittest.TestCase):
+class TestResampleStructuredGrid(TestStressorUtils):
 
     def test_grid_resampling(self):
         # Input grid
@@ -106,17 +119,15 @@ class TestResampleStructuredGrid(unittest.TestCase):
         self.assertEqual(z_resampled.shape, X_grid_out.shape)
 
 
-class TestCalcReceptorArray(unittest.TestCase):
+class TestCalcReceptorArray(TestStressorUtils):
 
     def setUp(self):
         self.x = np.array([-124.284, -124.2832, -124.2824])
         self.y = np.array([44.671, 44.6705, 44.670])
-        self.receptor_filename_tif = os.path.join(script_dir, 'data/structured/receptor/grainsize_receptor.tif')
-        self.receptor_filename_csv = os.path.join(script_dir, 'data/structured/receptor/grain_size_receptor.csv')
 
     def test_with_tif_file(self):
         # Call the original calc_receptor_array function
-        receptor_array = su.calc_receptor_array(self.receptor_filename_tif, self.x, self.y)
+        receptor_array = su.calc_receptor_array(self.grain_size_file, self.x, self.y)
 
         # Set the expected receptor array values based on the actual values in the .tif file
         expected_receptor_array = np.array([0.0, 300.0, 300.0])
@@ -148,7 +159,7 @@ class TestCalcReceptorArray(unittest.TestCase):
         self.assertTrue(f"Invalid Receptor File {receptor_filename}. Must be of type .tif or .csv" in str(context.exception))
 
 
-class TestTrimZeros(unittest.TestCase):
+class TestTrimZeros(TestStressorUtils):
 
     def test_trim_zeros(self):
         # Create test data with zeros on edges
@@ -176,7 +187,7 @@ class TestTrimZeros(unittest.TestCase):
         self.assertTrue(np.all(z2_trimmed != 0))
 
 
-class TestCreateRaster(unittest.TestCase):
+class TestCreateRaster(TestStressorUtils):
 
     def setUp(self):
         # Temporary output path for testing
@@ -207,7 +218,7 @@ class TestCreateRaster(unittest.TestCase):
         self.assertEqual(raster.GetRasterBand(1).DataType, eType)
 
 
-class TestNumpyArrayToRaster(unittest.TestCase):
+class TestNumpyArrayToRaster(TestStressorUtils):
 
     def setUp(self):
         # Temporary output path for testing
@@ -269,7 +280,7 @@ class TestNumpyArrayToRaster(unittest.TestCase):
         self.assertEqual(result_path, self.output_path)
 
 
-class TestFindUtmSrid(unittest.TestCase):
+class TestFindUtmSrid(TestStressorUtils):
 
     def test_northern_hemisphere(self):
         lon = 10  # Longitude in the Northern Hemisphere
@@ -300,10 +311,10 @@ class TestFindUtmSrid(unittest.TestCase):
             su.find_utm_srid(lon, lat, srid)
 
 
-class TestReadRaster(unittest.TestCase):
+class TestReadRaster(TestStressorUtils):
 
     def setUp(self):
-        self.raster_path = "tests/data/structured/receptor/grainsize_receptor.tif"
+        self.raster_path = "data/structured/receptor/grainsize_receptor.tif"
 
     def test_read_raster(self):
         # Expected values
@@ -313,10 +324,10 @@ class TestReadRaster(unittest.TestCase):
         expected_geotransform = (-124.28439, 0.0008, 0.0, 44.6715, 0.0, -0.0010000000000000009)
 
         # Open the dataset to read geotransform and projection
-        dataset = gdal.Open(self.raster_path)
+        dataset = gdal.Open(self.grain_size_file)
 
         # Call the actual function to get raster data
-        rx, ry, raster_array = su.read_raster(self.raster_path)
+        rx, ry, raster_array = su.read_raster(self.grain_size_file)
 
         # Check specific values in the raster
         self.assertEqual(raster_array[0, 0], expected_top_left_value)
@@ -335,11 +346,7 @@ class TestReadRaster(unittest.TestCase):
         self.assertEqual(spatial_ref.GetAttrValue('AUTHORITY', 1), '4326')
         self.assertEqual(spatial_ref.GetAttrValue('DATUM'), 'WGS_1984')
 
-class TestSecondaryConstraintGeotiffToNumpy(unittest.TestCase):
-
-    def setUp(self):
-        # Path to the actual .tif file to be used for testing
-        self.raster_path = "tests/data/structured/receptor/grainsize_receptor.tif"
+class TestSecondaryConstraintGeotiffToNumpy(TestStressorUtils):
 
     def test_secondary_constraint_geotiff_to_numpy(self):
         # Expected values based on the actual contents of the grainsize_receptor.tif
@@ -348,7 +355,7 @@ class TestSecondaryConstraintGeotiffToNumpy(unittest.TestCase):
         expected_bottom_right_value = -3.4028234663852886e+38
 
         # Call the actual function to read the raster and get x_grid, y_grid, and array
-        x_grid, y_grid, array = su.secondary_constraint_geotiff_to_numpy(self.raster_path)
+        x_grid, y_grid, array = su.secondary_constraint_geotiff_to_numpy(self.grain_size_file)
 
         # Assert the dimensions of the grid and array
         self.assertEqual(x_grid.shape, array.shape)
@@ -361,7 +368,7 @@ class TestSecondaryConstraintGeotiffToNumpy(unittest.TestCase):
 
         # Optionally, you can add more assertions for the geotransform, projection, etc.
         # For example:
-        dataset = gdal.Open(self.raster_path)
+        dataset = gdal.Open(self.grain_size_file)
         geotransform = dataset.GetGeoTransform()
         expected_geotransform = (-124.28439, 0.0008, 0.0, 44.6715, 0.0, -0.0010000000000000009)
         self.assertEqual(geotransform, expected_geotransform)
@@ -375,7 +382,7 @@ class TestSecondaryConstraintGeotiffToNumpy(unittest.TestCase):
         dataset = None  # Close the dataset to avoid issues with open file handles
 
 
-class TestCalculateCellArea(unittest.TestCase):
+class TestCalculateCellArea(TestStressorUtils):
 
     def test_latlon_true(self):
         # Test data for a lat/lon grid
@@ -410,7 +417,7 @@ class TestCalculateCellArea(unittest.TestCase):
         np.testing.assert_array_equal(rym, expected_rym)
 
 
-class TestBinData(unittest.TestCase):
+class TestBinData(TestStressorUtils):
 
     def test_bin_data(self):
         # Sample input data
@@ -459,7 +466,7 @@ class TestBinData(unittest.TestCase):
         np.testing.assert_array_equal(result['Area'], expected_bins['Area'])
 
 
-class TestBinReceptor(unittest.TestCase):
+class TestBinReceptor(TestStressorUtils):
 
     def setUp(self):
         # Set up sample data for tests
@@ -523,16 +530,11 @@ class TestBinReceptor(unittest.TestCase):
             np.testing.assert_array_almost_equal(result[area_percent_key], expected_result[area_percent_key])
 
 
-class TestBinLayer(unittest.TestCase):
-
-    def setUp(self):
-        # Setup file paths to actual raster files
-        self.raster_filename = "tests/data/structured/risk-layer/habitat_classification.tif"
-        self.receptor_filename = "tests/data/structured/receptor/grainsize_receptor.tif"
+class TestBinLayer(TestStressorUtils):
 
     def test_bin_layer_without_receptor(self):
         # Call the bin_layer function with real raster data and no receptor
-        result = su.bin_layer(self.raster_filename)
+        result = su.bin_layer(self.risk_layer_file)
 
         # Check if the result is a DataFrame
         self.assertIsInstance(result, pd.DataFrame)
@@ -553,7 +555,7 @@ class TestBinLayer(unittest.TestCase):
 
     def test_bin_layer_with_receptor(self):
         # Call the bin_layer function with real raster and receptor data
-        result = su.bin_layer(self.raster_filename, self.receptor_filename)
+        result = su.bin_layer(self.risk_layer_file, self.grain_size_file)
 
         # Check if the result is a DataFrame
         self.assertIsInstance(result, pd.DataFrame)
@@ -572,16 +574,11 @@ class TestBinLayer(unittest.TestCase):
         self.assertAlmostEqual(result['Area percent, receptor value 0.0'].iloc[0], 86.34171591875244, places=2)
 
 
-class TestClassifyLayerArea(unittest.TestCase):
-
-    def setUp(self):
-        # Setup real file paths for the raster files
-        self.raster_filename = "tests/data/structured/risk-layer/habitat_classification.tif"
-        self.receptor_filename = "tests/data/structured/receptor/grainsize_receptor.tif"
+class TestClassifyLayerArea(TestStressorUtils):
 
     def test_classify_layer_area_without_receptor(self):
         # Use real data for testing
-        result = su.classify_layer_area(self.raster_filename, at_values=[0, 5, 7], value_names=['Zero', 'Five', 'Seven'])
+        result = su.classify_layer_area(self.risk_layer_file, at_values=[0, 5, 7], value_names=['Zero', 'Five', 'Seven'])
 
         # Check if the result is a DataFrame
         self.assertIsInstance(result, pd.DataFrame)
@@ -602,7 +599,7 @@ class TestClassifyLayerArea(unittest.TestCase):
 
     def test_classify_layer_area_with_receptor(self):
         # Use real data for testing, including the receptor raster
-        result = su.classify_layer_area(self.raster_filename, self.receptor_filename, at_values=[0, 5, 7], value_names=['Zero', 'Five', 'Seven'])
+        result = su.classify_layer_area(self.risk_layer_file, self.grain_size_file, at_values=[0, 5, 7], value_names=['Zero', 'Five', 'Seven'])
 
         # Check if the result is a DataFrame
         self.assertIsInstance(result, pd.DataFrame)
@@ -625,11 +622,9 @@ class TestClassifyLayerArea(unittest.TestCase):
         np.testing.assert_array_almost_equal(result['Area percent, receptor value 0.0'], expected_percent_0, decimal=2)
 
 
-class TestClassifyLayerArea2ndConstraint(unittest.TestCase):
+class TestClassifyLayerArea2ndConstraint(TestStressorUtils):
 
     def setUp(self):
-        self.raster_filename = "tests/data/structured/risk-layer/habitat_classification.tif"
-
         # Hardcoded secondary constraint data as a binary mask (1s and 0s)
         self.secondary_constraint_data = np.array([
             [1, 0, 1, 1, 0],
@@ -642,7 +637,7 @@ class TestClassifyLayerArea2ndConstraint(unittest.TestCase):
     def test_classify_layer_area_2nd_constraint(self):
         # Call the classify_layer_area_2nd_Constraint with hardcoded secondary constraint
         result = su.classify_layer_area_2nd_Constraint(
-            self.raster_filename,
+            self.risk_layer_file,
             None,  # Not using a secondary constraint file, using hardcoded data instead
             at_raster_values=[0, 5, 7],
             at_raster_value_names=['Zero', 'Five', 'Seven'],
