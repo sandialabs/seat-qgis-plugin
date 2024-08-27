@@ -2,13 +2,8 @@
 /***************************************************************************.
 
  velocity_module.py
- Copyright 2023, Integral Consulting Inc. All rights reserved.
 
  PURPOSE: definitions used by the stressor modules
-
- PROJECT INFORMATION:
- Name: SEAT - Spatial and Environmental Assessment Toolkit
- Number: C1308
 
  AUTHORS
   Timothy Nelson (tnelson@integral-corp.com)
