@@ -69,17 +69,17 @@ def read_obstacle_polygon_file(power_device_configuration_file):
 
 def find_mean_point_of_obstacle_polygon(Obstacles):
     """
-    claculates the center of each obstacle
+    Calculates the center of each obstacle.
 
     Parameters
     ----------
     Obstacles : Dict
-        xy of each obstacle.
+        x,y of each obstacle.
 
     Returns
     -------
     Centroids : array
-        centroid of each obstacle.
+        Centroid of each obstacle.
 
     """
     Centroids = np.empty((0, 3), dtype=int)
