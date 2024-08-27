@@ -189,24 +189,38 @@ class TestPowerModule(unittest.TestCase):
 
     def test_create_power_heatmap(self):
         """
-        Test the create_power_heatmap function.
+        Test the create_power_heatmap function using real data from 'BC_probability_wPower.csv' and rect_4x4.pol
         """
-        # Real power data taken from 'Power_per_device_annual.csv'
-        actual_power_data = pd.DataFrame({
-            'lower_left': [[0, 0], [1, 1], [2, 2], [3, 3], [4, 4]],
-            'width': [1, 1, 1, 1, 1],
-            'height': [1, 1, 1, 1, 1],
-            'Power [W]': [
-                197978025.361321,
-                169291964.91895958,
-                218194378.08809462,
-                214975480.6223872,
-                197689234.14206034  # Real power values from the CSV
-            ]
+        # Load the power data from the CSV file
+        csv_file_path = os.path.join(script_dir, 'data', 'structured', 'output', 'BC_probability_wPower.csv')
+        actual_power_data = pd.read_csv(csv_file_path)
+
+        # Load the obstacle data from the .pol file to get the geometric values
+        obstacles = pm.read_obstacle_polygon_file(self.pol_file)
+
+        # Extract device locations from obstacles
+        centroids = pm.find_mean_point_of_obstacle_polygon(obstacles)
+        device_index = pm.pair_devices(centroids)
+        devices_df = pm.extract_device_location(obstacles, device_index)
+
+        # Use the first 5 devices and their corresponding spatial data
+        lower_left = devices_df['lower_left'].head(5).tolist()
+        width = devices_df['width'].head(5).tolist()
+        height = devices_df['height'].head(5).tolist()
+
+        # Take the first 5 values of the Power [W] column from the CSV
+        power_values = actual_power_data['Power [W]'].head(5)
+
+        # Construct a DataFrame using the real geometric values and the real power values
+        test_data = pd.DataFrame({
+            'lower_left': lower_left,
+            'width': width,
+            'height': height,
+            'Power [W]': power_values
         })
 
-        # Test using real data in the 'create_power_heatmap' function
-        fig = pm.create_power_heatmap(actual_power_data)
+        # Call the function being tested
+        fig = pm.create_power_heatmap(test_data)
 
         # Assert that the figure is created successfully
         self.assertIsInstance(fig, plt.Figure, "The output should be a matplotlib figure.")
@@ -216,8 +230,8 @@ class TestPowerModule(unittest.TestCase):
         ax = fig.axes[0]  # Main plot is the first axes
 
         # Check that the power values in the heatmap match expected real data
-        expected_power_values = actual_power_data['Power [W]'].values
-        extracted_power_values = actual_power_data['Power [W]'].values  # Assuming this should be tested for consistency
+        expected_power_values = power_values.values
+        extracted_power_values = test_data['Power [W]'].values
 
         np.testing.assert_array_almost_equal(
             extracted_power_values,
@@ -232,7 +246,6 @@ class TestPowerModule(unittest.TestCase):
         # Check axis labels
         self.assertEqual(ax.get_xlabel(), 'Longitude [deg]', "The x-axis label should be 'Longitude [deg]'.")
         self.assertEqual(ax.get_ylabel(), 'Latitude [deg]', "The y-axis label should be 'Latitude [deg]'.")
-
 
     def test_read_power_file(self):
         """

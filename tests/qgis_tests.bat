@@ -18,5 +18,5 @@ set "PATH=%QGIS_ROOT%\bin;%QGIS_ROOT%\apps\qgis-ltr\bin;%PATH%"
 "%QGIS_ROOT%\bin\python.exe" -m pytest .
 @REM "%QGIS_ROOT%\bin\python.exe" -m pytest -s tests\test_shear_stress.py
 
-@REM "%QGIS_ROOT%\bin\python.exe" tests\test_stressor_receptor_calc.py
+@REM "%QGIS_ROOT%\bin\python.exe" tests\test_power_module.py
 
