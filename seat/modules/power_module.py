@@ -1,11 +1,4 @@
 # power_module.py
-# Copyright 2023, Integral Consulting Inc. All rights reserved.
-#
-# PURPOSE: Calculate power output from device array
-#
-# PROJECT INFORMATION:
-# Name: Marine Renewable Energy Assessment
-# Number:C1308
 #
 # AUTHORS (Authors to use initals in history)
 #  Timothy R. Nelson - tnelson@integral-corp.com
@@ -48,29 +41,31 @@ def read_obstacle_polygon_file(power_device_configuration_file):
         xy of each obstacle.
 
     """
-    # inf = io.open(power_device_configuration_file, "r")
-    with io.open(power_device_configuration_file, "r") as inf:
-        lines = inf.readlines()
-        ic = 0
-        Obstacles = {}
-        while ic < len(lines)-1:
-            if lines[ic].find('Obstacle') >= 0:
-                # print(lines[ic])
-                obstacle = lines[ic].strip()
-                Obstacles[obstacle] = {}
+    try:
+        with io.open(power_device_configuration_file, "r", encoding="utf-8") as inf:
+            lines = inf.readlines()
+    except FileNotFoundError:
+        raise FileNotFoundError(f"File not found: {power_device_configuration_file}")
+    
+    ic = 0
+    Obstacles = {}
+    while ic < len(lines) - 1:
+        if 'Obstacle' in lines[ic]:
+            obstacle = lines[ic].strip()
+            Obstacles[obstacle] = {}
+            ic += 1  # skip to next line
+            nrows, ncols = [int(i) for i in lines[ic].split()]
+            ic += 1  # skip to next line
+            x = []
+            y = []
+            for n in range(nrows):  # read polygon
+                xi, yi = [float(i) for i in lines[ic].split()]
+                x = np.append(x, xi)
+                y = np.append(y, yi)
                 ic += 1  # skip to next line
-                nrows, ncols = [int(i) for i in lines[ic].split()]
-                ic += 1  # skip to next line
-                x = []
-                y = []
-                for n in range(nrows):  # read polygon
-                    xi, yi = [float(i) for i in lines[ic].split()]
-                    x = np.append(x, xi)
-                    y = np.append(y, yi)
-                    ic += 1  # skip to next line
-                Obstacles[obstacle] = np.vstack((x, y)).T
-            else:
-                ic += 1
+            Obstacles[obstacle] = np.vstack((x, y)).T
+        else:
+            ic += 1
     return Obstacles
 
 
