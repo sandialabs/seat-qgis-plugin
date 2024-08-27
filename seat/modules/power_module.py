@@ -23,9 +23,7 @@ from matplotlib.colors import ListedColormap
 from matplotlib.cm import ScalarMappable
 from matplotlib.ticker import FormatStrFormatter
 
-# %% Obstacle Polygon and Device Positions
-
-
+# Obstacle Polygon and Device Positions
 def read_obstacle_polygon_file(power_device_configuration_file):
     """
     reads the obstacle polygon file
@@ -44,9 +42,9 @@ def read_obstacle_polygon_file(power_device_configuration_file):
     try:
         with io.open(power_device_configuration_file, "r", encoding="utf-8") as inf:
             lines = inf.readlines()
-    except FileNotFoundError:
-        raise FileNotFoundError(f"File not found: {power_device_configuration_file}")
-    
+    except FileNotFoundError as exc:
+        raise FileNotFoundError(f"File not found: {power_device_configuration_file}") from exc
+
     ic = 0
     Obstacles = {}
     while ic < len(lines) - 1:
