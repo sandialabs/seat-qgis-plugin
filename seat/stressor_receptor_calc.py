@@ -1,15 +1,6 @@
 # -*- coding: utf-8 -*-
 """ stressor_receptor_calc.py
  
- Copyright 2023, Integral Consulting Inc. All rights reserved.
-
- PURPOSE: A QGIS plugin that calculates a probability weighted response
-    layer from stressor and/or receptor layers
-
- PROJECT INFORMATION:
- Name: SEAT - Spatial and Environmental Assessment Toolkit
- Number: C1308
-
  AUTHORS
  Eben Pendelton
   Timothy Nelson (tnelson@integral-corp.com)
