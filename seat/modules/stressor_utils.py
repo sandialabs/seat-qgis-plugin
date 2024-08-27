@@ -592,7 +592,7 @@ def bin_receptor(zm, receptor, square_area, nbins=25, receptor_names=None, recep
     Returns
     -------
     DATA : Dictionary
-        Dictionary contating with keyscorresponding to each unique receptor value each containing for each bin
+        Dictionary with keys corresponding to each unique receptor value each containing for each bin
             bin start : the starting value of each bin
             bin end : the last value of each bin
             bin center: the center value of each bin
