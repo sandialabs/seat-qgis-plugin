@@ -615,7 +615,7 @@ class StressorReceptorCalc:
             # Run Calculations
             # Run Calculations
             # this grabs the files for input and output
-            #TODO Remove these and just query the dlg directly when needed
+            # TODO Remove these and just query the dlg directly when needed
             shear_stress_device_present_directory = self.dlg.shear_device_present.text()
             if not ((shear_stress_device_present_directory is None) or (shear_stress_device_present_directory == "")):
                 if not os.path.exists(shear_stress_device_present_directory):
