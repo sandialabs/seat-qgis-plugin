@@ -88,12 +88,12 @@ class TestStressorReceptorCalcModule(unittest.TestCase):
         """
         Test the read_style_files method.
         """
-        stressor_receptor_calc = sr.StressorReceptorCalc(None)  
+        stressor_receptor_calc = sr.StressorReceptorCalc(None)
         result_df = stressor_receptor_calc.read_style_files(self.mock_csv_file)
 
         # Adjusting expected_df to have the same index name as result_df
         expected_df = pd.DataFrame({'Value': [10, 20, 30]}, index=pd.Index(['Type1', 'Type2', 'Type3'], name='Type'))
-        
+
         pd.testing.assert_frame_equal(result_df, expected_df)
 
     @patch('seat.stressor_receptor_calc.QFileDialog.getOpenFileName')
@@ -121,9 +121,9 @@ class TestStressorReceptorCalcModule(unittest.TestCase):
         self.stressor_receptor_calc.dlg.shear_device_not_present.text.return_value = "shear_device_not_present_path"
         self.stressor_receptor_calc.dlg.shear_probabilities_file.text.return_value = "shear_probabilities_file"
         self.stressor_receptor_calc.dlg.shear_risk_file.text.return_value = "shear_risk_file"
-        
+
         self.stressor_receptor_calc.copy_shear_input_to_velocity()
-        
+
         self.stressor_receptor_calc.dlg.velocity_device_present.setText.assert_called_once_with("shear_device_present_path")
         self.stressor_receptor_calc.dlg.velocity_device_not_present.setText.assert_called_once_with("shear_device_not_present_path")
         self.stressor_receptor_calc.dlg.velocity_probabilities_file.setText.assert_called_once_with("shear_probabilities_file")
@@ -157,25 +157,25 @@ class TestStressorReceptorCalcModule(unittest.TestCase):
         Test the test_exists method.
         """
         line_edit = MagicMock()
-        
+
         # Case: file exists
         mock_exists.return_value = True
         self.stressor_receptor_calc.test_exists(line_edit, "existing_path", "File")
         line_edit.setText.assert_called_once_with("existing_path")
         line_edit.setStyleSheet.assert_called_once_with("color: black;")
-        
+
         # Reset mocks
         line_edit.reset_mock()
-        
+
         # Case: file does not exist
         mock_exists.return_value = False
         self.stressor_receptor_calc.test_exists(line_edit, "non_existing_path", "File")
         line_edit.setText.assert_called_once_with("File not Found")
         line_edit.setStyleSheet.assert_called_once_with("color: red;")
-        
+
         # Reset mocks
         line_edit.reset_mock()
-        
+
         # Case: file path is empty
         self.stressor_receptor_calc.test_exists(line_edit, "", "File")
         line_edit.setStyleSheet.assert_called_once_with("color: black;")
@@ -457,7 +457,7 @@ class TestStressorReceptorCalcModule(unittest.TestCase):
                 line_edit.setText.assert_called_once_with(mock_file)
                 line_edit.setStyleSheet.assert_called_once_with("color: black;")
 
-    
+
 def run_all():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(TestStressorReceptorCalcModule))

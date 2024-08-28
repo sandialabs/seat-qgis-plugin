@@ -4,8 +4,7 @@ import netCDF4
 import unittest
 import numpy as np
 import pandas as pd
-import rasterio
-import time
+from osgeo import gdal
 
 from os.path import join
 
@@ -248,10 +247,6 @@ class TestShearStress(unittest.TestCase):
 
 
     def test_run_shear_stress_stressor_structured(self):
-        """
-        Test the run_shear_stress_stressor function to ensure it correctly processes input data,
-        generates the expected GeoTIFFs and area change statistics files, and print data values for inspection.
-        """
         output_path = "test_output_structured"  # Define a directory for test outputs
         if not os.path.exists(output_path):
             os.makedirs(output_path)
@@ -267,14 +262,12 @@ class TestShearStress(unittest.TestCase):
             secondary_constraint_filename=None
         )
 
-        # Verify that the function returns a dictionary with the expected keys
         expected_keys = [
             'shear_stress_without_devices', 'shear_stress_with_devices', 'shear_stress_difference',
             'sediment_mobility_without_devices', 'sediment_mobility_with_devices', 'sediment_mobility_difference',
             'sediment_mobility_classified', 'sediment_grain_size', 'shear_stress_risk_metric'
         ]
 
-        # Hardcoded expected mean values
         expected_means = {
             'shear_stress_without_devices': 3.664708375930786,
             'shear_stress_with_devices': 3.5320122241973877,
@@ -291,42 +284,43 @@ class TestShearStress(unittest.TestCase):
         for key in expected_keys:
             self.assertIn(key, result)
 
-            # Check that the file was created
             file_path = result[key]
             self.assertTrue(os.path.isfile(file_path), f"GeoTIFF file '{file_path}' was not created.")
 
-            # Validate that the file is a valid GeoTIFF
-            with rasterio.open(file_path) as src:
-                self.assertEqual(src.count, 1, f"GeoTIFF '{file_path}' should have exactly one band.")
-                self.assertEqual(src.driver, 'GTiff', f"File '{file_path}' is not a valid GeoTIFF.")
+            # Validate that the file is a valid GeoTIFF using GDAL
+            dataset = gdal.Open(file_path)
+            self.assertIsNotNone(dataset, f"Failed to open file '{file_path}' with GDAL.")
+            self.assertEqual(dataset.RasterCount, 1, f"GeoTIFF '{file_path}' should have exactly one band.")
+            self.assertEqual(dataset.GetDriver().ShortName, 'GTiff', f"File '{file_path}' is not a valid GeoTIFF.")
 
-            # Calculate and assert the mean of the data in each GeoTIFF file
-            with rasterio.open(file_path) as src:
-                data = src.read(1)  # Read the first band (assuming it's single-band)
-                mean_value = np.nanmean(data)  # Calculate the mean, ignoring NaNs
+            # Read the data and calculate the mean
+            band = dataset.GetRasterBand(1)
+            data = band.ReadAsArray()
+            mean_value = np.nanmean(data)
 
-                # Assert the mean value is almost equal to the expected mean
-                self.assertAlmostEqual(mean_value, expected_means[key], places=5, msg=f"Mean mismatch for {key}")
+            self.assertAlmostEqual(mean_value, expected_means[key], places=5, msg=f"Mean mismatch for {key}")
+
+            dataset = None  # Close the dataset
 
         # Clean up test output files
         for file_path in result.values():
             if os.path.exists(file_path):
                 os.remove(file_path)
 
-        # Remove any additional files in the directory
         for file in os.listdir(output_path):
             file_path = os.path.join(output_path, file)
             if os.path.isfile(file_path):
                 os.remove(file_path)
 
-        # Now remove the directory
         os.rmdir(output_path)
+
 
     def test_run_shear_stress_stressor_unstructured(self):
         """
         Test the run_shear_stress_stressor function to ensure it correctly processes unstructured input data,
         generates the expected GeoTIFFs and area change statistics files, and print data values for inspection.
         """
+
         output_path = "test_output_unstructured"  # Define a directory for test outputs
         if not os.path.exists(output_path):
             os.makedirs(output_path)
@@ -353,7 +347,7 @@ class TestShearStress(unittest.TestCase):
             'shear_stress_without_devices': 1.6680394411087036,
             'shear_stress_with_devices': 1.66640305519104,
             'shear_stress_difference': -0.001636261004023254,
-            'sediment_mobility_without_devices':6719.21923828125,
+            'sediment_mobility_without_devices': 6719.21923828125,
             'sediment_mobility_with_devices': 6712.6279296875,
             'sediment_mobility_difference': -6.591207981109619,
             'sediment_mobility_classified': -84.83865356445312,
@@ -365,37 +359,36 @@ class TestShearStress(unittest.TestCase):
         for key in expected_keys:
             self.assertIn(key, result)
 
-            # Check that the file was created
             file_path = result[key]
             self.assertTrue(os.path.isfile(file_path), f"GeoTIFF file '{file_path}' was not created.")
 
-            # Validate that the file is a valid GeoTIFF
-            with rasterio.open(file_path) as src:
-                self.assertEqual(src.count, 1, f"GeoTIFF '{file_path}' should have exactly one band.")
-                self.assertEqual(src.driver, 'GTiff', f"File '{file_path}' is not a valid GeoTIFF.")
+            # Validate that the file is a valid GeoTIFF using GDAL
+            dataset = gdal.Open(file_path)
+            self.assertIsNotNone(dataset, f"Failed to open file '{file_path}' with GDAL.")
+            self.assertEqual(dataset.RasterCount, 1, f"GeoTIFF '{file_path}' should have exactly one band.")
+            self.assertEqual(dataset.GetDriver().ShortName, 'GTiff', f"File '{file_path}' is not a valid GeoTIFF.")
 
-            # Calculate and assert the mean of the data in each GeoTIFF file
-            with rasterio.open(file_path) as src:
-                data = src.read(1)  # Read the first band (assuming it's single-band)
-                mean_value = np.nanmean(data)  # Calculate the mean, ignoring NaNs
+            # Read the data and calculate the mean
+            band = dataset.GetRasterBand(1)
+            data = band.ReadAsArray()
+            mean_value = np.nanmean(data)
 
-                # Assert the mean value is almost equal to the expected mean
-                self.assertAlmostEqual(mean_value, expected_means[key], places=5, msg=f"Mean mismatch for {key}")
+            self.assertAlmostEqual(mean_value, expected_means[key], places=5, msg=f"Mean mismatch for {key}")
 
+            dataset = None  # Close the dataset
 
         # Clean up test output files
         for file_path in result.values():
             if os.path.exists(file_path):
                 os.remove(file_path)
 
-        # Remove any additional files in the directory
         for file in os.listdir(output_path):
             file_path = os.path.join(output_path, file)
             if os.path.isfile(file_path):
                 os.remove(file_path)
 
-        # Now remove the directory
         os.rmdir(output_path)
+
 
 
 
