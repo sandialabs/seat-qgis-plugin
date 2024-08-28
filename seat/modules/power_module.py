@@ -557,4 +557,6 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
         GPD.to_file(shp_file_name)        
 
         output_dic = {"power_generated_mw": shp_file_name}
-    return output_dic
+        return output_dic
+    else:
+        return None
