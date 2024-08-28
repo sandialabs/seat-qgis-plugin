@@ -3,10 +3,10 @@ import os
 import unittest
 import numpy as np
 import pandas as pd
-import rasterio
 import netCDF4
 from os.path import join
 import shutil
+from osgeo import gdal
 
 # Get the directory in which the current script is located
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -312,8 +312,13 @@ class TestRunVelocityStressor(BaseTestVelocityModule):
         self.assertIsInstance(result, dict)
 
         # Read the output raster and compare it to the expected values
-        with rasterio.open(os.path.join(output_path, 'velocity_magnitude_difference.tif')) as dataset:
-            selected_velocity_magnitude_diff = dataset.read(1)[10:13, 10:13]
+        raster_path = os.path.join(output_path, 'velocity_magnitude_difference.tif')
+        dataset = gdal.Open(raster_path)
+        band = dataset.GetRasterBand(1)
+        selected_velocity_magnitude_diff = band.ReadAsArray()[10:13, 10:13]
+
+        # Close the GDAL dataset to release the file handle
+        dataset = None
 
         expected_velocity_magnitude_diff = np.array(
             [[-2.842238e-03, -1.392993e-03, -2.204220e-03],
@@ -358,8 +363,13 @@ class TestRunVelocityStressor(BaseTestVelocityModule):
         self.assertIsInstance(result, dict)
 
         # Read the output raster and process the velocity magnitude difference
-        with rasterio.open(os.path.join(output_path, 'velocity_magnitude_difference.tif')) as dataset:
-            velocity_magnitude_diff = dataset.read(1)
+        raster_path = os.path.join(output_path, 'velocity_magnitude_difference.tif')
+        dataset = gdal.Open(raster_path)
+        band = dataset.GetRasterBand(1)
+        velocity_magnitude_diff = band.ReadAsArray()
+
+        # Close the GDAL dataset to release the file handle
+        dataset = None
 
         # Remove NaN values and calculate the mean of valid data points
         valid_velocity_magnitude_diff = velocity_magnitude_diff[~np.isnan(velocity_magnitude_diff)]
