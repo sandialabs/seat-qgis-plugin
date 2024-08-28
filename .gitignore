@@ -3,6 +3,8 @@
 *cache*
 *env*
 *test_*
+*.zip
 
 # Sphinx documentation html
 docs/_build/*
+seat/tester.ipynb
