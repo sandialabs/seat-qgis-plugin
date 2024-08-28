@@ -1,11 +1,4 @@
 # power_module.py
-# Copyright 2023, Integral Consulting Inc. All rights reserved.
-#
-# PURPOSE: Calculate power output from device array
-#
-# PROJECT INFORMATION:
-# Name: Marine Renewable Energy Assessment
-# Number:C1308
 #
 # AUTHORS (Authors to use initals in history)
 #  Timothy R. Nelson - tnelson@integral-corp.com
@@ -30,9 +23,7 @@ from matplotlib.colors import ListedColormap
 from matplotlib.cm import ScalarMappable
 from matplotlib.ticker import FormatStrFormatter
 
-# %% Obstacle Polygon and Device Positions
-
-
+# Obstacle Polygon and Device Positions
 def read_obstacle_polygon_file(power_device_configuration_file):
     """
     reads the obstacle polygon file
@@ -48,45 +39,47 @@ def read_obstacle_polygon_file(power_device_configuration_file):
         xy of each obstacle.
 
     """
-    # inf = io.open(power_device_configuration_file, "r")
-    with io.open(power_device_configuration_file, "r") as inf:
-        lines = inf.readlines()
-        ic = 0
-        Obstacles = {}
-        while ic < len(lines)-1:
-            if lines[ic].find('Obstacle') >= 0:
-                # print(lines[ic])
-                obstacle = lines[ic].strip()
-                Obstacles[obstacle] = {}
+    try:
+        with io.open(power_device_configuration_file, "r", encoding="utf-8") as inf:
+            lines = inf.readlines()
+    except FileNotFoundError as exc:
+        raise FileNotFoundError(f"File not found: {power_device_configuration_file}") from exc
+
+    ic = 0
+    Obstacles = {}
+    while ic < len(lines) - 1:
+        if 'Obstacle' in lines[ic]:
+            obstacle = lines[ic].strip()
+            Obstacles[obstacle] = {}
+            ic += 1  # skip to next line
+            nrows, ncols = [int(i) for i in lines[ic].split()]
+            ic += 1  # skip to next line
+            x = []
+            y = []
+            for n in range(nrows):  # read polygon
+                xi, yi = [float(i) for i in lines[ic].split()]
+                x = np.append(x, xi)
+                y = np.append(y, yi)
                 ic += 1  # skip to next line
-                nrows, ncols = [int(i) for i in lines[ic].split()]
-                ic += 1  # skip to next line
-                x = []
-                y = []
-                for n in range(nrows):  # read polygon
-                    xi, yi = [float(i) for i in lines[ic].split()]
-                    x = np.append(x, xi)
-                    y = np.append(y, yi)
-                    ic += 1  # skip to next line
-                Obstacles[obstacle] = np.vstack((x, y)).T
-            else:
-                ic += 1
+            Obstacles[obstacle] = np.vstack((x, y)).T
+        else:
+            ic += 1
     return Obstacles
 
 
 def find_mean_point_of_obstacle_polygon(Obstacles):
     """
-    claculates the center of each obstacle
+    Calculates the center of each obstacle.
 
     Parameters
     ----------
     Obstacles : Dict
-        xy of each obstacle.
+        x,y of each obstacle.
 
     Returns
     -------
     Centroids : array
-        centroid of each obstacle.
+        Centroid of each obstacle.
 
     """
     Centroids = np.empty((0, 3), dtype=int)
@@ -130,7 +123,7 @@ def centroid_diffs(Centroids, centroid):
     Parameters
     ----------
     Centroids : Dict
-        DESCRIPTION.
+        dimensions M,N with each M [index, x , y]
     centroid : array
         single x,y.
 
@@ -323,7 +316,6 @@ def reset_bc_data_order(bc_data):
 def roundup(x, val=2):
     return np.ceil(x / val) * val
 
-
 def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
     """
     Reads the power files and calculates the total annual power based on hydrdynamic probabilities in probabilities_file. Data are saved as a csv files.
@@ -339,7 +331,7 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
     probabilities_file : file name
         probabilities file name with extension.
     save_path: file path
-        save directory 
+        save directory
 
     Returns
     -------
@@ -354,9 +346,10 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
         raise FileNotFoundError(f"The directory {power_files} does not exist.")
     if not os.path.exists(probabilities_file):
         raise FileNotFoundError(f"The file {probabilities_file} does not exist.")
-    
+
     datafiles_o = [s for s in os.listdir(power_files) if s.endswith('.OUT')]
     bc_data = pd.read_csv(probabilities_file)
+
     datafiles = sort_data_files_by_runnumber(bc_data, datafiles_o)
 
     assert save_path is not None, "Specify an output directory"

@@ -2,19 +2,14 @@
 /***************************************************************************.
 
  velocity_module.py
- Copyright 2023, Integral Consulting Inc. All rights reserved.
- 
- PURPOSE: definitions used by the stressor modules
 
- PROJECT INFORMATION:
- Name: SEAT - Spatial and Environmental Assessment Toolkit
- Number: C1308
+ PURPOSE: definitions used by the stressor modules
 
  AUTHORS
   Timothy Nelson (tnelson@integral-corp.com)
   Sam McWilliams (smcwilliams@integral-corp.com)
   Eben Pendelton
- 
+
  NOTES (Data descriptions and any script specific notes)
 	1. called by shear_stress_module.py, velocity_module.py, acoustics_module.py
 """
@@ -48,6 +43,8 @@ def estimate_grid_spacing(x, y, nsamples=100):
     """
     import random
     import sys
+
+    random.seed(10)
     coords = list(set(zip(x, y)))
     if nsamples != len(x):
         points = [random.choice(coords)
@@ -221,7 +218,7 @@ def calc_receptor_array(receptor_filename, x, y, latlon=False, mask=None):
                 receptor_filename, header=None, index_col=0).to_numpy().item() * np.ones(x.shape)
         else:
             raise Exception(
-                f"Invalid Recetpor File {receptor_filename}. Must be of type .tif or .csv")
+                f"Invalid Receptor File {receptor_filename}. Must be of type .tif or .csv")
     else:
         # taucrit without a receptor
         # Assume the following grain sizes and conditions for typical beach sand (Nielsen, 1992 p.108)
@@ -270,7 +267,7 @@ def create_raster(
     eType=gdal.GDT_Float32,
 ):
     """
-    Create a gdal raster object. 
+    Create a gdal raster object.
 
     Parameters
     ----------
@@ -461,7 +458,7 @@ def secondary_constraint_geotiff_to_numpy(filename):
     data = gdal.Open(filename)
     img = data.GetRasterBand(1)
     array = img.ReadAsArray()
-    
+
     (upper_left_x, x_size, x_rotation, upper_left_y,
         y_rotation, y_size) = data.GetGeoTransform()
     cols = data.RasterXSize
@@ -590,7 +587,7 @@ def bin_receptor(zm, receptor, square_area, nbins=25, receptor_names=None, recep
     Returns
     -------
     DATA : Dictionary
-        Dictionary contating with keyscorresponding to each unique receptor value each containing for each bin 
+        Dictionary with keys corresponding to each unique receptor value each containing for each bin
             bin start : the starting value of each bin
             bin end : the last value of each bin
             bin center: the center value of each bin

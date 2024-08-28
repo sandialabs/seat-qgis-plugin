@@ -1,16 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-/***************************************************************************.
-
- stressor_receptor_calc.py
- Copyright 2023, Integral Consulting Inc. All rights reserved.
-
- PURPOSE: A QGIS plugin that calculates a probability weighted response layer from stressor and/or receptor layers
-
- PROJECT INFORMATION:
- Name: SEAT - Spatial and Environmental Assessment Toolkit (https://github.com/sandialabs/seat-qgis-plugin)
- Number: C1308
-
+""" stressor_receptor_calc.py
+ 
  AUTHORS
  Eben Pendelton
   Timothy Nelson (tnelson@integral-corp.com)
@@ -20,7 +10,8 @@
  NOTES (Data descriptions and any script specific notes)
 	1. plugin template from Plugin Builder: http://g-sherman.github.io/Qgis-Plugin-Builder/
 	2. refer to documentation regarding installation and input formatting.
-    3. requires installation of NETCDF4 (https://unidata.github.io/netcdf4-python/) and QGIS (https://qgis.org/en/site/)
+    3. requires installation of NETCDF4 (https://unidata.github.io/netcdf4-python/) 
+       and QGIS (https://qgis.org/en/site/)
     4. tested and created using QGIS v3.22
     5. added habitat for shear stress
 """
@@ -87,7 +78,11 @@ class StressorReceptorCalc:
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value("locale/userLocale")[0:2]
+        locale = QSettings().value("locale/userLocale")
+        if locale:
+            locale = locale[0:2]
+        else:
+            locale = 'en'
         locale_path = os.path.join(
             self.plugin_dir,
             "i18n",
@@ -201,7 +196,7 @@ class StressorReceptorCalc:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ":/plugins/seat_qgis_plugin/icon.png"
+        icon_path = ":/plugins/seat/icon.png"
         self.add_action(
             icon_path,
             setText=self.tr(
@@ -672,7 +667,7 @@ class StressorReceptorCalc:
             # Run Calculations
             # Run Calculations
             # this grabs the files for input and output
-            #TODO Remove these and just query the dlg directly when needed
+            # TODO Remove these and just query the dlg directly when needed
             shear_stress_device_present_directory = self.dlg.shear_device_present.text()
             if not ((shear_stress_device_present_directory is None) or (shear_stress_device_present_directory == "")):
                 if not os.path.exists(shear_stress_device_present_directory):

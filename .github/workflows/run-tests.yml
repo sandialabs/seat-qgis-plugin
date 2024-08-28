@@ -1,0 +1,62 @@
+name: QGIS Plugin CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+      - workflow
+
+jobs:
+  test-seat-package:
+    runs-on: ubuntu-latest
+    services:
+      docker:
+        image: qgis/qgis:latest
+        options: --user root
+        ports:
+          - 99:99
+
+    steps:
+      - name: Checkout qgis-plugin
+        uses: actions/checkout@v4
+
+      - name: Run QGIS Docker container
+        run: |
+          docker run -d --name qgis-testing-environment \
+          -v ${GITHUB_WORKSPACE}:/tests_directory \
+          -e DISPLAY=:99 qgis/qgis:latest tail -f /dev/null
+
+      - name: Wait for Docker to be ready
+        run: |
+          until docker exec qgis-testing-environment sh -c "ls /"; do sleep 1; done
+
+      - name: Install plugin by manually via Copy
+        run: |
+          docker exec qgis-testing-environment sh -c '
+          PLUGIN_SRC_PATH=/tests_directory/seat
+          PLUGIN_DEST_DIR=/usr/share/qgis/python/plugins/seat
+          mkdir -p $PLUGIN_DEST_DIR
+          cp -r $PLUGIN_SRC_PATH/* $PLUGIN_DEST_DIR/
+          '
+
+      - name: Install Dependencies
+        run: |
+          docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/install_dependencies.py"
+          docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-pandas python3-netcdf4 python3-pytest"
+
+      - name: List installed packages
+        run: |
+          docker exec qgis-testing-environment sh -c "pip list"
+
+      - name: Run Pytest
+        run: |
+          docker exec qgis-testing-environment pytest /tests_directory/tests
+
+      - name: Clean up Docker container
+        if: always()
+        run: |
+          docker stop qgis-testing-environment
+          docker rm qgis-testing-environment

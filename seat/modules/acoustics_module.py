@@ -4,6 +4,7 @@
  acoustics_module.py
  Copyright 2023, Integral Consulting Inc. All rights reserved.
 
+
  PURPOSE: module for calcualting acoustic signal change from paracousti files
 
  PROJECT INFORMATION:
@@ -14,6 +15,7 @@
   Eben Pendelton
   Timothy Nelson (tnelson@integral-corp.com)
   Sam McWilliams (smcwilliams@integral-corp.com)
+
 
  NOTES (Data descriptions and any script specific notes)
         1. called by stressor_receptor_calc.py
@@ -41,7 +43,7 @@ def create_species_array(species_filename, x, y, variable="percent", latlon=Fals
     Interpolates or creates an array of percent or density of species
 
     Parameters
-    ----------
+    -----------
     species_filename : str
         File path to species files.
     x : array

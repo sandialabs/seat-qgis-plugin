@@ -4,7 +4,7 @@
 
  velocity_module.py
  Copyright 2023, Integral Consulting Inc. All rights reserved.
- 
+
  PURPOSE: module for calcualting velocity (larval motility) change from a velocity stressor
 
  PROJECT INFORMATION:
@@ -15,7 +15,7 @@
   Timothy Nelson (tnelson@integral-corp.com)
   Sam McWilliams (smcwilliams@integral-corp.com)
   Eben Pendelton
- 
+
  NOTES (Data descriptions and any script specific notes)
 	1. called by stressor_receptor_calc.py
 """
@@ -157,7 +157,7 @@ def calculate_velocity_stressors(fpath_nodev,
             [1] motility_nodev
             [2] motility_dev
             [3] motility_diff
-            [4] motility_classification    
+            [4] motility_classification
             [5] receptor (vel_crit)
     rx : array
         X-Coordiantes.
@@ -174,8 +174,8 @@ def calculate_velocity_stressors(fpath_nodev,
     if not os.path.exists(fpath_nodev):
         raise FileNotFoundError(f"The directory {fpath_nodev} does not exist.")
     if not os.path.exists(fpath_dev):
-        raise FileNotFoundError(f"The directory {fpath_dev} does not exist.")    
-    
+        raise FileNotFoundError(f"The directory {fpath_dev} does not exist.")
+
     files_nodev = [i for i in os.listdir(fpath_nodev) if i.endswith('.nc')]
     files_dev = [i for i in os.listdir(fpath_dev) if i.endswith('.nc')]
 
@@ -343,7 +343,7 @@ def calculate_velocity_stressors(fpath_nodev,
                         'motility_with_devices': motility_dev,
                         'motility_difference': motility_diff,
                         'motility_classified':motility_classification,
-                        'critical_velocity':velcrit}        
+                        'critical_velocity':velcrit}
     else:  # unstructured
         dxdy = estimate_grid_spacing(xcor, ycor, nsamples=100)
         dx = dxdy
@@ -372,6 +372,7 @@ def calculate_velocity_stressors(fpath_nodev,
 
         motility_classification = classify_motility(
             motility_dev_struct, motility_nodev_struct)
+
         motility_classification = np.where(
             np.isnan(mag_diff_struct), -100, motility_classification)
         # listOfFiles = [mag_combined_dev_struct, mag_combined_nodev_struct, mag_diff_struct, motility_nodev_struct,
@@ -421,8 +422,10 @@ def run_velocity_stressor(
     output_rasters : dict
         key = names of output rasters, val = full path to raster:
     """
-    
+
     os.makedirs(output_path, exist_ok=True) # create output directory if it doesn't exist
+
+
 
     dict_of_arrays, rx, ry, dx, dy, gridtype = calculate_velocity_stressors(fpath_nodev=dev_notpresent_file,
                                                                           fpath_dev=dev_present_file,
@@ -453,7 +456,7 @@ def run_velocity_stressor(
         use_numpy_arrays.append('velocity_risk_layer')
 
     numpy_array_names = [i + '.tif' for i in use_numpy_arrays]
-    
+
     output_rasters = []
     for array_name, use_numpy_array in zip(numpy_array_names, use_numpy_arrays):
 
@@ -508,26 +511,26 @@ def run_velocity_stressor(
                     limit_receptor_range=[0, np.inf],
                     latlon=crs == 4326,
                     receptor_type='critical velocity').to_csv(os.path.join(output_path, "velocity_magnitude_difference_at_critical_velocity.csv"), index=False)
-        
+
         bin_layer(os.path.join(output_path, 'motility_difference.tif'),
                     receptor_filename=None,
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
                     latlon=crs == 4326).to_csv(os.path.join(output_path, "motility_difference.csv"), index=False)
-            
+
         bin_layer(os.path.join(output_path, 'motility_difference.tif'),
                     receptor_filename=os.path.join(output_path, 'critical_velocity.tif'),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
                     latlon=crs == 4326,
                     receptor_type='critical velocity').to_csv(os.path.join(output_path, "motility_difference_at_critical_velocity.csv"), index=False)
-        
+
         classify_layer_area(os.path.join(output_path, "motility_classified.tif"),
                             at_values=[-3, -2, -1, 0, 1, 2, 3],
                             value_names=['New Deposition', 'Increased Deposition', 'Reduced Deposition',
                                             'No Change', 'Reduced Erosion', 'Increased Erosion', 'New Erosion'],
                             latlon=crs == 4326).to_csv(os.path.join(output_path, "motility_classified.csv"), index=False)
-        
+
         classify_layer_area(os.path.join(output_path, "motility_classified.tif"),
                             receptor_filename=os.path.join(output_path, 'critical_velocity.tif'),
                             at_values=[-3, -2, -1, 0, 1, 2, 3],
@@ -536,7 +539,7 @@ def run_velocity_stressor(
                             limit_receptor_range=[0, np.inf],
                             latlon=crs == 4326,
                             receptor_type='critical velocity').to_csv(os.path.join(output_path, "motility_classified_at_critical_velocity.csv"), index=False)
-        
+
         if not ((secondary_constraint_filename is None) or (secondary_constraint_filename == "")):
             bin_layer(os.path.join(output_path, 'motility_difference.tif'),
                     receptor_filename=os.path.join(output_path, "velocity_risk_layer.tif"),
@@ -554,6 +557,8 @@ def run_velocity_stressor(
                             latlon=crs == 4326,
                             receptor_type='risk layer').to_csv(os.path.join(output_path, "motility_classified_at_velocity_risk_layer.csv"), index=False)
     OUTPUT = {}
+
+
     for val in output_rasters:
-        OUTPUT[os.path.basename(os.path.normpath(val)).split('.')[0]] = val            
+        OUTPUT[os.path.basename(os.path.normpath(val)).split('.')[0]] = val
     return OUTPUT
