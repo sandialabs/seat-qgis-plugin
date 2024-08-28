@@ -40,7 +40,7 @@ SOURCES = \
 	__init__.py \
 	stressor_receptor_calc.py stressor_receptor_calc_dialog.py
 
-PLUGINNAME = seat
+PLUGINNAME = seat_qgis_plugin
 
 PY_FILES = \
 	__init__.py \
