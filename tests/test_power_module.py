@@ -42,6 +42,26 @@ class TestPowerModule(unittest.TestCase):
 
     @staticmethod
     def calculate_expected_pair(centroids, centroid):
+        """
+        Calculate the closest pair of centroids based on Euclidean distance.
+
+        Parameters
+        ----------
+        centroids : numpy.ndarray
+            A 2D array of centroid coordinates, where each row represents a centroid
+            with the format [index, x, y].
+        centroid : numpy.ndarray
+            A 1D array representing the coordinates of a single centroid with the format [index, x, y].
+
+        Returns
+        -------
+        list
+            A list containing two integers:
+            - The index of the input centroid.
+            - The index of the closest centroid in the `centroids` array.
+
+        """
+
         # Calculate Euclidean distances, excluding the index
         distances = np.sqrt(np.sum((centroids[:, 1:] - centroid[1:])**2, axis=1))
 
@@ -351,7 +371,7 @@ class TestPowerModule(unittest.TestCase):
 
 def run_all():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TestPowerModule))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestPowerModule))
     runner = unittest.TextTestRunner()
     runner.run(suite)
 
