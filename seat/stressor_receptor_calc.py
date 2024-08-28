@@ -628,7 +628,7 @@ class StressorReceptorCalc:
             
             self.dlg.copy_shear_to_velocity_button.clicked.connect(self.copy_shear_input_to_velocity)  
             self.dlg.crs_button.clicked.connect(self.select_crs)
-                          
+
         self.dlg.shear_device_present.clear()
         self.dlg.velocity_device_present.clear()
         self.dlg.paracousti_device_present.clear()
@@ -664,9 +664,7 @@ class StressorReceptorCalc:
         # See if OK was pressed
         if result:
             # Run Calculations
-            # Run Calculations
             # this grabs the files for input and output
-            #TODO Remove these and just query the dlg directly when needed
             shear_stress_device_present_directory = self.dlg.shear_device_present.text()
             if not ((shear_stress_device_present_directory is None) or (shear_stress_device_present_directory == "")):
                 if not os.path.exists(shear_stress_device_present_directory):
@@ -776,26 +774,27 @@ class StressorReceptorCalc:
                                 power_probabilities_fname,
                                 save_path=os.path.join(output_folder_name, 'Power Module'),
                                 crs=crs)
-                
-                if initialize_group:
-                    root = QgsProject.instance().layerTreeRoot()
-                    group = root.addGroup("temporary")
-                    self.add_layer(sfilenames[list(sfilenames.keys())[0]], root=root, group=group)
-                    initialize_group = False          
 
-                group_name = "Power"
-                root = QgsProject.instance().layerTreeRoot()
-                group = root.findGroup(group_name)
-                if group is None:
-                    group = root.addGroup(group_name)
-                for key in sfilenames.keys(): #add styles files and/or display
-                    if stylefiles_DF is None:
-                        self.add_layer(sfilenames[key], root=root, group=group)
-                    else:
-                        if key in stylefiles_DF.index.values:
-                            self.style_layer(sfilenames[key], stylefiles_DF.loc[key].item(), root=root, group=group)
-                        else:
+                if sfilenames is not None:
+                    if initialize_group:
+                        root = QgsProject.instance().layerTreeRoot()
+                        group = root.addGroup("temporary")
+                        self.add_layer(sfilenames[list(sfilenames.keys())[0]], root=root, group=group)
+                        initialize_group = False          
+
+                    group_name = "Power"
+                    root = QgsProject.instance().layerTreeRoot()
+                    group = root.findGroup(group_name)
+                    if group is None:
+                        group = root.addGroup(group_name)
+                    for key in sfilenames.keys(): #add styles files and/or display
+                        if stylefiles_DF is None:
                             self.add_layer(sfilenames[key], root=root, group=group)
+                        else:
+                            if key in stylefiles_DF.index.values:
+                                self.style_layer(sfilenames[key], stylefiles_DF.loc[key].item(), root=root, group=group)
+                            else:
+                                self.add_layer(sfilenames[key], root=root, group=group)
                         
             # Run Shear Stress Module 
             if not ((shear_stress_device_present_directory is None) or (shear_stress_device_present_directory == "")): # svar == "Shear Stress":
