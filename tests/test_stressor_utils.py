@@ -3,9 +3,7 @@ import os
 import unittest
 import numpy as np
 import pandas as pd
-from osgeo import gdal
-from osgeo import osr
-from unittest.mock import patch, MagicMock
+from osgeo import gdal, osr
 from os.path import join
 
 # Get the directory in which the current script is located
@@ -345,6 +343,7 @@ class TestReadRaster(TestStressorUtils):
         spatial_ref = osr.SpatialReference(wkt=dataset.GetProjection())
         self.assertEqual(spatial_ref.GetAttrValue('AUTHORITY', 1), '4326')
         self.assertEqual(spatial_ref.GetAttrValue('DATUM'), 'WGS_1984')
+
 
 class TestSecondaryConstraintGeotiffToNumpy(TestStressorUtils):
 
