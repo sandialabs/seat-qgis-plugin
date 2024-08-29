@@ -71,14 +71,9 @@ def create_species_array(species_filename, x, y, variable="percent", latlon=Fals
             img = data.GetRasterBand(1)
             receptor_array = img.ReadAsArray()
             receptor_array[receptor_array < 0] = 0
-            (
-                upper_left_x,
-                x_size,
-                x_rotation,
-                upper_left_y,
-                y_rotation,
-                y_size,
-            ) = data.GetGeoTransform()
+            (upper_left_x, x_size, x_rotation, upper_left_y, y_rotation, y_size) = (
+                data.GetGeoTransform()
+            )
             cols = data.RasterXSize
             rows = data.RasterYSize
             r_rows = np.arange(rows) * y_size + upper_left_y + (y_size / 2)

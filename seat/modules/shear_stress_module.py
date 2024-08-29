@@ -452,26 +452,20 @@ def calculate_shear_stress_stressors(
             xcor, ycor, tau_combined_nodev, dxdy, flatness=0.2
         )
         if not ((receptor_filename is None) or (receptor_filename == "")):
-            (
-                _,
-                _,
-                mobility_parameter_nodev_struct,
-            ) = create_structured_array_from_unstructured(
-                xcor, ycor, mobility_parameter_nodev, dxdy, flatness=0.2
+            _, _, mobility_parameter_nodev_struct = (
+                create_structured_array_from_unstructured(
+                    xcor, ycor, mobility_parameter_nodev, dxdy, flatness=0.2
+                )
             )
-            (
-                _,
-                _,
-                mobility_parameter_dev_struct,
-            ) = create_structured_array_from_unstructured(
-                xcor, ycor, mobility_parameter_dev, dxdy, flatness=0.2
+            _, _, mobility_parameter_dev_struct = (
+                create_structured_array_from_unstructured(
+                    xcor, ycor, mobility_parameter_dev, dxdy, flatness=0.2
+                )
             )
-            (
-                _,
-                _,
-                mobility_parameter_diff_struct,
-            ) = create_structured_array_from_unstructured(
-                xcor, ycor, mobility_parameter_diff, dxdy, flatness=0.2
+            _, _, mobility_parameter_diff_struct = (
+                create_structured_array_from_unstructured(
+                    xcor, ycor, mobility_parameter_diff, dxdy, flatness=0.2
+                )
             )
             _, _, receptor_array_struct = create_structured_array_from_unstructured(
                 xcor, ycor, receptor_array, dxdy, flatness=0.2

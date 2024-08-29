@@ -226,6 +226,10 @@ def calculate_velocity_stressors(
         ) as file_dev_present, Dataset(
             os.path.join(fpath_nodev, files_nodev[0])
         ) as file_dev_notpresent:
+<<<<<<< HEAD
+=======
+
+>>>>>>> ff22905 (Black formatting (#43))
             gridtype, xvar, yvar, uvar, vvar = check_grid_define_vars(file_dev_present)
             xcor = file_dev_present.variables[xvar][:].data
             ycor = file_dev_present.variables[yvar][:].data
@@ -275,6 +279,10 @@ def calculate_velocity_stressors(
             ) as file_dev_notpresent, Dataset(
                 os.path.join(fpath_dev, row.files_dev)
             ) as file_dev_present:
+<<<<<<< HEAD
+=======
+
+>>>>>>> ff22905 (Black formatting (#43))
                 gridtype, xvar, yvar, uvar, vvar = check_grid_define_vars(
                     file_dev_present
                 )
@@ -381,6 +389,10 @@ def calculate_velocity_stressors(
     for run_number, prob in zip(
         BC_probability["run_num"].values, BC_probability["probability"].values
     ):
+<<<<<<< HEAD
+=======
+
+>>>>>>> ff22905 (Black formatting (#43))
         mag_combined_nodev = mag_combined_nodev + prob * mag_nodev[run_number, :]
         mag_combined_dev = mag_combined_dev + prob * mag_dev[run_number, :]
 
@@ -553,6 +565,10 @@ def run_velocity_stressor(
 
     output_rasters = []
     for array_name, use_numpy_array in zip(numpy_array_names, use_numpy_arrays):
+<<<<<<< HEAD
+=======
+
+>>>>>>> ff22905 (Black formatting (#43))
         if gridtype == "structured":
             numpy_array = np.flip(np.transpose(dict_of_arrays[use_numpy_array]), axis=0)
         else:
