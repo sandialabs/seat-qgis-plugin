@@ -19,12 +19,12 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'SEAT'
-copyright = '2023 Sandia National Laboratories'
-author = 'Tim Nelson, Caleb Grant, Eben Pendleton, Sterling Olson'
+project = "SEAT"
+copyright = "2023 Sandia National Laboratories"
+author = "Tim Nelson, Caleb Grant, Eben Pendleton, Sterling Olson"
 
 # The full version, including alpha/beta/rc tags
-release = '[1.0.0-beta1]'
+release = "[1.0.0-beta1]"
 
 
 # -- General configuration ---------------------------------------------------
@@ -33,13 +33,13 @@ release = '[1.0.0-beta1]'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.intersphinx',
-    'sphinx_autodoc_typehints',
-    'sphinx_rtd_theme',
-    'sphinx_rtd_dark_mode',
-    'sphinx_copybutton',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.intersphinx",
+    "sphinx_autodoc_typehints",
+    "sphinx_rtd_theme",
+    "sphinx_rtd_dark_mode",
+    "sphinx_copybutton",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -48,7 +48,7 @@ extensions = [
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 
 # Napoleon settings
