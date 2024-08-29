@@ -48,6 +48,11 @@ jobs:
           docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/install_dependencies.py"
           docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-pandas python3-netcdf4 python3-pylint"
 
+      - name: List installed packages
+        run: |
+          docker exec qgis-testing-environment sh -c "pip list"
+
+
       - name: Run Pylint on velocity_module
         run: |
           docker exec qgis-testing-environment pylint /tests_directory/seat/modules/velocity_module.py
