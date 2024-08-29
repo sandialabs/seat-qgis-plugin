@@ -4,10 +4,10 @@ on:
   pull_request:
     branches:
       - main
-      - vel_lint
   push:
     branches:
       - main
+      - vel_lint
 
 jobs:
   test-seat-package:
