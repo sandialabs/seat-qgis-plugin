@@ -45,23 +45,11 @@ jobs:
 
       - name: Install System Dependencies
         run: |
-          docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-pandas python3-netcdf4 python3-pytest python3-venv"
+          docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-pandas python3-netcdf4 python3-pytest python3-pip"
 
-      - name: Set up Virtual Environment and Install Python Dependencies
+      - name: Install pylint Globally Using pip
         run: |
-          docker exec qgis-testing-environment sh -c "
-          python3 -m venv /tests_directory/venv && \
-          . /tests_directory/venv/bin/activate && \
-          pip install --upgrade pip && \
-          pip install pandas netCDF4 pytest pylint
-          "
-
-      - name: List Installed Packages in Virtual Environment
-        run: |
-          docker exec qgis-testing-environment sh -c "
-          . /tests_directory/venv/bin/activate && \
-          pip list
-          "
+          docker exec qgis-testing-environment sh -c "pip3 install --upgrade pip && pip3 install pylint"
 
       - name: Run Pylint on velocity_module
         run: |
