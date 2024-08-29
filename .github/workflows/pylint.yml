@@ -43,13 +43,10 @@ jobs:
           cp -r $PLUGIN_SRC_PATH/* $PLUGIN_DEST_DIR/
           '
 
-      - name: Install System Dependencies
+      - name: Install Dependencies
         run: |
-          docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-pandas python3-netcdf4 python3-pytest python3-pip"
-
-      - name: Install pylint Globally Using pip
-        run: |
-          docker exec qgis-testing-environment sh -c "pip3 install --upgrade pip && pip3 install pylint"
+          docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/install_dependencies.py"
+          docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-pandas python3-netcdf4 python3-pylint"
 
       - name: Run Pylint on velocity_module
         run: |
