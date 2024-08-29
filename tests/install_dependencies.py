@@ -15,3 +15,4 @@ packages = ["pandas", "netCDF4", "pytest", "pylint"]
 # Install each package using pip
 for package in packages:
     subprocess.run([python_exe, "-m", "pip", "install", package], check=True)
+
