@@ -1,4 +1,10 @@
 #!/usr/bin/python
+
+# pylint: disable=too-many-statements
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-locals
+# pylint: disable=too-many-branches
+
 """
 /***************************************************************************.
 
@@ -24,8 +30,8 @@ import os
 
 import numpy as np
 import pandas as pd
-from netCDF4 import Dataset
-from .stressor_utils import (
+from netCDF4 import Dataset # pylint: disable=no-name-in-module
+from seat.modules.stressor_utils import (
     estimate_grid_spacing,
     create_structured_array_from_unstructured,
     calc_receptor_array,
