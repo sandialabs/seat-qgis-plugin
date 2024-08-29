@@ -20,7 +20,6 @@
 	1. called by stressor_receptor_calc.py
 """
 
-import glob
 import os
 
 import numpy as np
@@ -102,14 +101,14 @@ def check_grid_define_vars(dataset):
     vvar : str
         name of y-coordinate velocity variable.
     """
-    vars = list(dataset.variables)
-    if 'U1' in vars:
+    dataset_vars = list(dataset.variables)
+    if 'U1' in dataset_vars:
         gridtype = 'structured'
         uvar = 'U1'
         vvar = 'V1'
         try:
             xvar, yvar = dataset.variables[uvar].coordinates.split()
-        except:
+        except (AttributeError, ValueError):
             xvar = 'XCOR'
             yvar = 'YCOR'
     else:
@@ -179,6 +178,9 @@ def calculate_velocity_stressors(fpath_nodev,
     files_nodev = [i for i in os.listdir(fpath_nodev) if i.endswith('.nc')]
     files_dev = [i for i in os.listdir(fpath_dev) if i.endswith('.nc')]
 
+    xcor = None
+    ycor = None
+
     # Load and sort files
     if len(files_nodev) == 1 & len(files_dev) == 1:
         # asumes a concatonated files with shape
@@ -200,7 +202,8 @@ def calculate_velocity_stressors(fpath_nodev,
 
     # same number of files, file name must be formatted with either run number or return interval
     elif len(files_nodev) == len(files_dev):
-        # asumes each run is separate with the some_name_RunNum_map.nc, where run number comes at the last underscore before _map.nc
+        # asumes each run is separate with the some_name_RunNum_map.nc,
+        # where run number comes at the last underscore before _map.nc
         run_num_nodev = np.zeros((len(files_nodev)))
         for ic, file in enumerate(files_nodev):
             run_num_nodev[ic] = int(file.split('.')[0].split('_')[-2])
@@ -216,15 +219,15 @@ def calculate_velocity_stressors(fpath_nodev,
                     adjust_dev_order, np.flatnonzero(run_num_dev == ri))
             files_dev = [files_dev[int(i)] for i in adjust_dev_order]
             run_num_dev = [run_num_dev[int(i)] for i in adjust_dev_order]
-        DF = pd.DataFrame({'files_nodev': files_nodev,
+        df = pd.DataFrame({'files_nodev': files_nodev,
                            'run_num_nodev': run_num_nodev,
                            'files_dev': files_dev,
                            'run_num_dev': run_num_dev})
-        DF = DF.sort_values(by='run_num_dev')
+        df = df.sort_values(by='run_num_dev')
 
         first_run = True
         ir = 0
-        for _, row in DF.iterrows():
+        for _, row in df.iterrows():
             with Dataset(os.path.join(fpath_nodev, row.files_nodev)) as file_dev_notpresent, \
                 Dataset(os.path.join(fpath_dev, row.files_dev)) as file_dev_present:
 
@@ -235,14 +238,14 @@ def calculate_velocity_stressors(fpath_nodev,
                     tmp = file_dev_notpresent.variables[uvar][:].data
                     if gridtype == 'structured':
                         mag_nodev = np.zeros(
-                            (DF.shape[0], tmp.shape[0], tmp.shape[1], tmp.shape[2], tmp.shape[3]))
+                            (df.shape[0], tmp.shape[0], tmp.shape[1], tmp.shape[2], tmp.shape[3]))
                         mag_dev = np.zeros(
-                            (DF.shape[0], tmp.shape[0], tmp.shape[1], tmp.shape[2], tmp.shape))
+                            (df.shape[0], tmp.shape[0], tmp.shape[1], tmp.shape[2], tmp.shape))
                     else:
                         mag_nodev = np.zeros(
-                            (DF.shape[0], tmp.shape[0], tmp.shape[1]))
+                            (df.shape[0], tmp.shape[0], tmp.shape[1]))
                         mag_dev = np.zeros(
-                            (DF.shape[0], tmp.shape[0], tmp.shape[1]))
+                            (df.shape[0], tmp.shape[0], tmp.shape[1]))
                     xcor = file_dev_notpresent.variables[xvar][:].data
                     ycor = file_dev_notpresent.variables[yvar][:].data
                     first_run = False
@@ -254,11 +257,13 @@ def calculate_velocity_stressors(fpath_nodev,
                 mag_dev[ir, :] = np.sqrt(u**2 + v**2)
                 ir += 1
     else:
-        raise Exception(
-            f"Number of device runs ({len(files_dev)}) must be the same as no device runs ({len(files_nodev)}).")
+        raise ValueError(
+            f"Number of device runs ({len(files_dev)}) must be the same as "
+            f"no device runs ({len(files_nodev)})."
+        )
     # Finished loading and sorting files
 
-    if (gridtype == 'structured'):
+    if gridtype == 'structured':
         if (xcor[0, 0] == 0) & (xcor[-1, 0] == 0):
             # at least for some runs the boundary has 0 coordinates. Check and fix.
             xcor, ycor, mag_nodev, mag_dev = trim_zeros(
@@ -268,24 +273,25 @@ def calculate_velocity_stressors(fpath_nodev,
         if not os.path.exists(probabilities_file):
             raise FileNotFoundError(f"The file {probabilities_file} does not exist.")
         # Load BC file with probabilities and find appropriate probability
-        BC_probability = pd.read_csv(probabilities_file, delimiter=",")
-        BC_probability['run_num'] = BC_probability['run number']-1
-        BC_probability = BC_probability.sort_values(by='run number')
-        BC_probability["probability"] = BC_probability["% of yr"].values/100
-        # BC_probability
-        if 'Exclude' in BC_probability.columns:
-            BC_probability = BC_probability[~(
-                (BC_probability['Exclude'] == 'x') | (BC_probability['Exclude'] == 'X'))]
+        bc_probability = pd.read_csv(probabilities_file, delimiter=",")
+        bc_probability['run_num'] = bc_probability['run number']-1
+        bc_probability = bc_probability.sort_values(by='run number')
+        bc_probability["probability"] = bc_probability["% of yr"].values/100
+        # bc_probability
+        if 'Exclude' in bc_probability.columns:
+            bc_probability = bc_probability[~(
+                (bc_probability['Exclude'] == 'x') | (bc_probability['Exclude'] == 'X'))]
     else:  # assume run_num in file name is return interval
-        BC_probability = pd.DataFrame()
+        bc_probability = pd.DataFrame()
         # ignor number and start sequentially from zero
-        BC_probability['run_num'] = np.arange(0, mag_dev.shape[0])
+        bc_probability['run_num'] = np.arange(0, mag_dev.shape[0])
         # assumes run_num in name is the return interval
-        BC_probability["probability"] = 1/DF.run_num_dev.to_numpy()
-        BC_probability["probability"] = BC_probability["probability"] / \
-            BC_probability["probability"].sum()  # rescale to ensure = 1
+        bc_probability["probability"] = 1/df.run_num_dev.to_numpy()
+        bc_probability["probability"] = bc_probability["probability"] / \
+            bc_probability["probability"].sum()  # rescale to ensure = 1
 
-    # ensure velocity is depth averaged for structured array [run_num, time, layer, x, y] and drop dimension
+    # ensure velocity is depth averaged for structured array [run_num, time, layer, x, y]
+    #  and drop dimension
     if np.ndim(mag_nodev) == 5:
         mag_dev = np.nanmean(mag_dev, axis=2)
         mag_nodev = np.nanmean(mag_nodev, axis=2)
@@ -312,15 +318,17 @@ def calculate_velocity_stressors(fpath_nodev,
         mag_combined_nodev = np.zeros(np.shape(mag_nodev)[-1])
         mag_combined_dev = np.zeros(np.shape(mag_dev)[-1])
 
-    for run_number, prob in zip(BC_probability['run_num'].values,
-                                BC_probability["probability"].values):
+    for run_number, prob in zip(bc_probability['run_num'].values,
+                                bc_probability["probability"].values):
 
         mag_combined_nodev = mag_combined_nodev + \
             prob * mag_nodev[run_number, :]
         mag_combined_dev = mag_combined_dev + prob * mag_dev[run_number, :]
 
     mag_diff = mag_combined_dev - mag_combined_nodev
-    velcrit = calc_receptor_array(receptor_filename, xcor, ycor, latlon=latlon, mask=~np.isnan(mag_diff))
+    velcrit = calc_receptor_array(
+        receptor_filename, xcor, ycor, latlon=latlon, mask=~np.isnan(mag_diff)
+        )
     motility_nodev = mag_combined_nodev / velcrit
     # motility_nodev = np.where(velcrit == 0, np.nan, motility_nodev)
     motility_dev = mag_combined_dev / velcrit
@@ -375,8 +383,9 @@ def calculate_velocity_stressors(fpath_nodev,
 
         motility_classification = np.where(
             np.isnan(mag_diff_struct), -100, motility_classification)
-        # listOfFiles = [mag_combined_dev_struct, mag_combined_nodev_struct, mag_diff_struct, motility_nodev_struct,
-        #                motility_dev_struct, motility_diff_struct, motility_classification, velcrit_struct]
+        # listOfFiles = [mag_combined_dev_struct, mag_combined_nodev_struct,
+            # mag_diff_struct, motility_nodev_struct, motility_dev_struct, motility_diff_struct,
+            # motility_classification, velcrit_struct]
         dict_of_arrays = {'velocity_magnitude_without_devices':mag_combined_nodev_struct,
                         'velocity_magnitude_with_devices': mag_combined_dev_struct,
                         'velocity_magnitude_difference': mag_diff_struct,
@@ -427,12 +436,14 @@ def run_velocity_stressor(
 
 
 
-    dict_of_arrays, rx, ry, dx, dy, gridtype = calculate_velocity_stressors(fpath_nodev=dev_notpresent_file,
-                                                                          fpath_dev=dev_present_file,
-                                                                          probabilities_file=probabilities_file,
-                                                                          receptor_filename=receptor_filename,
-                                                                          latlon=crs == 4326,
-                                                                          value_selection=value_selection)
+    dict_of_arrays, rx, ry, dx, dy, gridtype = calculate_velocity_stressors(
+        fpath_nodev=dev_notpresent_file,
+        fpath_dev=dev_present_file,
+        probabilities_file=probabilities_file,
+        receptor_filename=receptor_filename,
+        latlon=crs == 4326,
+        value_selection=value_selection
+    )
 
     if not ((receptor_filename is None) or (receptor_filename == "")):
         use_numpy_arrays = ['velocity_magnitude_without_devices',
@@ -452,7 +463,9 @@ def run_velocity_stressor(
         if not os.path.exists(secondary_constraint_filename):
             raise FileNotFoundError(f"The file {secondary_constraint_filename} does not exist.")
         rrx, rry, constraint = secondary_constraint_geotiff_to_numpy(secondary_constraint_filename)
-        dict_of_arrays['velocity_risk_layer'] = resample_structured_grid(rrx, rry, constraint, rx, ry, interpmethod='nearest')
+        dict_of_arrays['velocity_risk_layer'] = resample_structured_grid(
+            rrx, rry, constraint, rx, ry, interpmethod='nearest'
+        )
         use_numpy_arrays.append('velocity_risk_layer')
 
     numpy_array_names = [i + '.tif' for i in use_numpy_arrays]
@@ -496,49 +509,79 @@ def run_velocity_stressor(
     bin_layer(os.path.join(output_path, 'velocity_magnitude_difference.tif'),
                 receptor_filename=None,
                 receptor_names=None,
-                latlon=crs == 4326).to_csv(os.path.join(output_path, "velocity_magnitude_difference.csv"), index=False)
+                latlon=crs == 4326).to_csv(os.path.join(
+                    output_path, "velocity_magnitude_difference.csv"), index=False
+                )
     if not ((secondary_constraint_filename is None) or (secondary_constraint_filename == "")):
-            bin_layer(os.path.join(output_path, 'velocity_magnitude_difference.tif'),
-                    receptor_filename=os.path.join(output_path, "velocity_risk_layer.tif"),
-                    receptor_names=None,
-                    limit_receptor_range=[0, np.inf],
-                    latlon=crs == 4326,
-                    receptor_type='risk layer').to_csv(os.path.join(output_path, "velocity_magnitude_difference_at_velocity_risk_layer.csv"), index=False)
+        bin_layer(os.path.join(output_path, 'velocity_magnitude_difference.tif'),
+                receptor_filename=os.path.join(output_path, "velocity_risk_layer.tif"),
+                receptor_names=None,
+                limit_receptor_range=[0, np.inf],
+                latlon=crs == 4326,
+                receptor_type='risk layer').to_csv(os.path.join(
+                    output_path, "velocity_magnitude_difference_at_velocity_risk_layer.csv"),
+                    index=False
+                )
     if not ((receptor_filename is None) or (receptor_filename == "")):
         bin_layer(os.path.join(output_path, 'velocity_magnitude_difference.tif'),
                     receptor_filename=os.path.join(output_path, 'critical_velocity.tif'),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
                     latlon=crs == 4326,
-                    receptor_type='critical velocity').to_csv(os.path.join(output_path, "velocity_magnitude_difference_at_critical_velocity.csv"), index=False)
+                    receptor_type='critical velocity').to_csv(os.path.join(
+                        output_path, "velocity_magnitude_difference_at_critical_velocity.csv"),
+                        index=False
+                    )
 
         bin_layer(os.path.join(output_path, 'motility_difference.tif'),
                     receptor_filename=None,
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
-                    latlon=crs == 4326).to_csv(os.path.join(output_path, "motility_difference.csv"), index=False)
+                    latlon=crs == 4326).to_csv(os.path.join(
+                        output_path, "motility_difference.csv"), index=False
+                    )
 
         bin_layer(os.path.join(output_path, 'motility_difference.tif'),
                     receptor_filename=os.path.join(output_path, 'critical_velocity.tif'),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
                     latlon=crs == 4326,
-                    receptor_type='critical velocity').to_csv(os.path.join(output_path, "motility_difference_at_critical_velocity.csv"), index=False)
+                    receptor_type='critical velocity').to_csv(os.path.join(
+                        output_path, "motility_difference_at_critical_velocity.csv"),
+                        index=False
+                    )
 
         classify_layer_area(os.path.join(output_path, "motility_classified.tif"),
                             at_values=[-3, -2, -1, 0, 1, 2, 3],
-                            value_names=['New Deposition', 'Increased Deposition', 'Reduced Deposition',
-                                            'No Change', 'Reduced Erosion', 'Increased Erosion', 'New Erosion'],
-                            latlon=crs == 4326).to_csv(os.path.join(output_path, "motility_classified.csv"), index=False)
+                            value_names=[
+                                'New Deposition',
+                                'Increased Deposition',
+                                'Reduced Deposition',
+                                'No Change',
+                                'Reduced Erosion',
+                                'Increased Erosion',
+                                'New Erosion'],
+                            latlon=crs == 4326).to_csv(os.path.join(
+                                output_path, "motility_classified.csv"), index=False
+                            )
 
         classify_layer_area(os.path.join(output_path, "motility_classified.tif"),
                             receptor_filename=os.path.join(output_path, 'critical_velocity.tif'),
                             at_values=[-3, -2, -1, 0, 1, 2, 3],
-                            value_names=['New Deposition', 'Increased Deposition', 'Reduced Deposition',
-                                            'No Change', 'Reduced Erosion', 'Increased Erosion', 'New Erosion'],
+                            value_names=[
+                                'New Deposition',
+                                'Increased Deposition',
+                                'Reduced Deposition',
+                                'No Change',
+                                'Reduced Erosion',
+                                'Increased Erosion',
+                                'New Erosion'],
                             limit_receptor_range=[0, np.inf],
                             latlon=crs == 4326,
-                            receptor_type='critical velocity').to_csv(os.path.join(output_path, "motility_classified_at_critical_velocity.csv"), index=False)
+                            receptor_type='critical velocity').to_csv(os.path.join(
+                                output_path, "motility_classified_at_critical_velocity.csv"),
+                                index=False
+                            )
 
         if not ((secondary_constraint_filename is None) or (secondary_constraint_filename == "")):
             bin_layer(os.path.join(output_path, 'motility_difference.tif'),
@@ -546,19 +589,32 @@ def run_velocity_stressor(
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
                     latlon=crs == 4326,
-                            receptor_type='risk layer').to_csv(os.path.join(output_path, "motility_difference_at_velocity_risk_layer.csv"), index=False)
+                            receptor_type='risk layer').to_csv(os.path.join(
+                                output_path, "motility_difference_at_velocity_risk_layer.csv"),
+                                index=False
+                            )
 
-            classify_layer_area_2nd_Constraint(raster_to_sample = os.path.join(output_path, "motility_classified.tif"),
-                            secondary_constraint_filename=os.path.join(output_path, "velocity_risk_layer.tif"),
-                            at_raster_values=[-3, -2, -1, 0, 1, 2, 3],
-                            at_raster_value_names=['New Deposition', 'Increased Deposition', 'Reduced Deposition',
-                                            'No Change', 'Reduced Erosion', 'Increased Erosion', 'New Erosion'],
-                            limit_constraint_range=[0, np.inf],
-                            latlon=crs == 4326,
-                            receptor_type='risk layer').to_csv(os.path.join(output_path, "motility_classified_at_velocity_risk_layer.csv"), index=False)
-    OUTPUT = {}
+            classify_layer_area_2nd_Constraint(
+                raster_to_sample = os.path.join(output_path, "motility_classified.tif"),
+                secondary_constraint_filename=os.path.join(output_path, "velocity_risk_layer.tif"),
+                at_raster_values=[-3, -2, -1, 0, 1, 2, 3],
+                at_raster_value_names=[
+                    'New Deposition',
+                    'Increased Deposition',
+                    'Reduced Deposition',
+                    'No Change',
+                    'Reduced Erosion',
+                    'Increased Erosion',
+                    'New Erosion'],
+                limit_constraint_range=[0, np.inf],
+                latlon=crs == 4326,
+                receptor_type='risk layer').to_csv(os.path.join(
+                    output_path, "motility_classified_at_velocity_risk_layer.csv"),
+                    index=False
+                )
+    output = {}
 
 
     for val in output_rasters:
-        OUTPUT[os.path.basename(os.path.normpath(val)).split('.')[0]] = val
-    return OUTPUT
+        output[os.path.basename(os.path.normpath(val)).split('.')[0]] = val
+    return output
