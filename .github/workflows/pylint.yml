@@ -45,7 +45,7 @@ jobs:
 
       - name: Install System Dependencies
         run: |
-          docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-pandas python3-netcdf4 python3-pytest python3-pylint python3-venv"
+          docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-pandas python3-netcdf4 python3-pytest python3-venv"
 
       - name: Set up Virtual Environment and Install Python Dependencies
         run: |
