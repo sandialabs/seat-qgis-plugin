@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - workflow
+      - vel_lint
   pull_request:
     branches:
       - main
