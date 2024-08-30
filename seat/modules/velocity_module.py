@@ -135,14 +135,14 @@ def check_grid_define_vars(dataset):
     vvar : str
         name of y-coordinate velocity variable.
     """
-    vars = list(dataset.variables)
-    if "U1" in vars:
+    data_vars = list(dataset.variables)
+    if "U1" in data_vars:
         gridtype = "structured"
         uvar = "U1"
         vvar = "V1"
         try:
             xvar, yvar = dataset.variables[uvar].coordinates.split()
-        except:
+        except AttributeError:
             xvar = "XCOR"
             yvar = "YCOR"
     else:
@@ -257,7 +257,7 @@ def calculate_velocity_stressors(
                 )
             files_dev = [files_dev[int(i)] for i in adjust_dev_order]
             run_num_dev = [run_num_dev[int(i)] for i in adjust_dev_order]
-        DF = pd.DataFrame(
+        data_frame = pd.DataFrame(
             {
                 "files_nodev": files_nodev,
                 "run_num_nodev": run_num_nodev,
@@ -265,11 +265,11 @@ def calculate_velocity_stressors(
                 "run_num_dev": run_num_dev,
             }
         )
-        DF = DF.sort_values(by="run_num_dev")
+        data_frame = data_frame.sort_values(by="run_num_dev")
 
         first_run = True
         ir = 0
-        for _, row in DF.iterrows():
+        for _, row in data_frame.iterrows():
             with Dataset(
                 os.path.join(fpath_nodev, row.files_nodev)
             ) as file_dev_notpresent, Dataset(
@@ -284,7 +284,7 @@ def calculate_velocity_stressors(
                     if gridtype == "structured":
                         mag_nodev = np.zeros(
                             (
-                                DF.shape[0],
+                                data_frame.shape[0],
                                 tmp.shape[0],
                                 tmp.shape[1],
                                 tmp.shape[2],
@@ -293,7 +293,7 @@ def calculate_velocity_stressors(
                         )
                         mag_dev = np.zeros(
                             (
-                                DF.shape[0],
+                                data_frame.shape[0],
                                 tmp.shape[0],
                                 tmp.shape[1],
                                 tmp.shape[2],
@@ -301,8 +301,8 @@ def calculate_velocity_stressors(
                             )
                         )
                     else:
-                        mag_nodev = np.zeros((DF.shape[0], tmp.shape[0], tmp.shape[1]))
-                        mag_dev = np.zeros((DF.shape[0], tmp.shape[0], tmp.shape[1]))
+                        mag_nodev = np.zeros((data_frame.shape[0], tmp.shape[0], tmp.shape[1]))
+                        mag_dev = np.zeros((data_frame.shape[0], tmp.shape[0], tmp.shape[1]))
                     xcor = file_dev_notpresent.variables[xvar][:].data
                     ycor = file_dev_notpresent.variables[yvar][:].data
                     first_run = False
@@ -314,8 +314,9 @@ def calculate_velocity_stressors(
                 mag_dev[ir, :] = np.sqrt(u**2 + v**2)
                 ir += 1
     else:
-        raise Exception(
-            f"Number of device runs ({len(files_dev)}) must be the same as no device runs ({len(files_nodev)})."
+        raise ValueError(
+            f"Number of device runs ({len(files_dev)}) must be the same \
+              as no device runs ({len(files_nodev)})."
         )
     # Finished loading and sorting files
 
@@ -345,7 +346,7 @@ def calculate_velocity_stressors(
         # ignor number and start sequentially from zero
         bc_probability["run_num"] = np.arange(0, mag_dev.shape[0])
         # assumes run_num in name is the return interval
-        bc_probability["probability"] = 1 / DF.run_num_dev.to_numpy()
+        bc_probability["probability"] = 1 / data_frame.run_num_dev.to_numpy()
         bc_probability["probability"] = (
             bc_probability["probability"] / bc_probability["probability"].sum()
         )  # rescale to ensure = 1
@@ -452,8 +453,7 @@ def calculate_velocity_stressors(
         motility_classification = np.where(
             np.isnan(mag_diff_struct), -100, motility_classification
         )
-        # listOfFiles = [mag_combined_dev_struct, mag_combined_nodev_struct, mag_diff_struct, motility_nodev_struct,
-        #                motility_dev_struct, motility_diff_struct, motility_classification, velcrit_struct]
+
         dict_of_arrays = {
             "velocity_magnitude_without_devices": mag_combined_nodev_struct,
             "velocity_magnitude_with_devices": mag_combined_dev_struct,
@@ -723,8 +723,8 @@ def run_velocity_stressor(
                 ),
                 index=False,
             )
-    OUTPUT = {}
+    output = {}
 
     for val in output_rasters:
-        OUTPUT[os.path.basename(os.path.normpath(val)).split(".")[0]] = val
-    return OUTPUT
+        output[os.path.basename(os.path.normpath(val)).split(".")[0]] = val
+    return output
