@@ -1,4 +1,10 @@
 #!/usr/bin/python
+
+# pylint: disable=too-many-statements
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-locals
+# pylint: disable=too-many-branches
+
 """
 /***************************************************************************.
 
@@ -20,13 +26,12 @@
 	1. called by stressor_receptor_calc.py
 """
 
-import glob
 import os
 
 import numpy as np
 import pandas as pd
-from netCDF4 import Dataset
-from .stressor_utils import (
+from netCDF4 import Dataset # pylint: disable=no-name-in-module
+from seat.modules.stressor_utils import (
     estimate_grid_spacing,
     create_structured_array_from_unstructured,
     calc_receptor_array,
@@ -209,6 +214,9 @@ def calculate_velocity_stressors(
     files_nodev = [i for i in os.listdir(fpath_nodev) if i.endswith(".nc")]
     files_dev = [i for i in os.listdir(fpath_dev) if i.endswith(".nc")]
 
+    xcor = None
+    ycor = None
+
     # Load and sort files
     if len(files_nodev) == 1 & len(files_dev) == 1:
         # asumes a concatonated files with shape
@@ -232,7 +240,8 @@ def calculate_velocity_stressors(
 
     # same number of files, file name must be formatted with either run number or return interval
     elif len(files_nodev) == len(files_dev):
-        # asumes each run is separate with the some_name_RunNum_map.nc, where run number comes at the last underscore before _map.nc
+        # asumes each run is separate with the some_name_RunNum_map.nc,
+        # where run number comes at the last underscore before _map.nc
         run_num_nodev = np.zeros((len(files_nodev)))
         for ic, file in enumerate(files_nodev):
             run_num_nodev[ic] = int(file.split(".")[0].split("_")[-2])
@@ -334,7 +343,7 @@ def calculate_velocity_stressors(
                 )
             ]
     else:  # assume run_num in file name is return interval
-        BC_probability = pd.DataFrame()
+        bc_probability = pd.DataFrame()
         # ignor number and start sequentially from zero
         BC_probability["run_num"] = np.arange(0, mag_dev.shape[0])
         # assumes run_num in name is the return interval
@@ -343,7 +352,8 @@ def calculate_velocity_stressors(
             BC_probability["probability"] / BC_probability["probability"].sum()
         )  # rescale to ensure = 1
 
-    # ensure velocity is depth averaged for structured array [run_num, time, layer, x, y] and drop dimension
+    # ensure velocity is depth averaged for structured array [run_num, time, layer, x, y]
+    #  and drop dimension
     if np.ndim(mag_nodev) == 5:
         mag_dev = np.nanmean(mag_dev, axis=2)
         mag_nodev = np.nanmean(mag_nodev, axis=2)

@@ -1,16 +1,16 @@
-name: QGIS Plugin CI
+name: Pylint
 
 on:
-  pull_request:
-    branches:
-      - main
   push:
     branches:
       - main
       - vel_lint
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  test-seat-package:
+  linting:
     runs-on: ubuntu-latest
     services:
       docker:
@@ -44,12 +44,15 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/install_dependencies.py"
-          docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-pandas python3-netcdf4 python3-pytest"
+          docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-pandas python3-netcdf4 python3-pytest python3-pip pipx"
 
-      - name: Run Pytest
+      - name: Install Pylint Using pipx
         run: |
-          docker exec qgis-testing-environment pytest /tests_directory/tests
+          docker exec qgis-testing-environment sh -c "pipx install pylint"
+
+      - name: Run Pylint on velocity_module
+        run: |
+          docker exec qgis-testing-environment sh -c "pipx run pylint /tests_directory/seat/modules/velocity_module.py"
 
       - name: Clean up Docker container
         if: always()

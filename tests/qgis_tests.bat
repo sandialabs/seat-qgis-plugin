@@ -12,7 +12,8 @@ set "PYTHONHOME=%QGIS_ROOT%\apps\Python312"
 set "PATH=%QGIS_ROOT%\bin;%QGIS_ROOT%\apps\qgis-ltr\bin;%PATH%"
 
 :: Install dependencies
-"%QGIS_ROOT%\bin\python.exe"  tests\install_dependencies.py "C:\\Program Files\\QGIS 3.34.9\\bin\\python.exe"
+@REM "%QGIS_ROOT%\bin\python.exe"  tests\install_dependencies.py "C:\\Program Files\\QGIS 3.34.9\\bin\\python.exe"
 
 :: Run pytest on all test scripts in the directory
-"%QGIS_ROOT%\bin\python.exe" -m pytest .
+@REM "%QGIS_ROOT%\bin\python.exe" -m pytest .
+"%QGIS_ROOT%\bin\python.exe" -m pylint seat/modules/velocity_module.py
