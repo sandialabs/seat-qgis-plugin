@@ -328,26 +328,26 @@ def calculate_velocity_stressors(
         if not os.path.exists(probabilities_file):
             raise FileNotFoundError(f"The file {probabilities_file} does not exist.")
         # Load BC file with probabilities and find appropriate probability
-        BC_probability = pd.read_csv(probabilities_file, delimiter=",")
-        BC_probability["run_num"] = BC_probability["run number"] - 1
-        BC_probability = BC_probability.sort_values(by="run number")
-        BC_probability["probability"] = BC_probability["% of yr"].values / 100
-        # BC_probability
-        if "Exclude" in BC_probability.columns:
-            BC_probability = BC_probability[
+        bc_probability = pd.read_csv(probabilities_file, delimiter=",")
+        bc_probability["run_num"] = bc_probability["run number"] - 1
+        bc_probability = bc_probability.sort_values(by="run number")
+        bc_probability["probability"] = bc_probability["% of yr"].values / 100
+        # bc_probability
+        if "Exclude" in bc_probability.columns:
+            bc_probability = bc_probability[
                 ~(
-                    (BC_probability["Exclude"] == "x")
-                    | (BC_probability["Exclude"] == "X")
+                    (bc_probability["Exclude"] == "x")
+                    | (bc_probability["Exclude"] == "X")
                 )
             ]
     else:  # assume run_num in file name is return interval
         bc_probability = pd.DataFrame()
         # ignor number and start sequentially from zero
-        BC_probability["run_num"] = np.arange(0, mag_dev.shape[0])
+        bc_probability["run_num"] = np.arange(0, mag_dev.shape[0])
         # assumes run_num in name is the return interval
-        BC_probability["probability"] = 1 / DF.run_num_dev.to_numpy()
-        BC_probability["probability"] = (
-            BC_probability["probability"] / BC_probability["probability"].sum()
+        bc_probability["probability"] = 1 / DF.run_num_dev.to_numpy()
+        bc_probability["probability"] = (
+            bc_probability["probability"] / bc_probability["probability"].sum()
         )  # rescale to ensure = 1
 
     # ensure velocity is depth averaged for structured array [run_num, time, layer, x, y]
@@ -379,7 +379,7 @@ def calculate_velocity_stressors(
         mag_combined_dev = np.zeros(np.shape(mag_dev)[-1])
 
     for run_number, prob in zip(
-        BC_probability["run_num"].values, BC_probability["probability"].values
+        bc_probability["run_num"].values, bc_probability["probability"].values
     ):
         mag_combined_nodev = mag_combined_nodev + prob * mag_nodev[run_number, :]
         mag_combined_dev = mag_combined_dev + prob * mag_dev[run_number, :]
