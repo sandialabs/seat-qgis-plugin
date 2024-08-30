@@ -215,9 +215,14 @@ def calc_receptor_array(receptor_filename, x, y, latlon=False, mask=None):
             img = data.GetRasterBand(1)
             receptor_array = img.ReadAsArray()
             receptor_array[receptor_array < 0] = 0
-            (upper_left_x, x_size, x_rotation, upper_left_y, y_rotation, y_size) = (
-                data.GetGeoTransform()
-            )
+            (
+                upper_left_x,
+                x_size,
+                x_rotation,
+                upper_left_y,
+                y_rotation,
+                y_size,
+            ) = data.GetGeoTransform()
             cols = data.RasterXSize
             rows = data.RasterYSize
             r_rows = np.arange(rows) * y_size + upper_left_y + (y_size / 2)
@@ -466,9 +471,14 @@ def read_raster(raster_name):
     data = gdal.Open(raster_name)
     img = data.GetRasterBand(1)
     raster_array = img.ReadAsArray()
-    (upper_left_x, x_size, x_rotation, upper_left_y, y_rotation, y_size) = (
-        data.GetGeoTransform()
-    )
+    (
+        upper_left_x,
+        x_size,
+        x_rotation,
+        upper_left_y,
+        y_rotation,
+        y_size,
+    ) = data.GetGeoTransform()
     cols = data.RasterXSize
     rows = data.RasterYSize
     r_rows = np.arange(rows) * y_size + upper_left_y + (y_size / 2)
@@ -483,9 +493,14 @@ def secondary_constraint_geotiff_to_numpy(filename):
     img = data.GetRasterBand(1)
     array = img.ReadAsArray()
 
-    (upper_left_x, x_size, x_rotation, upper_left_y, y_rotation, y_size) = (
-        data.GetGeoTransform()
-    )
+    (
+        upper_left_x,
+        x_size,
+        x_rotation,
+        upper_left_y,
+        y_rotation,
+        y_size,
+    ) = data.GetGeoTransform()
     cols = data.RasterXSize
     rows = data.RasterYSize
     r_rows = np.arange(rows) * y_size + upper_left_y + (y_size / 2)

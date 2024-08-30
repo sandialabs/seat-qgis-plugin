@@ -474,7 +474,6 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
         if (s.endswith(".pol") | s.endswith(".Pol") | s.endswith(".POL"))
     ]
     if len(power_device_configuration_file) > 0:
-
         assert len(power_device_configuration_file) == 1, "More than 1 *.pol file found"
 
         # Group arrays to devices and calculate power proportionally for each scenario (datafile), such that the sum of each scenario for each device is the yearly totoal power for that device
