@@ -301,8 +301,12 @@ def calculate_velocity_stressors(
                             )
                         )
                     else:
-                        mag_nodev = np.zeros((data_frame.shape[0], tmp.shape[0], tmp.shape[1]))
-                        mag_dev = np.zeros((data_frame.shape[0], tmp.shape[0], tmp.shape[1]))
+                        mag_nodev = np.zeros(
+                            (data_frame.shape[0], tmp.shape[0], tmp.shape[1])
+                        )
+                        mag_dev = np.zeros(
+                            (data_frame.shape[0], tmp.shape[0], tmp.shape[1])
+                        )
                     xcor = file_dev_notpresent.variables[xvar][:].data
                     ycor = file_dev_notpresent.variables[yvar][:].data
                     first_run = False
