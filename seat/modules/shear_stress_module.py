@@ -1,10 +1,17 @@
+
+# pylint: disable=too-many-statements
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-locals
+# pylint: disable=too-many-branches
+
 """
 /***************************************************************************.
 
  shear_stress_module.py
  Copyright 2023, Integral Consulting Inc. All rights reserved.
 
- PURPOSE: module for calcualting shear stress (sediment mobility) change from a shear stress stressor
+ PURPOSE: module for calcualting shear stress (sediment mobility)
+ change from a shear stress stressor
 
  PROJECT INFORMATION:
  Name: SEAT - Spatial and Environmental Assessment Toolkit
@@ -20,12 +27,11 @@
 """
 
 import os
-
 import numpy as np
 import pandas as pd
-from netCDF4 import Dataset
+from netCDF4 import Dataset # pylint: disable=no-name-in-module
 
-from .stressor_utils import (
+from seat.modules.stressor_utils import (
     estimate_grid_spacing,
     create_structured_array_from_unstructured,
     calc_receptor_array,
@@ -40,13 +46,13 @@ from .stressor_utils import (
 )
 
 
-def critical_shear_stress(D_meters, rhow=1024, nu=1e-6, s=2.65, g=9.81):
+def critical_shear_stress(d_meters, rhow=1024, nu=1e-6, s=2.65, g=9.81):
     """
     Calculate critical shear stress from grain size.
 
     Parameters
     ----------
-    D_meters : Array
+    d_meters : Array
         grain size in meters.
     rhow : scalar, optional
         density of water in kg/m3. The default is 1024.
@@ -63,14 +69,14 @@ def critical_shear_stress(D_meters, rhow=1024, nu=1e-6, s=2.65, g=9.81):
         DESCRIPTION.
 
     """
-    Dstar = ((g * (s - 1)) / nu**2) ** (1 / 3) * D_meters
-    SHcr = (0.3 / (1 + 1.2 * Dstar)) + 0.055 * (1 - np.exp(-0.02 * Dstar))
-    taucrit = rhow * (s - 1) * g * D_meters * SHcr  # in Pascals
+    d_star = ((g * (s - 1)) / nu**2) ** (1 / 3) * d_meters
+    sh_cr = (0.3 / (1 + 1.2 * d_star)) + 0.055 * (1 - np.exp(-0.02 * d_star))
+    taucrit = rhow * (s - 1) * g * d_meters * sh_cr  # in Pascals
     return taucrit
 
 
 def classify_mobility(
-    mobility_parameter_dev, mobility_parameter_nodev, nochange_threshold=0.1
+    mobility_parameter_dev, mobility_parameter_nodev
 ):
     """
     classifies sediment mobility from device runs to no device runs.
@@ -181,8 +187,8 @@ def check_grid_define_vars(dataset):
         name of shear stress variable.
 
     """
-    vars = list(dataset.variables)
-    if "TAUMAX" in vars:
+    variable_names = list(dataset.variables)
+    if "TAUMAX" in variable_names:
         gridtype = "structured"
         tauvar = "TAUMAX"
     else:
@@ -252,6 +258,8 @@ def calculate_shear_stress_stressors(
     if not os.path.exists(fpath_dev):
         raise FileNotFoundError(f"The file {fpath_dev} does not exist.")
 
+    xcor, ycor = None, None
+
     files_nodev = [i for i in os.listdir(fpath_nodev) if i.endswith(".nc")]
     files_dev = [i for i in os.listdir(fpath_dev) if i.endswith(".nc")]
 
@@ -273,7 +281,8 @@ def calculate_shear_stress_stressors(
 
     # same number of files, file name must be formatted with either run number
     elif len(files_nodev) == len(files_dev):
-        # asumes each run is separate with the some_name_RunNum_map.nc, where run number comes at the last underscore before _map.nc
+        # asumes each run is separate with the some_name_RunNum_map.nc,
+        # where run number comes at the last underscore before _map.nc
         run_num_nodev = np.zeros((len(files_nodev)))
         for ic, file in enumerate(files_nodev):
             run_num_nodev[ic] = int(file.split(".")[0].split("_")[-2])
@@ -290,7 +299,7 @@ def calculate_shear_stress_stressors(
                 )
             files_dev = [files_dev[int(i)] for i in adjust_dev_order]
             run_num_dev = [run_num_dev[int(i)] for i in adjust_dev_order]
-        DF = pd.DataFrame(
+        df = pd.DataFrame(
             {
                 "files_nodev": files_nodev,
                 "run_num_nodev": run_num_nodev,
@@ -298,10 +307,10 @@ def calculate_shear_stress_stressors(
                 "run_num_dev": run_num_dev,
             }
         )
-        DF = DF.sort_values(by="run_num_dev")
+        df = df.sort_values(by="run_num_dev")
         first_run = True
         ir = 0
-        for _, row in DF.iterrows():
+        for _, row in df.iterrows():
             with Dataset(
                 os.path.join(fpath_nodev, row.files_nodev)
             ) as file_dev_notpresent, Dataset(
@@ -313,14 +322,14 @@ def calculate_shear_stress_stressors(
                     tmp = file_dev_notpresent.variables[tauvar][:].data
                     if gridtype == "structured":
                         tau_nodev = np.zeros(
-                            (DF.shape[0], tmp.shape[0], tmp.shape[1], tmp.shape[2])
+                            (df.shape[0], tmp.shape[0], tmp.shape[1], tmp.shape[2])
                         )
                         tau_dev = np.zeros(
-                            (DF.shape[0], tmp.shape[0], tmp.shape[1], tmp.shape[2])
+                            (df.shape[0], tmp.shape[0], tmp.shape[1], tmp.shape[2])
                         )
                     else:
-                        tau_nodev = np.zeros((DF.shape[0], tmp.shape[0], tmp.shape[1]))
-                        tau_dev = np.zeros((DF.shape[0], tmp.shape[0], tmp.shape[1]))
+                        tau_nodev = np.zeros((df.shape[0], tmp.shape[0], tmp.shape[1]))
+                        tau_dev = np.zeros((df.shape[0], tmp.shape[0], tmp.shape[1]))
                     xcor = file_dev_notpresent.variables[xvar][:].data
                     ycor = file_dev_notpresent.variables[yvar][:].data
                     first_run = False
@@ -329,40 +338,42 @@ def calculate_shear_stress_stressors(
 
                 ir += 1
     else:
-        raise Exception(
-            f"Number of device runs ({len(files_dev)}) must be the same as no device runs ({len(files_nodev)})."
+        raise ValueError(
+            f"Number of device runs ({len(files_dev)}) must be the same "
+            f"as no device runs ({len(files_nodev)})."
         )
     # Finished loading and sorting files
 
     if gridtype == "structured":
+
         if (xcor[0, 0] == 0) & (xcor[-1, 0] == 0):
             # at least for some runs the boundary has 0 coordinates. Check and fix.
             xcor, ycor, tau_nodev, tau_dev = trim_zeros(xcor, ycor, tau_nodev, tau_dev)
 
-    if not (probabilities_file == ""):
+    if not probabilities_file == "":
         if not os.path.exists(probabilities_file):
             raise FileNotFoundError(f"The file {probabilities_file} does not exist.")
         # Load BC file with probabilities and find appropriate probability
-        BC_probability = pd.read_csv(probabilities_file, delimiter=",")
-        BC_probability["run_num"] = BC_probability["run number"] - 1
-        BC_probability = BC_probability.sort_values(by="run number")
-        BC_probability["probability"] = BC_probability["% of yr"].values / 100
-        # BC_probability
-        if "Exclude" in BC_probability.columns:
-            BC_probability = BC_probability[
+        bc_probability = pd.read_csv(probabilities_file, delimiter=",")
+        bc_probability["run_num"] = bc_probability["run number"] - 1
+        bc_probability = bc_probability.sort_values(by="run number")
+        bc_probability["probability"] = bc_probability["% of yr"].values / 100
+        # bc_probability
+        if "Exclude" in bc_probability.columns:
+            bc_probability = bc_probability[
                 ~(
-                    (BC_probability["Exclude"] == "x")
-                    | (BC_probability["Exclude"] == "X")
+                    (bc_probability["Exclude"] == "x")
+                    | (bc_probability["Exclude"] == "X")
                 )
             ]
     else:  # assume run_num in file name is return interval
-        BC_probability = pd.DataFrame()
+        bc_probability = pd.DataFrame()
         # ignore number and start sequentially from zero
-        BC_probability["run_num"] = np.arange(0, tau_dev.shape[0])
+        bc_probability["run_num"] = np.arange(0, tau_dev.shape[0])
         # assumes run_num in name is the return interval
-        BC_probability["probability"] = 1 / DF.run_num_dev.to_numpy()
-        BC_probability["probability"] = (
-            BC_probability["probability"] / BC_probability["probability"].sum()
+        bc_probability["probability"] = 1 / df.run_num_dev.to_numpy()
+        bc_probability["probability"] = (
+            bc_probability["probability"] / bc_probability["probability"].sum()
         )  # rescale to ensure = 1
 
     # Calculate Stressor and Receptors
@@ -390,14 +401,14 @@ def calculate_shear_stress_stressors(
         tau_combined_dev = np.zeros(np.shape(tau_dev)[-1])
 
     for run_number, prob in zip(
-        BC_probability["run_num"].values, BC_probability["probability"].values
+        bc_probability["run_num"].values, bc_probability["probability"].values
     ):
         tau_combined_nodev = tau_combined_nodev + prob * tau_nodev[run_number, -1, :]
         tau_combined_dev = tau_combined_dev + prob * tau_dev[run_number, -1, :]
 
     receptor_array = calc_receptor_array(receptor_filename, xcor, ycor, latlon=latlon)
     taucrit = critical_shear_stress(
-        D_meters=receptor_array * 1e-6, rhow=1024, nu=1e-6, s=2.65, g=9.81
+        d_meters=receptor_array * 1e-6, rhow=1024, nu=1e-6, s=2.65, g=9.81
     )  # units N/m2 = Pa
     tau_diff = tau_combined_dev - tau_combined_nodev
     mobility_parameter_nodev = tau_combined_nodev / taucrit
@@ -806,7 +817,7 @@ def run_shear_stress_stressor(
                 ),
                 index=False,
             )
-    OUTPUT = {}
+    output = {}
     for val in output_rasters:
-        OUTPUT[os.path.basename(os.path.normpath(val)).split(".")[0]] = val
-    return OUTPUT
+        output[os.path.basename(os.path.normpath(val)).split(".")[0]] = val
+    return output
