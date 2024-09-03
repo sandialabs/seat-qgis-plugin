@@ -32,7 +32,7 @@ jobs:
         run: |
           until docker exec qgis-testing-environment sh -c "ls /"; do sleep 1; done
 
-      - name: Install plugin by manually via Copy
+      - name: Install plugin manually via Copy
         run: |
           docker exec qgis-testing-environment sh -c '
           PLUGIN_SRC_PATH=/tests_directory/seat
