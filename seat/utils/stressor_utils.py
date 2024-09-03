@@ -737,7 +737,7 @@ def classify_layer_area(raster_filename, receptor_filename=None, at_values=None,
     return pd.DataFrame(DATA)
 
 
-def classify_layer_area_2nd_Constraint(raster_to_sample, secondary_constraint_filename, at_raster_values, at_raster_value_names, limit_constraint_range=None, latlon=True, receptor_type='receptor'):
+def classify_layer_area_2nd_constraint(raster_to_sample, secondary_constraint_filename, at_raster_values, at_raster_value_names, limit_constraint_range=None, latlon=True, receptor_type='receptor'):
     rx, ry, z = read_raster(raster_to_sample)
     rxm, rym, square_area = calculate_cell_area(rx, ry, latlon=latlon)
     square_area = square_area.flatten()
