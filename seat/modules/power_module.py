@@ -33,6 +33,7 @@ from matplotlib.colors import ListedColormap
 from matplotlib.cm import ScalarMappable
 from matplotlib.ticker import FormatStrFormatter
 
+
 # Obstacle Polygon and Device Positions
 def read_obstacle_polygon_file(power_device_configuration_file):
     """
@@ -53,12 +54,14 @@ def read_obstacle_polygon_file(power_device_configuration_file):
         with io.open(power_device_configuration_file, "r", encoding="utf-8") as inf:
             lines = inf.readlines()
     except FileNotFoundError as exc:
-        raise FileNotFoundError(f"File not found: {power_device_configuration_file}") from exc
+        raise FileNotFoundError(
+            f"File not found: {power_device_configuration_file}"
+        ) from exc
 
     ic = 0
     obstacles = {}
     while ic < len(lines) - 1:
-        if 'Obstacle' in lines[ic]:
+        if "Obstacle" in lines[ic]:
             obstacle = lines[ic].strip()
             obstacles[obstacle] = {}
             ic += 1  # skip to next line
@@ -231,6 +234,7 @@ def pair_devices(centroids):
         centroids = centroids[~np.isin(centroids[:, 0], pair), :]
     return devices
 
+
 # # use https://stackoverflow.com/questions/10550477/how-do-i-set-color-to-rectangle-in-matplotlib
 # # to create rectangles from the polygons above
 # # scale color based on power device power range from 0 to max of array
@@ -276,30 +280,34 @@ def create_power_heatmap(device_power, crs=None):
     for _, device in device_power.iterrows():
         # print(device)
         ax.add_patch(
-            Rectangle((device.lower_left[0]+adjust_x, device.lower_left[1]),
-                      np.nanmax([device.width, device.height]),
-                      np.nanmax([device.width, device.height]),
-                      color=cmap(norm(device['Power [W]']*1e-6))))
-        lowerx = np.nanmin([lowerx, device.lower_left[0]+adjust_x])
+            Rectangle(
+                (device.lower_left[0] + adjust_x, device.lower_left[1]),
+                np.nanmax([device.width, device.height]),
+                np.nanmax([device.width, device.height]),
+                color=cmap(norm(device["Power [W]"] * 1e-6)),
+            )
+        )
+        lowerx = np.nanmin([lowerx, device.lower_left[0] + adjust_x])
         lowery = np.nanmin([lowery, device.lower_left[1]])
-        upperx = np.nanmax(
-            [upperx, device.lower_left[0]+adjust_x + device.width])
+        upperx = np.nanmax([upperx, device.lower_left[0] + adjust_x + device.width])
         uppery = np.nanmax([uppery, device.lower_left[1] + device.height])
     xr = np.abs(np.max([lowerx, upperx]) - np.min([lowerx, upperx]))
     yr = np.abs(np.max([lowery, uppery]) - np.min([lowery, uppery]))
-    ax.set_xlim([lowerx-.05*xr, upperx+.05*xr])
-    ax.set_ylim([lowery-.05*yr, uppery+.05*yr])
+    ax.set_xlim([lowerx - 0.05 * xr, upperx + 0.05 * xr])
+    ax.set_ylim([lowery - 0.05 * yr, uppery + 0.05 * yr])
 
     cb = plt.colorbar(ScalarMappable(cmap=cmap, norm=norm), ax=ax)
-    cb.set_label('MW')
-    ax.ticklabel_format(useOffset=False, style='plain')
-    ax.set_xlabel('Longitude [deg]')
-    ax.set_ylabel('Latitude [deg]')
+    cb.set_label("MW")
+    ax.ticklabel_format(useOffset=False, style="plain")
+    ax.set_xlabel("Longitude [deg]")
+    ax.set_ylabel("Latitude [deg]")
     ax.set_xticks(np.linspace(lowerx, upperx, 5))
     ax.set_xticklabels(ax.get_xticklabels(), ha="right", rotation=45)
-    ax.xaxis.set_major_formatter(FormatStrFormatter('%0.4f'))
+    ax.xaxis.set_major_formatter(FormatStrFormatter("%0.4f"))
     fig.tight_layout()
     return fig
+
+
 # %%
 
 
@@ -411,6 +419,7 @@ def roundup(x, val=2):
     """
     return np.ceil(x / val) * val
 
+
 def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
     """
     Reads the power files and calculates the total annual power based on
@@ -445,7 +454,7 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
     if not os.path.exists(probabilities_file):
         raise FileNotFoundError(f"The file {probabilities_file} does not exist.")
 
-    datafiles_o = [s for s in os.listdir(power_files) if s.endswith('.OUT')]
+    datafiles_o = [s for s in os.listdir(power_files) if s.endswith(".OUT")]
     bc_data = pd.read_csv(probabilities_file)
 
     datafiles = sort_data_files_by_runnumber(bc_data, datafiles_o)
@@ -485,8 +494,7 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
     ax.set_ylabel("Power [$log_{10}(Watts)$]")
     ax.set_title("Total Power Annual")
     fig.tight_layout()
-    fig.savefig(os.path.join(
-        save_path, 'Total_Scaled_Power_Bars_per_Run.png'))
+    fig.savefig(os.path.join(save_path, "Total_Scaled_Power_Bars_per_Run.png"))
 
     subplot_grid_size = np.sqrt(np.shape(power_scaled)[1])
     fig, axes_grid = plt.subplots(
@@ -520,8 +528,7 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
     for ax in axes_grid[-1, :]:
         ax.set_xlabel("Obstacle")
     fig.tight_layout()
-    fig.savefig(os.path.join(
-        save_path, 'Scaled_Power_Bars_per_run_obstacle.png'))
+    fig.savefig(os.path.join(save_path, "Scaled_Power_Bars_per_run_obstacle.png"))
 
     fig, ax = plt.subplots(figsize=(9, 6))
     ax.bar(
@@ -534,15 +541,16 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
     ax.set_ylabel("Power [$log_{10}(Watts)$]")
     ax.set_title("Total Obstacle Power for all Runs")
     fig.tight_layout()
-    fig.savefig(os.path.join(
-        save_path, 'Total_Scaled_Power_Bars_per_obstacle.png'))
+    fig.savefig(os.path.join(save_path, "Total_Scaled_Power_Bars_per_obstacle.png"))
 
-    power_device_configuration_file = [s for s in os.listdir(power_files) if (
-        s.endswith('.pol') | s.endswith('.Pol') | s.endswith('.POL'))]
+    power_device_configuration_file = [
+        s
+        for s in os.listdir(power_files)
+        if (s.endswith(".pol") | s.endswith(".Pol") | s.endswith(".POL"))
+    ]
     if len(power_device_configuration_file) > 0:
 
-        assert len(
-            power_device_configuration_file) == 1, "More than 1 *.pol file found"
+        assert len(power_device_configuration_file) == 1, "More than 1 *.pol file found"
 
         # Group arrays to devices and calculate power
         # proportionally for each scenario (datafile),
@@ -637,8 +645,7 @@ def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
             ax.set_xlabel("Device")
         axes_grid = axes_grid.flatten()
         fig.tight_layout()
-        fig.savefig(os.path.join(
-            save_path, 'Scaled_Power_per_device_per_scenario.png'))
+        fig.savefig(os.path.join(save_path, "Scaled_Power_per_device_per_scenario.png"))
 
         # power per scenario per device
 
