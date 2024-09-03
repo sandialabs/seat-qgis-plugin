@@ -1,4 +1,3 @@
-
 # pylint: disable=too-many-statements
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-locals
@@ -29,7 +28,7 @@
 import os
 import numpy as np
 import pandas as pd
-from netCDF4 import Dataset # pylint: disable=no-name-in-module
+from netCDF4 import Dataset  # pylint: disable=no-name-in-module
 
 from seat.modules.stressor_utils import (
     estimate_grid_spacing,
@@ -75,9 +74,7 @@ def critical_shear_stress(d_meters, rhow=1024, nu=1e-6, s=2.65, g=9.81):
     return taucrit
 
 
-def classify_mobility(
-    mobility_parameter_dev, mobility_parameter_nodev
-):
+def classify_mobility(mobility_parameter_dev, mobility_parameter_nodev):
     """
     classifies sediment mobility from device runs to no device runs.
 
