@@ -595,7 +595,7 @@ def run_shear_stress_stressor(
                     latlon=crs == 4326,
                     receptor_type='risk layer').to_csv(os.path.join(output_path, "shear_stress_risk_metric_at_shear_stress_risk_layer.csv"), index=False)
 
-            classify_layer_area_2nd_Constraint(raster_to_sample = os.path.join(output_path, "sediment_mobility_difference.tif"),
+            classify_layer_area_2nd_constraint(raster_to_sample = os.path.join(output_path, "sediment_mobility_difference.tif"),
                             secondary_constraint_filename=os.path.join(output_path, "shear_stress_risk_layer.tif"),
                             at_raster_values=[-3, -2, -1, 0, 1, 2, 3],
                             at_raster_value_names=['New Deposition', 'Increased Deposition', 'Reduced Deposition',
