@@ -33,7 +33,7 @@ jobs:
         run: |
           until docker exec qgis-testing-environment sh -c "ls /"; do sleep 1; done
 
-      - name: Install plugin by manually via Copy
+      - name: Install plugin manually via Copy
         run: |
           docker exec qgis-testing-environment sh -c '
           PLUGIN_SRC_PATH=/tests_directory/seat
@@ -42,17 +42,26 @@ jobs:
           cp -r $PLUGIN_SRC_PATH/* $PLUGIN_DEST_DIR/
           '
 
+      - name: Print python path
+        run: |
+          docker exec qgis-testing-environment sh -c "which python3"
+
       - name: Install Dependencies
         run: |
-          docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-pandas python3-netcdf4 python3-pytest python3-pip pipx"
+          docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-pandas python3-netcdf4 python3-pytest python3-pip"
+          docker exec qgis-testing-environment sh -c "pip3 install pylint"
 
-      - name: Install Pylint Using pipx
-        run: |
-          docker exec qgis-testing-environment sh -c "pipx install pylint"
+      # - name: Install Pylint Using pipx
+      #   run: |
+      #     docker exec qgis-testing-environment sh -c "pipx install pylint"
 
-      - name: Run Pylint on velocity_module
+      - name: Run Pylint
         run: |
-          docker exec qgis-testing-environment sh -c "pipx run pylint /tests_directory/seat/modules/velocity_module.py"
+          docker exec qgis-testing-environment pylint /tests_directory/seat/modules/velocity_module.py
+
+      # - name: Run Pylint on velocity_module
+      #   run: |
+      #     docker exec qgis-testing-environment sh -c "pipx run pylint /tests_directory/seat/modules/velocity_module.py"
 
       - name: Clean up Docker container
         if: always()
