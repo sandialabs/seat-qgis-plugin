@@ -32,57 +32,27 @@ jobs:
         run: |
           until docker exec qgis-testing-environment sh -c "ls /"; do sleep 1; done
 
-      - name: Locate QGIS Python
-        id: find-qgis-python
+      - name: Install plugin manually via Copy
         run: |
-          QGIS_PYTHON=$(docker exec qgis-testing-environment sh -c "find /usr -name 'python3' -type f -executable | grep qgis")
-          echo "First search result: $QGIS_PYTHON"
-          if [ -z "$QGIS_PYTHON" ]; then
-            QGIS_PYTHON=$(docker exec qgis-testing-environment sh -c "find /usr -name 'python' -type f -executable | grep qgis")
-            echo "Second search result: $QGIS_PYTHON"
-          fi
-          if [ -z "$QGIS_PYTHON" ]; then
-            QGIS_PYTHON=$(docker exec qgis-testing-environment sh -c "find /usr -name 'python3' -type f -executable | head -n 1")
-            echo "Fallback search result: $QGIS_PYTHON"
-          fi
-          if [ -z "$QGIS_PYTHON" ]; then
-            echo "QGIS Python interpreter not found"
-            exit 1
-          else
-            echo "QGIS_PYTHON=${QGIS_PYTHON}" >> $GITHUB_ENV
-            echo "QGIS_PYTHON_PATH=${QGIS_PYTHON%/*}" >> $GITHUB_ENV
-            echo "Final QGIS Python Path: $QGIS_PYTHON"
-          fi
+          docker exec qgis-testing-environment sh -c '
+          PLUGIN_SRC_PATH=/tests_directory/seat
+          PLUGIN_DEST_DIR=/usr/share/qgis/python/plugins/seat
+          mkdir -p $PLUGIN_DEST_DIR
+          cp -r $PLUGIN_SRC_PATH/* $PLUGIN_DEST_DIR/
+          '
 
-      # - name: Install plugin manually via Copy
-      #   run: |
-      #     docker exec qgis-testing-environment sh -c '
-      #     PLUGIN_SRC_PATH=/tests_directory/seat
-      #     PLUGIN_DEST_DIR=/usr/share/qgis/python/plugins/seat
-      #     mkdir -p $PLUGIN_DEST_DIR
-      #     cp -r $PLUGIN_SRC_PATH/* $PLUGIN_DEST_DIR/
-      #     '
+      - name: Install Dependencies
+        run: |
+          docker exec qgis-testing-environment sh -c "/usr/bin/python3.12 /tests_directory/tests/install_dependencies.py"
+          docker exec qgis-testing-environment sh -c "/usr/bin/python3.12 -m pip install pylint"
 
-      # - name: Print python path
-      #   run: |
-      #     docker exec qgis-testing-environment sh -c "which python3"
+      - name: Run Pylint
+        run: |
+          docker exec qgis-testing-environment sh -c "/usr/bin/python3.12 -m pylint /tests_directory/seat"
 
-      # - name: Install Dependencies
-      #   run: |
-      #     docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-pandas python3-netcdf4 python3-pytest python3-pip"
-      #     docker exec qgis-testing-environment sh -c "pip3 install pylint"
-
-      # # - name: Install Pylint Using pipx
-      # #   run: |
-      # #     docker exec qgis-testing-environment sh -c "pipx install pylint"
-
-      # - name: Run Pylint
-      #   run: |
-      #     docker exec qgis-testing-environment pylint /tests_directory/seat/modules/velocity_module.py
-
-      # # - name: Run Pylint on velocity_module
-      # #   run: |
-      # #     docker exec qgis-testing-environment sh -c "pipx run pylint /tests_directory/seat/modules/velocity_module.py"
+      - name: Run Pylint
+        run: |
+          docker exec qgis-testing-environment sh -c "/usr/bin/python3.12 -m pylint /tests_directory/seat/modules/velocity_module.py"
 
       - name: Clean up Docker container
         if: always()
