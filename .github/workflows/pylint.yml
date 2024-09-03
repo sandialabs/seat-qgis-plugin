@@ -49,6 +49,10 @@ jobs:
         run: |
           docker exec qgis-testing-environment sh -c "/usr/bin/python3.12 -m venv --system-site-packages /tests_directory/venv"
 
+      - name: Add Plugin to PYTHONPATH in Virtual Environment
+        run: |
+          docker exec qgis-testing-environment sh -c "echo '/usr/share/qgis/python/plugins' > /tests_directory/venv/lib/python3.12/site-packages/seat.pth"
+
       - name: Install Pylint in Virtual Environment
         run: |
           docker exec qgis-testing-environment sh -c "/tests_directory/venv/bin/pip install pylint"
