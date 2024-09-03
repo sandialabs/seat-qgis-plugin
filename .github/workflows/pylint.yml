@@ -41,18 +41,17 @@ jobs:
           cp -r $PLUGIN_SRC_PATH/* $PLUGIN_DEST_DIR/
           '
 
-      - name: Install Dependencies
+      - name: Create a Virtual Environment
         run: |
-          docker exec qgis-testing-environment sh -c "/usr/bin/python3.12 /tests_directory/tests/install_dependencies.py"
-          docker exec qgis-testing-environment sh -c "/usr/bin/python3.12 -m pip install pylint"
+          docker exec qgis-testing-environment sh -c "/usr/bin/python3.12 -m venv /tests_directory/venv"
+
+      - name: Install Pylint in Virtual Environment
+        run: |
+          docker exec qgis-testing-environment sh -c "/tests_directory/venv/bin/pip install pylint"
 
       - name: Run Pylint
         run: |
-          docker exec qgis-testing-environment sh -c "/usr/bin/python3.12 -m pylint /tests_directory/seat"
-
-      - name: Run Pylint
-        run: |
-          docker exec qgis-testing-environment sh -c "/usr/bin/python3.12 -m pylint /tests_directory/seat/modules/velocity_module.py"
+          docker exec qgis-testing-environment sh -c "/tests_directory/venv/bin/pylint /tests_directory/seat/modules/velocity_module.py"
 
       - name: Clean up Docker container
         if: always()
