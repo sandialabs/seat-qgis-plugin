@@ -1,4 +1,10 @@
 #!/usr/bin/python
+
+# pylint: disable=too-many-statements
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-locals
+# pylint: disable=too-many-branches
+
 """
 /***************************************************************************.
 
@@ -20,13 +26,12 @@
 	1. called by stressor_receptor_calc.py
 """
 
-import glob
 import os
 
 import numpy as np
 import pandas as pd
-from netCDF4 import Dataset
-from .stressor_utils import (
+from netCDF4 import Dataset  # pylint: disable=no-name-in-module
+from seat.modules.stressor_utils import (
     estimate_grid_spacing,
     create_structured_array_from_unstructured,
     calc_receptor_array,
@@ -130,14 +135,14 @@ def check_grid_define_vars(dataset):
     vvar : str
         name of y-coordinate velocity variable.
     """
-    vars = list(dataset.variables)
-    if "U1" in vars:
+    data_vars = list(dataset.variables)
+    if "U1" in data_vars:
         gridtype = "structured"
         uvar = "U1"
         vvar = "V1"
         try:
             xvar, yvar = dataset.variables[uvar].coordinates.split()
-        except:
+        except AttributeError:
             xvar = "XCOR"
             yvar = "YCOR"
     else:
@@ -209,6 +214,9 @@ def calculate_velocity_stressors(
     files_nodev = [i for i in os.listdir(fpath_nodev) if i.endswith(".nc")]
     files_dev = [i for i in os.listdir(fpath_dev) if i.endswith(".nc")]
 
+    xcor = None
+    ycor = None
+
     # Load and sort files
     if len(files_nodev) == 1 & len(files_dev) == 1:
         # asumes a concatonated files with shape
@@ -218,7 +226,6 @@ def calculate_velocity_stressors(
         ) as file_dev_present, Dataset(
             os.path.join(fpath_nodev, files_nodev[0])
         ) as file_dev_notpresent:
-
             gridtype, xvar, yvar, uvar, vvar = check_grid_define_vars(file_dev_present)
             xcor = file_dev_present.variables[xvar][:].data
             ycor = file_dev_present.variables[yvar][:].data
@@ -232,7 +239,8 @@ def calculate_velocity_stressors(
 
     # same number of files, file name must be formatted with either run number or return interval
     elif len(files_nodev) == len(files_dev):
-        # asumes each run is separate with the some_name_RunNum_map.nc, where run number comes at the last underscore before _map.nc
+        # asumes each run is separate with the some_name_RunNum_map.nc,
+        # where run number comes at the last underscore before _map.nc
         run_num_nodev = np.zeros((len(files_nodev)))
         for ic, file in enumerate(files_nodev):
             run_num_nodev[ic] = int(file.split(".")[0].split("_")[-2])
@@ -249,7 +257,7 @@ def calculate_velocity_stressors(
                 )
             files_dev = [files_dev[int(i)] for i in adjust_dev_order]
             run_num_dev = [run_num_dev[int(i)] for i in adjust_dev_order]
-        DF = pd.DataFrame(
+        data_frame = pd.DataFrame(
             {
                 "files_nodev": files_nodev,
                 "run_num_nodev": run_num_nodev,
@@ -257,17 +265,16 @@ def calculate_velocity_stressors(
                 "run_num_dev": run_num_dev,
             }
         )
-        DF = DF.sort_values(by="run_num_dev")
+        data_frame = data_frame.sort_values(by="run_num_dev")
 
         first_run = True
         ir = 0
-        for _, row in DF.iterrows():
+        for _, row in data_frame.iterrows():
             with Dataset(
                 os.path.join(fpath_nodev, row.files_nodev)
             ) as file_dev_notpresent, Dataset(
                 os.path.join(fpath_dev, row.files_dev)
             ) as file_dev_present:
-
                 gridtype, xvar, yvar, uvar, vvar = check_grid_define_vars(
                     file_dev_present
                 )
@@ -277,7 +284,7 @@ def calculate_velocity_stressors(
                     if gridtype == "structured":
                         mag_nodev = np.zeros(
                             (
-                                DF.shape[0],
+                                data_frame.shape[0],
                                 tmp.shape[0],
                                 tmp.shape[1],
                                 tmp.shape[2],
@@ -286,7 +293,7 @@ def calculate_velocity_stressors(
                         )
                         mag_dev = np.zeros(
                             (
-                                DF.shape[0],
+                                data_frame.shape[0],
                                 tmp.shape[0],
                                 tmp.shape[1],
                                 tmp.shape[2],
@@ -294,8 +301,12 @@ def calculate_velocity_stressors(
                             )
                         )
                     else:
-                        mag_nodev = np.zeros((DF.shape[0], tmp.shape[0], tmp.shape[1]))
-                        mag_dev = np.zeros((DF.shape[0], tmp.shape[0], tmp.shape[1]))
+                        mag_nodev = np.zeros(
+                            (data_frame.shape[0], tmp.shape[0], tmp.shape[1])
+                        )
+                        mag_dev = np.zeros(
+                            (data_frame.shape[0], tmp.shape[0], tmp.shape[1])
+                        )
                     xcor = file_dev_notpresent.variables[xvar][:].data
                     ycor = file_dev_notpresent.variables[yvar][:].data
                     first_run = False
@@ -307,8 +318,9 @@ def calculate_velocity_stressors(
                 mag_dev[ir, :] = np.sqrt(u**2 + v**2)
                 ir += 1
     else:
-        raise Exception(
-            f"Number of device runs ({len(files_dev)}) must be the same as no device runs ({len(files_nodev)})."
+        raise ValueError(
+            f"Number of device runs ({len(files_dev)}) must be the same \
+              as no device runs ({len(files_nodev)})."
         )
     # Finished loading and sorting files
 
@@ -321,29 +333,30 @@ def calculate_velocity_stressors(
         if not os.path.exists(probabilities_file):
             raise FileNotFoundError(f"The file {probabilities_file} does not exist.")
         # Load BC file with probabilities and find appropriate probability
-        BC_probability = pd.read_csv(probabilities_file, delimiter=",")
-        BC_probability["run_num"] = BC_probability["run number"] - 1
-        BC_probability = BC_probability.sort_values(by="run number")
-        BC_probability["probability"] = BC_probability["% of yr"].values / 100
-        # BC_probability
-        if "Exclude" in BC_probability.columns:
-            BC_probability = BC_probability[
+        bc_probability = pd.read_csv(probabilities_file, delimiter=",")
+        bc_probability["run_num"] = bc_probability["run number"] - 1
+        bc_probability = bc_probability.sort_values(by="run number")
+        bc_probability["probability"] = bc_probability["% of yr"].values / 100
+        # bc_probability
+        if "Exclude" in bc_probability.columns:
+            bc_probability = bc_probability[
                 ~(
-                    (BC_probability["Exclude"] == "x")
-                    | (BC_probability["Exclude"] == "X")
+                    (bc_probability["Exclude"] == "x")
+                    | (bc_probability["Exclude"] == "X")
                 )
             ]
     else:  # assume run_num in file name is return interval
-        BC_probability = pd.DataFrame()
+        bc_probability = pd.DataFrame()
         # ignor number and start sequentially from zero
-        BC_probability["run_num"] = np.arange(0, mag_dev.shape[0])
+        bc_probability["run_num"] = np.arange(0, mag_dev.shape[0])
         # assumes run_num in name is the return interval
-        BC_probability["probability"] = 1 / DF.run_num_dev.to_numpy()
-        BC_probability["probability"] = (
-            BC_probability["probability"] / BC_probability["probability"].sum()
+        bc_probability["probability"] = 1 / data_frame.run_num_dev.to_numpy()
+        bc_probability["probability"] = (
+            bc_probability["probability"] / bc_probability["probability"].sum()
         )  # rescale to ensure = 1
 
-    # ensure velocity is depth averaged for structured array [run_num, time, layer, x, y] and drop dimension
+    # ensure velocity is depth averaged for structured array [run_num, time, layer, x, y]
+    #  and drop dimension
     if np.ndim(mag_nodev) == 5:
         mag_dev = np.nanmean(mag_dev, axis=2)
         mag_nodev = np.nanmean(mag_nodev, axis=2)
@@ -371,9 +384,8 @@ def calculate_velocity_stressors(
         mag_combined_dev = np.zeros(np.shape(mag_dev)[-1])
 
     for run_number, prob in zip(
-        BC_probability["run_num"].values, BC_probability["probability"].values
+        bc_probability["run_num"].values, bc_probability["probability"].values
     ):
-
         mag_combined_nodev = mag_combined_nodev + prob * mag_nodev[run_number, :]
         mag_combined_dev = mag_combined_dev + prob * mag_dev[run_number, :]
 
@@ -445,8 +457,7 @@ def calculate_velocity_stressors(
         motility_classification = np.where(
             np.isnan(mag_diff_struct), -100, motility_classification
         )
-        # listOfFiles = [mag_combined_dev_struct, mag_combined_nodev_struct, mag_diff_struct, motility_nodev_struct,
-        #                motility_dev_struct, motility_diff_struct, motility_classification, velcrit_struct]
+
         dict_of_arrays = {
             "velocity_magnitude_without_devices": mag_combined_nodev_struct,
             "velocity_magnitude_with_devices": mag_combined_dev_struct,
@@ -546,7 +557,6 @@ def run_velocity_stressor(
 
     output_rasters = []
     for array_name, use_numpy_array in zip(numpy_array_names, use_numpy_arrays):
-
         if gridtype == "structured":
             numpy_array = np.flip(np.transpose(dict_of_arrays[use_numpy_array]), axis=0)
         else:
@@ -717,8 +727,8 @@ def run_velocity_stressor(
                 ),
                 index=False,
             )
-    OUTPUT = {}
+    output = {}
 
     for val in output_rasters:
-        OUTPUT[os.path.basename(os.path.normpath(val)).split(".")[0]] = val
-    return OUTPUT
+        output[os.path.basename(os.path.normpath(val)).split(".")[0]] = val
+    return output

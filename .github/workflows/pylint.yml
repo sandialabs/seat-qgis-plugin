@@ -1,15 +1,15 @@
-name: QGIS Plugin CI
+name: Pylint
 
 on:
-  pull_request:
+  push:
     branches:
       - main
-  push:
+  pull_request:
     branches:
       - main
 
 jobs:
-  test-seat-package:
+  linting:
     runs-on: ubuntu-latest
     services:
       docker:
@@ -43,12 +43,23 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/install_dependencies.py"
-          docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-pandas python3-netcdf4 python3-pytest"
+          docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-pandas python3-netcdf4"
 
-      - name: Run Pytest
+      - name: Create a Virtual Environment with system site packages
         run: |
-          docker exec qgis-testing-environment pytest /tests_directory/tests
+          docker exec qgis-testing-environment sh -c "/usr/bin/python3.12 -m venv --system-site-packages /tests_directory/venv"
+
+      - name: Add Plugin to PYTHONPATH in Virtual Environment
+        run: |
+          docker exec qgis-testing-environment sh -c "echo '/usr/share/qgis/python/plugins' > /tests_directory/venv/lib/python3.12/site-packages/seat.pth"
+
+      - name: Install Pylint in Virtual Environment
+        run: |
+          docker exec qgis-testing-environment sh -c "/tests_directory/venv/bin/pip install pylint"
+
+      - name: Run Pylint
+        run: |
+          docker exec qgis-testing-environment sh -c "/tests_directory/venv/bin/pylint /tests_directory/seat/modules/velocity_module.py"
 
       - name: Clean up Docker container
         if: always()

@@ -936,7 +936,6 @@ class StressorReceptorCalc:
                 (velocity_device_present_directory is None)
                 or (velocity_device_present_directory == "")
             ):  # svar == "Velocity":
-
                 vfilenames = run_velocity_stressor(
                     dev_present_file=velocity_device_present_directory,
                     dev_notpresent_file=velocity_device_not_present_directory,
@@ -977,7 +976,6 @@ class StressorReceptorCalc:
                 (paracousti_device_present_directory is None)
                 or (paracousti_device_present_directory == "")
             ):  # if svar == "Acoustics":
-
                 pfilenames = run_acoustics_stressor(
                     dev_present_file=paracousti_device_present_directory,
                     dev_notpresent_file=paracousti_device_not_present_directory,
@@ -1004,7 +1002,6 @@ class StressorReceptorCalc:
                 if group is None:
                     group = root.addGroup(group_name)
                 for key in pfilenames.keys():  # add styles files and/or display
-
                     if stylefiles_DF is None:
                         self.add_layer(pfilenames[key], root=root, group=group)
                     else:

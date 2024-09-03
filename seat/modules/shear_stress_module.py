@@ -307,7 +307,6 @@ def calculate_shear_stress_stressors(
             ) as file_dev_notpresent, Dataset(
                 os.path.join(fpath_dev, row.files_dev)
             ) as file_dev_present:
-
                 gridtype, xvar, yvar, tauvar = check_grid_define_vars(file_dev_present)
 
                 if first_run:
@@ -393,7 +392,6 @@ def calculate_shear_stress_stressors(
     for run_number, prob in zip(
         BC_probability["run_num"].values, BC_probability["probability"].values
     ):
-
         tau_combined_nodev = tau_combined_nodev + prob * tau_nodev[run_number, -1, :]
         tau_combined_dev = tau_combined_dev + prob * tau_dev[run_number, -1, :]
 
