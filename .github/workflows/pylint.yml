@@ -41,6 +41,10 @@ jobs:
           cp -r $PLUGIN_SRC_PATH/* $PLUGIN_DEST_DIR/
           '
 
+      - name: Install Dependencies
+        run: |
+          docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-pandas python3-netcdf4"
+
       - name: Create a Virtual Environment with system site packages
         run: |
           docker exec qgis-testing-environment sh -c "/usr/bin/python3.12 -m venv --system-site-packages /tests_directory/venv"
