@@ -411,20 +411,6 @@ def roundup(x, val=2):
     """
     return np.ceil(x / val) * val
 
-    Parameters
-    ----------
-    x : float
-        The number to round up.
-    val : int, optional
-        The value to round to the nearest multiple of (default is 2).
-
-    Returns
-    -------
-    float
-        The rounded-up number.
-    """
-    return np.ceil(x / val) * val
-
 def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
     """
     Reads the power files and calculates the total annual power based on
