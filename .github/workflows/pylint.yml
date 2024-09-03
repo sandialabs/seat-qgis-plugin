@@ -35,9 +35,24 @@ jobs:
       - name: Locate QGIS Python
         id: find-qgis-python
         run: |
-          QGIS_PYTHON=$(docker exec qgis-testing-environment sh -c "find /usr -type f -name python3")
-          echo "QGIS_PYTHON=${QGIS_PYTHON}" >> $GITHUB_ENV
-          echo "QGIS_PYTHON_PATH=${QGIS_PYTHON%/*}" >> $GITHUB_ENV
+          QGIS_PYTHON=$(docker exec qgis-testing-environment sh -c "find /usr -name 'python3' -type f -executable | grep qgis")
+          echo "First search result: $QGIS_PYTHON"
+          if [ -z "$QGIS_PYTHON" ]; then
+            QGIS_PYTHON=$(docker exec qgis-testing-environment sh -c "find /usr -name 'python' -type f -executable | grep qgis")
+            echo "Second search result: $QGIS_PYTHON"
+          fi
+          if [ -z "$QGIS_PYTHON" ]; then
+            QGIS_PYTHON=$(docker exec qgis-testing-environment sh -c "find /usr -name 'python3' -type f -executable | head -n 1")
+            echo "Fallback search result: $QGIS_PYTHON"
+          fi
+          if [ -z "$QGIS_PYTHON" ]; then
+            echo "QGIS Python interpreter not found"
+            exit 1
+          else
+            echo "QGIS_PYTHON=${QGIS_PYTHON}" >> $GITHUB_ENV
+            echo "QGIS_PYTHON_PATH=${QGIS_PYTHON%/*}" >> $GITHUB_ENV
+            echo "Final QGIS Python Path: $QGIS_PYTHON"
+          fi
 
       # - name: Install plugin manually via Copy
       #   run: |
