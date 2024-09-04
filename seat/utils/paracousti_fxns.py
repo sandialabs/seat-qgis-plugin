@@ -117,51 +117,6 @@ def in_water_weights():
     return weighting_functions
 
 
-def in_air_weights():
-    # No params, initializes the weighting function xarrays
-    # Output is dictionary of xarrays corresponding of weighting functions, in dB, f is in Hz
-    freq_np = np.arange(0.001, 1000, 0.01)  # in kHz
-
-    # OA, e.g. Callorhinus ursinus, Zalophus californianus (northern fur sea, california sea lion)
-    # Criteria_and_Thresholds_for_U.S._Navy_Acoustic_and_Explosive_Effects_Analysis_June2017.pdf
-    # https://nwtteis.com/portals/nwtteis/files/technical_reports/Criteria_and_Thresholds_for_U.S._Navy_Acoustic_and_Explosive_Effects_Analysis_June2017.pdf
-    a = 1.4
-    b = 2
-    f1 = 2
-    f2 = 20
-    C = 1.39
-    W_OA = apply_Gf(a, b, f1, f2, C, freq_np)
-
-    # PA, Phoca vitulina (harbor seal, common seal)
-    # Criteria_and_Thresholds_for_U.S._Navy_Acoustic_and_Explosive_Effects_Analysis_June2017.pdf
-    # https://nwtteis.com/portals/nwtteis/files/technical_reports/Criteria_and_Thresholds_for_U.S._Navy_Acoustic_and_Explosive_Effects_Analysis_June2017.pdf
-    a = 2
-    b = 2
-    f1 = 0.75
-    f2 = 8.3
-    C = 1.50
-    W_PA = apply_Gf(a, b, f1, f2, C, freq_np)
-    weighting_functions = {"OA": W_OA, "PA": W_PA}
-    return weighting_functions
-
-
-"""
-
-    plt.close()
-    for key in weighting_functions.keys():
-        plt.plot(weighting_functions[key].f, weighting_functions[key])
-    plt.xscale('log',base=10)
-    ax = plt.gca()
-    from matplotlib import ticker
-    # ax.xaxis.set_major_locator(ticker.AutoLocator())
-    ax.xaxis.set_minor_locator(ticker.NullLocator())  # no minor ticks
-    ax.xaxis.set_major_formatter(ticker.ScalarFormatter())  # set regular formatting
-    ax.ticklabel_format(style='sci', scilimits=(-6, 9))  # disable scientific notation
-    ax.set_ylim(-60,0)   
-    plt.show()
-"""
-
-
 def SPL_pk_dB(y):
     # Equaltion 2 from Wilfod et al 2021
     # Assumes the value is in same units as reference value [uPa for pressure, nm/s for velocity]
