@@ -1,9 +1,9 @@
 """
 /***************************************************************************.
 
- velocity_module.py
+ shear_stress_module.py
  Copyright 2023, Integral Consulting Inc. All rights reserved.
- 
+
  PURPOSE: module for calcualting shear stress (sediment mobility) change from a shear stress stressor
 
  PROJECT INFORMATION:
@@ -14,7 +14,7 @@
   Timothy Nelson (tnelson@integral-corp.com)
   Sam McWilliams (smcwilliams@integral-corp.com)
   Eben Pendelton
- 
+
  NOTES (Data descriptions and any script specific notes)
 	1. called by stressor_receptor_calc.py
 """
@@ -94,22 +94,22 @@ def classify_mobility(mobility_parameter_dev, mobility_parameter_nodev, nochange
     """
 
     mobility_classification = np.zeros(mobility_parameter_dev.shape)
-    # New Erosion
+    # New Erosion = 3
     mobility_classification = np.where(((mobility_parameter_nodev < mobility_parameter_dev) & (
         mobility_parameter_nodev < 1) & (mobility_parameter_dev >= 1)), 3, mobility_classification)
-    # Reduced Erosion (Tw<Tb) & (Tw-Tb)>1
-    mobility_classification = np.where(((mobility_parameter_dev < mobility_parameter_nodev) & (
-        mobility_parameter_nodev >= 1) & (mobility_parameter_dev >= 1)), 1, mobility_classification)
-    # Increased Erosion (Tw>Tb) & (Tw-Tb)>1
+    # Increased Erosion (Tw>Tb) & (Tw-Tb)>1 = 2
     mobility_classification = np.where(((mobility_parameter_dev > mobility_parameter_nodev) & (
         mobility_parameter_nodev >= 1) & (mobility_parameter_dev >= 1)), 2, mobility_classification)
-    # Reduced Deposition (Tw>Tb) & (Tw-Tb)<1
+    # Reduced Erosion (Tw<Tb) & (Tw-Tb)>1 = 1
+    mobility_classification = np.where(((mobility_parameter_dev < mobility_parameter_nodev) & (
+        mobility_parameter_nodev >= 1) & (mobility_parameter_dev >= 1)), 1, mobility_classification)
+    # Reduced Deposition (Tw>Tb) & (Tw-Tb)<1 = -1
     mobility_classification = np.where(((mobility_parameter_dev > mobility_parameter_nodev) & (
         mobility_parameter_nodev < 1) & (mobility_parameter_dev < 1)), -1, mobility_classification)
-    # Increased Deposition (Tw>Tb) & (Tw-Tb)>1
+    # Increased Deposition (Tw>Tb) & (Tw-Tb)>1 = -2
     mobility_classification = np.where(((mobility_parameter_dev < mobility_parameter_nodev) & (
         mobility_parameter_nodev < 1) & (mobility_parameter_dev < 1)), -2, mobility_classification)
-    # New Deposition
+    # New Deposition = -3
     mobility_classification = np.where(((mobility_parameter_dev < mobility_parameter_nodev) & (
         mobility_parameter_nodev >= 1) & (mobility_parameter_dev < 1)), -3, mobility_classification)
     # NoChange = 0
@@ -187,7 +187,7 @@ def calculate_shear_stress_stressors(fpath_nodev,
         [2] mobility_parameter_dev
         [3] mobility_parameter_diff
         [4] mobility_classification
-        [5] receptor array  
+        [5] receptor array
         [6] tau_combined_dev
         [7] tau_combined_nodev
     rx : array
@@ -206,7 +206,7 @@ def calculate_shear_stress_stressors(fpath_nodev,
         raise FileNotFoundError(f"The file {fpath_nodev} does not exist.")
     if not os.path.exists(fpath_dev):
         raise FileNotFoundError(f"The file {fpath_dev} does not exist.")
-    
+
     files_nodev = [i for i in os.listdir(fpath_nodev) if i.endswith('.nc')]
     files_dev = [i for i in os.listdir(fpath_dev) if i.endswith('.nc')]
 
@@ -246,13 +246,12 @@ def calculate_shear_stress_stressors(fpath_nodev,
                            'files_dev': files_dev,
                            'run_num_dev': run_num_dev})
         DF = DF.sort_values(by='run_num_dev')
-
         first_run = True
         ir = 0
         for _, row in DF.iterrows():
             with Dataset(os.path.join(fpath_nodev, row.files_nodev)) as file_dev_notpresent, \
                 Dataset(os.path.join(fpath_dev, row.files_dev)) as file_dev_present:
-                
+
                 gridtype, xvar, yvar, tauvar = check_grid_define_vars(
                     file_dev_present)
 
@@ -305,7 +304,7 @@ def calculate_shear_stress_stressors(fpath_nodev,
         # assumes run_num in name is the return interval
         BC_probability["probability"] = 1/DF.run_num_dev.to_numpy()
         BC_probability["probability"] = BC_probability["probability"] / \
-            BC_probability["probability"].sum()  # rescale to ensure = 1 
+            BC_probability["probability"].sum()  # rescale to ensure = 1
 
     # Calculate Stressor and Receptors
     if value_selection == 'Maximum':
@@ -374,7 +373,7 @@ def calculate_shear_stress_stressors(fpath_nodev,
                         'sediment_mobility_difference': mobility_parameter_diff,
                         'sediment_mobility_classified':mobility_classification,
                         'sediment_grain_size':receptor_array,
-                        'shear_stress_risk_metric':risk}        
+                        'shear_stress_risk_metric':risk}
     else:  # unstructured
         dxdy = estimate_grid_spacing(xcor, ycor, nsamples=100)
         dx = dxdy
@@ -456,14 +455,14 @@ def run_shear_stress_stressor(
     """
 
     os.makedirs(output_path, exist_ok=True) # create output directory if it doesn't exist
-    
+
     dict_of_arrays, rx, ry, dx, dy, gridtype = calculate_shear_stress_stressors(fpath_nodev=dev_notpresent_file,
                                                                               fpath_dev=dev_present_file,
                                                                               probabilities_file=probabilities_file,
                                                                               receptor_filename=receptor_filename,
                                                                               latlon=crs == 4326,
                                                                               value_selection=value_selection)
-    
+
     if not ((receptor_filename is None) or (receptor_filename == "")):
         use_numpy_arrays = ['shear_stress_without_devices',
                       'shear_stress_with_devices',
@@ -481,13 +480,13 @@ def run_shear_stress_stressor(
 
     if not ((secondary_constraint_filename is None) or (secondary_constraint_filename == "")):
         if not os.path.exists(secondary_constraint_filename):
-            raise FileNotFoundError(f"The file {secondary_constraint_filename} does not exist.")        
+            raise FileNotFoundError(f"The file {secondary_constraint_filename} does not exist.")
         rrx, rry, constraint = secondary_constraint_geotiff_to_numpy(secondary_constraint_filename)
         dict_of_arrays['shear_stress_risk_layer'] = resample_structured_grid(rrx, rry, constraint, rx, ry, interpmethod='nearest')
         use_numpy_arrays.append('shear_stress_risk_layer')
 
     numpy_array_names = [i + '.tif' for i in use_numpy_arrays]
-        
+
     output_rasters = []
     for array_name, use_numpy_array in zip(numpy_array_names, use_numpy_arrays):
         if gridtype == 'structured':
@@ -539,39 +538,39 @@ def run_shear_stress_stressor(
                     limit_receptor_range=[0, np.inf],
                     latlon=crs == 4326,
                     receptor_type='grain size').to_csv(os.path.join(output_path, "shear_stress_difference_at_sediment_grain_size.csv"), index=False)
-        
+
         bin_layer(os.path.join(output_path, 'sediment_mobility_difference.tif'),
                     receptor_filename=None,
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
                     latlon=crs == 4326).to_csv(os.path.join(output_path, "sediment_mobility_difference.csv"), index=False)
-            
+
         bin_layer(os.path.join(output_path, 'sediment_mobility_difference.tif'),
                     receptor_filename=os.path.join(output_path, 'sediment_grain_size.tif'),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
                     latlon=crs == 4326,
                     receptor_type='grain size').to_csv(os.path.join(output_path, "sediment_mobility_difference_at_sediment_grain_size.csv"), index=False)
-        
+
         bin_layer(os.path.join(output_path, 'shear_stress_risk_metric.tif'),
                     receptor_filename=None,
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
                     latlon=crs == 4326).to_csv(os.path.join(output_path, "shear_stress_risk_metric.csv"), index=False)
-        
+
         bin_layer(os.path.join(output_path, 'shear_stress_risk_metric.tif'),
                     receptor_filename=os.path.join(output_path, 'sediment_grain_size.tif'),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
                     latlon=crs == 4326,
                     receptor_type='grain size').to_csv(os.path.join(output_path, "shear_stress_risk_metric_at_sediment_grain_size.csv"), index=False)
-        
+
         classify_layer_area(os.path.join(output_path, "sediment_mobility_classified.tif"),
                             at_values=[-3, -2, -1, 0, 1, 2, 3],
                             value_names=['New Deposition', 'Increased Deposition', 'Reduced Deposition',
                                             'No Change', 'Reduced Erosion', 'Increased Erosion', 'New Erosion'],
                             latlon=crs == 4326).to_csv(os.path.join(output_path, "sediment_mobility_classified.csv"), index=False)
-        
+
         classify_layer_area(os.path.join(output_path, "sediment_mobility_classified.tif"),
                             receptor_filename=os.path.join(output_path, 'sediment_grain_size.tif'),
                             at_values=[-3, -2, -1, 0, 1, 2, 3],
@@ -580,7 +579,7 @@ def run_shear_stress_stressor(
                             limit_receptor_range=[0, np.inf],
                             latlon=crs == 4326,
                             receptor_type='grain size').to_csv(os.path.join(output_path, "sediment_mobility_classified_at_sediment_grain_size.csv"), index=False)
-        
+
         if not ((secondary_constraint_filename is None) or (secondary_constraint_filename == "")):
             bin_layer(os.path.join(output_path, 'sediment_mobility_difference.tif'),
                     receptor_filename=os.path.join(output_path, "shear_stress_risk_layer.tif"),
@@ -588,14 +587,14 @@ def run_shear_stress_stressor(
                     limit_receptor_range=[0, np.inf],
                     latlon=crs == 4326,
                     receptor_type='risk layer').to_csv(os.path.join(output_path, "sediment_mobility_difference_at_shear_stress_risk_layer.csv"), index=False)
-            
+
             bin_layer(os.path.join(output_path, 'shear_stress_risk_metric.tif'),
                     receptor_filename=os.path.join(output_path, "shear_stress_risk_layer.tif"),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
                     latlon=crs == 4326,
                     receptor_type='risk layer').to_csv(os.path.join(output_path, "shear_stress_risk_metric_at_shear_stress_risk_layer.csv"), index=False)
-            
+
             classify_layer_area_2nd_Constraint(raster_to_sample = os.path.join(output_path, "sediment_mobility_difference.tif"),
                             secondary_constraint_filename=os.path.join(output_path, "shear_stress_risk_layer.tif"),
                             at_raster_values=[-3, -2, -1, 0, 1, 2, 3],
@@ -606,5 +605,5 @@ def run_shear_stress_stressor(
                             receptor_type='risk layer').to_csv(os.path.join(output_path, "sediment_mobility_difference_at_shear_stress_risk_layer.csv"), index=False)
     OUTPUT = {}
     for val in output_rasters:
-        OUTPUT[os.path.basename(os.path.normpath(val)).split('.')[0]] = val    
+        OUTPUT[os.path.basename(os.path.normpath(val)).split('.')[0]] = val
     return OUTPUT
