@@ -32,9 +32,10 @@ from qgis.core import (  # type: ignore # pylint: disable=import-error
     QgsMessageLog,
     QgsProject,
     QgsRasterLayer,
-
 )  # type: ignore
-from qgis.gui import QgsProjectionSelectionDialog  # ,QgsLayerTreeView # type: ignore # pylint: disable=import-error
+from qgis.gui import (
+    QgsProjectionSelectionDialog,
+)  # ,QgsLayerTreeView # type: ignore # pylint: disable=import-error
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator  # type: ignore # pylint: disable=import-error
 from qgis.PyQt.QtGui import QIcon  # type: ignore # pylint: disable=import-error
 from qgis.PyQt.QtWidgets import QAction, QFileDialog  # type: ignore # pylint: disable=import-error
