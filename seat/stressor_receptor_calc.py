@@ -402,6 +402,7 @@ class StressorReceptorCalc:
             layer = root.findLayer(vlayer.id())
             clone = layer.clone()
             group.insertChildNode(0, clone)
+            clone.setExpanded(False)
             root.removeChildNode(layer)
         else:
             layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))        
@@ -420,9 +421,10 @@ class StressorReceptorCalc:
             layer = root.findLayer(vlayer.id())
             clone = layer.clone()
             group.insertChildNode(0, clone)
+            clone.setExpanded(False)
             root.removeChildNode(layer)
         else:
-            layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))     
+            layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename), False)     
             layer.loadNamedStyle(stylepath)
             layer.triggerRepaint()
             layer.reload()            
