@@ -1,48 +1,47 @@
 # -*- coding: utf-8 -*-
+
+# pylint: disable=too-many-statements
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-locals
+# pylint: disable=too-many-branches
+
 """ stressor_receptor_calc.py
- 
+
  AUTHORS
  Eben Pendelton
   Timothy Nelson (tnelson@integral-corp.com)
   Caleb Grant (cgrant@inegral-corp.com)
   Sam McWilliams (smcwilliams@integral-corp.com)
- 
+
  NOTES (Data descriptions and any script specific notes)
 	1. plugin template from Plugin Builder: http://g-sherman.github.io/Qgis-Plugin-Builder/
 	2. refer to documentation regarding installation and input formatting.
-    3. requires installation of NETCDF4 (https://unidata.github.io/netcdf4-python/) 
+    3. requires installation of NETCDF4 (https://unidata.github.io/netcdf4-python/)
        and QGIS (https://qgis.org/en/site/)
     4. tested and created using QGIS v3.22
     5. added habitat for shear stress
 """
 import configparser
-import logging
 import os.path
 import xml.etree.ElementTree as ET
-from datetime import date
-import numpy as np
 import pandas as pd
 
-from qgis.core import (  # type: ignore
+from qgis.core import (  # type: ignore # pylint: disable=import-error
     Qgis,
-    QgsApplication,
     QgsCoordinateReferenceSystem,
     QgsMessageLog,
     QgsProject,
-    QgsRasterBandStats,
     QgsRasterLayer,
-    QgsVectorLayer,
-    QgsLayerTreeGroup,
-    QgsMapLayerStyleManager,
+
 )  # type: ignore
-from qgis.gui import QgsProjectionSelectionDialog  # ,QgsLayerTreeView # type: ignore
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator  # type: ignore
-from qgis.PyQt.QtGui import QIcon  # type: ignore
-from qgis.PyQt.QtWidgets import QAction, QFileDialog  # type: ignore
+from qgis.gui import QgsProjectionSelectionDialog  # ,QgsLayerTreeView # type: ignore # pylint: disable=import-error
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator  # type: ignore # pylint: disable=import-error
+from qgis.PyQt.QtGui import QIcon  # type: ignore # pylint: disable=import-error
+from qgis.PyQt.QtWidgets import QAction, QFileDialog  # type: ignore # pylint: disable=import-error
 
 
 # Initialize Qt resources from file resources.py
-from .resources import *
+from .resources import qInitResources
 
 # Import Modules
 from .modules.shear_stress_module import run_shear_stress_stressor
@@ -56,6 +55,16 @@ from .stressor_receptor_calc_dialog import StressorReceptorCalcDialog
 
 # Most of the below is boilerplate code  until plugin specific functions start----
 def df_from_qml(fpath):
+    """
+    Parses a QML (QGIS Markup Language) file to extract range values and creates a DataFrame.
+
+    Args:
+        fpath (str): The file path of the QML file.
+
+    Returns:
+        pandas.DataFrame:
+        A DataFrame containing either "min" and "max" columns or "value" and "label" columns.
+    """
     tree = ET.parse(fpath)
     root = tree.getroot()
 
@@ -82,6 +91,9 @@ class StressorReceptorCalc:
         :type iface: QgsInterface
         """
 
+        # Initialize Qt resources
+        qInitResources()
+
         # Save reference to the QGIS interface
         self.iface = iface
         # initialize plugin directory
@@ -95,7 +107,7 @@ class StressorReceptorCalc:
         locale_path = os.path.join(
             self.plugin_dir,
             "i18n",
-            "StressorReceptorCalc_{}.qm".format(locale),
+            f"StressorReceptorCalc_{locale}.qm",
         )
 
         if os.path.exists(locale_path):
@@ -107,8 +119,11 @@ class StressorReceptorCalc:
         self.actions = []
         self.menu = self.tr("&Stressor Receptor Calculator")
 
+        # Initialize the dlg attribute
+        self.dlg = None
+
         # Check if plugin was started the first time in current QGIS session
-        # Must be set in initGui() to survive plugin reloads
+        # Must be set in init_gui() to survive plugin reloads
         self.first_start = None
 
     # noinspection PyMethodMayBeStatic
@@ -129,7 +144,7 @@ class StressorReceptorCalc:
     def add_action(
         self,
         icon_path,
-        setText,
+        set_text,
         callback,
         enabled_flag=True,
         add_to_menu=True,
@@ -178,7 +193,7 @@ class StressorReceptorCalc:
         """
 
         icon = QIcon(icon_path)
-        action = QAction(icon, setText, parent)
+        action = QAction(icon, set_text, parent)
         action.triggered.connect(callback)
         action.setEnabled(enabled_flag)
 
@@ -202,13 +217,13 @@ class StressorReceptorCalc:
 
         return action
 
-    def initGui(self):
+    def init_gui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
         icon_path = ":/plugins/seat/icon.png"
         self.add_action(
             icon_path,
-            setText=self.tr(
+            set_text=self.tr(
                 "Calculate a response layer from stressor and receptor layers",
             ),
             callback=self.run,
@@ -230,25 +245,44 @@ class StressorReceptorCalc:
     # End mostly boilerplate code ------
 
     def select_folder(self):
+        """
+        Opens a dialog for the user to select a folder and returns the selected folder path.
+
+        Returns:
+            str: The selected folder path.
+        """
         folder_name = QFileDialog.getExistingDirectory(self.dlg, "Select Folder")
         return folder_name
 
     def read_style_files(self, file):
+        """
+        Reads style data from a CSV file and returns it as a DataFrame indexed by the "Type" column.
+
+        Args:
+            file (str): The file path of the CSV file containing style data.
+
+        Returns:
+            pandas.DataFrame: A DataFrame containing style data indexed by "Type".
+        """
         data = pd.read_csv(file)
         data = data.set_index("Type")
         return data
 
-    def select_file(self, filter=""):
+    def select_file(self, file_filter=""):
         """Input the receptor file."""
         filename, _filter = QFileDialog.getOpenFileName(
             self.dlg,
             "Select File",
             "",
-            filter,
+            file_filter,
         )
         return filename
 
     def copy_shear_input_to_velocity(self):
+        """
+        Copies the input values from the shear stress module to
+        the velocity module fields in the dialog.
+        """
         self.dlg.velocity_device_present.setText(self.dlg.shear_device_present.text())
         self.dlg.velocity_device_not_present.setText(
             self.dlg.shear_device_not_present.text()
@@ -261,17 +295,26 @@ class StressorReceptorCalc:
     def select_crs(self):
         """Input the crs using the QGIS widget box."""
 
-        projSelector = QgsProjectionSelectionDialog(None)
+        proj_selector = QgsProjectionSelectionDialog(None)
         # set up a default one
         # crs = QgsCoordinateReferenceSystem()
         # crs.createFromId(4326)
         crs = QgsCoordinateReferenceSystem.fromWkt("EPSG:4326")
-        projSelector.setCrs(crs)
-        projSelector.exec()
-        # projSelector.exec_()
-        self.dlg.crs.setText(projSelector.crs().authid().split(":")[1])
+        proj_selector.setCrs(crs)
+        proj_selector.exec()
+        # proj_selector.exec_()
+        self.dlg.crs.setText(proj_selector.crs().authid().split(":")[1])
 
     def test_exists(self, line_edit, fin, fin_type):
+        """
+        Checks if a file or directory exists, and updates the
+        corresponding QLineEdit with its status.
+
+        Args:
+            line_edit (QLineEdit): The QLineEdit widget to update with the status.
+            fin (str): The file or directory path to check.
+            fin_type (str): The type of the item being checked ("File" or "Directory").
+        """
         if not ((fin is None) or (fin == "")):
             if os.path.exists(fin):
                 line_edit.setText(fin)
@@ -395,10 +438,18 @@ class StressorReceptorCalc:
 
         config["Output"] = {"output filepath": self.dlg.output_folder.text()}
 
-        with open(filename, "w") as configfile:
+        with open(filename, "w", encoding="utf-8") as configfile:
             config.write(configfile)
 
     def add_layer(self, fpath, root=None, group=None):
+        """
+        Adds a raster layer to the QGIS project and optionally places it in a specified group.
+
+        Args:
+            fpath (str): The file path of the raster layer to add.
+            root (QgsLayerTreeGroup, optional): The root group to add the layer to.
+            group (QgsLayerTreeGroup, optional): The group within the root to add the layer to.
+        """
         basename = os.path.splitext(os.path.basename(fpath))[0]
         if group is not None:
             vlayer = QgsRasterLayer(fpath, basename)
@@ -436,6 +487,17 @@ class StressorReceptorCalc:
             self.iface.layerTreeView().refreshLayerSymbology(layer.id())
 
     def select_folder_module(self, module=None, option=None):
+        """
+        Selects a folder for the specified module and option,
+        and updates the corresponding dialog field.
+
+        Args:
+            module (str, optional): The module for which to select the folder
+            ("shear", "velocity", "paracousti", "power", or "output").
+
+            option (str, optional): The option within the module
+            ("device_present", "device_not_present", "species_directory").
+        """
         directory = self.select_folder()
         if module == "shear":
             if option == "device_present":
@@ -469,51 +531,62 @@ class StressorReceptorCalc:
             self.dlg.output_folder.setStyleSheet("color: black;")
 
     def select_files_module(self, module=None, option=None):
+        """
+        Selects a file for the specified module and option,
+        and updates the corresponding dialog field.
+
+        Args:
+            module (str, optional): The module for which to select the file
+            ("shear", "velocity", "paracousti", "power", or "style_files").
+
+            option (str, optional): The option within the module
+            ("probabilities_file", "grain_size_file", "risk_file", "thresholds").
+        """
         if module == "shear":
             if option == "probabilities_file":
-                file = self.select_file(filter="*.csv")
+                file = self.select_file(file_filter="*.csv")
                 self.dlg.shear_probabilities_file.setText(file)
                 self.dlg.shear_probabilities_file.setStyleSheet("color: black;")
             if option == "grain_size_file":
-                file = self.select_file(filter="*.tif; *.csv")
+                file = self.select_file(file_filter="*.tif; *.csv")
                 self.dlg.shear_grain_size_file.setText(file)
                 self.dlg.shear_grain_size_file.setStyleSheet("color: black;")
             if option == "risk_file":
-                file = self.select_file(filter="*.tif")
+                file = self.select_file(file_filter="*.tif")
                 self.dlg.shear_risk_file.setText(file)
                 self.dlg.shear_risk_file.setStyleSheet("color: black;")
         if module == "velocity":
             if option == "probabilities_file":
-                file = self.select_file(filter="*.csv")
+                file = self.select_file(file_filter="*.csv")
                 self.dlg.velocity_probabilities_file.setText(file)
                 self.dlg.velocity_probabilities_file.setStyleSheet("color: black;")
             if option == "thresholds":
-                file = self.select_file(filter="*.tif; *.csv")
+                file = self.select_file(file_filter="*.tif; *.csv")
                 self.dlg.velocity_threshold_file.setText(file)
                 self.dlg.velocity_threshold_file.setStyleSheet("color: black;")
             if option == "risk_file":
-                file = self.select_file(filter="*.tif")
+                file = self.select_file(file_filter="*.tif")
                 self.dlg.velocity_risk_file.setText(file)
                 self.dlg.velocity_risk_file.setStyleSheet("color: black;")
         if module == "paracousti":
             if option == "probabilities_file":
-                file = self.select_file(filter="*.csv")
+                file = self.select_file(file_filter="*.csv")
                 self.dlg.paracousti_probabilities_file.setText(file)
                 self.dlg.paracousti_probabilities_file.setStyleSheet("color: black;")
             if option == "thresholds":
-                file = self.select_file(filter="*.csv")
+                file = self.select_file(file_filter="*.csv")
                 self.dlg.paracousti_threshold_file.setText(file)
                 self.dlg.paracousti_threshold_file.setStyleSheet("color: black;")
             if option == "risk_file":
-                file = self.select_file(filter="*.tif")
+                file = self.select_file(file_filter="*.tif")
                 self.dlg.paracousti_risk_file.setText(file)
                 self.dlg.paracousti_risk_file.setStyleSheet("color: black;")
         if module == "power":
-            file = self.select_file(filter="*.csv")
+            file = self.select_file(file_filter="*.csv")
             self.dlg.power_probabilities_file.setText(file)
             self.dlg.power_probabilities_file.setStyleSheet("color: black;")
         if module == "style_files":
-            file = self.select_file(filter="*.csv")
+            file = self.select_file(file_filter="*.csv")
             self.dlg.output_stylefile.setText(file)
             self.dlg.output_stylefile.setStyleSheet("color: black;")
 
@@ -541,10 +614,10 @@ class StressorReceptorCalc:
             self.dlg.paracousti_averaging_combobox.addItems(paracousti_average_fields)
 
             # this connects the input file chooser
-            self.dlg.load_input.clicked.connect(lambda: self.select_and_load_in())
+            self.dlg.load_input.clicked.connect(self.select_and_load_in)
 
             # this connects the input file creator
-            self.dlg.save_input.clicked.connect(lambda: self.save_in())
+            self.dlg.save_input.clicked.connect(self.save_in)
 
             # set the present and not present files. Either .nc files or .tif folders
 
@@ -866,9 +939,9 @@ class StressorReceptorCalc:
                     raise FileNotFoundError(
                         f"The file {self.dlg.output_stylefile.text()} does not exist."
                     )
-                stylefiles_DF = self.read_style_files(self.dlg.output_stylefile.text())
+                stylefiles_df = self.read_style_files(self.dlg.output_stylefile.text())
             else:
-                stylefiles_DF = None
+                stylefiles_df = None
 
             initialize_group = True
 
@@ -883,7 +956,8 @@ class StressorReceptorCalc:
                 if (power_probabilities_fname is None) or (
                     power_probabilities_fname == ""
                 ):
-                    power_probabilities_fname = shear_stress_probabilities_fname  # default to shear stress probabilities if none given
+                    power_probabilities_fname = shear_stress_probabilities_fname
+                    # default to shear stress probabilities if none given
                 calculate_power(
                     power_files_directory,
                     power_probabilities_fname,
@@ -920,13 +994,13 @@ class StressorReceptorCalc:
                 group = root.findGroup(group_name)
                 if group is None:
                     group = root.addGroup(group_name)
-                for key in sfilenames.keys():  # add styles files and/or display
-                    if stylefiles_DF is None:
-                        self.add_layer(sfilenames[key], root=root, group=group)
+                for key, value in sfilenames.items():
+                    if stylefiles_df is None:
+                        self.add_layer(value, root=root, group=group)
                     else:
                         self.style_layer(
-                            sfilenames[key],
-                            stylefiles_DF.loc[key].item(),
+                            value,
+                            stylefiles_df.loc[key].item(),
                             root=root,
                             group=group,
                         )
@@ -960,13 +1034,13 @@ class StressorReceptorCalc:
                 group = root.findGroup(group_name)
                 if group is None:
                     group = root.addGroup(group_name)
-                for key in vfilenames.keys():  # add styles files and/or display
-                    if stylefiles_DF is None:
-                        self.add_layer(vfilenames[key], root=root, group=group)
+                for key, value in vfilenames.items():
+                    if stylefiles_df is None:
+                        self.add_layer(value, root=root, group=group)
                     else:
                         self.style_layer(
-                            vfilenames[key],
-                            stylefiles_DF.loc[key].item(),
+                            value,
+                            stylefiles_df.loc[key].item(),
                             root=root,
                             group=group,
                         )
@@ -1001,13 +1075,13 @@ class StressorReceptorCalc:
                 group = root.findGroup(group_name)
                 if group is None:
                     group = root.addGroup(group_name)
-                for key in pfilenames.keys():  # add styles files and/or display
-                    if stylefiles_DF is None:
-                        self.add_layer(pfilenames[key], root=root, group=group)
+                for key, value in pfilenames.items():
+                    if stylefiles_df is None:
+                        self.add_layer(value, root=root, group=group)
                     else:
                         self.style_layer(
-                            pfilenames[key],
-                            stylefiles_DF.loc[key].item(),
+                            value,
+                            stylefiles_df.loc[key].item(),
                             root=root,
                             group=group,
                         )
