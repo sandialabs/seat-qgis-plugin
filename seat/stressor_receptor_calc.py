@@ -4,6 +4,7 @@
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-branches
+# pylint: disable=too-many-lines
 
 """ stressor_receptor_calc.py
 
@@ -752,8 +753,8 @@ class StressorReceptorCalc:
         # See if OK was pressed
         if result:
             # Run Calculations
-            # Run Calculations
             # this grabs the files for input and output
+            # pylint: disable=fixme
             # TODO Remove these and just query the dlg directly when needed
             shear_stress_device_present_directory = self.dlg.shear_device_present.text()
             if not (
