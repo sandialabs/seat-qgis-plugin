@@ -1,49 +1,44 @@
+# pylint: disable=too-many-statements
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-locals
+# pylint: disable=too-many-branches
 """
-/***************************************************************************.
+velocity_module.py: Definitions for stressor modules.
 
- velocity_module.py
+This module includes functions for estimating grid spacing, creating structured
+arrays from unstructured data, redefining grids, resampling grids, and handling
+raster data.
 
- PURPOSE: definitions used by the stressor modules
-
- AUTHORS
-  Timothy Nelson (tnelson@integral-corp.com)
-  Sam McWilliams (smcwilliams@integral-corp.com)
-  Eben Pendelton
-
- NOTES (Data descriptions and any script specific notes)
-	1. called by shear_stress_module.py, velocity_module.py, acoustics_module.py
+Dependencies:
+- pyproj, osgeo, numpy, pandas, matplotlib, scipy
 """
-
+import os
+import sys
+import random
 import numpy as np
+from pyproj import Geod
 import pandas as pd
 from matplotlib.tri import LinearTriInterpolator, TriAnalyzer, Triangulation
 from scipy.interpolate import griddata
 from osgeo import gdal, osr
-import os
 
 
 def estimate_grid_spacing(x, y, nsamples=100):
     """
-    Estimates the grid spacing of an unstructured grid to create a similar resolution structured grid
+    Estimate grid spacing for an unstructured grid to create a structured grid.
 
     Parameters
     ----------
-    x : array
-        x-coordinates.
-    y : array
-        y-coordiantes.
-    nsamples : scalar, optional
-        number of random points to sample spacing to nearest cell. The default is 100.
+    x, y : array
+        Coordinates of the points.
+    nsamples : int, optional
+        Number of random points to sample. Default is 100.
 
     Returns
     -------
-    dxdy : array
-        estimated median spacing between samples.
-
+    float
+        Estimated median spacing between samples.
     """
-    import random
-    import sys
-
     random.seed(10)
     coords = list(set(zip(x, y)))
     if nsamples != len(x):
@@ -52,15 +47,15 @@ def estimate_grid_spacing(x, y, nsamples=100):
         ]  # pick N random points
     else:
         points = coords
-    MD = []
+    md = []
     for p0x, p0y in points:
         minimum_distance = sys.maxsize
         for px, py in coords:
             distance = np.sqrt((p0x - px) ** 2 + (p0y - py) ** 2)
             if (distance < minimum_distance) & (distance != 0):
                 minimum_distance = distance
-        MD.append(minimum_distance)
-    dxdy = np.median(MD)
+        md.append(minimum_distance)
+    dxdy = np.median(md)
     return dxdy
 
 
@@ -147,7 +142,7 @@ def redefine_structured_grid(x, y, z):
 
 
 def resample_structured_grid(
-    x_grid, y_grid, z, X_grid_out, Y_grid_out, interpmethod="nearest"
+    x_grid, y_grid, z, x_grid_out, y_grid_out, interpmethod="nearest"
 ):
     """
     interpolates a structured grid onto a new structured grid.
@@ -160,9 +155,9 @@ def resample_structured_grid(
         y-coordinates.
     z : array
         input value.
-    X_grid_out : array
+    x_grid_out : array
         x-coordinates.
-    Y_grid_out : array
+    y_grid_out : array
         y-coordinates.
     interpmethod : str, optional
         interpolation method to use. The default is 'nearest'.
@@ -176,7 +171,7 @@ def resample_structured_grid(
     return griddata(
         (x_grid.flatten(), y_grid.flatten()),
         z.flatten(),
-        (X_grid_out, Y_grid_out),
+        (x_grid_out, y_grid_out),
         method=interpmethod,
         fill_value=0,
     )
@@ -215,14 +210,12 @@ def calc_receptor_array(receptor_filename, x, y, latlon=False, mask=None):
             img = data.GetRasterBand(1)
             receptor_array = img.ReadAsArray()
             receptor_array[receptor_array < 0] = 0
-            (upper_left_x, x_size, x_rotation, upper_left_y, y_rotation, y_size) = (
-                data.GetGeoTransform()
-            )
+            (upper_left_x, x_size, _, upper_left_y, _, y_size) = data.GetGeoTransform()
             cols = data.RasterXSize
             rows = data.RasterYSize
             r_rows = np.arange(rows) * y_size + upper_left_y + (y_size / 2)
             r_cols = np.arange(cols) * x_size + upper_left_x + (x_size / 2)
-            if latlon == True:
+            if latlon:
                 r_cols = np.where(r_cols < 0, r_cols + 360, r_cols)
             x_grid, y_grid = np.meshgrid(r_cols, r_rows)
             receptor_array = griddata(
@@ -238,12 +231,13 @@ def calc_receptor_array(receptor_filename, x, y, latlon=False, mask=None):
                 receptor_filename, header=None, index_col=0
             ).to_numpy().item() * np.ones(x.shape)
         else:
-            raise Exception(
+            raise ValueError(
                 f"Invalid Receptor File {receptor_filename}. Must be of type .tif or .csv"
             )
     else:
         # taucrit without a receptor
-        # Assume the following grain sizes and conditions for typical beach sand (Nielsen, 1992 p.108)
+        # Assume the following grain sizes and conditions for
+        # typical beach sand (Nielsen, 1992 p.108)
         receptor_array = 200 * 1e-6 * np.ones(x.shape)
     if mask is not None:
         receptor_array = np.where(mask, receptor_array, np.nan)
@@ -286,7 +280,7 @@ def create_raster(
     cols,
     rows,
     nbands,
-    eType=gdal.GDT_Float32,
+    e_type=gdal.GDT_Float32,
 ):
     """
     Create a gdal raster object.
@@ -301,7 +295,7 @@ def create_raster(
         number of rows.
     nbands : scalar
         number of bads to write.
-    eType : gdal, optional
+    e_type : gdal, optional
         type of geotiff and precision. The default is gdal.GDT_Float32.
 
     Returns
@@ -319,7 +313,7 @@ def create_raster(
         int(cols),
         int(rows),
         nbands,
-        eType=gdal.GDT_Float32,
+        e_type,
     )
 
     # spatial_reference = osr.SpatialReference()
@@ -369,7 +363,6 @@ def numpy_array_to_raster(
 
     """
 
-    """Create the output raster."""
     # create output raster
     # (upper_left_x, x_resolution, x_skew 0, upper_left_y, y_skew 0, y_resolution).
     geotransform = (
@@ -396,11 +389,11 @@ def numpy_array_to_raster(
     output_band.FlushCache()
     output_band.ComputeStatistics(
         False,
-    )  # you want this false, true will make computed results, but is faster, could be a setting in the UI perhaps, esp for large rasters?
+    )  # you want this false, true will make computed results, but is faster,
+    # could be a setting in the UI perhaps, esp for large rasters?
 
-    if os.path.exists(output_path) == False:
-        raise Exception("Failed to create raster: %s" % output_path)
-
+    if not os.path.exists(output_path):
+        raise RuntimeError(f"Failed to create raster: {output_path}")
     # this closes the file
     output_raster = None
     return output_path
@@ -466,26 +459,39 @@ def read_raster(raster_name):
     data = gdal.Open(raster_name)
     img = data.GetRasterBand(1)
     raster_array = img.ReadAsArray()
-    (upper_left_x, x_size, x_rotation, upper_left_y, y_rotation, y_size) = (
-        data.GetGeoTransform()
-    )
+    (upper_left_x, x_size, _, upper_left_y, _, y_size) = data.GetGeoTransform()
     cols = data.RasterXSize
     rows = data.RasterYSize
     r_rows = np.arange(rows) * y_size + upper_left_y + (y_size / 2)
     r_cols = np.arange(cols) * x_size + upper_left_x + (x_size / 2)
     rx, ry = np.meshgrid(r_cols, r_rows)
     data = None
+
     return rx, ry, raster_array
 
 
 def secondary_constraint_geotiff_to_numpy(filename):
+    """
+    Converts a secondary constraint GeoTIFF file to a NumPy array.
+
+    Parameters
+    ----------
+    filename : str
+        The file path to the GeoTIFF file.
+
+    Returns
+    -------
+    tuple
+        A tuple containing:
+        - x_grid (ndarray): The X coordinates grid.
+        - y_grid (ndarray): The Y coordinates grid.
+        - array (ndarray): The data values from the GeoTIFF file as a 2D array.
+    """
     data = gdal.Open(filename)
     img = data.GetRasterBand(1)
     array = img.ReadAsArray()
 
-    (upper_left_x, x_size, x_rotation, upper_left_y, y_rotation, y_size) = (
-        data.GetGeoTransform()
-    )
+    (upper_left_x, x_size, _, upper_left_y, _, y_size) = data.GetGeoTransform()
     cols = data.RasterXSize
     rows = data.RasterYSize
     r_rows = np.arange(rows) * y_size + upper_left_y + (y_size / 2)
@@ -521,15 +527,17 @@ def calculate_cell_area(rx, ry, latlon=True):
         area of each cell.
 
     """
-    import numpy as np
-    from pyproj import Geod
 
-    if latlon == True:
+    if latlon:
         geod = Geod(ellps="WGS84")
-        lon2D, lat2D = np.where(rx > 180, rx - 360, rx), ry
-        _, _, distEW = geod.inv(lon2D[:, :-1], lat2D[:, 1:], lon2D[:, 1:], lat2D[:, 1:])
-        _, _, distNS = geod.inv(lon2D[1:, :], lat2D[1:, :], lon2D[1:, :], lat2D[:-1, :])
-        square_area = distEW[1:, :] * distNS[:, 1:]
+        lon_2d, lat_2d = np.where(rx > 180, rx - 360, rx), ry
+        _, _, dist_ew = geod.inv(
+            lon_2d[:, :-1], lat_2d[:, 1:], lon_2d[:, 1:], lat_2d[:, 1:]
+        )
+        _, _, dist_ns = geod.inv(
+            lon_2d[1:, :], lat_2d[1:, :], lon_2d[1:, :], lat_2d[:-1, :]
+        )
+        square_area = dist_ew[1:, :] * dist_ns[:, 1:]
     else:
         square_area = np.zeros((rx.shape[0] - 1, ry.shape[1] - 1))
         for row in range(rx.shape[0] - 1):
@@ -562,7 +570,7 @@ def bin_data(zm, square_area, nbins=25):
 
     Returns
     -------
-    DATA : Dictionary
+    data : Dictionary
         Dictionary for each bin contating
             bin start : the starting value of each bin
             bin end : the last value of each bin
@@ -573,19 +581,19 @@ def bin_data(zm, square_area, nbins=25):
     """
     hist, bins = np.histogram(zm, bins=nbins)
     center = (bins[:-1] + bins[1:]) / 2
-    DATA = {}
-    DATA["bin start"] = bins[:-1]
-    DATA["bin end"] = bins[1:]
-    DATA["bin center"] = center
-    DATA["count"] = hist
-    DATA["Area"] = np.zeros(hist.shape)
+    data = {}
+    data["bin start"] = bins[:-1]
+    data["bin end"] = bins[1:]
+    data["bin center"] = center
+    data["count"] = hist
+    data["Area"] = np.zeros(hist.shape)
     for ic, (bin_start, bin_end) in enumerate(zip(bins[:-1], bins[1:])):
         if ic < len(hist) - 1:
             area_ix = np.flatnonzero((zm >= bin_start) & (zm < bin_end))
         else:
             area_ix = np.flatnonzero((zm >= bin_start) & (zm <= bin_end))
-        DATA["Area"][ic] = np.sum(square_area[area_ix])
-    return DATA
+        data["Area"][ic] = np.sum(square_area[area_ix])
+    return data
 
 
 def bin_receptor(
@@ -612,8 +620,10 @@ def bin_receptor(
 
     Returns
     -------
-    DATA : Dictionary
-        Dictionary with keys corresponding to each unique receptor value each containing for each bin
+    data : Dictionary
+        Dictionary with keys corresponding to each unique receptor value
+        each containing for each bin
+
             bin start : the starting value of each bin
             bin end : the last value of each bin
             bin center: the center value of each bin
@@ -624,10 +634,10 @@ def bin_receptor(
     """
     hist, bins = np.histogram(zm, bins=nbins)
     center = (bins[:-1] + bins[1:]) / 2
-    DATA = {}
-    DATA["bin start"] = bins[:-1]
-    DATA["bin end"] = bins[1:]
-    DATA["bin center"] = center
+    data = {}
+    data["bin start"] = bins[:-1]
+    data["bin end"] = bins[1:]
+    data["bin center"] = center
     for ic, rval in enumerate(np.unique(receptor)):
         zz = zm[receptor == rval]
         sqa = square_area[receptor == rval]
@@ -636,17 +646,17 @@ def bin_receptor(
             if receptor_names is None
             else receptor_names[ic]
         )
-        DATA[rcolname] = np.zeros(hist.shape)
+        data[rcolname] = np.zeros(hist.shape)
         for ic, (bin_start, bin_end) in enumerate(zip(bins[:-1], bins[1:])):
             if ic < len(hist) - 1:
                 area_ix = np.flatnonzero((zz >= bin_start) & (zz < bin_end))
             else:
                 area_ix = np.flatnonzero((zz >= bin_start) & (zz <= bin_end))
-            DATA[rcolname][ic] = np.sum(sqa[area_ix])
-        DATA[f"Area percent, {receptor_type} value {rval}"] = (
-            100 * DATA[rcolname] / DATA[rcolname].sum()
+            data[rcolname][ic] = np.sum(sqa[area_ix])
+        data[f"Area percent, {receptor_type} value {rval}"] = (
+            100 * data[rcolname] / data[rcolname].sum()
         )
-    return DATA
+    return data
 
 
 def bin_layer(
@@ -683,15 +693,15 @@ def bin_layer(
 
     """
     rx, ry, z = read_raster(raster_filename)
-    rxm, rym, square_area = calculate_cell_area(rx, ry, latlon=True)
+    rxm, rym, square_area = calculate_cell_area(rx, ry, latlon)
     square_area = square_area.flatten()
     zm = resample_structured_grid(rx, ry, z, rxm, rym, interpmethod="linear").flatten()
     if receptor_filename is None:
-        DATA = bin_data(
+        data = bin_data(
             zm[np.invert(np.isnan(zm))], square_area[np.invert(np.isnan(zm))], nbins=25
         )
-        # DF = pd.DataFrame(DATA)
-        DATA["Area percent"] = 100 * DATA["Area"] / DATA["Area"].sum()
+        # DF = pd.DataFrame(data)
+        data["Area percent"] = 100 * data["Area"] / data["Area"].sum()
     else:
         rrx, rry, receptor = read_raster(receptor_filename)
         receptor = resample_structured_grid(rrx, rry, receptor, rxm, rym).flatten()
@@ -702,14 +712,14 @@ def bin_layer(
                 receptor,
                 0,
             )
-        DATA = bin_receptor(
+        data = bin_receptor(
             zm[np.invert(np.isnan(zm))],
             receptor[np.invert(np.isnan(zm))],
             square_area[np.invert(np.isnan(zm))],
             receptor_names=receptor_names,
             receptor_type=receptor_type,
         )
-    return pd.DataFrame(DATA)
+    return pd.DataFrame(data)
 
 
 def classify_layer_area(
@@ -722,7 +732,8 @@ def classify_layer_area(
     receptor_type="receptor",
 ):
     """
-    Creates a dataframe of raster values and associtaed area and percent of array at specified raster values.
+    Creates a dataframe of raster values and associtaed area and
+    percent of array at specified raster values.
 
     Parameters
     ----------
@@ -757,16 +768,16 @@ def classify_layer_area(
         at_values = np.unique(zm)
     else:
         at_values = np.atleast_1d(at_values)
-    DATA = {}
-    DATA["value"] = at_values
+    data = {}
+    data["value"] = at_values
     if value_names is not None:
-        DATA["value name"] = value_names
+        data["value name"] = value_names
     if receptor_filename is None:
-        DATA["Area"] = np.zeros(len(at_values))
+        data["Area"] = np.zeros(len(at_values))
         for ic, value in enumerate(at_values):
             area_ix = np.flatnonzero(zm == value)
-            DATA["Area"][ic] = np.sum(square_area[area_ix])
-        DATA["Area percent"] = 100 * DATA["Area"] / DATA["Area"].sum()
+            data["Area"][ic] = np.sum(square_area[area_ix])
+        data["Area percent"] = 100 * data["Area"] / data["Area"].sum()
     else:
         rrx, rry, receptor = read_raster(receptor_filename)
         if limit_receptor_range is not None:
@@ -782,19 +793,19 @@ def classify_layer_area(
             sqa = square_area[receptor == rval]
             rcolname = f"Area, {receptor_type} value {rval}"
             ccolname = f"Count, {receptor_type} value {rval}"
-            DATA[rcolname] = np.zeros(len(at_values))
-            DATA[ccolname] = np.zeros(len(at_values))
+            data[rcolname] = np.zeros(len(at_values))
+            data[ccolname] = np.zeros(len(at_values))
             for iic, value in enumerate(at_values):
                 area_ix = np.flatnonzero(zz == value)
-                DATA[ccolname][iic] = len(area_ix)
-                DATA[rcolname][iic] = np.sum(sqa[area_ix])
-            DATA[f"Area percent, {receptor_type} value {rval}"] = (
-                100 * DATA[rcolname] / DATA[rcolname].sum()
+                data[ccolname][iic] = len(area_ix)
+                data[rcolname][iic] = np.sum(sqa[area_ix])
+            data[f"Area percent, {receptor_type} value {rval}"] = (
+                100 * data[rcolname] / data[rcolname].sum()
             )
-    return pd.DataFrame(DATA)
+    return pd.DataFrame(data)
 
 
-def classify_layer_area_2nd_Constraint(
+def classify_layer_area_2nd_constraint(
     raster_to_sample,
     secondary_constraint_filename,
     at_raster_values,
@@ -803,6 +814,36 @@ def classify_layer_area_2nd_Constraint(
     latlon=True,
     receptor_type="receptor",
 ):
+    """
+    Classifies layer areas based on a secondary constraint raster.
+
+    This function calculates the area of different classifications in a raster
+    and applies an additional filter or constraint using a secondary raster file.
+
+    Parameters
+    ----------
+    raster_to_sample : str
+        Path to the raster file to be sampled.
+    secondary_constraint_filename : str or None
+        Path to the secondary constraint raster file. If None, no secondary constraint is applied.
+    at_raster_values : list or None
+        List of values in the raster to classify. If None, all unique values are considered.
+    at_raster_value_names : list or None
+        List of names corresponding to the `at_raster_values` for more descriptive output.
+    limit_constraint_range : tuple or None, optional
+        A tuple specifying the range (min, max) to limit the secondary constraint values.
+        Default is None.
+    latlon : bool, optional
+        Boolean to indicate if the coordinate system is latitude/longitude. Default is True.
+    receptor_type : str, optional
+        Type of receptor for naming purposes in the output. Default is "receptor".
+
+    Returns
+    -------
+    pd.DataFrame
+        A DataFrame with areas and their percentages calculated for each classification
+        and optionally for each classification within a constraint range.
+    """
     rx, ry, z = read_raster(raster_to_sample)
     rxm, rym, square_area = calculate_cell_area(rx, ry, latlon=latlon)
     square_area = square_area.flatten()
@@ -811,16 +852,16 @@ def classify_layer_area_2nd_Constraint(
         at_values = np.unique(zm)
     else:
         at_values = np.atleast_1d(at_raster_values)
-    DATA = {}
-    DATA["value"] = at_values
+    data = {}
+    data["value"] = at_values
     if at_raster_value_names is not None:
-        DATA["value name"] = at_raster_value_names
+        data["value name"] = at_raster_value_names
     if secondary_constraint_filename is None:
-        DATA["Area"] = np.zeros(len(at_values))
+        data["Area"] = np.zeros(len(at_values))
         for ic, value in enumerate(at_values):
             area_ix = np.flatnonzero(zm == value)
-            DATA["Area"][ic] = np.sum(square_area[area_ix])
-        DATA["Area percent"] = 100 * DATA["Area"] / DATA["Area"].sum()
+            data["Area"][ic] = np.sum(square_area[area_ix])
+        data["Area percent"] = 100 * data["Area"] / data["Area"].sum()
     else:
         rrx, rry, constraint = read_raster(secondary_constraint_filename)
         constraint = resample_structured_grid(
@@ -839,16 +880,16 @@ def classify_layer_area_2nd_Constraint(
                 sqa = square_area[constraint == rval]
                 rcolname = f"Area, {receptor_type} value {rval}"
                 ccolname = f"Count, {receptor_type} value {rval}"
-                DATA[rcolname] = np.zeros(len(at_values))
-                DATA[ccolname] = np.zeros(len(at_values))
+                data[rcolname] = np.zeros(len(at_values))
+                data[ccolname] = np.zeros(len(at_values))
                 for iic, value in enumerate(at_values):
                     area_ix = np.flatnonzero(zz == value)
-                    DATA[ccolname][iic] = len(area_ix)
-                    DATA[rcolname][iic] = np.sum(sqa[area_ix])
-                DATA[f"Area percent, {receptor_type} value {rval}"] = (
-                    100 * DATA[rcolname] / DATA[rcolname].sum()
+                    data[ccolname][iic] = len(area_ix)
+                    data[rcolname][iic] = np.sum(sqa[area_ix])
+                data[f"Area percent, {receptor_type} value {rval}"] = (
+                    100 * data[rcolname] / data[rcolname].sum()
                 )
-    return pd.DataFrame(DATA)
+    return pd.DataFrame(data)
 
     # def calc_area_change(self, ofilename, crs, stylefile=None):
     #     """Export the areas of the given file. Find a UTM of the given crs and calculate in m2."""
@@ -880,7 +921,8 @@ def classify_layer_area_2nd_Constraint(
 
     #         # create a temporary file for reprojection
     #         outfile = tempfile.NamedTemporaryFile(suffix=".tif").name
-    #         # cmd = f'gdalwarp -s_srs EPSG:{crs} -t_srs EPSG:{crs_found} -r near -of GTiff {ofilename} {outfile}'
+    #         # cmd = f'gdalwarp -s_srs EPSG:{crs} -t_srs
+    #         # EPSG:{crs_found} -r near -of GTiff {ofilename} {outfile}'
     #         # os.system(cmd)
 
     #         reproject_params = {

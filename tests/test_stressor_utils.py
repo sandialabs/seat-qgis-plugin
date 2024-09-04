@@ -634,8 +634,8 @@ class TestClassifyLayerArea2ndConstraint(TestStressorUtils):
         ])
 
     def test_classify_layer_area_2nd_constraint(self):
-        # Call the classify_layer_area_2nd_Constraint with hardcoded secondary constraint
-        result = su.classify_layer_area_2nd_Constraint(
+        # Call the classify_layer_area_2nd_constraint with hardcoded secondary constraint
+        result = su.classify_layer_area_2nd_constraint(
             self.risk_layer_file,
             None,  # Not using a secondary constraint file, using hardcoded data instead
             at_raster_values=[0, 5, 7],
