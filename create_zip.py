@@ -25,19 +25,16 @@ def copy_directory(src, dest, exclude_dirs):
 
 exclude_dirs = [r".git", r".github", r".vscode", r"__pycache__"]
 
-# def zip_directory():
-
 directory_path = os.path.join(os.getcwd(), r'seat')
 
 if os.path.exists(directory_path):
     package_path = os.path.join(directory_path, r"seat_qgis_plugin", r"seat_qgis_plugin")
     print(r"Creating Package")
 
-    if os.path.exists(os.path.join(directory_path, package_path)):
-        shutil.rmtree(package_path)
+    if os.path.exists(os.path.dirname(package_path)):
+        shutil.rmtree(os.path.dirname(package_path))
         
-    copy_directory(directory_path, package_path, exclude_dirs)        
-    # shutil.copytree(directory_path, package_path)
+    copy_directory(directory_path, package_path, exclude_dirs) 
     
     current_date = datetime.now().strftime('%Y%m%d')
     output_filename = f'seat_qgis_plugin_{current_date}'
@@ -45,9 +42,6 @@ if os.path.exists(directory_path):
     # Create a zip archive of the directory
     shutil.make_archive(output_filename, 'zip', os.path.dirname(package_path))
     print(f'Zip archive {output_filename} created successfully')
-    shutil.rmtree(package_path)
+    shutil.rmtree(os.path.dirname(package_path))
 else:
     print("Directory ./seat not found. Validate current directory")
-
-# Example usage
-# zip_directory()
