@@ -152,9 +152,11 @@ def sum_SEL(x):
         returns total SEL (in dB)
     """
     x_dB = np.asarray(x)
+    x_blanks = sum(x_dB)
     x_uPa2s = 10 ** (x_dB / 10)
     sum_uPa2s = sum(x_uPa2s)
     sum_dB = 10 * np.log10(sum_uPa2s)
+    sum_dB == np.where(x_blanks==0, 0, sum_dB)
     return sum_dB
 
 def calc_SEL_cum(SEL, duration_seconds):
@@ -176,6 +178,7 @@ def calc_SEL_cum(SEL, duration_seconds):
     """
     with np.errstate(divide='ignore'):
         cum_sel = SEL + 10 * np.log10(duration_seconds)
+    cum_sel = np.where(SEL==0, 0, cum_sel)
     return cum_sel
 
 def calc_probabilistic_metrics(
@@ -249,29 +252,31 @@ def calc_probabilistic_metrics(
     for ic, paracousti_file in enumerate(paracousti_files):
         # paracousti files might not have regular grid spacing.
         rx, ry, device_ss = redefine_structured_grid(XCOR, YCOR, Paracousti[ic, :])
-        baseline_ss = resample_structured_grid(XCOR, YCOR, Baseline[ic, :], rx, ry)
+        
+        baseline_present = False if np.all(np.isnan(Baseline[ic, :])) else True
+
+        if baseline_present:
+            baseline_ss = resample_structured_grid(XCOR, YCOR, Baseline[ic, :], rx, ry)
         if ic == 0:
             device = np.zeros(rx.shape)
             baseline = np.zeros(rx.shape)
             stressor = np.zeros(rx.shape)
             threshold_exceeded = np.zeros(rx.shape)
-            percent_scaled = np.zeros(rx.shape)
-            density_scaled = np.zeros(rx.shape)
+            percent = np.zeros(rx.shape)
+            density = np.zeros(rx.shape)
             
         if metric_calc.casefold() == 'SEL'.casefold():
             device_scaled = calc_SEL_cum(device_ss, seconds_of_day.loc[os.path.basename(paracousti_file)])
-            baseline_scaled = calc_SEL_cum(baseline_ss, seconds_of_day.loc[os.path.basename(paracousti_file)])
-            if ic==0:
-                device = device + device_scaled
-                baseline = baseline + baseline_scaled
-            else:
-                device = sum_SEL([device.flatten(), device_scaled.flatten()]).reshape(rx.shape)
+            device = sum_SEL([device.flatten(), device_scaled.flatten()]).reshape(rx.shape)
+            if baseline_present:
+                baseline_scaled = calc_SEL_cum(baseline_ss, seconds_of_day.loc[os.path.basename(paracousti_file)])
                 baseline = sum_SEL([baseline.flatten(), baseline_scaled.flatten()]).reshape(rx.shape)
         else: #SPL
             device_scaled = probability.loc[os.path.basename(paracousti_file)] * device_ss
-            baseline_scaled = probability.loc[os.path.basename(paracousti_file)] * baseline_ss
             device = device + device_scaled
-            baseline = baseline + baseline_scaled
+            if baseline_present:
+                baseline_scaled = probability.loc[os.path.basename(paracousti_file)] * baseline_ss
+                baseline = baseline + baseline_scaled
         
         threshold_mask = device_scaled > threshold
         threshold_exceeded[threshold_mask] += probability.loc[os.path.basename(paracousti_file)] * 100
@@ -311,15 +316,15 @@ def calc_probabilistic_metrics(
                 ratio = 1
             parray_scaled = parray * ratio
             darray_scaled = darray * ratio
-            percent_scaled[threshold_mask] += (
+            percent[threshold_mask] += (
                 probability.loc[os.path.basename(paracousti_file)] * parray_scaled[threshold_mask]
             )
-            density_scaled[threshold_mask] += (
+            density[threshold_mask] += (
                 probability.loc[os.path.basename(paracousti_file)] * darray_scaled[threshold_mask]
             )
 
-    stressor = device - baseline
-    return device, baseline, stressor, threshold_exceeded, percent_scaled, density_scaled, rx, ry
+    stressor = device - baseline if baseline_present else  device
+    return device, baseline, stressor, threshold_exceeded, percent, density, rx, ry
 
 def calc_nonprobabilistic_metrics(
     paracousti_files,
@@ -399,8 +404,8 @@ def calc_nonprobabilistic_metrics(
     baseline = {}
     stressor = {}
     threshold_exceeded = {}
-    percent_scaled = {}
-    density_scaled = {}
+    percent = {}
+    density = {}
 
     if metric_calc =='SEL':
         duration_seconds = sel_hours * 60 * 60
@@ -409,18 +414,24 @@ def calc_nonprobabilistic_metrics(
         pname = ".".join(os.path.basename(paracousti_file).split('.')[:-1])
         # paracousti files might not have regular grid spacing.
         rx, ry, device_ss = redefine_structured_grid(XCOR, YCOR, Paracousti[ic, :])
-        baseline_ss = resample_structured_grid(XCOR, YCOR, Baseline[ic, :], rx, ry)
+        
+        baseline_present = False if np.all(np.isnan(Baseline[ic, :])) else True
+        
+        if baseline_present:
+            baseline_ss = resample_structured_grid(XCOR, YCOR, Baseline[ic, :], rx, ry)
+        else:
+            baseline_ss = np.zeros(rx.shape)
 
         if metric_calc.casefold() == 'SEL'.casefold():
             device_scaled = calc_SEL_cum(device_ss, duration_seconds)
-            baseline_scaled = calc_SEL_cum(baseline_ss, duration_seconds)
+            baseline_scaled = calc_SEL_cum(baseline_ss, duration_seconds) if baseline_present else baseline_ss
         else: #SPL
             device_scaled = device_ss
             baseline_scaled = baseline_ss
         
         device[pname] = device_scaled
         baseline[pname] = baseline_scaled
-        stressor[pname] = device_scaled - baseline_scaled
+        stressor[pname] = device_scaled - baseline_scaled if baseline_present else device_scaled
         threshold_mask = device_scaled > threshold
         threshold_exceeded[pname] = threshold_mask * 100
 
@@ -459,9 +470,9 @@ def calc_nonprobabilistic_metrics(
                 ratio = 1
             parray_scaled = parray * ratio
             darray_scaled = darray * ratio
-            percent_scaled[pname]  = np.where(threshold_mask, parray_scaled, 0)
-            density_scaled[pname] = np.where(threshold_mask, darray_scaled, 0)
-    return device, baseline, stressor, threshold_exceeded, percent_scaled, density_scaled, rx, ry
+            percent[pname]  = np.where(threshold_mask, parray_scaled, 0)
+            density[pname] = np.where(threshold_mask, darray_scaled, 0)
+    return device, baseline, stressor, threshold_exceeded, percent, density, rx, ry
 
 def calculate_acoustic_stressors(
     fpath_dev,
@@ -605,7 +616,7 @@ def calculate_acoustic_stressors(
                     )
                 Baseline[ic, :] = baseline
     else:
-        Baseline = np.zeros(Paracousti.shape)
+        Baseline = np.nan * np.zeros(Paracousti.shape)
 
     if Averaging == "Depth Maximum":
         Paracousti = np.nanmax(Paracousti, axis=3)
