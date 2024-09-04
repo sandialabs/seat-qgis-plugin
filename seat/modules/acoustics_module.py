@@ -993,7 +993,7 @@ def run_acoustics_stressor(
         fpath_nodev=dev_notpresent_file,
         species_folder=species_folder,
         species_grid_resolution=paracousti_species_grid_resolution,
-        latlon=crs == 4326,
+        latlon= crs==4326,
         Averaging=Averaging,
     )
 
