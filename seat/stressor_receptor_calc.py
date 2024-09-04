@@ -809,7 +809,7 @@ class StressorReceptorCalc:
                 group = root.findGroup(group_name)
                 if group is None:
                     group = root.addGroup(group_name)
-                for key in sfilenames.keys(): #add styles files and/or display
+                for key in list(sfilenames.keys())[::-1]: #add styles files and/or display
                     if stylefiles_DF is None:
                         self.add_layer(sfilenames[key], root=root, group=group)
                     else:
@@ -839,7 +839,7 @@ class StressorReceptorCalc:
                 group = root.findGroup(group_name)
                 if group is None:
                     group = root.addGroup(group_name)
-                for key in vfilenames.keys(): #add styles files and/or display
+                for key in list(vfilenames.keys())[::-1]: #add styles files and/or display
                     if stylefiles_DF is None:
                         self.add_layer(vfilenames[key], root=root, group=group)
                     else:
@@ -873,7 +873,7 @@ class StressorReceptorCalc:
                 group = root.findGroup(group_name)
                 if group is None:
                     group = root.addGroup(group_name)
-                for key in pfilenames_probabilistic.keys(): #add styles files and/or display
+                for key in list(pfilenames_probabilistic.keys())[::-1]: #add styles files and/or display
 
                     if stylefiles_DF is None:
                         self.add_layer(pfilenames_probabilistic[key], root=root, group=group)
@@ -885,8 +885,8 @@ class StressorReceptorCalc:
                 group = root.findGroup(group_name)
                 if group is None:
                     group = root.addGroup(group_name)
-                for key in pfilenames_nonprobabilistic.keys(): #add styles files and/or display
-                    for var in pfilenames_nonprobabilistic[key]:
+                for key in list(pfilenames_nonprobabilistic.keys())[::-1]: #add styles files and/or display
+                    for var in list(pfilenames_nonprobabilistic[key].keys())[::-1]:
                         if stylefiles_DF is None:
                             self.add_layer(pfilenames_nonprobabilistic[key][var], root=root, group=group)
                         else:
