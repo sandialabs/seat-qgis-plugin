@@ -28,7 +28,7 @@ exclude_dirs = [r".git", r".github", r".vscode", r"__pycache__"]
 directory_path = os.path.join(os.getcwd(), r'seat')
 
 if os.path.exists(directory_path):
-    package_path = os.path.join(directory_path, r"seat_qgis_plugin", r"seat_qgis_plugin")
+    package_path = os.path.join(directory_path, r"seat_qgis_plugin", r"seat")
     print(r"Creating Package")
 
     if os.path.exists(os.path.dirname(package_path)):
