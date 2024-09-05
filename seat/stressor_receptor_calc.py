@@ -27,19 +27,24 @@ import os.path
 import xml.etree.ElementTree as ET
 import pandas as pd
 
-from qgis.core import (  # type: ignore # pylint: disable=import-error
+# pylint: disable=no-name-in-module
+from qgis.core import (
     Qgis,
     QgsCoordinateReferenceSystem,
     QgsMessageLog,
     QgsProject,
     QgsRasterLayer,
-)  # type: ignore
+) 
+# pylint: disable=no-name-in-module
 from qgis.gui import (
     QgsProjectionSelectionDialog,
-)  # ,QgsLayerTreeView # type: ignore # pylint: disable=import-error
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator  # type: ignore # pylint: disable=import-error
-from qgis.PyQt.QtGui import QIcon  # type: ignore # pylint: disable=import-error
-from qgis.PyQt.QtWidgets import QAction, QFileDialog  # type: ignore # pylint: disable=import-error
+)
+# pylint: disable=no-name-in-module
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator
+# pylint: disable=no-name-in-module
+from qgis.PyQt.QtGui import QIcon  
+# pylint: disable=no-name-in-module
+from qgis.PyQt.QtWidgets import QAction, QFileDialog
 
 
 # Initialize Qt resources from file resources.py
