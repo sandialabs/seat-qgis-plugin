@@ -63,7 +63,7 @@ jobs:
           docker exec qgis-testing-environment sh -c "/tests_directory/venv/bin/pylint /tests_directory/seat/modules/shear_stress_module.py"
           docker exec qgis-testing-environment sh -c "/tests_directory/venv/bin/pylint /tests_directory/seat/modules/power_module.py"
           docker exec qgis-testing-environment sh -c "/tests_directory/venv/bin/pylint /tests_directory/seat/modules/stressor_utils.py"
-          docker exec qgis-testing-environment sh -c "/tests_directory/venv/bin/pylint /tests_directory/seat/modules/stressor_receptor_calc.py"
+          docker exec qgis-testing-environment sh -c "/tests_directory/venv/bin/pylint /tests_directory/seat/stressor_receptor_calc.py"
 
       - name: Clean up Docker container
         if: always()
