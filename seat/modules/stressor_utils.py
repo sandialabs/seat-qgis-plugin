@@ -930,4 +930,3 @@ def classify_layer_area_2nd_constraint(
                     100 * data[rcolname] / data[rcolname].sum()
                 )
     return pd.DataFrame(data)
-
