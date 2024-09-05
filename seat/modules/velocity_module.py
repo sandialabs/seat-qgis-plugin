@@ -29,8 +29,11 @@
 import os
 
 import numpy as np
+from numpy.typing import NDArray
+from typing import Optional, Tuple, List, Dict
 import pandas as pd
 from netCDF4 import Dataset  # pylint: disable=no-name-in-module
+
 from seat.modules.stressor_utils import (
     estimate_grid_spacing,
     create_structured_array_from_unstructured,
@@ -46,7 +49,10 @@ from seat.modules.stressor_utils import (
 )
 
 
-def classify_motility(motility_parameter_dev, motility_parameter_nodev):
+def classify_motility(
+    motility_parameter_dev: NDArray[np.float64],
+    motility_parameter_nodev: NDArray[np.float64],
+) -> NDArray[np.float64]:
     """
     classifies larval motility from device runs to no device runs.
 
@@ -113,7 +119,7 @@ def classify_motility(motility_parameter_dev, motility_parameter_nodev):
     return motility_classification
 
 
-def check_grid_define_vars(dataset):
+def check_grid_define_vars(dataset: Dataset) -> tuple[str, str, str, str, str]:
     """
     Determins the type of grid and corresponding velocity variable name and coordiante names
 
@@ -154,13 +160,20 @@ def check_grid_define_vars(dataset):
 
 
 def calculate_velocity_stressors(
-    fpath_nodev,
-    fpath_dev,
-    probabilities_file,
-    receptor_filename=None,
-    latlon=True,
-    value_selection=None,
-):
+    fpath_nodev: str,
+    fpath_dev: str,
+    probabilities_file: str,
+    receptor_filename: Optional[str] = None,
+    latlon: bool = True,
+    value_selection: Optional[str] = None,
+) -> Tuple[
+    List[NDArray[np.float64]],
+    NDArray[np.float64],
+    NDArray[np.float64],
+    float,
+    float,
+    str,
+]:
     """
 
 
@@ -472,15 +485,15 @@ def calculate_velocity_stressors(
 
 
 def run_velocity_stressor(
-    dev_present_file,
-    dev_notpresent_file,
-    probabilities_file,
-    crs,
-    output_path,
-    receptor_filename=None,
-    secondary_constraint_filename=None,
-    value_selection=None,
-):
+    dev_present_file: str,
+    dev_notpresent_file: str,
+    probabilities_file: str,
+    crs: int,
+    output_path: str,
+    receptor_filename: Optional[str] = None,
+    secondary_constraint_filename: Optional[str] = None,
+    value_selection: Optional[str] = None,
+) -> Dict[str, str]:
     """
     creates geotiffs and area change statistics files for velocity change
 

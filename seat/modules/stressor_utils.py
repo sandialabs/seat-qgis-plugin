@@ -15,15 +15,20 @@ Dependencies:
 import os
 import sys
 import random
+from typing import List, Tuple, Dict
 import numpy as np
+from numpy.typing import NDArray
 from pyproj import Geod
 import pandas as pd
+from pandas import DataFrame
 from matplotlib.tri import LinearTriInterpolator, TriAnalyzer, Triangulation
 from scipy.interpolate import griddata
 from osgeo import gdal, osr
 
 
-def estimate_grid_spacing(x, y, nsamples=100):
+def estimate_grid_spacing(
+    x: NDArray[np.float64], y: NDArray[np.float64], nsamples: int = 100
+) -> float:
     """
     Estimate grid spacing for an unstructured grid to create a structured grid.
 
@@ -59,7 +64,13 @@ def estimate_grid_spacing(x, y, nsamples=100):
     return dxdy
 
 
-def create_structured_array_from_unstructured(x, y, z, dxdy, flatness=0.2):
+def create_structured_array_from_unstructured(
+    x: NDArray[np.float64],
+    y: NDArray[np.float64],
+    z: NDArray[np.float64],
+    dxdy: float,
+    flatness: float = 0.2,
+) -> Tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
     """
     Creates a structured grid from an unsructred grid
 
@@ -98,7 +109,9 @@ def create_structured_array_from_unstructured(x, y, z, dxdy, flatness=0.2):
     return refxg, refyg, z_interp.data
 
 
-def redefine_structured_grid(x, y, z):
+def redefine_structured_grid(
+    x: NDArray[np.float64], y: NDArray[np.float64], z: NDArray[np.float64]
+) -> Tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
     """
     ensures regular structured grid (paracousti grid not regular)
 
@@ -142,8 +155,13 @@ def redefine_structured_grid(x, y, z):
 
 
 def resample_structured_grid(
-    x_grid, y_grid, z, x_grid_out, y_grid_out, interpmethod="nearest"
-):
+    x_grid: NDArray[np.float64],
+    y_grid: NDArray[np.float64],
+    z: NDArray[np.float64],
+    x_grid_out: NDArray[np.float64],
+    y_grid_out: NDArray[np.float64],
+    interpmethod: str = "nearest",
+) -> NDArray[np.float64]:
     """
     interpolates a structured grid onto a new structured grid.
 
@@ -177,7 +195,13 @@ def resample_structured_grid(
     )
 
 
-def calc_receptor_array(receptor_filename, x, y, latlon=False, mask=None):
+def calc_receptor_array(
+    receptor_filename: str,
+    x: NDArray[np.float64],
+    y: NDArray[np.float64],
+    latlon: bool = False,
+    mask: NDArray[np.bool_] = None,
+) -> NDArray[np.float64]:
     """
     Creates an array from either a .tif or .csv file.
 
@@ -244,7 +268,14 @@ def calc_receptor_array(receptor_filename, x, y, latlon=False, mask=None):
     return receptor_array
 
 
-def trim_zeros(x, y, z1, z2):
+def trim_zeros(
+    x: NDArray[np.float64],
+    y: NDArray[np.float64],
+    z1: NDArray[np.float64],
+    z2: NDArray[np.float64],
+) -> Tuple[
+    NDArray[np.float64], NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]
+]:
     """
     removes zeros from velocity structure array [might not always occur but does for test data]
 
@@ -276,12 +307,8 @@ def trim_zeros(x, y, z1, z2):
 
 
 def create_raster(
-    output_path,
-    cols,
-    rows,
-    nbands,
-    e_type=gdal.GDT_Float32,
-):
+    output_path: str, cols: int, rows: int, nbands: int, e_type: int = gdal.GDT_Float32
+) -> gdal.Dataset:
     """
     Create a gdal raster object.
 
@@ -325,14 +352,14 @@ def create_raster(
 
 
 def numpy_array_to_raster(
-    output_raster,
-    numpy_array,
-    bounds,
-    cell_resolution,
-    spatial_reference_system_wkid,
-    output_path,
-    nodata_val=None,
-):
+    output_raster: gdal.Dataset,
+    numpy_array: NDArray[np.float64],
+    bounds: Tuple[float, float],
+    cell_resolution: Tuple[float, float],
+    spatial_reference_system_wkid: int,
+    output_path: str,
+    nodata_val: float = None,
+) -> str:
     """
 
 
@@ -399,7 +426,7 @@ def numpy_array_to_raster(
     return output_path
 
 
-def find_utm_srid(lon, lat, srid):
+def find_utm_srid(lon: float, lat: float, srid: int) -> int:
     """
     Given a WGS 64 srid calculate the corresponding UTM srid.
 
@@ -436,7 +463,9 @@ def find_utm_srid(lon, lat, srid):
     return out_srid
 
 
-def read_raster(raster_name):
+def read_raster(
+    raster_name: str,
+) -> Tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
     """
     Reads a raster to an array.
 
@@ -470,7 +499,9 @@ def read_raster(raster_name):
     return rx, ry, raster_array
 
 
-def secondary_constraint_geotiff_to_numpy(filename):
+def secondary_constraint_geotiff_to_numpy(
+    filename: str,
+) -> Tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
     """
     Converts a secondary constraint GeoTIFF file to a NumPy array.
 
@@ -504,7 +535,9 @@ def secondary_constraint_geotiff_to_numpy(filename):
     return x_grid, y_grid, array
 
 
-def calculate_cell_area(rx, ry, latlon=True):
+def calculate_cell_area(
+    rx: NDArray[np.float64], ry: NDArray[np.float64], latlon: bool = True
+) -> Tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
     """
     Calculates the area of each cell
 
@@ -555,7 +588,9 @@ def calculate_cell_area(rx, ry, latlon=True):
     return rxm, rym, square_area
 
 
-def bin_data(zm, square_area, nbins=25):
+def bin_data(
+    zm: NDArray[np.float64], square_area: NDArray[np.float64], nbins: int = 25
+) -> Dict[str, NDArray[np.float64]]:
     """
     Bin statistics and area calculation of binned values.
 
@@ -597,8 +632,13 @@ def bin_data(zm, square_area, nbins=25):
 
 
 def bin_receptor(
-    zm, receptor, square_area, nbins=25, receptor_names=None, receptor_type="receptor"
-):
+    zm: NDArray[np.float64],
+    receptor: NDArray[np.float64],
+    square_area: NDArray[np.float64],
+    nbins: int = 25,
+    receptor_names: List[str] = None,
+    receptor_type: str = "receptor",
+) -> Dict[str, NDArray[np.float64]]:
     """
     Bins values into 25 bins and by unique values in the receptor.
 
@@ -660,13 +700,13 @@ def bin_receptor(
 
 
 def bin_layer(
-    raster_filename,
-    receptor_filename=None,
-    receptor_names=None,
-    limit_receptor_range=None,
-    latlon=True,
-    receptor_type="receptor",
-):
+    raster_filename: str,
+    receptor_filename: str = None,
+    receptor_names: List[str] = None,
+    limit_receptor_range: Tuple[float, float] = None,
+    latlon: bool = True,
+    receptor_type: str = "receptor",
+) -> DataFrame:
     """
     creates a dataframe of binned raster values and associtaed area and percent of array.
 
@@ -723,14 +763,14 @@ def bin_layer(
 
 
 def classify_layer_area(
-    raster_filename,
-    receptor_filename=None,
-    at_values=None,
-    value_names=None,
-    limit_receptor_range=None,
-    latlon=True,
-    receptor_type="receptor",
-):
+    raster_filename: str,
+    receptor_filename: str = None,
+    at_values: List[float] = None,
+    value_names: List[str] = None,
+    limit_receptor_range: Tuple[float, float] = None,
+    latlon: bool = True,
+    receptor_type: str = "receptor",
+) -> DataFrame:
     """
     Creates a dataframe of raster values and associtaed area and
     percent of array at specified raster values.
@@ -806,14 +846,14 @@ def classify_layer_area(
 
 
 def classify_layer_area_2nd_constraint(
-    raster_to_sample,
-    secondary_constraint_filename,
-    at_raster_values,
-    at_raster_value_names,
-    limit_constraint_range=None,
-    latlon=True,
-    receptor_type="receptor",
-):
+    raster_to_sample: str,
+    secondary_constraint_filename: str,
+    at_raster_values: List[float],
+    at_raster_value_names: List[str],
+    limit_constraint_range: Tuple[float, float] = None,
+    latlon: bool = True,
+    receptor_type: str = "receptor",
+) -> DataFrame:
     """
     Classifies layer areas based on a secondary constraint raster.
 
