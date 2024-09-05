@@ -26,7 +26,9 @@
 """
 
 import os
+from typing import Optional, Tuple, Dict
 import numpy as np
+from numpy.typing import NDArray
 import pandas as pd
 from netCDF4 import Dataset  # pylint: disable=no-name-in-module
 
@@ -45,7 +47,13 @@ from seat.utils.stressor_utils import (
 )
 
 
-def critical_shear_stress(d_meters, rhow=1024, nu=1e-6, s=2.65, g=9.81):
+def critical_shear_stress(
+    d_meters: NDArray[np.float64],
+    rhow: float = 1024,
+    nu: float = 1e-6,
+    s: float = 2.65,
+    g: float = 9.81,
+) -> NDArray[np.float64]:
     """
     Calculate critical shear stress from grain size.
 
@@ -74,7 +82,10 @@ def critical_shear_stress(d_meters, rhow=1024, nu=1e-6, s=2.65, g=9.81):
     return taucrit
 
 
-def classify_mobility(mobility_parameter_dev, mobility_parameter_nodev):
+def classify_mobility(
+    mobility_parameter_dev: NDArray[np.float64],
+    mobility_parameter_nodev: NDArray[np.float64],
+) -> NDArray[np.float64]:
     """
     classifies sediment mobility from device runs to no device runs.
 
@@ -163,7 +174,7 @@ def classify_mobility(mobility_parameter_dev, mobility_parameter_nodev):
     return mobility_classification
 
 
-def check_grid_define_vars(dataset):
+def check_grid_define_vars(dataset: Dataset) -> tuple[str, str, str, str]:
     """
     Determins the type of grid and corresponding shear stress variable name and coordiante names
 
@@ -196,13 +207,20 @@ def check_grid_define_vars(dataset):
 
 
 def calculate_shear_stress_stressors(
-    fpath_nodev,
-    fpath_dev,
-    probabilities_file,
-    receptor_filename=None,
-    latlon=True,
-    value_selection=None,
-):
+    fpath_nodev: str,
+    fpath_dev: str,
+    probabilities_file: str,
+    receptor_filename: Optional[str] = None,
+    latlon: bool = True,
+    value_selection: Optional[str] = None,
+) -> Tuple[
+    list[NDArray[np.float64]],
+    NDArray[np.float64],
+    NDArray[np.float64],
+    float,
+    float,
+    str,
+]:
     """
     Calculates the stressor layers as arrays from model and parameter input.
 
@@ -510,15 +528,15 @@ def calculate_shear_stress_stressors(
 
 
 def run_shear_stress_stressor(
-    dev_present_file,
-    dev_notpresent_file,
-    probabilities_file,
-    crs,
-    output_path,
-    receptor_filename=None,
-    secondary_constraint_filename=None,
-    value_selection=None,
-):
+    dev_present_file: str,
+    dev_notpresent_file: str,
+    probabilities_file: str,
+    crs: int,
+    output_path: str,
+    receptor_filename: Optional[str] = None,
+    secondary_constraint_filename: Optional[str] = None,
+    value_selection: Optional[str] = None,
+) -> Dict[str, str]:
     """
     creates geotiffs and area change statistics files for shear stress change
 
