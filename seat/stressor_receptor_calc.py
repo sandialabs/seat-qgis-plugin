@@ -25,6 +25,7 @@
 import configparser
 import os.path
 import xml.etree.ElementTree as ET
+from typing import Optional
 import pandas as pd
 
 # pylint: disable=no-name-in-module
@@ -34,6 +35,7 @@ from qgis.core import (
     QgsMessageLog,
     QgsProject,
     QgsRasterLayer,
+    QgsLayerTreeGroup,
 )
 
 # pylint: disable=no-name-in-module
@@ -48,7 +50,7 @@ from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator
 from qgis.PyQt.QtGui import QIcon
 
 # pylint: disable=no-name-in-module
-from qgis.PyQt.QtWidgets import QAction, QFileDialog
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QWidget, QLineEdit
 
 
 # Initialize Qt resources from file resources.py
@@ -65,7 +67,7 @@ from .stressor_receptor_calc_dialog import StressorReceptorCalcDialog
 
 
 # Most of the below is boilerplate code  until plugin specific functions start----
-def df_from_qml(fpath):
+def df_from_qml(fpath: str) -> pd.DataFrame:
     """
     Parses a QML (QGIS Markup Language) file to extract range values and creates a DataFrame.
 
@@ -93,7 +95,7 @@ def df_from_qml(fpath):
 class StressorReceptorCalc:
     """QGIS Plugin Implementation."""
 
-    def __init__(self, iface):
+    def __init__(self, iface: "QgsInterface"):
         """Constructor.
 
         :param iface: An interface instance that will be passed to this class
@@ -138,7 +140,7 @@ class StressorReceptorCalc:
         self.first_start = None
 
     # noinspection PyMethodMayBeStatic
-    def tr(self, message):
+    def tr(self, message: str) -> str:
         """Get the translation for a string using Qt translation API.
 
         We implement this ourselves since we do not inherit QObject.
@@ -154,16 +156,16 @@ class StressorReceptorCalc:
 
     def add_action(
         self,
-        icon_path,
-        set_text,
-        callback,
-        enabled_flag=True,
-        add_to_menu=True,
-        add_to_toolbar=True,
-        status_tip=None,
-        whats_this=None,
-        parent=None,
-    ):
+        icon_path: str,
+        set_text: str,
+        callback: callable,
+        enabled_flag: bool = True,
+        add_to_menu: bool = True,
+        add_to_toolbar: bool = True,
+        status_tip: Optional[str] = None,
+        whats_this: Optional[str] = None,
+        parent: Optional[QWidget] = None,
+    ) -> QAction:
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -228,7 +230,7 @@ class StressorReceptorCalc:
 
         return action
 
-    def init_gui(self):
+    def init_gui(self) -> None:
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
         icon_path = ":/plugins/seat/icon.png"
@@ -244,7 +246,7 @@ class StressorReceptorCalc:
         # will be set False in run()
         self.first_start = True
 
-    def unload(self):
+    def unload(self) -> None:
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
             self.iface.removePluginMenu(
@@ -255,7 +257,7 @@ class StressorReceptorCalc:
 
     # End mostly boilerplate code ------
 
-    def select_folder(self):
+    def select_folder(self) -> str:
         """
         Opens a dialog for the user to select a folder and returns the selected folder path.
 
@@ -265,7 +267,7 @@ class StressorReceptorCalc:
         folder_name = QFileDialog.getExistingDirectory(self.dlg, "Select Folder")
         return folder_name
 
-    def read_style_files(self, file):
+    def read_style_files(self, file: str) -> pd.DataFrame:
         """
         Reads style data from a CSV file and returns it as a DataFrame indexed by the "Type" column.
 
@@ -279,7 +281,7 @@ class StressorReceptorCalc:
         data = data.set_index("Type")
         return data
 
-    def select_file(self, file_filter=""):
+    def select_file(self, file_filter: str = "") -> str:
         """Input the receptor file."""
         filename, _filter = QFileDialog.getOpenFileName(
             self.dlg,
@@ -289,7 +291,7 @@ class StressorReceptorCalc:
         )
         return filename
 
-    def copy_shear_input_to_velocity(self):
+    def copy_shear_input_to_velocity(self) -> None:
         """
         Copies the input values from the shear stress module to
         the velocity module fields in the dialog.
@@ -303,7 +305,7 @@ class StressorReceptorCalc:
         )
         self.dlg.velocity_risk_file.setText(self.dlg.shear_risk_file.text())
 
-    def select_crs(self):
+    def select_crs(self) -> None:
         """Input the crs using the QGIS widget box."""
 
         proj_selector = QgsProjectionSelectionDialog(None)
@@ -316,7 +318,7 @@ class StressorReceptorCalc:
         # proj_selector.exec_()
         self.dlg.crs.setText(proj_selector.crs().authid().split(":")[1])
 
-    def test_exists(self, line_edit, fin, fin_type):
+    def test_exists(self, line_edit: QLineEdit, fin: str, fin_type: str) -> None:
         """
         Checks if a file or directory exists, and updates the
         corresponding QLineEdit with its status.
@@ -336,7 +338,7 @@ class StressorReceptorCalc:
         else:
             line_edit.setStyleSheet("color: black;")
 
-    def select_and_load_in(self):
+    def select_and_load_in(self) -> None:
         """Select and load an input file."""
         filename, _filter = QFileDialog.getOpenFileName(
             self.dlg,
@@ -409,7 +411,7 @@ class StressorReceptorCalc:
         if "config" in locals():  # prevents error if window to closed without running
             config.clear()
 
-    def save_in(self):
+    def save_in(self) -> None:
         """Select and save an input file."""
         filename, _filter = QFileDialog.getSaveFileName(
             self.dlg,
@@ -452,7 +454,12 @@ class StressorReceptorCalc:
         with open(filename, "w", encoding="utf-8") as configfile:
             config.write(configfile)
 
-    def add_layer(self, fpath, root=None, group=None):
+    def add_layer(
+        self,
+        fpath: str,
+        root: Optional[QgsLayerTreeGroup] = None,
+        group: Optional[QgsLayerTreeGroup] = None,
+    ) -> None:
         """
         Adds a raster layer to the QGIS project and optionally places it in a specified group.
 
@@ -473,8 +480,12 @@ class StressorReceptorCalc:
             layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))
 
     def style_layer(
-        self, fpath, stylepath=None, root=None, group=None
-    ):  # , ranges=True):
+        self,
+        fpath: str,
+        stylepath: Optional[str] = None,
+        root: Optional[QgsLayerTreeGroup] = None,
+        group: Optional[QgsLayerTreeGroup] = None,
+    ) -> None:  # , ranges=True):
         """Style and add the result layer to map."""
         basename = os.path.splitext(os.path.basename(fpath))[0]
         if group is not None:
@@ -497,7 +508,9 @@ class StressorReceptorCalc:
             # refresh legend entries
             self.iface.layerTreeView().refreshLayerSymbology(layer.id())
 
-    def select_folder_module(self, module=None, option=None):
+    def select_folder_module(
+        self, module: Optional[str] = None, option: Optional[str] = None
+    ) -> None:
         """
         Selects a folder for the specified module and option,
         and updates the corresponding dialog field.
@@ -541,7 +554,9 @@ class StressorReceptorCalc:
             self.dlg.output_folder.setText(directory)
             self.dlg.output_folder.setStyleSheet("color: black;")
 
-    def select_files_module(self, module=None, option=None):
+    def select_files_module(
+        self, module: Optional[str] = None, option: Optional[str] = None
+    ) -> None:
         """
         Selects a file for the specified module and option,
         and updates the corresponding dialog field.
@@ -601,7 +616,7 @@ class StressorReceptorCalc:
             self.dlg.output_stylefile.setText(file)
             self.dlg.output_stylefile.setStyleSheet("color: black;")
 
-    def run(self):
+    def run(self) -> None:
         """Run method that performs all the real work."""
 
         # Create the dialog with elements (after translation) and keep reference

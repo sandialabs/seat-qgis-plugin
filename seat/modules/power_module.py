@@ -25,17 +25,23 @@ CHANGE HISTORY:
 import io
 import re
 import os
+from typing import Dict, List, Optional, Tuple, Union
 import numpy as np
+from numpy.typing import NDArray
 import pandas as pd
+from pandas import DataFrame
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from matplotlib.colors import ListedColormap
 from matplotlib.cm import ScalarMappable
 from matplotlib.ticker import FormatStrFormatter
+from matplotlib.figure import Figure
 
 
 # Obstacle Polygon and Device Positions
-def read_obstacle_polygon_file(power_device_configuration_file):
+def read_obstacle_polygon_file(
+    power_device_configuration_file: str,
+) -> Dict[str, NDArray[np.float64]]:
     """
     reads the obstacle polygon file
 
@@ -80,7 +86,9 @@ def read_obstacle_polygon_file(power_device_configuration_file):
     return obstacles
 
 
-def find_mean_point_of_obstacle_polygon(obstacles):
+def find_mean_point_of_obstacle_polygon(
+    obstacles: Dict[str, NDArray[np.float64]]
+) -> NDArray[np.float64]:
     """
     Calculates the center of each obstacle.
 
@@ -110,7 +118,7 @@ def find_mean_point_of_obstacle_polygon(obstacles):
     return centroids
 
 
-def plot_test_obstacle_locations(obstacles):
+def plot_test_obstacle_locations(obstacles: Dict[str, NDArray[np.float64]]) -> Figure:
     """
     Creates a plot of the spatial distribution and location of each obstacle.
 
@@ -150,7 +158,9 @@ def plot_test_obstacle_locations(obstacles):
     return fig
 
 
-def centroid_diffs(centroids, centroid):
+def centroid_diffs(
+    centroids: NDArray[np.float64], centroid: NDArray[np.float64]
+) -> List[int]:
     """
     Determines the closest centroid pair
 
@@ -174,7 +184,9 @@ def centroid_diffs(centroids, centroid):
     return pair
 
 
-def extract_device_location(obstacles, device_index):
+def extract_device_location(
+    obstacles: Dict[str, NDArray[np.float64]], device_index: List[List[int]]
+) -> DataFrame:
     """
     Creates a dictionary summary of each device location
 
@@ -210,7 +222,7 @@ def extract_device_location(obstacles, device_index):
     return devices_df
 
 
-def pair_devices(centroids):
+def pair_devices(centroids: NDArray[np.float64]) -> NDArray[np.int32]:
     """
     Determins the two intersecting obstacles to that create a device.
 
@@ -240,10 +252,9 @@ def pair_devices(centroids):
 # # scale color based on power device power range from 0 to max of array
 # # This way the plot is array and grid independent, only based on centroid and device size,
 # could make size variable if necessary.
-#
 
 
-def create_power_heatmap(device_power, crs=None):
+def create_power_heatmap(device_power: DataFrame, crs: Optional[int] = None) -> Figure:
     """
     Creates a heatmap of device location and power as cvalue.
 
@@ -308,10 +319,7 @@ def create_power_heatmap(device_power, crs=None):
     return fig
 
 
-# %%
-
-
-def read_power_file(datafile):
+def read_power_file(datafile: str) -> Tuple[NDArray[np.float64], float]:
     """
     Read power file and extract final set of converged data
 
@@ -344,7 +352,7 @@ def read_power_file(datafile):
     return power_array, total_power
 
 
-def sort_data_files_by_runnumber(bc_data, datafiles):
+def sort_data_files_by_runnumber(bc_data: DataFrame, datafiles: List[str]) -> List[str]:
     """
     Sorts the data files based on the run number specified in `bc_data`.
 
@@ -364,7 +372,7 @@ def sort_data_files_by_runnumber(bc_data, datafiles):
     return [datafiles[i] for i in bc_data_sorted.original_order.to_numpy()]
 
 
-def sort_bc_data_by_runnumber(bc_data):
+def sort_bc_data_by_runnumber(bc_data: DataFrame) -> DataFrame:
     """
     Sorts the `bc_data` DataFrame by the 'run number' column.
 
@@ -382,7 +390,7 @@ def sort_bc_data_by_runnumber(bc_data):
     return bc_data.sort_values(by="run number")
 
 
-def reset_bc_data_order(bc_data):
+def reset_bc_data_order(bc_data: DataFrame) -> Union[DataFrame, None]:
     """
     Resets the order of `bc_data` DataFrame to its original order if 'original_order' column exists.
 
@@ -401,7 +409,7 @@ def reset_bc_data_order(bc_data):
     return bc_data
 
 
-def roundup(x, val=2):
+def roundup(x: float, val: int = 2) -> float:
     """
     Rounds up the number `x` to the nearest multiple of `val`.
 
@@ -420,7 +428,12 @@ def roundup(x, val=2):
     return np.ceil(x / val) * val
 
 
-def calculate_power(power_files, probabilities_file, save_path=None, crs=None):
+def calculate_power(
+    power_files: str,
+    probabilities_file: str,
+    save_path: Optional[str] = None,
+    crs: Optional[int] = None,
+) -> Tuple[DataFrame, DataFrame]:
     """
     Reads the power files and calculates the total annual power based on
     hydrodynamic probabilities in probabilities_file.
