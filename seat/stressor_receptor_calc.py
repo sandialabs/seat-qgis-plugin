@@ -27,7 +27,6 @@ import os.path
 import xml.etree.ElementTree as ET
 from typing import Optional
 import pandas as pd
-from PyQt5.QtWidgets import QAction, QWidget, QLineEdit
 
 # pylint: disable=no-name-in-module
 from qgis.core import (
@@ -51,7 +50,7 @@ from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator
 from qgis.PyQt.QtGui import QIcon
 
 # pylint: disable=no-name-in-module
-from qgis.PyQt.QtWidgets import QAction, QFileDialog
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QWidget, QLineEdit
 
 
 # Initialize Qt resources from file resources.py
