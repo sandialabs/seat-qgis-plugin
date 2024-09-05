@@ -921,7 +921,8 @@ def run_acoustics_stressor(
     Averaging=None,
     secondary_constraint_filename=None,
 ):
-    """_summary_
+    """
+
 
     Parameters
     ----------
@@ -1053,11 +1054,35 @@ def run_acoustics_stressor(
         )
         use_probabilistic_arrays.append("paracousti_risk_layer")
 
-    output_rasters_probabilistic = create_output_rasters_probabilistic(use_probabilistic_arrays, dict_of_probabilistic_arrays, crs, dx, dy, rx, ry, output_path)
-    create_probabilistic_binned_csv(output_path, crs, secondary_constraint_filename=secondary_constraint_filename, species_folder=species_folder)
+    output_rasters_probabilistic = create_output_rasters_probabilistic(
+        use_probabilistic_arrays, 
+        dict_of_probabilistic_arrays, 
+        crs, 
+        dx, 
+        dy, 
+        rx,
+        ry,
+        output_path)
+    create_probabilistic_binned_csv(
+        output_path, 
+        crs, 
+        secondary_constraint_filename=secondary_constraint_filename, 
+        species_folder=species_folder)
     
-    output_rasters_nonprobabilistic = create_output_rasters_nonprobabilistic(use_nonprobabilistic_arrays, dict_of_nonprobabilistic_arrays, crs, dx, dy, rx, ry, output_path)
-    create_nonprobabilistic_binned_csv(output_path, output_rasters_nonprobabilistic, crs, secondary_constraint_filename=secondary_constraint_filename, species_folder=species_folder)
+    output_rasters_nonprobabilistic = create_output_rasters_nonprobabilistic(
+        use_nonprobabilistic_arrays, 
+        dict_of_nonprobabilistic_arrays, 
+        crs, 
+        dx, 
+        dy,
+        rx,
+        ry, 
+        output_path)
+    create_nonprobabilistic_binned_csv(output_path, 
+        output_rasters_nonprobabilistic, 
+        crs, 
+        secondary_constraint_filename=secondary_constraint_filename,
+        species_folder=species_folder)
 
 
     OUTPUT_probabilistic = {}
@@ -1071,4 +1096,3 @@ def run_acoustics_stressor(
         for val in output_rasters_nonprobabilistic[var]:
             OUTOUT_nonprobabilistic[var][val] = val
     return OUTPUT_probabilistic, OUTOUT_nonprobabilistic
-

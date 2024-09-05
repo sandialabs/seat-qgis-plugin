@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - main
-      - workflow
 
 jobs:
   test-seat-package:
@@ -33,7 +32,7 @@ jobs:
         run: |
           until docker exec qgis-testing-environment sh -c "ls /"; do sleep 1; done
 
-      - name: Install plugin by manually via Copy
+      - name: Install plugin manually via Copy
         run: |
           docker exec qgis-testing-environment sh -c '
           PLUGIN_SRC_PATH=/tests_directory/seat
@@ -46,10 +45,6 @@ jobs:
         run: |
           docker exec qgis-testing-environment sh -c "python3 /tests_directory/tests/install_dependencies.py"
           docker exec qgis-testing-environment sh -c "apt-get update && apt-get install -y python3-pandas python3-netcdf4 python3-pytest"
-
-      - name: List installed packages
-        run: |
-          docker exec qgis-testing-environment sh -c "pip list"
 
       - name: Run Pytest
         run: |
