@@ -36,6 +36,7 @@ from qgis.core import (
     QgsMessageLog,
     QgsProject,
     QgsRasterLayer,
+    QgsLayerTreeGroup
 )
 
 # pylint: disable=no-name-in-module
