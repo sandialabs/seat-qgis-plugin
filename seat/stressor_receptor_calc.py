@@ -94,7 +94,7 @@ def df_from_qml(fpath: str) -> pd.DataFrame:
 class StressorReceptorCalc:
     """QGIS Plugin Implementation."""
 
-    def __init__(self, iface: "QgsInterface"): # type: ignore
+    def __init__(self, iface: "QgsInterface"):  # type: ignore
         """Constructor.
 
         :param iface: An interface instance that will be passed to this class
