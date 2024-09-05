@@ -28,9 +28,9 @@
 
 import os
 
+from typing import Optional, Tuple, List, Dict
 import numpy as np
 from numpy.typing import NDArray
-from typing import Optional, Tuple, List, Dict
 import pandas as pd
 from netCDF4 import Dataset  # pylint: disable=no-name-in-module
 
