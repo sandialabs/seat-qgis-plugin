@@ -14,7 +14,7 @@ parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
 # fmt: off
-from seat.modules import stressor_utils as su
+from seat.utils import stressor_utils as su
 
 # fmt: on
 # from seat.stressor_utils import estimate_grid_spacing
