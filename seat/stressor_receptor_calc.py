@@ -34,15 +34,19 @@ from qgis.core import (
     QgsMessageLog,
     QgsProject,
     QgsRasterLayer,
-) 
+)
+
 # pylint: disable=no-name-in-module
 from qgis.gui import (
     QgsProjectionSelectionDialog,
 )
+
 # pylint: disable=no-name-in-module
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator
+
 # pylint: disable=no-name-in-module
-from qgis.PyQt.QtGui import QIcon  
+from qgis.PyQt.QtGui import QIcon
+
 # pylint: disable=no-name-in-module
 from qgis.PyQt.QtWidgets import QAction, QFileDialog
 
