@@ -108,7 +108,7 @@ class TestStressorReceptorCalcModule(unittest.TestCase):
         mock_getOpenFileName.return_value = (mock_filename, '')
 
         # Call the select_file method and capture the return value
-        filename = self.stressor_receptor_calc.select_file(filter="*.csv")
+        filename = self.stressor_receptor_calc.select_file(file_filter="*.csv")
 
         # Check that the return value matches the mock filename
         self.assertEqual(filename, mock_filename)
