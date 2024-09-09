@@ -418,7 +418,7 @@ def numpy_array_to_raster(
     #  faster, could be a setting in the UI perhaps, esp for large rasters?
     output_band.ComputeStatistics(
         False,
-    )  
+    )
 
     if not os.path.exists(output_path):
         raise RuntimeError(f"Failed to create raster: {output_path}")
