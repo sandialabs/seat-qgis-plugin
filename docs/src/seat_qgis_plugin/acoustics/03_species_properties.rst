@@ -1,3 +1,35 @@
+Species Properties
+--------------------
+
+The species properties tab serves to... 
+
+
+**Weighting**: The weighting dropdown shows the signal weighted metrics within the device model results files (see Paracousti Pre-Processing). 
+
+.. figure:: ../../media/weighting_dropdown.webp
+   :scale: 100 %
+   :alt: Dropdown menu showing the signal weighted metrics
+
+**Acoustic Metric**: Unweighted and weighted variables present in the device model results files. Options change depending on weighting selected (see Paracousti Pre-Processing).
+
+Unweighted metrics:
+
+.. figure:: ../../media/acoustic_metrics_dropdown_unweighted.webp
+   :scale: 100 %
+   :alt: Dropdown menu showing the acoustic metrics for the unweighted version.
+
+Weighted metrics:
+
+.. figure:: ../../media/acoustic_metrics_dropdown_weighted.webp
+   :scale: 100 %
+   :alt: Dropdown menu showing the acoustic metrics for the weighted version.
+
+**Acoustic Threshold Value**: Threshold above which negative impacts are expected. The units update to match Acoustic Metric selected.
+
+.. figure:: ../../media/acoustic_threshold_value.webp
+   :scale: 100 %
+   :alt: Input box for the acoustic threshold value.
+
 Species Spatial Probability / Density Directory
 ------------------------------------------------
 
@@ -17,7 +49,8 @@ In ParAcousti, this input specifies the directory containing: Species Percent an
 
 **Example:**
 
-Below is example probabilites file from the ParAcousti DEMO Files. The first column is the ParAcousti results file name, the second column is the Species Percent file name, the third column is the Species Density file name, and the fourth column is the percent of the year that the ParAcousti file is applicable. In this example, the Species Percent and Species Density files are the same for all ParAcousti files. 
+Below is example probabilites file from the ParAcousti DEMO Files. 
+The first column is the ParAcousti results file name, the second column is the Species Percent file name, the third column is the Species Density file name, and the fourth column is the percent of the year that the ParAcousti file is applicable. In this example, the Species Percent and Species Density files are the same for all ParAcousti files. 
 
 .. code-block:: text
    :caption: boundary_conditions.csv
@@ -52,3 +85,12 @@ The Species Percent and Species Density files are located in the directory as sp
    "6235",245,48.5,NA,NA,NA,NA,NA,NA,1,2021,NA,NA,NA,NA,NA,NA,NA
    "6236",245,48.75,NA,NA,NA,NA,NA,NA,1,2021,NA,NA,NA,NA,NA,NA,NA
    "6237",245,49,NA,NA,NA,NA,NA,NA,1,2021,NA,NA,NA,NA,NA,NA,NA
+
+** Species File Averaged Area (km^2) **
+
+Represents cumulative area for each cell regarding species percent and density; used for scaling to each ParAcousti grid cell. Leave blank or set to 0 to prevent scaling.
+
+
+.. figure:: ../../media/species_file_averaged_area.webp
+   :scale: 100 %
+   :alt: Spatial Probability/Density Grid Resolution

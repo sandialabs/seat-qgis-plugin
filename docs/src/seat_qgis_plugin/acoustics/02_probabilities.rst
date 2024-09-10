@@ -1,8 +1,7 @@
-Probabilities (optional)
+Probabilities 
 ------------------------
 
-The probabilities file, while optional, serves to enhance your analysis, providing insights into the run order and the likelihood of each model condition unfolding. Adhere to the prescribed naming convention (as delineated in the device/baseline model section). Note that this file correlates with the return interval in years.
-
+The probabilities file serves to enhance your analysis, providing insights into the run order and the likelihood of each model condition unfolding. Adhere to the prescribed naming convention (as delineated in the device/baseline model section). Note that this file correlates with the return interval in years.
 .. figure:: ../../media/probabilities_input.webp
    :scale: 100 %
    :alt: Interface depicting the Probabilities Input in SEAT's GUI.

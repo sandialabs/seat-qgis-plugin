@@ -11,10 +11,10 @@ ParAcousti Module: Examines acoustic propagation and its thresholds.
    :maxdepth: 1
    :hidden:
 
-   01_model_results_dir.rst
+   01_inputs.rst
    02_probabilities.rst
-   03_species_threshold.rst
-   04_species_spatial_dir.rst
+   03_species_properties.rst
+   04_paracousti_preprocessing.rst
    05_risk_layer.rst
    06_depth_avg.rst
 

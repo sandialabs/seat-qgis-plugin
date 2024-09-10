@@ -47,7 +47,6 @@ File Descriptions
 
 **Receptor Layer** – numerical value at which a change or response is expected (i.e., a threshold). Examples include auditory effect to marine species, larval transport, and sediment transport. 
 
-
 .. toctree::
    :maxdepth: 2
 

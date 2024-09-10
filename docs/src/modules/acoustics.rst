@@ -12,8 +12,6 @@ These include:
 
   - NetCDF files: model output with 1) baseline runs; 2) device present runs
 
-  - \*Receptor file (CSV): Includes species name, acoustic metric, threshold and density grid cell size
-
   - \*Model Probability Condition file (CSV): Used to weight different run scenarios
   
   - \*Risk layer file (GeoTIFF): Contains spatial classifications, used to evaluate the impact of the devices on the environment
@@ -48,10 +46,14 @@ The coordinates units attribute must include “degrees” if the coordinates ar
 
   * 'degrees’ in ``ds.variables[<xcor variable>].units`` is ``True`` for ``lat/lon``
 
+Weighted and Additional Variables:
+++++++++++++++++++++++++++++++++++++
+  * Weighted and Unweighted SPL and SEL variables can be included in the NetCDF file with the format specified in `Paracousti PreProcessing <../seat_qgis_plugin/acoustics/04_paracousti_preprocessing.html>`_.
 
 Output 
 """"""
-Note that if no baseline model files are provided, the baseline is assumed to be zero.
+
+`Note that if no baseline model files are provided, the baseline is assumed to be zeroonly the device values are used. Two different analyses are carried out for the acoustics calculations: probabilistic and non-probabilistic. The probabilistic calculation uses the probabilities file to determine the 24-hour signal for SEL with times weighted by the probabilities file. For SPL, a probability weighted single is calculated.`
 
 GeoTIFF raster files: 
 
@@ -63,6 +65,8 @@ GeoTIFF raster files:
   - **species_density.tif** : the threshold exceeded and weighted species density.
 
 CSV files:
+Non-probablistic files are appended with the suffix corresponding to the unique Paracousti filename. For example, if the filename is Hw0.5.nc, the stressor file will be named paracousti_stressor_Hw0.5.tif
+
       - **paracousti_stressor.csv**
       - **paracousti_with_devices.csv**
       - **paracousti_without_devices.csv**
