@@ -1,11 +1,12 @@
 Acoustics
 ===========
 
-The ParAcousti module examines acoustic propagation and its thresholds. It compares ParAcousti baseline model runs to model runs with devices present. 
-The user has the option to pre-process the ParAcousti results by weighting functions, which emphasizes certain frequencies and de-emphasizes certain frequencies within the 
-acoustic signal, depending on if there is a species of interest.   
+The :ref:`acoustics_module` examines acoustic propagation and its thresholds. It compares ParAcousti baseline model runs to model runs with devices present. 
+If the user is interested in a specific species of interest, there is the option to pre-process the ParAcousti results by
+using a routine that applies weighting functions to the acoustic signal, detailed in :ref:`01_paracousti_preprocessing`. 
 
-The module has two tabs: the `inputs <01_inputs>_` tab and the `species properties <03_species_properties>_` tab.
+
+The module has two tabs: the :ref:`02_inputs` tab and the :ref:`03_species_properties` tab.
 
 .. figure:: ../../media/acoustics_inputs.webp
    :scale: 100 %
@@ -15,9 +16,6 @@ The module has two tabs: the `inputs <01_inputs>_` tab and the `species properti
    :maxdepth: 1
    :hidden:
 
-   01_inputs.rst
-   02_probabilities.rst
+   01_paracousti_preprocessing.rst
+   02_inputs.rst
    03_species_properties.rst
-   04_paracousti_preprocessing.rst
-   05_risk_layer.rst
-   06_depth_avg.rst

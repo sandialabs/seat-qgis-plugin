@@ -1,4 +1,5 @@
-Paracousti Pre-Processing
+.. _01_paracousti_preprocessing:
+Paracousti Pre-Processing 
 -------------------------
 Several metrics can be calculated from ParAcousti output that are useful in determining impacts to marine species. These include the weighted and unweighted sound pressure level (SPL) and sound exposure level (SEL). Due to the resource and time-intensive calculations, a stand-alone python routine is included within the SEAT package. This routine calculates the user selected metrics and weights form the existing Paracousti metrics. The calculated metrics are saved to a netcdf variable with the same dimensions as the original Paracousti netcdf.
 

@@ -9,8 +9,16 @@ Input
 
 At this point you should have already setup the input files and style files as detailed in :ref:`prepare_tutorial_files`.
 
-To run this demonstration, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO/pacwave/acoustics_module_100db_threshold.ini`, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the :ref:`save_load_config` section in the :ref:`seat_qgis_plugin` documention.
+To run this demonstration, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO_acoustics/pacwave/`, and there will be three files available to choose from:
 
+    - :file:`acoustics_module_SEL_199db_threshold.ini`: Sound exposure level with a 199db threshold
+    - :file:`acoustics_module_SEL_HFC_173db_threshold.ini`: Sound exposure level for high frequency creteceans with a 173db threshold
+    - :file:`acoustics_module_SEL_LFC_199db_threshold.ini`: Sound exposure level for low frequency creteceans with a 199db threshold
+
+
+
+Click on one, and click OK to load the inputs. If you need detailed instructions on how to load inputs, 
+please refer to the :ref:`save_load_config` section in the :ref:`seat_qgis_plugin` documention.
 
 .. Note::
    Your paths will differ than the ones shown in the example below. If you get an error double check the paths making sure the files exist at the specified location.

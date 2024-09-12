@@ -1,4 +1,4 @@
-
+.. _acoustics_module:
 Acoustics Module
 ----------------
 
@@ -69,7 +69,7 @@ The coordinates units attribute must include “degrees” if the coordinates ar
 
 Weighted and Additional Variables:
 ++++++++++++++++++++++++++++++++++++
-  * Weighted and Unweighted Sound Pressure Level (SPL) and Sound Exposure Level (SEL) variables can be included in the NetCDF file with the format specified in `Paracousti PreProcessing <../seat_qgis_plugin/acoustics/04_paracousti_preprocessing.html>`_.
+  * Weighted and Unweighted Sound Pressure Level (SPL) and Sound Exposure Level (SEL) variables can be included in the NetCDF file with the format specified in `Paracousti PreProcessing <../seat_qgis_plugin/acoustics/01_paracousti_preprocessing.html>`_.
 
 Output 
 """"""
