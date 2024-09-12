@@ -1,7 +1,7 @@
 Species Properties
 --------------------
 
-The species properties tab serves to... 
+The species properties section of the SEAT QGIS plugin allows users to specify the species spatial probability/density directory and the species file averaged area.
 
 
 **Weighting**: The weighting dropdown shows the signal weighted metrics within the device model results files (see Paracousti Pre-Processing). 
@@ -30,10 +30,12 @@ Weighted metrics:
    :scale: 100 %
    :alt: Input box for the acoustic threshold value.
 
-Species Spatial Probability / Density Directory
-------------------------------------------------
 
-In ParAcousti, this input specifies the directory containing: Species Percent and Species Density. Both files must be located within the same directory.
+Species Spatial Probability / Density Directory
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This input specifies the directory where the
+species present and species density files are located. Both files must be located within the same directory.
 
 - **Directory Structure**:
 
@@ -47,35 +49,13 @@ In ParAcousti, this input specifies the directory containing: Species Percent an
    :scale: 100 %
    :alt: Secondary Constraint
 
+The Species Percent and Species Density files are located in the directory as specified by the "Secondary Constraint". 
+For example, in the Paracousti Demo files, there is a directory called "species" that contains the Species Percent and Species Density files. The Species Percent and Species Density files have the names as specifed above e.g., "WhaleWatchPredictions_2021_01.csv". Opening one of these files in a text editor shows the following:
+
 **Example:**
 
-Below is example probabilites file from the ParAcousti DEMO Files. 
-The first column is the ParAcousti results file name, the second column is the Species Percent file name, the third column is the Species Density file name, and the fourth column is the percent of the year that the ParAcousti file is applicable. In this example, the Species Percent and Species Density files are the same for all ParAcousti files. 
-
 .. code-block:: text
-   :caption: boundary_conditions.csv
-   
-   Paracousti File,Species Percent Occurance File,Species Density File,% of yr
-   PacWave_3DSPLs_Hw0.5.nc,WhaleWatchPredictions_2021_01.csv,WhaleWatchPredictions_2021_01.csv,0
-   PacWave_3DSPLs_Hw1.0.nc,WhaleWatchPredictions_2021_02.csv,WhaleWatchPredictions_2021_02.csv,2.729
-   PacWave_3DSPLs_Hw1.5.nc,WhaleWatchPredictions_2021_03.csv,WhaleWatchPredictions_2021_03.csv,20.268
-   PacWave_3DSPLs_Hw2.0.nc,WhaleWatchPredictions_2021_04.csv,WhaleWatchPredictions_2021_04.csv,39.769
-   PacWave_3DSPLs_Hw2.5.nc,WhaleWatchPredictions_2021_05.csv,WhaleWatchPredictions_2021_05.csv,13.27
-   PacWave_3DSPLs_Hw3.0.nc,WhaleWatchPredictions_2021_06.csv,WhaleWatchPredictions_2021_06.csv,3.49
-   PacWave_3DSPLs_Hw3.5.nc,WhaleWatchPredictions_2021_07.csv,WhaleWatchPredictions_2021_07.csv,11.212
-   PacWave_3DSPLs_Hw4.0.nc,WhaleWatchPredictions_2021_08.csv,WhaleWatchPredictions_2021_08.csv,0.593
-   PacWave_3DSPLs_Hw4.5.nc,WhaleWatchPredictions_2021_09.csv,WhaleWatchPredictions_2021_09.csv,1.813
-   PacWave_3DSPLs_Hw5.0.nc,WhaleWatchPredictions_2021_10.csv,WhaleWatchPredictions_2021_10.csv,6.462
-   PacWave_3DSPLs_Hw5.5.nc,WhaleWatchPredictions_2021_11.csv,WhaleWatchPredictions_2021_11.csv,0
-   PacWave_3DSPLs_Hw6.0.nc,WhaleWatchPredictions_2021_12.csv,WhaleWatchPredictions_2021_12.csv,0
-   PacWave_3DSPLs_Hw6.5.nc,WhaleWatchPredictions_2021_01.csv,WhaleWatchPredictions_2021_01.csv,0
-   PacWave_3DSPLs_Hw7.0.nc,WhaleWatchPredictions_2021_02.csv,WhaleWatchPredictions_2021_02.csv,0.086
-
-
-The Species Percent and Species Density files are located in the directory as specified by the "Secondary Constraint". For example, in the Paracousti Demo files, there is a directory called "species" that contains the Species Percent and Species Density files. The Species Percent and Species Density files have the names as specifed above e.g., "WhaleWatchPredictions_2021_01.csv". Opening one of these files in a text editor shows the following:
-
-.. code-block:: text
-   :caption: WhaleWatchPredictions_2021_01.csv
+   :caption: `WhaleWatchPredictions_2021_01.csv <../../_files/example.csv>`_
 
    "","longitude","latitude","bathy","bathyrms","sst","chl","ssh","sshrms","month","year","fitmean","sdfit","percent","density","sddens","upper","lower"
    "1",225,30,-4878.5,145.013092041,19.3042380721481,0.131973730461833,0.10315625,NA,1,2021,NA,NA,NA,NA,NA,NA,NA
@@ -86,9 +66,16 @@ The Species Percent and Species Density files are located in the directory as sp
    "6236",245,48.75,NA,NA,NA,NA,NA,NA,1,2021,NA,NA,NA,NA,NA,NA,NA
    "6237",245,49,NA,NA,NA,NA,NA,NA,1,2021,NA,NA,NA,NA,NA,NA,NA
 
-** Species File Averaged Area (km^2) **
+Key:
 
-Represents cumulative area for each cell regarding species percent and density; used for scaling to each ParAcousti grid cell. Leave blank or set to 0 to prevent scaling.
+- `ParAcousti File`: The name of the ParAcousti .nc file.
+- `Species % Occurrence File`: Either a .csv or .tif file indicating species percent occurrence.
+- `Species Density File`: Either a .csv or .tif file detailing species density.
+- `% of yr`: Represents the percentage of the year.
+
+**Species File Averaged Area (km^2)**
+
+The grid size of the species percent and density files. This is used for scaling to each ParAcousti grid cell. Leave blank or set to 0 to prevent scaling.
 
 
 .. figure:: ../../media/species_file_averaged_area.webp

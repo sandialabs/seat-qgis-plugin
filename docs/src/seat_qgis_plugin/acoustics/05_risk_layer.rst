@@ -1,7 +1,8 @@
 Risk layer (Optional)
 --------------------------------
 
-The risk layer is a receptor file that serves as an additional input to each module. It must be a numerically classified .tif format. 
+The risk layer is a receptor file that serves as an additional input to each module and designated which layers are sensitive and would be effected by the acoustics. 
+It must be a numerically classified .tif format. It is the same as what is used in the shear stress and velocity modules.
 
 .. figure:: ../../media/risk_layer_gui_input.webp
    :scale: 100 %
