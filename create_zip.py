@@ -1,17 +1,29 @@
+"""
+Creates zip package for QGIS plugin import
+"""
 import shutil
 import os
 from datetime import datetime
 
 
-def copy_directory(src, dest, exclude_dirs):
-    exclude_dirs = [os.path.join(src, ex) for ex in exclude_dirs]
+def copy_directory(src, dest, dirs_to_exclude):
+    """Copies seat directory
+
+    :param src: source directory
+    :type src: str
+    :param dest: destination directory
+    :type dest: str
+    :param dirs_to_exclude: list
+    :type dirs_to_exclude: directories to exclude form copy
+    """
+    dirs_to_exclude = [os.path.join(src, ex) for ex in dirs_to_exclude]
 
     for root, dirs, files in os.walk(src):
         # Construct the destination path
         dest_path = root.replace(src, dest, 1)
 
         # Skip excluded directories
-        dirs[:] = [d for d in dirs if os.path.join(root, d) not in exclude_dirs]
+        dirs[:] = [d for d in dirs if os.path.join(root, d) not in dirs_to_exclude]
 
         # Create the destination directory if it doesn't exist
         if not os.path.exists(dest_path):
