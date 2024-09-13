@@ -8,6 +8,7 @@ Input
 """"""
 
 At this point you should have already setup the input files and style files as detailed in :ref:`prepare_tutorial_files`.
+If a specific species is of interest, pre-process the Paracousti output files using the :ref:`01_paracousti_preprocessing` section of the SEAT QGIS plugin.
 
 To run this demonstration, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO_acoustics/pacwave/`, and there will be three files available to choose from:
 

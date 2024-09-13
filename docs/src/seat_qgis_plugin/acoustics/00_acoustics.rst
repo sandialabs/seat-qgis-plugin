@@ -2,7 +2,7 @@ Acoustics
 ===========
 
 The :ref:`acoustics_module` examines acoustic propagation and its thresholds. It compares ParAcousti baseline model runs to model runs with devices present. 
-If the user is interested in a specific species of interest, there is the option to pre-process the ParAcousti results by
+If the user is interested in analyzing the acoustic effects on a specific species of interest, there is the option to pre-process the ParAcousti results by
 using a routine that applies weighting functions to the acoustic signal, detailed in :ref:`01_paracousti_preprocessing`. 
 
 

@@ -38,25 +38,32 @@ Species Spatial Probability / Density Directory
 This input specifies the directory where the
 species present and species density files are located. Both files must be located within the same directory.
 
-- **Directory Structure**:
-
-  - The designated directory should contain both the Species Percent and Species Density files.
-
-- **File Naming**:
-
-  - Detailed information regarding the naming conventions of these files and the conditions they pertain to can be found in the Model Probabilities File.
-
 .. figure:: ../../media/acoustics_species_spatial_probability_density_dir.webp
    :scale: 100 %
    :alt: Secondary Constraint
 
 
-For example, in the Paracousti Demo files, there is a directory called "species" that contains the Species Percent and Species Density files. The Species Percent and Species Density files have the names as specifed above e.g., "WhaleWatchPredictions_2021_01.csv". Opening one of these files in a text editor shows the following:
+- **Directory Structure**:
 
-**Example:**
+  - The designated directory should contain both the Species Percent and Species Density files.
+
+
+.. code-block:: none
+   :caption: Species Spatial Probability / Density Directory Structure
+      
+      DEMO
+      ├───pacwave
+      │   ├───species
+      │   │   ├───WhaleWatchPredictions_2021_01.csv
+      │   │   ├───WhaleWatchPredictions_2021_02.csv
+      │   │   ├───WhaleWatchPredictions_2021_03.csv
+      │   │   ├───WhaleWatchPredictions_2021_04.csv
+
+
+An example of a file is shown below:
 
 .. code-block:: text
-   :caption: `WhaleWatchPredictions_2021_01.csv <../../_files/example.csv>`_
+   :caption: WhaleWatchPredictions_2021_01.csv
 
    "","longitude","latitude","bathy","bathyrms","sst","chl","ssh","sshrms","month","year","fitmean","sdfit","percent","density","sddens","upper","lower"
    "1",225,30,-4878.5,145.013092041,19.3042380721481,0.131973730461833,0.10315625,NA,1,2021,NA,NA,NA,NA,NA,NA,NA
@@ -67,12 +74,6 @@ For example, in the Paracousti Demo files, there is a directory called "species"
    "6236",245,48.75,NA,NA,NA,NA,NA,NA,1,2021,NA,NA,NA,NA,NA,NA,NA
    "6237",245,49,NA,NA,NA,NA,NA,NA,1,2021,NA,NA,NA,NA,NA,NA,NA
 
-Key:
-
-- `ParAcousti File`: The name of the ParAcousti .nc file.
-- `Species % Occurrence File`: Either a .csv or .tif file indicating species percent occurrence.
-- `Species Density File`: Either a .csv or .tif file detailing species density.
-- `% of yr`: Represents the percentage of the year.
 
 **Species File Averaged Area (km^2)**
 

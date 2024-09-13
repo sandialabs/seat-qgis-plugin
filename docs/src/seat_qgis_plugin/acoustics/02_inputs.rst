@@ -6,7 +6,7 @@ Inputs
 Model Results Directories
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For a comprehensive analysis, the SEAT QGIS plugin uses two distinct directories from your model results:
+The SEAT QGIS plugin uses two distinct directories from your model results:
 
 1. **Baseline Results Directory**: Contains the model results without any devices. If left blank, a 0dB baseline will be assumed.
 2. **Model Results Directory**: Contains the model results with devices.
@@ -18,12 +18,22 @@ For a comprehensive analysis, the SEAT QGIS plugin uses two distinct directories
 The accepted formats for the model results:
 
 1. Multiple files, each named in the format: `name_condition.nc`.
-   - `name` is the common prefix for all files.
-   - `run` is the run scenario designated the type of environmental condition (e.g., Hw0.5)
-   - The files should be arranged in the following structure:
-     - `name_run1.nc`
-     - `name_run2.nc`
-     - `name_run3.nc`
+
+   - `name` is the common prefix for all file (e.g., `pacwave_3DSPLs`).
+   - `run` is the run scenario designated the type of environmental condition (e.g., `Hw0.5`)
+
+.. _paracousti_input_files:
+
+.. code-block:: none
+   :caption: Input files structure
+      
+      DEMO
+      ├───pacwave
+      │   ├───paracousti_files
+      │   │   ├───pacwave_3DSPLs_Hw0.5.nc
+      │   │   ├───pacwave_3DSPLs_Hw1.0.nc
+      │   │   ├───pacwave_3DSPLs_Hw1.5.nc
+      │   │   ├───pacwave_3DSPLs_Hw2.0.nc
 
 .. note::
 
@@ -33,7 +43,8 @@ The accepted formats for the model results:
 Probabilities
 ^^^^^^^^^^^^^^
 
-The probabilities file defines the likelihood of each model condition occurring. Both shear and stress velocity have probability files, but the format is different for acoustics than the shear and stress velocity modules. Adhere to the prescribed naming convention (as delineated in the device/baseline model section). Note that this file correlates with the return interval in years.
+The probabilities file defines the likelihood of each model condition (i.e., `Hw0.5`) occurring. Both shear and stress velocity have probability files, but the format is different for acoustics than the shear and stress velocity modules. 
+Note that this file correlates with the return interval in years.
 
 .. figure:: ../../media/probabilities_input.webp
    :scale: 100%
@@ -43,11 +54,12 @@ The probabilities file defines the likelihood of each model condition occurring.
 
 - If you're using .csv for the Species Percent Occurrence and Species Density Files, they must contain the essential columns: "latitude", "longitude", and either "percent" and/or "density". All supplementary columns will be overlooked.
 - If you opt for a .tif format for the aforementioned files, ensure consistency in the EPSG code across them.
+In this case, the probabilities file also points to the species percent occurrence and species density files as seen in :ref:`03_species_properties`.
 
 **Example of a Probabilities Input**
 
 .. code-block:: text
-   :caption: boundary_conditions.csv
+   :caption: paracousti_probabilities.csv
 
    Paracousti File,Species Percent Occurance File,Species Density File,% of yr
    pacwave_3DSPLs_Hw0.5.nc,whale_watch_predictions_2021_01.csv,whale_watch_predictions_2021_01.csv,0
