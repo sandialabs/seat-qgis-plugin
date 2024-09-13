@@ -10,16 +10,14 @@ Paracousti model output are generated for a range of environmental conditions th
 weighted calculation to determine how the sound intensity is modulated for certain species, following equation 1 in `Criteria and Thresholds for US Navy Acoustic and Explosive Effects <https://nwtteis.com/portals/nwtteis/files/technical_reports/Criteria_and_Thresholds_for_U.S._Navy_Acoustic_and_Explosive_Effects_Analysis_June2017.pdf>`_.
 
 
-
-
 The module determines the percentage of time that an acoustics threshold will be exceeded spatially
 by combining a probability weighted acoustic field derived from individual Paracousti simulation NetCDF files; 
 and a species auditory threshold. 
 SEAT can determine the likelihood of a species being impacted by using probability of occurrence or species density maps. 
 Additionally, with the inclusion of a risk layer, the impacts on specific regions of interest can be evaluated, such as within breeding grounds or in different vegetation.
 Two different analyses are carried out for the acoustics calculations: probabilistic and non-probabilistic. 
-The probabilistic calculation uses the probabilities file to determine the 24-hour signal for SEL with times weighted by the probabilities file. 
-For SPL, a probability weighted single is calculated.`
+The probabilistic calculation uses the probabilities file to determine the 24-hour signal for SEL weighted by the probabilities file. 
+For SPL, a probability weighted single is calculated.
 
 
 Input 
@@ -41,7 +39,7 @@ These include:
 
 Input File Sources
 """""""""""""""""""""
-SEAT is designed to read output from the Sandia `paracousti model <https://sandialabs.github.io/Paracousti/>`_
+SEAT is designed to read output from the Sandia `paracousti model <https://sandialabs.github.io/Paracousti/>`_.
 The user can provide input from alternative sources if the input are formatted correctly. 
 
 The output from the paracousti model can either be weighted or unweighted, depending if the user would like to focus on a specific animal. 
