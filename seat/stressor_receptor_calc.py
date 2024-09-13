@@ -468,8 +468,7 @@ class StressorReceptorCalc:
             "paracousti species filepath": self.dlg.paracousti_species_directory.text(),
             "paracousti metric": self.dlg.paracousti_metric_selection_combobox.currentText(),
             "paracousti weighting": self.dlg.paracousti_weighting_combobox.currentText(),
-            "paracousti_species_grid_resolution": 
-                self.dlg.paracousti_species_grid_resolution.text(),
+            "paracousti_species_grid_resolution": self.dlg.paracousti_species_grid_resolution.text(),
             "power files filepath": self.dlg.power_files.text(),
             "power probabilities file": self.dlg.power_probabilities_file.text(),
             "coordinate reference system": self.dlg.crs.text(),
@@ -540,8 +539,7 @@ class StressorReceptorCalc:
             self.iface.layerTreeView().refreshLayerSymbology(layer.id())
 
     def update_weights(self):
-        """Adds paracousti weights to the gui dropdown box
-        """
+        """Adds paracousti weights to the gui dropdown box"""
         if not (
             (self.dlg.paracousti_device_present.text() is None)
             or (self.dlg.paracousti_device_present.text() == "")
@@ -665,7 +663,8 @@ class StressorReceptorCalc:
             self.dlg.output_stylefile.setText(file)
             self.dlg.output_stylefile.setStyleSheet("color: black;")
 
-    def updateparacoustimetrics(self, index=None):
+    def updateparacoustimetrics(self):
+        """Updates available paracousti metrics in the gui dropdown box"""
         self.dlg.paracousti_metric_selection_combobox.clear()
         if not self.dlg.paracousti_device_present.text() == "":
             _, unweighted_vars, weigthed_vars = find_acoustic_metrics(
@@ -685,7 +684,8 @@ class StressorReceptorCalc:
             else:  # display weighted variables
                 self.dlg.paracousti_metric_selection_combobox.addItems(weigthed_vars)
 
-    def updateparacoustiunits(self, value=None):
+    def updateparacoustiunits(self):
+        """Updates threshold units based on paracousti metric selection"""
         if (
             "spl".casefold()
             in self.dlg.paracousti_metric_selection_combobox.currentText().casefold()
@@ -698,13 +698,14 @@ class StressorReceptorCalc:
             self.dlg.paracousti_threshold_units.setText("dB re 1 μPa²∙s")
 
     def checkparacoustithreshold(self):
+        """ensure paracousti threshold is a numeric value.
+        Dispaly error in gui if invalid
+        """
         if self.is_float(self.dlg.paracousti_threshold_value.text()):
             self.dlg.paracousti_threshold_value.setStyleSheet("color: black;")
         else:
             ptext = self.dlg.paracousti_threshold_value.text()
-            print(
-                f"'{ptext}' is not a valid threshold (must be a number)."
-            )
+            print(f"'{ptext}' is not a valid threshold (must be a number).")
             ptext = self.dlg.paracousti_threshold_value.text()
             self.dlg.paracousti_threshold_value.setText(
                 f"{ptext} is not a valid threshold (must be a number)."
@@ -715,13 +716,10 @@ class StressorReceptorCalc:
         if self.is_float(self.dlg.paracousti_species_grid_resolution.text()):
             self.dlg.paracousti_species_grid_resolution.setStyleSheet("color: black;")
         else:
-            ptext =self.dlg.paracousti_species_grid_resolution.text()
-            print(f"'{ptext}' is not a valid resolution (must be a number)."
-            )
             ptext = self.dlg.paracousti_species_grid_resolution.text()
-            self.dlg.setText(
-                f"{ptext} is not a valid resolution (must be a number)."
-            )
+            print(f"'{ptext}' is not a valid resolution (must be a number).")
+            ptext = self.dlg.paracousti_species_grid_resolution.text()
+            self.dlg.setText(f"{ptext} is not a valid resolution (must be a number).")
             self.dlg.paracousti_species_grid_resolution.setStyleSheet("color: red;")
 
     def run(self):
