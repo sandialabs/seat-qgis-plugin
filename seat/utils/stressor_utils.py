@@ -932,6 +932,7 @@ def classify_layer_area_2nd_constraint(
                 )
     return pd.DataFrame(data)
 
+
 def is_float(value):
     """Check if string is a float
 
