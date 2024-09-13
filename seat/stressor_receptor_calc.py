@@ -650,65 +650,79 @@ class StressorReceptorCalc:
             self.dlg.output_stylefile.setText(file)
             self.dlg.output_stylefile.setStyleSheet("color: black;")
 
-    def updateparacoustimetrics(self):
-        """Updates available paracousti metrics in the gui dropdown box"""
-        self.dlg.paracousti_metric_selection_combobox.clear()
-        if not self.dlg.paracousti_device_present.text() == "":
-            _, unweighted_vars, weigthed_vars = find_acoustic_metrics(
-                os.path.join(
-                    self.dlg.paracousti_device_present.text(),
-                    [
-                        i
-                        for i in os.listdir(self.dlg.paracousti_device_present.text())
-                        if i.endswith(r".nc")
-                    ][0],
-                )
-            )
-            if (
-                self.dlg.paracousti_weighting_combobox.currentText() == "None"
-            ):  # disply unweighted variables
-                self.dlg.paracousti_metric_selection_combobox.addItems(unweighted_vars)
-            else:  # display weighted variables
-                self.dlg.paracousti_metric_selection_combobox.addItems(weigthed_vars)
+    def paracousti_gui_updates(self, option):
+        """updates paracousti gui based on selections and validates inputs.
 
-    def updateparacoustiunits(self):
-        """Updates threshold units based on paracousti metric selection"""
-        if (
-            "spl".casefold()
-            in self.dlg.paracousti_metric_selection_combobox.currentText().casefold()
-        ):
-            self.dlg.paracousti_threshold_units.setText("dB re 1 μPa")
-        elif (
-            "sel".casefold()
-            in self.dlg.paracousti_metric_selection_combobox.currentText().casefold()
-        ):
-            self.dlg.paracousti_threshold_units.setText("dB re 1 μPa²∙s")
-
-    def checkparacoustithreshold(self):
-        """ensure paracousti threshold is a numeric value.
-        Dispaly error in gui if invalid
+        :param: type of input to evaluate or update, defaults to None
+        :type option: str
         """
-        if is_float(self.dlg.paracousti_threshold_value.text()):
-            self.dlg.paracousti_threshold_value.setStyleSheet("color: black;")
-        else:
-            ptext = self.dlg.paracousti_threshold_value.text()
-            print(f"'{ptext}' is not a valid threshold (must be a number).")
-            ptext = self.dlg.paracousti_threshold_value.text()
-            self.dlg.paracousti_threshold_value.setText(
-                f"{ptext} is not a valid threshold (must be a number)."
-            )
-            self.dlg.paracousti_threshold_value.setStyleSheet("color: red;")
+        if option == "update_metrics":
+            # """Updates available paracousti metrics in the gui dropdown box"""
+            self.dlg.paracousti_metric_selection_combobox.clear()
+            if not self.dlg.paracousti_device_present.text() == "":
+                _, unweighted_vars, weigthed_vars = find_acoustic_metrics(
+                    os.path.join(
+                        self.dlg.paracousti_device_present.text(),
+                        [
+                            i
+                            for i in os.listdir(
+                                self.dlg.paracousti_device_present.text()
+                            )
+                            if i.endswith(r".nc")
+                        ][0],
+                    )
+                )
+                if (
+                    self.dlg.paracousti_weighting_combobox.currentText() == "None"
+                ):  # disply unweighted variables
+                    self.dlg.paracousti_metric_selection_combobox.addItems(
+                        unweighted_vars
+                    )
+                else:  # display weighted variables
+                    self.dlg.paracousti_metric_selection_combobox.addItems(
+                        weigthed_vars
+                    )
+        if option == "update_units":
+            # Updates threshold units based on paracousti metric selection
+            if (
+                "spl".casefold()
+                in self.dlg.paracousti_metric_selection_combobox.currentText().casefold()
+            ):
+                self.dlg.paracousti_threshold_units.setText("dB re 1 μPa")
+            elif (
+                "sel".casefold()
+                in self.dlg.paracousti_metric_selection_combobox.currentText().casefold()
+            ):
+                self.dlg.paracousti_threshold_units.setText("dB re 1 μPa²∙s")
+        if option == "check_threshold":
+            # ensures paracousti threshold is a numeric value.
+            # Dispaly error in gui if invalid
+            if is_float(self.dlg.paracousti_threshold_value.text()):
+                self.dlg.paracousti_threshold_value.setStyleSheet("color: black;")
+            else:
+                ptext = self.dlg.paracousti_threshold_value.text()
+                print(f"'{ptext}' is not a valid threshold (must be a number).")
+                ptext = self.dlg.paracousti_threshold_value.text()
+                self.dlg.paracousti_threshold_value.setText(
+                    f"{ptext} is not a valid threshold (must be a number)."
+                )
+                self.dlg.paracousti_threshold_value.setStyleSheet("color: red;")
 
-    def checkparacoustiresolution(self):
-        """Ensure paracousti grid resolution input is a numeric value"""
-        if is_float(self.dlg.paracousti_species_grid_resolution.text()):
-            self.dlg.paracousti_species_grid_resolution.setStyleSheet("color: black;")
-        else:
-            ptext = self.dlg.paracousti_species_grid_resolution.text()
-            print(f"'{ptext}' is not a valid resolution (must be a number).")
-            ptext = self.dlg.paracousti_species_grid_resolution.text()
-            self.dlg.setText(f"{ptext} is not a valid resolution (must be a number).")
-            self.dlg.paracousti_species_grid_resolution.setStyleSheet("color: red;")
+        # def checkparacoustiresolution(self):
+        if option == "check_resolution":
+            # Ensure paracousti grid resolution input is a numeric value
+            if is_float(self.dlg.paracousti_species_grid_resolution.text()):
+                self.dlg.paracousti_species_grid_resolution.setStyleSheet(
+                    "color: black;"
+                )
+            else:
+                ptext = self.dlg.paracousti_species_grid_resolution.text()
+                print(f"'{ptext}' is not a valid resolution (must be a number).")
+                ptext = self.dlg.paracousti_species_grid_resolution.text()
+                self.dlg.setText(
+                    f"{ptext} is not a valid resolution (must be a number)."
+                )
+                self.dlg.paracousti_species_grid_resolution.setStyleSheet("color: red;")
 
     def run(self):
         """Run method that performs all the real work."""
@@ -843,16 +857,16 @@ class StressorReceptorCalc:
                 self.update_weights()
             )
             self.dlg.paracousti_weighting_combobox.currentIndexChanged.connect(
-                self.updateparacoustimetrics()
+                self.paracousti_gui_updates("update_metrics")
             )
             self.dlg.paracousti_metric_selection_combobox.currentIndexChanged.connect(
-                self.updateparacoustiunits()
+                self.paracousti_gui_updates("update_units")
             )
             self.dlg.paracousti_threshold_value.textChanged.connect(
-                self.checkparacoustithreshold()
+                self.paracousti_gui_updates("check_threshold")
             )
             self.dlg.paracousti_species_grid_resolution.textChanged.connect(
-                self.checkparacoustiresolution()
+                self.paracousti_gui_updates("check_resolution")
             )
 
         self.dlg.shear_device_present.clear()
