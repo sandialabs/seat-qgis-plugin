@@ -1217,7 +1217,7 @@ class StressorReceptorCalc:
                         paracousti_metric=paracousti_metric,
                         species_folder=paracousti_species_directory,
                         paracousti_species_grid_resolution=paracousti_species_grid_resolution,
-                        Averaging=paracousti_averaging,
+                        averaging_selection=paracousti_averaging,
                         secondary_constraint_filename=paracousti_risk_layer_file,
                     )
                 )
