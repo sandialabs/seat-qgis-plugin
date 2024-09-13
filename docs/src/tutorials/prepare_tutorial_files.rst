@@ -41,7 +41,8 @@ In order to use the demo, paths within the ``\*.default`` files need to be updat
 
 Option 1: Python
 ^^^^^^^^^^^^^^^^^^^^
-The localize_tutorial_files.py will look for the folders in the :ref:`tutorial-files-access` (pacwave, tanana, and style_files) and update the paths in the ``.default`` files to match the path on your machine.
+The localize_tutorial_files.py will look for the folders in the :ref:`DEMO_files` and update the paths in the  ``.default`` files
+to match the paths on your machine.
 
 .. code-block:: bash
     :caption: localize_tutorial_files.py
@@ -64,7 +65,7 @@ If you do not want to use python you can update the files manually.
 Within the style files directory, open each ``.default`` file in a text editor and replace ``<style_folder>`` with full path to the location on your machine. 
 Then, save the style file as a csv.
 
-For example, if you have placed the style files folder in ``C:\Users\USER\Desktop\DEMO\style_files`` you would open each ``.default`` file and replace ``<style_folder>`` with ``C:\Users\USER\Desktop\DEMO\style_files``. 
+For example, if the style files folder is located at ``C:\Users\USER\Desktop\DEMO\style_files`` , open the ``.default`` files and replace ``<style_folder>`` with ``C:\Users\USER\Desktop\DEMO\style_files``. 
 
 ..  code-block:: none
     :caption: Style Folder \*.default: Replace <style_folder> save as csv

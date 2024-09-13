@@ -8,14 +8,32 @@ Input
 """"""
 
 At this point you should have already setup the input files and style files as detailed in :ref:`prepare_tutorial_files`.
+If a specific species is of interest, pre-process the Paracousti output files using the :ref:`01_paracousti_preprocessing` section of the SEAT QGIS plugin.
 
-To run this demonstration, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO/pacwave/acoustics_module_100db_threshold.ini`, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the :ref:`save_load_config` section in the :ref:`seat_qgis_plugin` documention.
+To run this demonstration, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO_acoustics/pacwave/`, and there will be three files available to choose from:
 
+    - `acoustics_module_SEL_199db_threshold.ini`: Sound exposure level with a 199db threshold
+    - `acoustics_module_SEL_HFC_173db_threshold.ini`: Sound exposure level for high frequency creteceans with a 173db threshold
+    - `acoustics_module_SEL_LFC_199db_threshold.ini`: Sound exposure level for low frequency creteceans with a 199db threshold
+
+
+
+Click on one, and click OK to load the inputs. If you need detailed instructions on how to load inputs, 
+please refer to the :ref:`save_load_config` section in the :ref:`seat_qgis_plugin` documention.
+
+The :ref:`02_inputs` section of the SEAT QGIS plugin allows users to specify the model results directories and the probabilities file.
 
 .. Note::
-   Your paths will differ than the ones shown in the example below. If you get an error double check the paths making sure the files exist at the specified location.
+   Your paths will differ than the ones shown in the example below. If you get an error double check the paths making sure, or make sure that the `.ini` files are pointing 
+   to the right path locations.
 
-.. figure:: ../../media/pacwave_acoustics_input.webp
+.. figure:: ../../media/pacwave_acoustics_inputs_filled_out.webp
+   :scale: 100 %
+   :alt: Tanana sedimentation example input
+
+The :ref:`03_species_properties` section of the SEAT QGIS plugin allows users to specify the species spatial probability/density directory and the species file averaged area.
+
+.. figure:: ../../media/pacwave_acoustics_species_properties_filledout.webp
    :scale: 100 %
    :alt: Tanana sedimentation example input
 
