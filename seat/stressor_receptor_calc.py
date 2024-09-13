@@ -60,7 +60,7 @@ from .modules.shear_stress_module import run_shear_stress_stressor
 from .modules.velocity_module import run_velocity_stressor
 from .modules.acoustics_module import run_acoustics_stressor, find_acoustic_metrics
 from .modules.power_module import calculate_power
-
+from .utils.stressor_utils import is_float
 # Import the code for the dialog
 from .stressor_receptor_calc_dialog import StressorReceptorCalcDialog
 
@@ -420,20 +420,6 @@ class StressorReceptorCalc:
         if "config" in locals():  # prevents error if window to closed without running
             config.clear()
 
-    def is_float(self, value):
-        """Check if string is a float
-
-        :param value: input string
-        :type value: str
-        :return: True or False
-        :rtype: bool
-        """
-        try:
-            float(value)
-            return True
-        except ValueError:
-            return False
-
     def save_in(self):
         """Select and save an input file."""
         filename, _filter = QFileDialog.getSaveFileName(
@@ -702,7 +688,7 @@ class StressorReceptorCalc:
         """ensure paracousti threshold is a numeric value.
         Dispaly error in gui if invalid
         """
-        if self.is_float(self.dlg.paracousti_threshold_value.text()):
+        if is_float(self.dlg.paracousti_threshold_value.text()):
             self.dlg.paracousti_threshold_value.setStyleSheet("color: black;")
         else:
             ptext = self.dlg.paracousti_threshold_value.text()
@@ -715,7 +701,7 @@ class StressorReceptorCalc:
 
     def checkparacoustiresolution(self):
         """Ensure paracousti grid resolution input is a numeric value"""
-        if self.is_float(self.dlg.paracousti_species_grid_resolution.text()):
+        if is_float(self.dlg.paracousti_species_grid_resolution.text()):
             self.dlg.paracousti_species_grid_resolution.setStyleSheet("color: black;")
         else:
             ptext = self.dlg.paracousti_species_grid_resolution.text()
@@ -1069,13 +1055,13 @@ class StressorReceptorCalc:
                 self.dlg.paracousti_metric_selection_combobox.currentText()
             )
             paracousti_threshold_value = self.dlg.paracousti_threshold_value.text()
-            if self.is_float(paracousti_threshold_value):
+            if is_float(paracousti_threshold_value):
                 paracousti_threshold_value = float(paracousti_threshold_value)
 
             paracousti_species_grid_resolution = (
                 self.dlg.paracousti_species_grid_resolution.text()
             )
-            if self.is_float(paracousti_species_grid_resolution):
+            if is_float(paracousti_species_grid_resolution):
                 paracousti_species_grid_resolution = float(
                     paracousti_species_grid_resolution
                 )

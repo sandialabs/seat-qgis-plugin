@@ -1,11 +1,12 @@
 """
-/***************************************************************************.
+/*************************************************************.
 
  acoustics_module.py
  Copyright 2023, Integral Consulting Inc. All rights reserved.
 
 
- PURPOSE: module for calcualting acoustic signal change from paracousti files
+ PURPOSE: module for calcualting acoustic signal change from 
+ paracousti files
 
  PROJECT INFORMATION:
  Name: SEAT - Spatial and Environmental Assessment Toolkit
@@ -25,7 +26,7 @@ import os
 from scipy.interpolate import griddata
 from netCDF4 import Dataset
 import pandas as pd
-from osgeo import gdal, osr
+from osgeo import gdal#, osr
 import numpy as np
 from ..utils.stressor_utils import (
     redefine_structured_grid,
@@ -73,7 +74,7 @@ def create_species_array(species_filename, x, y, variable="percent", latlon=Fals
             img = data.GetRasterBand(1)
             receptor_array = img.ReadAsArray()
             receptor_array[receptor_array < 0] = 0
-            (upper_left_x, x_size, x_rotation, upper_left_y, y_rotation, y_size) = (
+            (upper_left_x, x_size, _, upper_left_y, _, y_size) = (
                 data.GetGeoTransform()
             )
             cols = data.RasterXSize
@@ -127,8 +128,8 @@ def find_acoustic_metrics(paracousti_file):
        list of weighted variabless in the paracousti_file
     """
     ignore_vars = ["octSPL", "XCOR", "YCOR", "ZCOR", "Hw", "Fc", "press_muPa"]
-    with Dataset(paracousti_file) as DS:
-        avars = list(DS.variables)
+    with Dataset(paracousti_file) as ds:
+        avars = list(ds.variables)
         avars = [i for i in avars if i not in set(ignore_vars)]
         weighted_varnames = [i for i in avars if i.endswith(r"_weighted")]
         unweighted_vars = [i for i in avars if i not in set(weighted_varnames)]
@@ -139,7 +140,7 @@ def find_acoustic_metrics(paracousti_file):
     return weights, unweighted_vars, weigthed_vars
 
 
-def sum_SEL(x):
+def sum_sel(x):
     """
     function for summing an array of sound exposure levels (SEL) to get cumulative SEL.
 
@@ -152,16 +153,16 @@ def sum_SEL(x):
     -------
         returns total SEL (in dB)
     """
-    x_dB = np.asarray(x)
-    x_blanks = sum(x_dB)
-    x_uPa2s = 10 ** (x_dB / 10)
-    sum_uPa2s = sum(x_uPa2s)
-    sum_dB = 10 * np.log10(sum_uPa2s)
-    sum_dB == np.where(x_blanks == 0, 0, sum_dB)
-    return sum_dB
+    x_db = np.asarray(x)
+    x_blanks = sum(x_db)
+    x_upa2s = 10 ** (x_db / 10)
+    sum_upa2s = sum(x_upa2s)
+    sum_db = 10 * np.log10(sum_upa2s)
+    sum_db = np.where(x_blanks == 0, 0, sum_db)
+    return sum_db
 
 
-def calc_SEL_cum(SEL, duration_seconds):
+def calc_sel_cum(sel, duration_seconds):
     """
     SEL from single second to cumulative
     derived from BOEM 2023 equation 7 for multiple strikes
@@ -179,8 +180,8 @@ def calc_SEL_cum(SEL, duration_seconds):
         cumulative SEL
     """
     with np.errstate(divide="ignore"):
-        cum_sel = SEL + 10 * np.log10(duration_seconds)
-    cum_sel = np.where(SEL == 0, 0, cum_sel)
+        cum_sel = sel + 10 * np.log10(duration_seconds)
+    cum_sel = np.where(sel == 0, 0, cum_sel)
     return cum_sel
 
 
@@ -188,8 +189,8 @@ def calc_probabilistic_metrics(
     paracousti_files,
     conditions_probability,
     threshold,
-    Paracousti,
-    Baseline,
+    paracousti,
+    baseline_input,
     XCOR,
     YCOR,
     latlon,
@@ -208,9 +209,9 @@ def calc_probabilistic_metrics(
         dataframe of probabilities for each paracousti_file
     threshold : float
         threshold value (dB)
-    Paracousti : array [N, x, y]
+    paracousti : array [N, x, y]
         paracousti acoustic metric with axis=0 (N) corresponding to unique files
-    Baseline : array [N, x, y]
+    baseline_input : array [N, x, y]
         baseline acoustic metric with axis=0 (N) corresponding to unique files
     XCOR : array [x,y]
         x-coordinate
@@ -254,12 +255,12 @@ def calc_probabilistic_metrics(
     # SPL stressor calculations
     for ic, paracousti_file in enumerate(paracousti_files):
         # paracousti files might not have regular grid spacing.
-        rx, ry, device_ss = redefine_structured_grid(XCOR, YCOR, Paracousti[ic, :])
+        rx, ry, device_ss = redefine_structured_grid(XCOR, YCOR, paracousti[ic, :])
 
-        baseline_present = False if np.all(np.isnan(Baseline[ic, :])) else True
+        baseline_present = False if np.all(np.isnan(baseline_input[ic, :])) else True
 
         if baseline_present:
-            baseline_ss = resample_structured_grid(XCOR, YCOR, Baseline[ic, :], rx, ry)
+            baseline_ss = resample_structured_grid(XCOR, YCOR, baseline_input[ic, :], rx, ry)
         if ic == 0:
             device = np.zeros(rx.shape)
             baseline = np.zeros(rx.shape)
@@ -269,17 +270,17 @@ def calc_probabilistic_metrics(
             density = np.zeros(rx.shape)
 
         if metric_calc.casefold() == "SEL".casefold():
-            device_scaled = calc_SEL_cum(
+            device_scaled = calc_sel_cum(
                 device_ss, seconds_of_day.loc[os.path.basename(paracousti_file)]
             )
-            device = sum_SEL([device.flatten(), device_scaled.flatten()]).reshape(
+            device = sum_sel([device.flatten(), device_scaled.flatten()]).reshape(
                 rx.shape
             )
             if baseline_present:
-                baseline_scaled = calc_SEL_cum(
+                baseline_scaled = calc_sel_cum(
                     baseline_ss, seconds_of_day.loc[os.path.basename(paracousti_file)]
                 )
-                baseline = sum_SEL(
+                baseline = sum_sel(
                     [baseline.flatten(), baseline_scaled.flatten()]
                 ).reshape(rx.shape)
         else:  # SPL
@@ -350,8 +351,8 @@ def calc_nonprobabilistic_metrics(
     paracousti_files,
     conditions_probability,
     threshold,
-    Paracousti,
-    Baseline,
+    paracousti,
+    baseline_input,
     XCOR,
     YCOR,
     latlon,
@@ -373,7 +374,7 @@ def calc_nonprobabilistic_metrics(
         threshold value (dB)
     ACOUST_VAR : array [N, x, y]
         paracousti acoustic metric with axis=0 (N) corresponding to unique files
-    Baseline : array [N, x, y]
+    baseline_input : array [N, x, y]
         baseline acoustic metric with axis=0 (N) corresponding to unique files
     XCOR : array [x,y]
         x-coordinate
@@ -433,19 +434,19 @@ def calc_nonprobabilistic_metrics(
     for ic, paracousti_file in enumerate(paracousti_files):
         pname = ".".join(os.path.basename(paracousti_file).split(".")[:-1])
         # paracousti files might not have regular grid spacing.
-        rx, ry, device_ss = redefine_structured_grid(XCOR, YCOR, Paracousti[ic, :])
+        rx, ry, device_ss = redefine_structured_grid(XCOR, YCOR, paracousti[ic, :])
 
-        baseline_present = False if np.all(np.isnan(Baseline[ic, :])) else True
+        baseline_present = False if np.all(np.isnan(baseline_input[ic, :])) else True
 
         if baseline_present:
-            baseline_ss = resample_structured_grid(XCOR, YCOR, Baseline[ic, :], rx, ry)
+            baseline_ss = resample_structured_grid(XCOR, YCOR, baseline_input[ic, :], rx, ry)
         else:
             baseline_ss = np.zeros(rx.shape)
 
         if metric_calc.casefold() == "SEL".casefold():
-            device_scaled = calc_SEL_cum(device_ss, duration_seconds)
+            device_scaled = calc_sel_cum(device_ss, duration_seconds)
             baseline_scaled = (
-                calc_SEL_cum(baseline_ss, duration_seconds)
+                calc_sel_cum(baseline_ss, duration_seconds)
                 if baseline_present
                 else baseline_ss
             )
@@ -511,10 +512,11 @@ def calculate_acoustic_stressors(
     species_folder=None,
     species_grid_resolution=None,
     latlon=True,
-    Averaging=None,
+    averaging_selection=None,
 ):
     """
-    Calculates the stressor layers from model and parameter input. Returns filepath to created rasters for dispaly in QGIS.
+    Calculates the stressor layers from model and parameter input. 
+    Returns filepath to created rasters for dispaly in QGIS.
 
     Parameters
     ----------
@@ -536,7 +538,7 @@ def calculate_acoustic_stressors(
         grid resolution of species_folder files
     latlon : Bool, optional
         True is coordinates are lat/lon. The default is True.
-    Averaging : str
+    averaging_selection : str
         type of depth selection to use. Options are
             Depth Maximum : Maxmimum value along depth for each x,y (Default)
             Depth Average : Average value along depth for each x,y
@@ -574,7 +576,7 @@ def calculate_acoustic_stressors(
         os.path.join(fpath_dev, i) for i in os.listdir(fpath_dev) if i.endswith(".nc")
     ]
     conditions_probability = (
-        pd.read_csv(probabilities_file).set_index("Paracousti File").fillna(0)
+        pd.read_csv(probabilities_file).set_index("paracousti File").fillna(0)
     )
     conditions_probability["% of yr"] = 100 * (
         conditions_probability["% of yr"] / conditions_probability["% of yr"].sum()
@@ -606,7 +608,7 @@ def calculate_acoustic_stressors(
                 else:
                     XCOR = X
                 YCOR = Y
-                Paracousti = np.zeros(
+                paracousti = np.zeros(
                     (
                         len(paracousti_files),
                         np.shape(acoust_var)[0],
@@ -614,7 +616,7 @@ def calculate_acoustic_stressors(
                         np.shape(acoust_var)[2],
                     )
                 )
-            Paracousti[ic, :] = acoust_var
+            paracousti[ic, :] = acoust_var
 
     if not (
         (fpath_nodev is None) or (fpath_nodev == "")
@@ -637,7 +639,7 @@ def calculate_acoustic_stressors(
                 if ds.variables[cords[0]][:].data.shape[0] != baseline.shape[0]:
                     baseline = np.transpose(baseline, (1, 2, 0))
                 if ic == 0:
-                    Baseline = np.zeros(
+                    baseline_input = np.zeros(
                         (
                             len(baseline_files),
                             np.shape(baseline)[0],
@@ -645,25 +647,25 @@ def calculate_acoustic_stressors(
                             np.shape(baseline)[2],
                         )
                     )
-                Baseline[ic, :] = baseline
+                baseline_input[ic, :] = baseline
     else:
-        Baseline = np.nan * np.zeros(Paracousti.shape)
+        baseline_input = np.nan * np.zeros(paracousti.shape)
 
-    if Averaging == "Depth Maximum":
-        Paracousti = np.nanmax(Paracousti, axis=3)
-        Baseline = np.nanmax(Baseline, axis=3)
-    elif Averaging == "Depth Average":
-        Paracousti = np.nanmean(Paracousti, axis=3)
-        Baseline = np.nanmean(Baseline, axis=3)
-    elif Averaging == "Bottom Bin":
-        Paracousti = Paracousti[:, :, -1]
-        Baseline = Baseline[:, :, -1]
-    elif Averaging == "Top Bin":
-        Paracousti = Paracousti[:, :, 0]
-        Baseline = Baseline[:, :, 0]
+    if averaging_selection == "Depth Maximum":
+        paracousti = np.nanmax(paracousti, axis=3)
+        baseline_input = np.nanmax(baseline_input, axis=3)
+    elif averaging_selection == "Depth Average":
+        paracousti = np.nanmean(paracousti, axis=3)
+        baseline_input = np.nanmean(baseline_input, axis=3)
+    elif averaging_selection == "Bottom Bin":
+        paracousti = paracousti[:, :, -1]
+        baseline_input = baseline_input[:, :, -1]
+    elif averaging_selection == "Top Bin":
+        paracousti = paracousti[:, :, 0]
+        baseline_input = baseline_input[:, :, 0]
     else:
-        Paracousti = np.nanmax(Paracousti, axis=3)
-        Baseline = np.nanmax(Baseline, axis=3)
+        paracousti = np.nanmax(paracousti, axis=3)
+        baseline_input = np.nanmax(baseline_input, axis=3)
 
     metric_calc = "SPL" if "spl".casefold() in paracousti_metric.casefold() else "SEL"
 
@@ -680,8 +682,8 @@ def calculate_acoustic_stressors(
         paracousti_files,
         conditions_probability,
         threshold,
-        Paracousti,
-        Baseline,
+        paracousti,
+        baseline_input,
         XCOR,
         YCOR,
         latlon,
@@ -703,8 +705,8 @@ def calculate_acoustic_stressors(
         paracousti_files,
         conditions_probability,
         threshold,
-        Paracousti,
-        Baseline,
+        paracousti,
+        baseline_input,
         XCOR,
         YCOR,
         latlon,
@@ -880,15 +882,14 @@ def create_probabilistic_binned_csv(
     species_folder : str | filepath, defaults to None
         directory of species density and likelihood files.
     """
-    # TODO : make secondary constraint and species folder bool
 
-    vars = [
+    uvars = [
         "paracousti_without_devices",
         "paracousti_with_devices",
         "paracousti_stressor",
         "species_threshold_exceeded",
     ]
-    for var in vars:
+    for var in uvars:
         bin_layer(os.path.join(output_path, var + ".tif"), latlon=crs == 4326).to_csv(
             os.path.join(output_path, var + ".csv"), index=False
         )
@@ -910,8 +911,8 @@ def create_probabilistic_binned_csv(
         )
 
     if not ((species_folder is None) or (species_folder == "")):
-        vars = ["species_percent", "species_density"]
-        for var in vars:
+        uvars = ["species_percent", "species_density"]
+        for var in uvars:
             bin_layer(
                 os.path.join(output_path, var + ".tif"), latlon=crs == 4326
             ).to_csv(os.path.join(output_path, var + ".csv"), index=False)
@@ -921,8 +922,8 @@ def create_probabilistic_binned_csv(
             or (secondary_constraint_filename == "")
         ):
 
-            vars = ["species_threshold_exceeded", "species_percent", "species_density"]
-            for var in vars:
+            uvars = ["species_threshold_exceeded", "species_percent", "species_density"]
+            for var in uvars:
                 bin_layer(
                     os.path.join(output_path, var + ".tif"),
                     receptor_filename=os.path.join(
@@ -957,27 +958,26 @@ def create_nonprobabilistic_binned_csv(
     species_folder : str | filepath, defaults to None
         directory of species density and likelihood files.
     """
-    # TODO : make secondary constraint and species folder bool
-    vars = [
+    uvars = [
         "paracousti_without_devices",
         "paracousti_with_devices",
         "paracousti_stressor",
         "species_threshold_exceeded",
     ]
-    for var in vars:
+    for var in uvars:
         for file in output_rasters[var]:
             bin_layer(os.path.join(output_path, file), latlon=crs == 4326).to_csv(
                 os.path.join(output_path, file.split(".tif")[0] + ".csv"), index=False
             )
 
     if not ((species_folder is None) or (species_folder == "")):
-        vars = [
+        uvars = [
             "species_percent",
             "species_density",
             "paracousti_stressor",
             "species_threshold_exceeded",
         ]
-        for var in vars:
+        for var in uvars:
             for file in output_rasters[var]:
                 bin_layer(os.path.join(output_path, file), latlon=crs == 4326).to_csv(
                     os.path.join(output_path, file.split(".tif")[0] + ".csv"),
@@ -987,13 +987,13 @@ def create_nonprobabilistic_binned_csv(
     if not (
         (secondary_constraint_filename is None) or (secondary_constraint_filename == "")
     ):
-        vars = [
+        uvars = [
             "paracousti_stressor",
             "species_threshold_exceeded",
             "species_percent",
             "species_density",
         ]
-        for var in vars:
+        for var in uvars:
             for file in output_rasters[var]:
                 bin_layer(
                     os.path.join(output_path, file),
@@ -1023,7 +1023,7 @@ def run_acoustics_stressor(
     paracousti_metric,
     species_folder=None,
     paracousti_species_grid_resolution=None,
-    Averaging=None,
+    averaging_selection=None,
     secondary_constraint_filename=None,
 ):
     """
@@ -1051,7 +1051,7 @@ def run_acoustics_stressor(
         Directory path to the species files in the probabilities_file. The default is None.
     paracousti_species_grid_resolution : float, defaults to None
         grid resolution of species_folder files
-    Averaging : str
+    averaging_selection : str
         type of depth selection to use. Options are
             Depth Maximum : Maxmimum value along depth for each x,y (Default)
             Depth Average : Average value along depth for each x,y
@@ -1112,7 +1112,7 @@ def run_acoustics_stressor(
             species_folder=species_folder,
             species_grid_resolution=paracousti_species_grid_resolution,
             latlon=crs == 4326,
-            Averaging=Averaging,
+            averaging_selection=averaging_selection,
         )
     )
 

@@ -931,3 +931,17 @@ def classify_layer_area_2nd_constraint(
                     100 * data[rcolname] / data[rcolname].sum()
                 )
     return pd.DataFrame(data)
+
+def is_float(value):
+    """Check if string is a float
+
+    :param value: input string
+    :type value: str
+    :return: True or False
+    :rtype: bool
+    """
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
