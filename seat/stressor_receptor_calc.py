@@ -468,8 +468,7 @@ class StressorReceptorCalc:
             "paracousti species filepath": self.dlg.paracousti_species_directory.text(),
             "paracousti metric": self.dlg.paracousti_metric_selection_combobox.currentText(),
             "paracousti weighting": self.dlg.paracousti_weighting_combobox.currentText(),
-            "paracousti_species_grid_resolution": 
-                self.dlg.paracousti_species_grid_resolution.text(),
+            "paracousti_species_grid_resolution": self.dlg.paracousti_species_grid_resolution.text(),
             "power files filepath": self.dlg.power_files.text(),
             "power probabilities file": self.dlg.power_probabilities_file.text(),
             "coordinate reference system": self.dlg.crs.text(),
@@ -714,8 +713,7 @@ class StressorReceptorCalc:
             self.dlg.paracousti_threshold_value.setStyleSheet("color: red;")
 
     def checkparacoustiresolution(self):
-        """Ensure paracousti grid resolution input is a numeric value
-        """
+        """Ensure paracousti grid resolution input is a numeric value"""
         if self.is_float(self.dlg.paracousti_species_grid_resolution.text()):
             self.dlg.paracousti_species_grid_resolution.setStyleSheet("color: black;")
         else:

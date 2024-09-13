@@ -1,6 +1,7 @@
 """
 Creates zip package for QGIS plugin import
 """
+
 import shutil
 import os
 from datetime import datetime
