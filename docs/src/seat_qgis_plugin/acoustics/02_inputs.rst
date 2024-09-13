@@ -1,48 +1,43 @@
-:: _02_inputs:
-  
+.. _02_inputs:
+
 Inputs
 -------
 
 Model Results Directories
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-
 For a comprehensive analysis, the SEAT QGIS plugin uses two distinct directories from your model results:
-  1. **Baseline Results Directory**: Contains the model results without any devices. If left blank, a 0dB baseline will be assumed.
-  2. **Model Results Directory**: Contains the model results with devices.
+
+1. **Baseline Results Directory**: Contains the model results without any devices. If left blank, a 0dB baseline will be assumed.
+2. **Model Results Directory**: Contains the model results with devices.
 
 .. figure:: ../../media/model_results_directory_input.webp
-   :scale: 100 %
+   :scale: 100%
    :alt: Interface to choose the Model Results Directory in SEAT's GUI.
 
 The accepted formats for the model results:
 
-  1. Multiple files, each named in the format: `name_condition.nc`. 
-      - `name` is the common prefix for all files.
-      - `run` is the run scenario designated the type of environmental condition (e.g., Hw0.5)
-      - The files should be arranged in the following structure:
-        - `name_run1.nc`
-        - `name_run2.nc`
-        - `name_run3.nc`
+1. Multiple files, each named in the format: `name_condition.nc`.
+   - `name` is the common prefix for all files.
+   - `run` is the run scenario designated the type of environmental condition (e.g., Hw0.5)
+   - The files should be arranged in the following structure:
+     - `name_run1.nc`
+     - `name_run2.nc`
+     - `name_run3.nc`
 
-.. note::    
-  - All model results are in the `netCDF` format.
-  - The number and filename of baseline model files should be identical to the number of device model files to maintain consistency in your analysis.
+.. note::
 
+   - All model results are in the `netCDF` format.
+   - The number and filename of baseline model files should be identical to the number of device model files to maintain consistency in your analysis.
 
-Probabilities 
-^^^^^^^^^^^^^^^
+Probabilities
+^^^^^^^^^^^^^^
 
-The probabilities file defines the likelihood of each model condition occurring. Both shear and stress velocity have probability files, but the format is different for acoustics than the shear and stress velocity modules.
-Adhere to the prescribed naming convention (as delineated in the device/baseline model section). 
-Note that this file correlates with the return interval in years. 
-
+The probabilities file defines the likelihood of each model condition occurring. Both shear and stress velocity have probability files, but the format is different for acoustics than the shear and stress velocity modules. Adhere to the prescribed naming convention (as delineated in the device/baseline model section). Note that this file correlates with the return interval in years.
 
 .. figure:: ../../media/probabilities_input.webp
-   :scale: 100 %
+   :scale: 100%
    :alt: Interface depicting the Probabilities Input in SEAT's GUI.
-
-
 
 **File Specifications**:
 
@@ -77,22 +72,20 @@ Key:
 - `Species Density File`: Either a .csv or .tif file detailing species density.
 - `% of yr`: Represents the percentage of the year.
 
-Risk layer (Optional)
+Risk Layer (Optional)
 ^^^^^^^^^^^^^^^^^^^^^^
 
-The risk layer is a receptor file that serves as an additional input to each module and designated which layers are sensitive and would be effected by the acoustics. 
-It must be a numerically classified .tif format. It is the same as what is used in the shear stress and velocity modules.
+The risk layer is a receptor file that serves as an additional input to each module and designates which layers are sensitive and would be affected by the acoustics. It must be a numerically classified .tif format, the same as what is used in the shear stress and velocity modules.
 
 .. figure:: ../../media/risk_layer_gui_input.webp
-   :scale: 100 %
+   :scale: 100%
    :alt: Risk Layer File
 
-Represents a layer to evalute change against. Examples include vegetation habitat, marine ecosystems, contaminated sediments, marine protected areas, or archaeological artifacts.
+   Represents a layer to evaluate change against. Examples include vegetation habitat, marine ecosystems, contaminated sediments, marine protected areas, or archaeological artifacts.
 
 - **File Type**: Supports geotiff (.tif) file format.
-  
-  - **Geotiff Details**:
 
+  - **Geotiff Details**:
     - Must have the same projection and datum as the model files.
     - Will be nearest-neighbor interpolated to align with the model files' grid points (structured/unstructured).
-    - Must be integer classified eg. (0 = 'Kelp', 1 = 'Rock')
+    - Must be integer classified, e.g., (0 = 'Kelp', 1 = 'Rock')

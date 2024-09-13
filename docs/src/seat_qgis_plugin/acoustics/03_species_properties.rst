@@ -50,7 +50,7 @@ species present and species density files are located. Both files must be locate
    :scale: 100 %
    :alt: Secondary Constraint
 
-The Species Percent and Species Density files are located in the directory as specified by the "Secondary Constraint". 
+
 For example, in the Paracousti Demo files, there is a directory called "species" that contains the Species Percent and Species Density files. The Species Percent and Species Density files have the names as specifed above e.g., "WhaleWatchPredictions_2021_01.csv". Opening one of these files in a text editor shows the following:
 
 **Example:**
