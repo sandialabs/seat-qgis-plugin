@@ -26,7 +26,7 @@ import os
 from scipy.interpolate import griddata
 from netCDF4 import Dataset
 import pandas as pd
-from osgeo import gdal#, osr
+from osgeo import gdal  # , osr
 import numpy as np
 from ..utils.stressor_utils import (
     redefine_structured_grid,
@@ -74,9 +74,7 @@ def create_species_array(species_filename, x, y, variable="percent", latlon=Fals
             img = data.GetRasterBand(1)
             receptor_array = img.ReadAsArray()
             receptor_array[receptor_array < 0] = 0
-            (upper_left_x, x_size, _, upper_left_y, _, y_size) = (
-                data.GetGeoTransform()
-            )
+            (upper_left_x, x_size, _, upper_left_y, _, y_size) = data.GetGeoTransform()
             cols = data.RasterXSize
             rows = data.RasterYSize
             r_rows = np.arange(rows) * y_size + upper_left_y + (y_size / 2)
@@ -260,7 +258,9 @@ def calc_probabilistic_metrics(
         baseline_present = False if np.all(np.isnan(baseline_input[ic, :])) else True
 
         if baseline_present:
-            baseline_ss = resample_structured_grid(XCOR, YCOR, baseline_input[ic, :], rx, ry)
+            baseline_ss = resample_structured_grid(
+                XCOR, YCOR, baseline_input[ic, :], rx, ry
+            )
         if ic == 0:
             device = np.zeros(rx.shape)
             baseline = np.zeros(rx.shape)
@@ -439,7 +439,9 @@ def calc_nonprobabilistic_metrics(
         baseline_present = False if np.all(np.isnan(baseline_input[ic, :])) else True
 
         if baseline_present:
-            baseline_ss = resample_structured_grid(XCOR, YCOR, baseline_input[ic, :], rx, ry)
+            baseline_ss = resample_structured_grid(
+                XCOR, YCOR, baseline_input[ic, :], rx, ry
+            )
         else:
             baseline_ss = np.zeros(rx.shape)
 
@@ -515,7 +517,7 @@ def calculate_acoustic_stressors(
     averaging_selection=None,
 ):
     """
-    Calculates the stressor layers from model and parameter input. 
+    Calculates the stressor layers from model and parameter input.
     Returns filepath to created rasters for dispaly in QGIS.
 
     Parameters
