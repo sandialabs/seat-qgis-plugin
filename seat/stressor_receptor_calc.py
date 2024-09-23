@@ -853,9 +853,7 @@ class StressorReceptorCalc:
             )
             self.dlg.crs_button.clicked.connect(self.select_crs)
 
-            self.dlg.paracousti_device_present.textChanged.connect(
-                self.update_weights
-            )
+            self.dlg.paracousti_device_present.textChanged.connect(self.update_weights)
             self.dlg.paracousti_weighting_combobox.currentIndexChanged.connect(
                 lambda: self.paracousti_gui_updates("update_metrics")
             )
