@@ -230,7 +230,7 @@ class StressorReceptorCalc:
 
         return action
 
-    def init_gui(self) -> None:
+    def initGui(self) -> None:
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
         icon_path = ":/plugins/seat_qgis_plugin/icon.png"
@@ -390,7 +390,7 @@ class StressorReceptorCalc:
                 config.get("Input", "paracousti_threshold_value")
             )
             self.dlg.paracousti_species_grid_resolution.setText(
-                config.get("Input", "paracou_species_grid_resolution")
+                config.get("Input", "paracousti_species_grid_resolution")
             )
             fin = config.get("Input", "paracousti risk layer file")
             self.test_exists(self.dlg.paracousti_risk_file, fin, "File")
@@ -455,7 +455,7 @@ class StressorReceptorCalc:
             "paracousti species filepath": self.dlg.paracousti_species_directory.text(),
             "paracousti metric": self.dlg.paracousti_metric_selection_combobox.currentText(),
             "paracousti weighting": self.dlg.paracousti_weighting_combobox.currentText(),
-            "paracou_species_grid_resolution": self.dlg.paracousti_species_grid_resolution.text(),
+            "paracousti_species_grid_resolution": self.dlg.paracousti_species_grid_resolution.text(),
             "power files filepath": self.dlg.power_files.text(),
             "power probabilities file": self.dlg.power_probabilities_file.text(),
             "coordinate reference system": self.dlg.crs.text(),
@@ -854,19 +854,19 @@ class StressorReceptorCalc:
             self.dlg.crs_button.clicked.connect(self.select_crs)
 
             self.dlg.paracousti_device_present.textChanged.connect(
-                self.update_weights()
+                self.update_weights
             )
             self.dlg.paracousti_weighting_combobox.currentIndexChanged.connect(
-                self.paracousti_gui_updates("update_metrics")
+                lambda: self.paracousti_gui_updates("update_metrics")
             )
             self.dlg.paracousti_metric_selection_combobox.currentIndexChanged.connect(
-                self.paracousti_gui_updates("update_units")
+                lambda: self.paracousti_gui_updates("update_units")
             )
             self.dlg.paracousti_threshold_value.textChanged.connect(
-                self.paracousti_gui_updates("check_threshold")
+                lambda: self.paracousti_gui_updates("check_threshold")
             )
             self.dlg.paracousti_species_grid_resolution.textChanged.connect(
-                self.paracousti_gui_updates("check_resolution")
+                lambda: self.paracousti_gui_updates("check_resolution")
             )
 
         self.dlg.shear_device_present.clear()
