@@ -4,6 +4,7 @@
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-branches
+# pylint: too-many-positional-arguments
 
 """
 /***************************************************************************.
