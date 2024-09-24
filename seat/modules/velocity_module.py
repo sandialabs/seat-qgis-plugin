@@ -156,6 +156,7 @@ def check_grid_define_vars(dataset: Dataset) -> tuple[str, str, str, str, str]:
         xvar, yvar = dataset.variables[uvar].coordinates.split()
     return gridtype, xvar, yvar, uvar, vvar
 
+
 # pylint: disable=R0917
 def calculate_velocity_stressors(
     fpath_nodev: str,
