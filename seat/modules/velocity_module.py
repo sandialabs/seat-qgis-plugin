@@ -6,11 +6,7 @@
 # pylint: disable=too-many-branches
 """
 /***************************************************************************.
-
- velocity_module.py
- Copyright 2023, Integral Consulting Inc. All rights reserved.
-
- PURPOSE: module for calcualting velocity (larval motility) change from a velocity stressor
+Module for calcualting velocity (larval motility) change from a velocity stressor
 
  PROJECT INFORMATION:
  Name: SEAT - Spatial and Environmental Assessment Toolkit
@@ -157,7 +153,7 @@ def check_grid_define_vars(dataset: Dataset) -> tuple[str, str, str, str, str]:
     return gridtype, xvar, yvar, uvar, vvar
 
 
-# pylint: disable=R0917
+# pylint: disable=too-many-arguments
 def calculate_velocity_stressors(
     fpath_nodev: str,
     fpath_dev: str,
@@ -483,7 +479,7 @@ def calculate_velocity_stressors(
     return dict_of_arrays, rx, ry, dx, dy, gridtype
 
 
-# pylint: disable=R0917
+# pylint: disable=too-many-arguments
 def run_velocity_stressor(
     dev_present_file: str,
     dev_notpresent_file: str,
