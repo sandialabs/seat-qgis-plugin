@@ -55,7 +55,7 @@ jobs:
 
       - name: Install Pylint in Virtual Environment
         run: |
-          docker exec qgis-testing-environment sh -c "/tests_directory/venv/bin/pip install pylint==3.3.0"
+          docker exec qgis-testing-environment sh -c "/tests_directory/venv/bin/pip install pylint==3.2.7"
 
       - name: Run Pylint
         run: |
