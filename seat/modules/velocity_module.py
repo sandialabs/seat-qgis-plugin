@@ -4,6 +4,7 @@
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-branches
+# pylint: disable=R0917
 """
 /***************************************************************************.
 Module for calcualting velocity (larval motility) change from a velocity stressor
@@ -153,7 +154,7 @@ def check_grid_define_vars(dataset: Dataset) -> tuple[str, str, str, str, str]:
     return gridtype, xvar, yvar, uvar, vvar
 
 
-# pylint: disable=too-many-arguments
+# pylint: disable=R0917
 def calculate_velocity_stressors(
     fpath_nodev: str,
     fpath_dev: str,
@@ -479,7 +480,7 @@ def calculate_velocity_stressors(
     return dict_of_arrays, rx, ry, dx, dy, gridtype
 
 
-# pylint: disable=too-many-arguments
+# pylint: disable=R0917
 def run_velocity_stressor(
     dev_present_file: str,
     dev_notpresent_file: str,
