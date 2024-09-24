@@ -230,6 +230,7 @@ class StressorReceptorCalc:
 
         return action
 
+    # pylint: disable=invalid-name
     def initGui(self) -> None:
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
@@ -455,7 +456,7 @@ class StressorReceptorCalc:
             "paracousti species filepath": self.dlg.paracousti_species_directory.text(),
             "paracousti metric": self.dlg.paracousti_metric_selection_combobox.currentText(),
             "paracousti weighting": self.dlg.paracousti_weighting_combobox.currentText(),
-            "paracousti_species_grid_resolution": self.dlg.paracousti_species_grid_resolution.text(),
+            "paracousti_species_grid_resolution": self.dlg.paracousti_species_grid_resolution.text(),  # pylint: disable=line-too-long
             "power files filepath": self.dlg.power_files.text(),
             "power probabilities file": self.dlg.power_probabilities_file.text(),
             "coordinate reference system": self.dlg.crs.text(),
