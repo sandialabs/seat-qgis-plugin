@@ -942,7 +942,7 @@ p, li { white-space: pre-wrap; }
         <item row="0" column="0">
          <widget class="QLabel" name="label_19">
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Selects the depth averaging applied to model results.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Depth Maximum&lt;span style=&quot; font-weight:400;&quot;&gt; : Maximum value over depth&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Depth Average&lt;span style=&quot; font-weight:400;&quot;&gt; : Mean value over depth&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Bottom Bin&lt;span style=&quot; font-weight:400;&quot;&gt; : Value from bottom bin&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Top Bin&lt;span style=&quot; font-weight:400;&quot;&gt; : Value from top bin&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Selects the weighting to use for analysis&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="whatsThis">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the method of determining the acoustic value to use. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -972,7 +972,7 @@ p, li { white-space: pre-wrap; }
         <item row="1" column="0">
          <widget class="QLabel" name="label_18">
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Selects the depth averaging applied to model results.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Depth Maximum&lt;span style=&quot; font-weight:400;&quot;&gt; : Maximum value over depth&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Depth Average&lt;span style=&quot; font-weight:400;&quot;&gt; : Mean value over depth&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Bottom Bin&lt;span style=&quot; font-weight:400;&quot;&gt; : Value from bottom bin&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Top Bin&lt;span style=&quot; font-weight:400;&quot;&gt; : Value from top bin&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Acoustic Metric Selection&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Varies based on weighting and parAcousti .nc file&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="whatsThis">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the method of determining the acoustic value to use. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -996,7 +996,7 @@ p, li { white-space: pre-wrap; }
         <item row="2" column="0">
          <widget class="QLabel" name="label_65">
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Receptor File (CSV file) including the following rows,&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;species, Paracousti Variable, Threshold (dB re 1uPa), species file averaged area (km2)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Acoustic Threshold Value&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;numeric threshold with units specified&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="whatsThis">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Select acoustic threshold file&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1053,7 +1053,7 @@ p, li { white-space: pre-wrap; }
            </sizepolicy>
           </property>
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Directory of csv or GeoTIFF files containing species probability and/or denisty files.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;[Optional]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Directory of csv or GeoTIFF files containing species probability and/or denisty files.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="whatsThis">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Select directory of species probability and density files&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1093,13 +1093,13 @@ p, li { white-space: pre-wrap; }
         <item row="4" column="0">
          <widget class="QLabel" name="label_67">
           <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Receptor File (CSV file) including the following rows,&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;species, Paracousti Variable, Threshold (dB re 1uPa), species file averaged area (km2)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;[Optional]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;species file averaged area (km2)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="whatsThis">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Select acoustic threshold file&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Spatial Probability/Density Grid Respolution&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Spatial Probability/Density Grid Resolution&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
