@@ -578,7 +578,7 @@ def calculate_acoustic_stressors(
         os.path.join(fpath_dev, i) for i in os.listdir(fpath_dev) if i.endswith(".nc")
     ]
     conditions_probability = (
-        pd.read_csv(probabilities_file).set_index("paracousti File").fillna(0)
+        pd.read_csv(probabilities_file).set_index("Paracousti File").fillna(0)
     )
     conditions_probability["% of yr"] = 100 * (
         conditions_probability["% of yr"] / conditions_probability["% of yr"].sum()
@@ -592,12 +592,12 @@ def calculate_acoustic_stressors(
 
     for ic, paracousti_file in enumerate(paracousti_files):
         with Dataset(paracousti_file) as ds:
-            acoust_var = ds.variables[f"{paracousti_weighting}_{paracousti_metric}"][
-                :
-            ].data
-            cords = ds.variables[
-                f"{paracousti_weighting}_{paracousti_metric}"
-            ].coordinates.split()
+            if paracousti_weighting == "None":
+                var_name = f"{paracousti_metric}"
+            else:
+                var_name = f"{paracousti_weighting}_{paracousti_metric}"
+            acoust_var = ds.variables[var_name][:].data
+            cords = ds.variables[var_name].coordinates.split()
             X = ds.variables[cords[0]][:].data
             Y = ds.variables[cords[1]][:].data
             if X.shape[0] != acoust_var.shape[0]:
@@ -632,12 +632,12 @@ def calculate_acoustic_stressors(
         ]
         for ic, baseline_file in enumerate(baseline_files):
             with Dataset(baseline_file) as ds:
-                baseline = ds.variables[f"{paracousti_weighting}_{paracousti_metric}"][
-                    :
-                ].data
-                cords = ds.variables[
-                    f"{paracousti_weighting}_{paracousti_metric}"
-                ].coordinates.split()
+                if paracousti_weighting == "None":
+                    var_name = f"{paracousti_metric}"
+                else:
+                    var_name = f"{paracousti_weighting}_{paracousti_metric}"
+                baseline = ds.variables[var_name][:].data
+                cords = ds.variables[var_name].coordinates.split()
                 if ds.variables[cords[0]][:].data.shape[0] != baseline.shape[0]:
                     baseline = np.transpose(baseline, (1, 2, 0))
                 if ic == 0:
