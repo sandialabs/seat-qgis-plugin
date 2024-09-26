@@ -1204,7 +1204,7 @@ class StressorReceptorCalc:
                         self.add_layer(vfilenames[key], root=root, group=group)
                     else:
                         self.style_layer(
-                            stylefiles_df,
+                            vfilenames[key],
                             stylefiles_df.loc[key].item(),
                             root=root,
                             group=group,
