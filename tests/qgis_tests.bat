@@ -16,4 +16,5 @@ set "PATH=%QGIS_ROOT%\bin;%QGIS_ROOT%\apps\qgis-ltr\bin;%PATH%"
 
 :: Run pytest on all test scripts in the directory
 @REM "%QGIS_ROOT%\bin\python.exe" -m pytest .
-"%QGIS_ROOT%\bin\python.exe" -m pylint
+@REM "%QGIS_ROOT%\bin\python.exe" -m pytest tests\test_stressor_receptor_calc.py
+"%QGIS_ROOT%\bin\python.exe" -m pylint seat

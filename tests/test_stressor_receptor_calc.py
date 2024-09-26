@@ -214,7 +214,7 @@ class TestStressorReceptorCalcModule(unittest.TestCase):
         self.stressor_receptor_calc.dlg.paracousti_device_present = MagicMock()
         self.stressor_receptor_calc.dlg.paracousti_device_not_present = MagicMock()
         self.stressor_receptor_calc.dlg.paracousti_probabilities_file = MagicMock()
-        self.stressor_receptor_calc.dlg.paracousti_threshold_file = MagicMock()
+        self.stressor_receptor_calc.dlg.paracousti_threshold_value = MagicMock()
         self.stressor_receptor_calc.dlg.paracousti_risk_file = MagicMock()
         self.stressor_receptor_calc.dlg.paracousti_species_directory = MagicMock()
         self.stressor_receptor_calc.dlg.paracousti_averaging_combobox = MagicMock()
@@ -227,7 +227,6 @@ class TestStressorReceptorCalcModule(unittest.TestCase):
         # Execute the function
         self.stressor_receptor_calc.select_and_load_in()
 
-        # Verify if the test_exists method is called correctly
         calls = [
             ('shear_device_present', 'Input shear stress device present filepath', 'Directory'),
             ('shear_device_not_present', 'Input shear stress device not present filepath', 'Directory'),
@@ -242,7 +241,6 @@ class TestStressorReceptorCalcModule(unittest.TestCase):
             ('paracousti_device_present', 'Input paracousti device present filepath', 'Directory'),
             ('paracousti_device_not_present', 'Input paracousti device not present filepath', 'Directory'),
             ('paracousti_probabilities_file', 'Input paracousti probabilities file', 'File'),
-            ('paracousti_threshold_file', 'Input paracousti threshold file', 'File'),
             ('paracousti_risk_file', 'Input paracousti risk layer file', 'File'),
             ('paracousti_species_directory', 'Input paracousti species filepath', 'Directory'),
             ('power_files', 'Input power files filepath', 'Directory'),
@@ -287,7 +285,7 @@ class TestStressorReceptorCalcModule(unittest.TestCase):
         self.stressor_receptor_calc.dlg.paracousti_device_not_present.text.return_value = "paracousti_device_not_present_path"
         self.stressor_receptor_calc.dlg.paracousti_averaging_combobox.currentText.return_value = "paracousti_averaging"
         self.stressor_receptor_calc.dlg.paracousti_probabilities_file.text.return_value = "paracousti_probabilities_file"
-        self.stressor_receptor_calc.dlg.paracousti_threshold_file.text.return_value = "paracousti_threshold_file"
+        self.stressor_receptor_calc.dlg.paracousti_threshold_value.text.return_value = "paracousti_threshold_value"
         self.stressor_receptor_calc.dlg.paracousti_risk_file.text.return_value = "paracousti_risk_file"
         self.stressor_receptor_calc.dlg.paracousti_species_directory.text.return_value = "paracousti_species_directory"
         self.stressor_receptor_calc.dlg.power_files.text.return_value = "power_files_path"
@@ -319,7 +317,7 @@ class TestStressorReceptorCalcModule(unittest.TestCase):
         self.assertEqual(config["Input"]["paracousti device not present filepath"], "paracousti_device_not_present_path")
         self.assertEqual(config["Input"]["paracousti averaging"], "paracousti_averaging")
         self.assertEqual(config["Input"]["paracousti probabilities file"], "paracousti_probabilities_file")
-        self.assertEqual(config["Input"]["paracousti threshold file"], "paracousti_threshold_file")
+        self.assertEqual(config["Input"]["paracousti_threshold_value"], "paracousti_threshold_value")
         self.assertEqual(config["Input"]["paracousti risk layer file"], "paracousti_risk_file")
         self.assertEqual(config["Input"]["paracousti species filepath"], "paracousti_species_directory")
         self.assertEqual(config["Input"]["power files filepath"], "power_files_path")
@@ -439,7 +437,7 @@ class TestStressorReceptorCalcModule(unittest.TestCase):
             ('velocity', 'thresholds', self.stressor_receptor_calc.dlg.velocity_threshold_file),
             ('velocity', 'risk_file', self.stressor_receptor_calc.dlg.velocity_risk_file),
             ('paracousti', 'probabilities_file', self.stressor_receptor_calc.dlg.paracousti_probabilities_file),
-            ('paracousti', 'thresholds', self.stressor_receptor_calc.dlg.paracousti_threshold_file),
+            # ('paracousti', 'thresholds', self.stressor_receptor_calc.dlg.paracousti_threshold_value),
             ('paracousti', 'risk_file', self.stressor_receptor_calc.dlg.paracousti_risk_file),
             ('power', None, self.stressor_receptor_calc.dlg.power_probabilities_file),
             ('style_files', None, self.stressor_receptor_calc.dlg.output_stylefile),

@@ -414,10 +414,11 @@ def numpy_array_to_raster(
     output_band.WriteArray(numpy_array)
 
     output_band.FlushCache()
+    # You want this false, true will make computed results, but is
+    #  faster, could be a setting in the UI perhaps, esp for large rasters?
     output_band.ComputeStatistics(
         False,
-    )  # you want this false, true will make computed results, but is faster,
-    # could be a setting in the UI perhaps, esp for large rasters?
+    )
 
     if not os.path.exists(output_path):
         raise RuntimeError(f"Failed to create raster: {output_path}")
@@ -930,3 +931,18 @@ def classify_layer_area_2nd_constraint(
                     100 * data[rcolname] / data[rcolname].sum()
                 )
     return pd.DataFrame(data)
+
+
+def is_float(value):
+    """Check if string is a float
+
+    :param value: input string
+    :type value: str
+    :return: True or False
+    :rtype: bool
+    """
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
