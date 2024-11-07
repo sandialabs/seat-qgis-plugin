@@ -471,67 +471,43 @@ class StressorReceptorCalc:
             with open(filename, "w", encoding="utf-8") as configfile:
                 config.write(configfile)
         else:
-             QgsMessageLog.logMessage(
+            QgsMessageLog.logMessage(
                 "output file not given.", level=Qgis.MessageLevel.Warning
                 )
-
+        
     def add_layer(
-        self,
-        fpath: str,
-        root: Optional[QgsLayerTreeGroup] = None,
-        group: Optional[QgsLayerTreeGroup] = None,
-    ) -> None:
-        """
-        Adds a raster layer to the QGIS project and optionally places it in a specified group.
-
-        Args:
-            fpath (str): The file path of the raster layer to add.
-            root (QgsLayerTreeGroup, optional): The root group to add the layer to.
-            group (QgsLayerTreeGroup, optional): The group within the root to add the layer to.
-        """
-        basename = os.path.splitext(os.path.basename(fpath))[0]
-        if group is not None:
-            vlayer = QgsRasterLayer(fpath, basename)
-            QgsProject.instance().addMapLayer(vlayer)
-            layer = root.findLayer(vlayer.id())
-            clone = layer.clone()
-            group.insertChildNode(0, clone)
-            clone.setExpanded(False)
-            root.removeChildNode(layer)
-        else:
-            layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))
-
-    def style_layer(
         self,
         fpath: str,
         stylepath: Optional[str] = None,
         root: Optional[QgsLayerTreeGroup] = None,
         group: Optional[QgsLayerTreeGroup] = None,
-    ) -> None:  # , ranges=True):
+        subgroup: Optional[QgsLayerTreeGroup] = None,
+    ) -> None:
         """Style and add the result layer to map."""
         basename = os.path.splitext(os.path.basename(fpath))[0]
-        if group is not None:
-            vlayer = QgsRasterLayer(fpath, basename)
-            QgsProject.instance().addMapLayer(vlayer)
-            root = QgsProject.instance().layerTreeRoot()
-            if stylepath is not None:
-                vlayer.loadNamedStyle(stylepath)
-                vlayer.triggerRepaint()
-                vlayer.reload()
-            layer = root.findLayer(vlayer.id())
+        vlayer = QgsRasterLayer(fpath, basename)
+        QgsProject.instance().addMapLayer(vlayer)
+        root = QgsProject.instance().layerTreeRoot()
+
+        if stylepath is not None:
+            vlayer.loadNamedStyle(stylepath)
+            vlayer.triggerRepaint()
+            vlayer.reload()
+
+        layer = root.findLayer(vlayer.id())
+
+        if subgroup is not None:
+            clone = layer.clone()
+            subgroup.insertChildNode(0, clone)
+            clone.setExpanded(False)
+        elif group is not None:
             clone = layer.clone()
             group.insertChildNode(0, clone)
             clone.setExpanded(False)
-            root.removeChildNode(layer)
         else:
-            layer = QgsProject.instance().addMapLayer(
-                QgsRasterLayer(fpath, basename), False
-            )
-            layer.loadNamedStyle(stylepath)
-            layer.triggerRepaint()
-            layer.reload()
-            # refresh legend entries
             self.iface.layerTreeView().refreshLayerSymbology(layer.id())
+            
+        root.removeChildNode(layer)
 
     def update_weights(self) -> None:
         """Adds paracousti weights to the gui dropdown box"""
@@ -778,8 +754,8 @@ class StressorReceptorCalc:
 
     def checkparacoustiresolution(self) -> None:
         """ensure paracousti grid resolution is a numeric value.
-        Dispaly error in gui if invalid
-        """        
+        Updates text to red if the input is not numeric.
+        """
         # Ensure paracousti grid resolution input is a numeric value
         if is_float(self.dlg.paracousti_species_grid_resolution.text()):
             self.dlg.paracousti_species_grid_resolution.setStyleSheet(
@@ -969,7 +945,7 @@ class StressorReceptorCalc:
             # Run Calculations
             # this grabs the files for input and output
             # pylint: disable=fixme
-            # TODO Remove these and just query the dlg directly when needed
+            # load qui entries to variable and verify files/directories exist and values are formatted correctly
             shear_stress_device_present_directory = self.dlg.shear_device_present.text()
             if not (
                 (shear_stress_device_present_directory is None)
@@ -1224,7 +1200,7 @@ class StressorReceptorCalc:
                     if stylefiles_df is None:
                         self.add_layer(sfilenames[key], root=root, group=group)
                     else:
-                        self.style_layer(
+                        self.add_layer(
                             sfilenames[key],
                             stylefiles_df.loc[key].item(),
                             root=root,
@@ -1266,7 +1242,7 @@ class StressorReceptorCalc:
                     if stylefiles_df is None:
                         self.add_layer(vfilenames[key], root=root, group=group)
                     else:
-                        self.style_layer(
+                        self.add_layer(
                             vfilenames[key],
                             stylefiles_df.loc[key].item(),
                             root=root,
@@ -1324,7 +1300,7 @@ class StressorReceptorCalc:
                             pfilenames_probabilistic[key], root=root, group=group
                         )
                     else:
-                        self.style_layer(
+                        self.add_layer(
                             pfilenames_probabilistic[key],
                             stylefiles_df.loc[key].item(),
                             root=root,
@@ -1336,23 +1312,28 @@ class StressorReceptorCalc:
                 group = root.findGroup(group_name)
                 if group is None:
                     group = root.addGroup(group_name)
-                for key in list(pfilenames_nonprobabilistic.keys())[
-                    ::-1
-                ]:  # add styles files and/or display
+                for key in list(pfilenames_nonprobabilistic.keys()):  # add styles files and/or display
+                    # subgroup_name = key
+                    subgroup = group.findGroup(key)
+                    if subgroup is None:
+                        subgroup = group.addGroup(key)
                     for var in list(pfilenames_nonprobabilistic[key].keys())[::-1]:
                         if stylefiles_df is None:
                             self.add_layer(
                                 pfilenames_nonprobabilistic[key][var],
                                 root=root,
                                 group=group,
+                                subgroup=subgroup,
                             )
                         else:
-                            self.style_layer(
+                            self.add_layer(
                                 pfilenames_nonprobabilistic[key][var],
                                 stylefiles_df.loc[key].item(),
-                                root=root,
+                                root=subgroup,
                                 group=group,
+                                subgroup=subgroup,
                             )
+                    subgroup.setExpanded(False) # collapse the subgroup
 
             # remove temproary layer group
             root = QgsProject.instance().layerTreeRoot()
