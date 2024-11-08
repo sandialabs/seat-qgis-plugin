@@ -67,29 +67,29 @@ from .stressor_receptor_calc_dialog import StressorReceptorCalcDialog
 
 
 # Most of the below is boilerplate code  until plugin specific functions start----
-def df_from_qml(fpath: str) -> pd.DataFrame:
-    """
-    Parses a QML (QGIS Markup Language) file to extract range values and creates a DataFrame.
+# def df_from_qml(fpath: str) -> pd.DataFrame:
+#     """
+#     Parses a QML (QGIS Markup Language) file to extract range values and creates a DataFrame.
 
-    Args:
-        fpath (str): The file path of the QML file.
+#     Args:
+#         fpath (str): The file path of the QML file.
 
-    Returns:
-        pandas.DataFrame:
-        A DataFrame containing either "min" and "max" columns or "value" and "label" columns.
-    """
-    tree = ET.parse(fpath)
-    root = tree.getroot()
+#     Returns:
+#         pandas.DataFrame:
+#         A DataFrame containing either "min" and "max" columns or "value" and "label" columns.
+#     """
+#     tree = ET.parse(fpath)
+#     root = tree.getroot()
 
-    v = [i.get("label") for i in root[3][1][2][0].findall("item")]
-    v2 = [s.split(" - ") for s in v]
-    df = pd.DataFrame(v2, columns=["min", "max"])
-    if df.empty:
-        # grab the values in a unique palette
-        v1 = [i.get("value") for i in root[3][1][2].findall("paletteEntry")]
-        v2 = [i.get("label") for i in root[3][1][2].findall("paletteEntry")]
-        df = pd.DataFrame({"value": v1, "label": v2})
-    return df
+#     v = [i.get("label") for i in root[3][1][2][0].findall("item")]
+#     v2 = [s.split(" - ") for s in v]
+#     df = pd.DataFrame(v2, columns=["min", "max"])
+#     if df.empty:
+#         # grab the values in a unique palette
+#         v1 = [i.get("value") for i in root[3][1][2].findall("paletteEntry")]
+#         v2 = [i.get("label") for i in root[3][1][2].findall("paletteEntry")]
+#         df = pd.DataFrame({"value": v1, "label": v2})
+#     return df
 
 
 class StressorReceptorCalc:
@@ -430,10 +430,7 @@ class StressorReceptorCalc:
             "",
             "*.ini",
         )
-        if not (
-                (filename is None)
-                or (filename == "")
-            ):
+        if not ((filename is None) or (filename == "")):
             # try to parse the ini file
             config = configparser.ConfigParser()
 
@@ -473,8 +470,8 @@ class StressorReceptorCalc:
         else:
             QgsMessageLog.logMessage(
                 "output file not given.", level=Qgis.MessageLevel.Warning
-                )
-        
+            )
+
     def add_layer(
         self,
         fpath: str,
@@ -758,9 +755,7 @@ class StressorReceptorCalc:
         """
         # Ensure paracousti grid resolution input is a numeric value
         if is_float(self.dlg.paracousti_species_grid_resolution.text()):
-            self.dlg.paracousti_species_grid_resolution.setStyleSheet(
-                "color: black;"
-            )
+            self.dlg.paracousti_species_grid_resolution.setStyleSheet("color: black;")
         else:
             self.dlg.paracousti_species_grid_resolution.setStyleSheet("color: red;")
 
@@ -1312,7 +1307,9 @@ class StressorReceptorCalc:
                 group = root.findGroup(group_name)
                 if group is None:
                     group = root.addGroup(group_name)
-                for key in list(pfilenames_nonprobabilistic.keys()):  # add styles files and/or display
+                for key in list(
+                    pfilenames_nonprobabilistic.keys()
+                ):  # add styles files and/or display
                     # subgroup_name = key
                     subgroup = group.findGroup(key)
                     if subgroup is None:
@@ -1333,7 +1330,7 @@ class StressorReceptorCalc:
                                 group=group,
                                 subgroup=subgroup,
                             )
-                    subgroup.setExpanded(False) # collapse the subgroup
+                    subgroup.setExpanded(False)  # collapse the subgroup
 
             # remove temproary layer group
             root = QgsProject.instance().layerTreeRoot()
