@@ -1,5 +1,5 @@
 # Processing of parAcousti files can be resource instensive depending on the grid resolution and weights selected. This may take several hours to complete.
-# NOTES: 
+# NOTES:
 # Requires installation of xarray with netCDF4 (https://docs.xarray.dev/en/stable/getting-started-guide/installing.html)
 #     python -m pip install "xarray[io]"
 # Requires installation of scipy (https://scipy.org/install/)

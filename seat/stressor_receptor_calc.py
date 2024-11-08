@@ -503,7 +503,7 @@ class StressorReceptorCalc:
             clone.setExpanded(False)
         else:
             self.iface.layerTreeView().refreshLayerSymbology(layer.id())
-            
+
         root.removeChildNode(layer)
 
     def update_weights(self) -> None:
