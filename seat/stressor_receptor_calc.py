@@ -230,16 +230,6 @@ class StressorReceptorCalc:
 
     # End mostly boilerplate code ------
 
-    def select_folder(self) -> str:
-        """
-        Opens a dialog for the user to select a folder and returns the selected folder path.
-
-        Returns:
-            str: The selected folder path.
-        """
-        folder_name = QFileDialog.getExistingDirectory(self.dlg, "Select Folder")
-        return folder_name
-
     def read_style_files(self, file: str) -> pd.DataFrame:
         """
         Reads style data from a CSV file and returns it as a DataFrame indexed by the "Type" column.
@@ -254,14 +244,25 @@ class StressorReceptorCalc:
         data = data.set_index("Type")
         return data
 
-    def select_file(self, file_filter: str = "") -> str:
-        """Input the receptor file."""
-        filename, _filter = QFileDialog.getOpenFileName(
-            self.dlg,
-            "Select File",
-            "",
-            file_filter,
-        )
+    def select_file(self, file_filter: str = "", file:bool = True) -> str:
+        """
+        Opens a dialog for the user to select a file or folder and returns the selected path.
+
+        Input:
+            file_filter (str) : defines valid file extensions
+            file (bool) : select file or directory, 'default
+        Returns:
+            str: The selected file or folder path.
+        """
+        if file:
+            filename, _filter = QFileDialog.getOpenFileName(
+                self.dlg,
+                "Select File",
+                "",
+                file_filter,
+            )
+        else: #directory
+            filename = QFileDialog.getExistingDirectory(self.dlg, "Select Folder")
         return filename
 
     def copy_shear_input_to_velocity(self) -> None:
@@ -512,7 +513,7 @@ class StressorReceptorCalc:
             option (str, optional): The option within the module
             ("device_present", "device_not_present", "species_directory").
         """
-        directory = self.select_folder()
+        directory = self.select_file(file=False)
         if module == "shear":
             if option == "device_present":
                 self.dlg.shear_device_present.setText(directory)
