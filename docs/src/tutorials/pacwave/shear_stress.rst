@@ -11,7 +11,7 @@ To run this demonstration, use the **Load GUI Inputs** button located at the bot
 
 
 .. Note::
-   Your paths will differ than the ones shown in the example below. If you get an error double check the paths making sure the files exist at the specified location.
+   Your paths will differ from the ones shown in the example below. If you get an error double check the paths making sure the files exist at the specified location.
 
 .. figure:: ../../media/pacwave_shear_stress_input.webp
    :scale: 100 %

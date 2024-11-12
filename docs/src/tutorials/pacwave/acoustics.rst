@@ -24,7 +24,7 @@ please refer to the :ref:`save_load_config` section in the :ref:`seat_qgis_plugi
 The :ref:`02_inputs` section of the SEAT QGIS plugin allows users to specify the model results directories and the probabilities file.
 
 .. Note::
-   Your paths will differ than the ones shown in the example below. If you get an error double check the paths making sure, or make sure that the `.ini` files are pointing 
+   Your paths will differ from the ones shown in the example below. If you get an error double check the paths making sure, or make sure that the `.ini` files are pointing 
    to the right path locations.
 
 .. figure:: ../../media/pacwave_acoustics_inputs_filled_out.webp

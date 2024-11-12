@@ -12,7 +12,7 @@ To run this demonstration, use the **Load GUI Inputs** button located at the bot
 In brief, the model data consists of individual .nc files for each flow return period. The period within the ``.nc`` filename determines the probability of occurrence. There is a set of results for no device and a set of results for 9 devices in the river.
 
 .. Note::
-   Your paths will differ than the ones shown in the example below. If you get an error double check the paths making sure the files exist at the specified location.
+   Your paths will differ from the ones shown in the example below. If you get an error double check the paths making sure the files exist at the specified location.
 
 .. figure:: ../../media/tanana_shear_stress_with_receptor_input.webp
    :scale: 100 %

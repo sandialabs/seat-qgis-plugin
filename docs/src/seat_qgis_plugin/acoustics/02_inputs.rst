@@ -101,3 +101,19 @@ The risk layer is a receptor file that serves as an additional input to each mod
     - Must have the same projection and datum as the model files.
     - Will be nearest-neighbor interpolated to align with the model files' grid points (structured/unstructured).
     - Must be integer classified, e.g., (0 = 'Kelp', 1 = 'Rock')
+
+Depth Averaging
+^^^^^^^^^^^^^^^^
+
+The Depth Averaging drop down box serves as an option to determine the depth sampling of the model results.
+
+.. figure:: ../../media/depth_avg.webp
+   :scale: 100 %
+   :alt: Temporal Averaging
+
+The depth selection options for acoustics are:
+
+1. **Depth Maximum**: Maximum value over depth.
+2. **Depth Average**: Mean value over depth.
+3. **Bottom Bin**: Value from bottom bin.
+4. **Top Bin**: Value from top bin.
