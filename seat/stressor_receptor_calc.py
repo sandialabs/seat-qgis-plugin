@@ -1045,7 +1045,7 @@ class StressorReceptorCalc:
             # if the output file path is empty display a warning
             if output_folder_name == "":
                 QgsMessageLog.logMessage(
-                    "Output file path not given.", level=Qgis.MessageLevel.Warnin
+                    "Output file path not given.", level=Qgis.MessageLevel.Warning
                 )
 
             # Run Power Module
