@@ -1024,8 +1024,13 @@ class StressorReceptorCalc:
                 os.makedirs(
                     output_folder_name, exist_ok=True
                 )  # create output directory if it doesn't exist
-
-            crs = int(self.dlg.crs.text())
+            if not (
+                (self.dlg.crs.text() is None)
+                or (self.dlg.crs.text() == "")
+            ):
+                crs = int(self.dlg.crs.text())
+            else:
+                crs = 4326
 
             # need to add check to leave empty if not present then apply default values
             if not (
