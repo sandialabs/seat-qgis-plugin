@@ -270,6 +270,7 @@ def calc_probabilistic_metrics(
             density = np.zeros(rx.shape)
 
         if metric_calc.casefold() == "SEL".casefold():
+            # Calculate seconds during a 24hr period this condition would occur
             device_scaled = calc_sel_cum(
                 device_ss, seconds_of_day.loc[os.path.basename(paracousti_file)]
             )
@@ -283,7 +284,13 @@ def calc_probabilistic_metrics(
                 baseline = sum_sel(
                     [baseline.flatten(), baseline_scaled.flatten()]
                 ).reshape(rx.shape)
+            threshold_mask = device_scaled > threshold
+            threshold_exceeded[threshold_mask] += (
+                probability.loc[os.path.basename(paracousti_file)] * 100
+            )
+                            
         else:  # SPL
+            # Calculate probability this would occur
             device_scaled = (
                 probability.loc[os.path.basename(paracousti_file)] * device_ss
             )
@@ -294,10 +301,10 @@ def calc_probabilistic_metrics(
                 )
                 baseline = baseline + baseline_scaled
 
-        threshold_mask = device_scaled > threshold
-        threshold_exceeded[threshold_mask] += (
-            probability.loc[os.path.basename(paracousti_file)] * 100
-        )
+            threshold_mask = device_ss > threshold
+            threshold_exceeded[threshold_mask] += (
+                probability.loc[os.path.basename(paracousti_file)] * 100
+            )
 
         if not ((species_folder is None) or (species_folder == "")):
             if not os.path.exists(species_folder):
