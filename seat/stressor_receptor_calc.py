@@ -64,6 +64,7 @@ from .utils.stressor_utils import is_float
 # Import the code for the dialog
 from .stressor_receptor_calc_dialog import StressorReceptorCalcDialog
 
+
 class StressorReceptorCalc:
     """QGIS Plugin Implementation."""
 
@@ -244,7 +245,7 @@ class StressorReceptorCalc:
         data = data.set_index("Type")
         return data
 
-    def select_file(self, file_filter: str = "", file:bool = True) -> str:
+    def select_file(self, file_filter: str = "", file: bool = True) -> str:
         """
         Opens a dialog for the user to select a file or folder and returns the selected path.
 
@@ -261,7 +262,7 @@ class StressorReceptorCalc:
                 "",
                 file_filter,
             )
-        else: #directory
+        else:  # directory
             filename = QFileDialog.getExistingDirectory(self.dlg, "Select Folder")
         return filename
 
@@ -840,7 +841,8 @@ class StressorReceptorCalc:
             # Run Calculations
             # this grabs the files for input and output
             # pylint: disable=fixme
-            # load qui entries to variable and verify files/directories exist and values are formatted correctly
+            # load qui entries to variable and verify files/directories
+            # exist and values are formatted correctly
             shear_stress_device_present_directory = self.dlg.shear_device_present.text()
             if not (
                 (shear_stress_device_present_directory is None)
@@ -1022,8 +1024,10 @@ class StressorReceptorCalc:
                 os.makedirs(
                     output_folder_name, exist_ok=True
                 )  # create output directory if it doesn't exist
-
-            crs = int(self.dlg.crs.text())
+            if not ((self.dlg.crs.text() is None) or (self.dlg.crs.text() == "")):
+                crs = int(self.dlg.crs.text())
+            else:
+                crs = 4326
 
             # need to add check to leave empty if not present then apply default values
             if not (
@@ -1043,7 +1047,7 @@ class StressorReceptorCalc:
             # if the output file path is empty display a warning
             if output_folder_name == "":
                 QgsMessageLog.logMessage(
-                    "Output file path not given.", level=Qgis.MessageLevel.Warnin
+                    "Output file path not given.", level=Qgis.MessageLevel.Warning
                 )
 
             # Run Power Module
