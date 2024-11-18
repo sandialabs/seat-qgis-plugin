@@ -102,7 +102,7 @@ def create_species_array(species_filename, x, y, variable="percent", latlon=Fals
                 fill_value=0,
             )
         else:
-            raise Exception("Invalid File Type. Must be of type .tif or .csv")
+            raise ValueError("Invalid File Type. Must be of type .tif or .csv")
     else:
         variable_array = np.zeros(x.shape)
     return variable_array
@@ -288,7 +288,7 @@ def calc_probabilistic_metrics(
             threshold_exceeded[threshold_mask] += (
                 probability.loc[os.path.basename(paracousti_file)] * 100
             )
-                            
+
         else:  # SPL
             # Calculate probability this would occur
             device_scaled = (

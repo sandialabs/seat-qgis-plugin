@@ -841,7 +841,7 @@ class StressorReceptorCalc:
             # Run Calculations
             # this grabs the files for input and output
             # pylint: disable=fixme
-            # load qui entries to variable and verify files/directories 
+            # load qui entries to variable and verify files/directories
             # exist and values are formatted correctly
             shear_stress_device_present_directory = self.dlg.shear_device_present.text()
             if not (
@@ -1024,10 +1024,7 @@ class StressorReceptorCalc:
                 os.makedirs(
                     output_folder_name, exist_ok=True
                 )  # create output directory if it doesn't exist
-            if not (
-                (self.dlg.crs.text() is None)
-                or (self.dlg.crs.text() == "")
-            ):
+            if not ((self.dlg.crs.text() is None) or (self.dlg.crs.text() == "")):
                 crs = int(self.dlg.crs.text())
             else:
                 crs = 4326
