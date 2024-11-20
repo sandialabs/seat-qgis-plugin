@@ -19,7 +19,8 @@ Found in the bottom left corner, this feature allows users to save the current c
   - Several example `.ini` files are provided along with the demo data.
 
   .. note:: 
-    The example `.ini` files are provided for demonstration purposes only. They are not intended to be used as-is. Users should update the file paths in the example `.ini` files to match their local setup.
+    The example `.ini` files are provided for demonstration purposes only. They are not intended to be used as-is. 
+    Users should update the file paths in the example `.ini` files to match their local setup. Users can update the files using the `localize_tutorial_files.py` script in the tutorials folder.
 
 .. figure:: ../media/SEAT_GUI.webp
    :scale: 90 %

@@ -1,11 +1,12 @@
 .. _03_species_properties:
+
 Species Properties
 --------------------
 
 The species properties section of the SEAT QGIS plugin allows users to specify the species spatial probability/density directory and the species file averaged area.
 
 
-**Weighting**: The weighting dropdown shows the signal weighted metrics within the device model results files (see Paracousti Pre-Processing). 
+**Weighting**: The weighting dropdown shows the signal weighted metrics within the device model results files (see:ref:`paracousti_preprocessing`). 
 
 .. figure:: ../../media/weighting_dropdown.webp
    :scale: 100 %

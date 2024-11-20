@@ -54,6 +54,7 @@ Note that this file correlates with the return interval in years.
 
 - If you're using .csv for the Species Percent Occurrence and Species Density Files, they must contain the essential columns: "latitude", "longitude", and either "percent" and/or "density". All supplementary columns will be overlooked.
 - If you opt for a .tif format for the aforementioned files, ensure consistency in the EPSG code across them.
+
 In this case, the probabilities file also points to the species percent occurrence and species density files as seen in :ref:`03_species_properties`.
 
 **Example of a Probabilities Input**

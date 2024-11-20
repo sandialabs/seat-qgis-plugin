@@ -12,10 +12,10 @@ import utils.paracousti_fxns as paracousti_fxns
 import xarray as xr
 import matplotlib.pyplot as plt
 
-paracousti_directory = r"./paracosti"  # update to directory of paracousti files
-save_directory = r"./output"  # update to directory to save paracousti files
+paracousti_directory = r"C:\Users\aellenson\OneDrive - Integral Consulting Inc\C1308 Sandia\Tutorial_Files\Development\DEMO Files Tabbed GUI - Acoustics\pacwave\paracousti_files\\"  
+save_directory = r"C:\Users\aellenson\OneDrive - Integral Consulting Inc\C1308 Sandia\Tutorial_Files\Development\DEMO Files Tabbed GUI - Acoustics\pacwave\paracousti_files_with_metrics_TU\\"  
 os.makedirs(save_directory, exist_ok=True)
 weights = "All"
 status = paracousti_fxns.calc_paracousti_metrics(
-    paracousti_directory, save_directory, weights="All"
+    paracousti_directory, save_directory, weights="TU"
 )

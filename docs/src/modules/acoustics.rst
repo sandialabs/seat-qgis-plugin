@@ -1,4 +1,5 @@
 .. _acoustics_module:
+
 Acoustics Module
 ----------------
 
@@ -76,17 +77,19 @@ Note that if no baseline model files are provided, the baseline is assumed to be
 
 GeoTIFF raster files: 
 
-  - **paracousti_stressor.tif** : The probability weight difference between with devices and baseline models results. 
   - **paracousti_with_devices.tif**: The probability weighted signal with devices
   - **paracousti_without_devices.tif**: The probability weighted signal without devices (baseline)
+  - **paracousti_stressor.tif** : The difference between with devices and baseline models results. 
   - **species_threshold_exceeded.tif** : the percent of time the acoustic threshold was exceeded.
   - **species_percent.tif** : the threshold exceeded and weighted species percent.
   - **species_density.tif** : the threshold exceeded and weighted species density.
 
 CSV files:
-Non-probablistic files are appended with the suffix corresponding to the unique Paracousti filename. For example, if the filename is Hw0.5.nc, the stressor file will be named paracousti_stressor_Hw0.5.tif
+Non-probablistic files are appended with the suffix corresponding to the unique Paracousti filename. 
+For example, if the filename is Hw0.5.nc, the stressor file will be named paracousti_stressor_Hw0.5.tif
 
       - **paracousti_stressor.csv**
+      - **paracousti_stressor_pacwave_*_*.csv**
       - **paracousti_with_devices.csv**
       - **paracousti_without_devices.csv**
       - **species_threshold_exceeded.csv**

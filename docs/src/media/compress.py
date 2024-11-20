@@ -20,6 +20,19 @@ def compress_image(image_path, output_path, quality=100):
 
     resized_img.save(output_path, "WEBP", quality=quality)
 
+def process_pngs():
+    for filename in os.listdir("."):
+        if filename.endswith(".png"):
+            print(f"Processing {filename}...")
+            file_path = filename
+            output_path = os.path.splitext(file_path)[0] + ".webp"
+
+            # Convert PNG to WEBP without compressing, just for the format change
+            image = Image.open(file_path).convert("RGB")
+            image.save(output_path, "WEBP")
+
+            print(f"{filename} converted to {os.path.basename(output_path)}\n")
+
 
 def process_single_png(filename):
     if not filename.endswith(".png"):
@@ -63,8 +76,8 @@ def main():
         filename = sys.argv[1]
         process_single_png(filename)
     else:
-        process_webp_files()
-
+        process_pngs()
+        #process_webp_files()
 
 if __name__ == "__main__":
     main()
