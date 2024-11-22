@@ -399,8 +399,10 @@ def calculate_shear_stress_stressors(
         tau_dev = np.nanmean(tau_dev, axis=1, keepdims=True)  # mean over time
         tau_nodev = np.nanmean(tau_nodev, axis=1, keepdims=True)  # mean over time
     elif value_selection == "Final Timestep":
-        tau_dev = tau_dev[:, -2:-1, :]  # final timestep
-        tau_nodev = tau_nodev[:, -2:-1, :]  # final timestep
+        tau_dev = tau_dev[:, -1, :, :]  # final timestep
+        tau_dev = tau_dev[:, np.newaxis, :, :]
+        tau_nodev = tau_nodev[:, -1, :, :]  # final timestep
+        tau_nodev = tau_nodev[:, np.newaxis, :, :]
     else:
         tau_dev = np.nanmax(tau_dev, axis=1, keepdims=True)  # default to max over time
         tau_nodev = np.nanmax(
