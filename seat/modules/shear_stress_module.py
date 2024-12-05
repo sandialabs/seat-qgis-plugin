@@ -607,10 +607,10 @@ def run_shear_stress_stressor(
         rrx, rry, constraint = secondary_constraint_geotiff_to_numpy(
             secondary_constraint_filename
         )
-        dict_of_arrays["shear_stress_risk_layer"] = resample_structured_grid(
+        dict_of_arrays["shear_stress_area_of_interest"] = resample_structured_grid(
             rrx, rry, constraint, rx, ry, interpmethod="nearest"
         )
-        use_numpy_arrays.append("shear_stress_risk_layer")
+        use_numpy_arrays.append("shear_stress_area_of_interest")
 
     numpy_array_names = [i + ".tif" for i in use_numpy_arrays]
 
@@ -657,14 +657,14 @@ def run_shear_stress_stressor(
     ):
         bin_layer(
             os.path.join(output_path, "shear_stress_difference.tif"),
-            receptor_filename=os.path.join(output_path, "shear_stress_risk_layer.tif"),
+            receptor_filename=os.path.join(output_path, "shear_stress_area_of_interest.tif"),
             receptor_names=None,
             limit_receptor_range=[0, np.inf],
             latlon=crs == 4326,
-            receptor_type="risk layer",
+            receptor_type="area of interest",
         ).to_csv(
             os.path.join(
-                output_path, "shear_stress_difference_at_secondary_constraint.csv"
+                output_path, "shear_stress_difference_at_area_of_interest.csv"
             ),
             index=False,
         )
@@ -776,16 +776,16 @@ def run_shear_stress_stressor(
             bin_layer(
                 os.path.join(output_path, "sediment_mobility_difference.tif"),
                 receptor_filename=os.path.join(
-                    output_path, "shear_stress_risk_layer.tif"
+                    output_path, "shear_stress_area_of_interest.tif"
                 ),
                 receptor_names=None,
                 limit_receptor_range=[0, np.inf],
                 latlon=crs == 4326,
-                receptor_type="risk layer",
+                receptor_type="area of interest",
             ).to_csv(
                 os.path.join(
                     output_path,
-                    "sediment_mobility_difference_at_shear_stress_risk_layer.csv",
+                    "sediment_mobility_difference_at_area_of_interest.csv",
                 ),
                 index=False,
             )
@@ -793,16 +793,16 @@ def run_shear_stress_stressor(
             bin_layer(
                 os.path.join(output_path, "shear_stress_risk_metric.tif"),
                 receptor_filename=os.path.join(
-                    output_path, "shear_stress_risk_layer.tif"
+                    output_path, "shear_stress_area_of_interest.tif"
                 ),
                 receptor_names=None,
                 limit_receptor_range=[0, np.inf],
                 latlon=crs == 4326,
-                receptor_type="risk layer",
+                receptor_type="area of interest",
             ).to_csv(
                 os.path.join(
                     output_path,
-                    "shear_stress_risk_metric_at_shear_stress_risk_layer.csv",
+                    "shear_stress_risk_metric_at_area_of_interest.csv",
                 ),
                 index=False,
             )
@@ -812,7 +812,7 @@ def run_shear_stress_stressor(
                     output_path, "sediment_mobility_difference.tif"
                 ),
                 secondary_constraint_filename=os.path.join(
-                    output_path, "shear_stress_risk_layer.tif"
+                    output_path, "shear_stress_area_of_interest.tif"
                 ),
                 at_raster_values=[-3, -2, -1, 0, 1, 2, 3],
                 at_raster_value_names=[
@@ -826,11 +826,11 @@ def run_shear_stress_stressor(
                 ],
                 limit_constraint_range=[0, np.inf],
                 latlon=crs == 4326,
-                receptor_type="risk layer",
+                receptor_type="area of interest",
             ).to_csv(
                 os.path.join(
                     output_path,
-                    "sediment_mobility_difference_at_shear_stress_risk_layer.csv",
+                    "sediment_mobility_difference_at_shear_stress_area_of_interest.csv",
                 ),
                 index=False,
             )

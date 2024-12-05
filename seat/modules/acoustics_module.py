@@ -189,8 +189,8 @@ def calc_probabilistic_metrics(
     threshold,
     paracousti,
     baseline_input,
-    XCOR,
-    YCOR,
+    xcor,
+    ycor,
     latlon,
     metric_calc="SPL",
     species_folder=None,
@@ -211,12 +211,12 @@ def calc_probabilistic_metrics(
         paracousti acoustic metric with axis=0 (N) corresponding to unique files
     baseline_input : array [N, x, y]
         baseline acoustic metric with axis=0 (N) corresponding to unique files
-    XCOR : array [x,y]
+    xcor : array [x,y]
         x-coordinate
-    YCOR : array [x,y]
+    ycor : array [x,y]
         y-coordinate
     latlon : bool
-        True if XCOR,YCOR are lonlat, False if UTM
+        True if xcor,ycor are lonlat, False if UTM
     metric_calc: str ['SEL'|'SPL'], defaults to 'SPL'
         type of metric, either sound pressure level (SPL) or sound exposure level (SEL)
     species_folder: filepath, str, defaults to None
@@ -253,13 +253,13 @@ def calc_probabilistic_metrics(
     # SPL stressor calculations
     for ic, paracousti_file in enumerate(paracousti_files):
         # paracousti files might not have regular grid spacing.
-        rx, ry, device_ss = redefine_structured_grid(XCOR, YCOR, paracousti[ic, :])
+        rx, ry, device_ss = redefine_structured_grid(xcor, ycor, paracousti[ic, :])
 
         baseline_present = False if np.all(np.isnan(baseline_input[ic, :])) else True
 
         if baseline_present:
             baseline_ss = resample_structured_grid(
-                XCOR, YCOR, baseline_input[ic, :], rx, ry
+                xcor, ycor, baseline_input[ic, :], rx, ry
             )
         if ic == 0:
             device = np.zeros(rx.shape)
@@ -360,8 +360,8 @@ def calc_nonprobabilistic_metrics(
     threshold,
     paracousti,
     baseline_input,
-    XCOR,
-    YCOR,
+    xcor,
+    ycor,
     latlon,
     metric_calc="SPL",
     species_folder=None,
@@ -383,12 +383,12 @@ def calc_nonprobabilistic_metrics(
         paracousti acoustic metric with axis=0 (N) corresponding to unique files
     baseline_input : array [N, x, y]
         baseline acoustic metric with axis=0 (N) corresponding to unique files
-    XCOR : array [x,y]
+    xcor : array [x,y]
         x-coordinate
-    YCOR : array [x,y]
+    ycor : array [x,y]
         y-coordinate
     latlon : bool
-        True if XCOR,YCOR are lonlat, False if UTM
+        True if xcor,ycor are lonlat, False if UTM
     metric_calc: str ['SEL'|'SPL'], defaults to 'SPL'
         type of metric, either sound pressure level (SPL) or sound exposure level (SEL)
     species_folder: filepath, str, defaults to None
@@ -435,19 +435,21 @@ def calc_nonprobabilistic_metrics(
     percent = {}
     density = {}
 
+    duration_seconds = None
+    
     if metric_calc == "SEL":
         duration_seconds = sel_hours * 60 * 60
 
     for ic, paracousti_file in enumerate(paracousti_files):
         pname = ".".join(os.path.basename(paracousti_file).split(".")[:-1])
         # paracousti files might not have regular grid spacing.
-        rx, ry, device_ss = redefine_structured_grid(XCOR, YCOR, paracousti[ic, :])
+        rx, ry, device_ss = redefine_structured_grid(xcor, ycor, paracousti[ic, :])
 
         baseline_present = False if np.all(np.isnan(baseline_input[ic, :])) else True
 
         if baseline_present:
             baseline_ss = resample_structured_grid(
-                XCOR, YCOR, baseline_input[ic, :], rx, ry
+                xcor, ycor, baseline_input[ic, :], rx, ry
             )
         else:
             baseline_ss = np.zeros(rx.shape)
@@ -613,10 +615,10 @@ def calculate_acoustic_stressors(
                 xunits = ds.variables[cords[0]].units
                 if "degrees" in xunits:
                     latlon = True
-                    XCOR = np.where(X < 0, X + 360, X)
+                    xcor = np.where(X < 0, X + 360, X)
                 else:
-                    XCOR = X
-                YCOR = Y
+                    xcor = X
+                ycor = Y
                 paracousti = np.zeros(
                     (
                         len(paracousti_files),
@@ -693,8 +695,8 @@ def calculate_acoustic_stressors(
         threshold,
         paracousti,
         baseline_input,
-        XCOR,
-        YCOR,
+        xcor,
+        ycor,
         latlon,
         metric_calc=metric_calc,
         species_folder=species_folder,
@@ -716,8 +718,8 @@ def calculate_acoustic_stressors(
         threshold,
         paracousti,
         baseline_input,
-        XCOR,
-        YCOR,
+        xcor,
+        ycor,
         latlon,
         metric_calc=metric_calc,
         species_folder=species_folder,
@@ -1089,7 +1091,7 @@ def run_acoustics_stressor(
             species_percent
             species_density
         if secondary_constraint_filename
-            risk_layer
+            area_of_interest
 
     OUTOUT_nonprobabilistic : dict
         raster filenames for the non-probabilistic calculations
@@ -1165,12 +1167,12 @@ def run_acoustics_stressor(
         rrx, rry, constraint = secondary_constraint_geotiff_to_numpy(
             secondary_constraint_filename
         )
-        dict_of_probabilistic_arrays["paracousti_risk_layer"] = (
+        dict_of_probabilistic_arrays["paracousti_area_of_interest"] = (
             resample_structured_grid(
                 rrx, rry, constraint, rx, ry, interpmethod="nearest"
             )
         )
-        use_probabilistic_arrays.append("paracousti_risk_layer")
+        use_probabilistic_arrays.append("paracousti_area_of_interest")
 
     output_rasters_probabilistic = create_output_rasters_probabilistic(
         use_probabilistic_arrays,
