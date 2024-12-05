@@ -1096,15 +1096,12 @@ class StressorReceptorCalc:
                 for key in list(sfilenames.keys())[
                     ::-1
                 ]:  # add styles files and/or display
-                    if stylefiles_df is None:
-                        self.add_layer(sfilenames[key], root=root, group=group)
-                    else:
-                        self.add_layer(
-                            sfilenames[key],
-                            stylefiles_df.loc[key].item(),
-                            root=root,
-                            group=group,
-                        )
+                    style = (
+                        stylefiles_df.loc[key].item()
+                        if stylefiles_df is not None and key in stylefiles_df.keys()
+                        else None
+                    )
+                    self.add_layer(sfilenames[key], style, root=root, group=group)
 
             # Run Velocity Module
             if not (
@@ -1138,15 +1135,12 @@ class StressorReceptorCalc:
                 for key in list(vfilenames.keys())[
                     ::-1
                 ]:  # add styles files and/or display
-                    if stylefiles_df is None:
-                        self.add_layer(vfilenames[key], root=root, group=group)
-                    else:
-                        self.add_layer(
-                            vfilenames[key],
-                            stylefiles_df.loc[key].item(),
-                            root=root,
-                            group=group,
-                        )
+                    style = (
+                        stylefiles_df.loc[key].item()
+                        if stylefiles_df is not None and key in stylefiles_df.keys()
+                        else None
+                    )
+                    self.add_layer(vfilenames[key], style, root=root, group=group)
 
             # Run Acoustics Module
             if not (
@@ -1193,18 +1187,12 @@ class StressorReceptorCalc:
                 for key in list(pfilenames_probabilistic.keys())[
                     ::-1
                 ]:  # add styles files and/or display
-
-                    if stylefiles_df is None:
-                        self.add_layer(
-                            pfilenames_probabilistic[key], root=root, group=group
-                        )
-                    else:
-                        self.add_layer(
-                            pfilenames_probabilistic[key],
-                            stylefiles_df.loc[key].item(),
-                            root=root,
-                            group=group,
-                        )
+                    style = (
+                        stylefiles_df.loc[key].item()
+                        if stylefiles_df is not None and key in stylefiles_df.keys()
+                        else None
+                    )
+                    self.add_layer(pfilenames_probabilistic[key], style, root=root, group=group)
 
                 group_name = "Acoustic Stressor - Non-Probilistic"
                 root = QgsProject.instance().layerTreeRoot()
@@ -1219,21 +1207,12 @@ class StressorReceptorCalc:
                     if subgroup is None:
                         subgroup = group.addGroup(key)
                     for var in list(pfilenames_nonprobabilistic[key].keys())[::-1]:
-                        if stylefiles_df is None:
-                            self.add_layer(
-                                pfilenames_nonprobabilistic[key][var],
-                                root=root,
-                                group=group,
-                                subgroup=subgroup,
+                        style = (
+                            stylefiles_df.loc[key].item()
+                            if stylefiles_df is not None and key in stylefiles_df.keys()
+                            else None
                             )
-                        else:
-                            self.add_layer(
-                                pfilenames_nonprobabilistic[key][var],
-                                stylefiles_df.loc[key].item(),
-                                root=subgroup,
-                                group=group,
-                                subgroup=subgroup,
-                            )
+                        self.add_layer(pfilenames_nonprobabilistic[key][var], style, root=root, group=group)
                     subgroup.setExpanded(False)  # collapse the subgroup
 
             # remove temproary layer group
