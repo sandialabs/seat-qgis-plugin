@@ -910,13 +910,13 @@ def create_probabilistic_binned_csv(
     ):
         bin_layer(
             os.path.join(output_path, "paracousti_stressor.tif"),
-            receptor_filename=os.path.join(output_path, "paracousti_risk_layer.tif"),
+            receptor_filename=os.path.join(output_path, "paracousti_area_of_interest.tif"),
             receptor_names=None,
             limit_receptor_range=[0, np.inf],
             latlon=crs == 4326,
         ).to_csv(
             os.path.join(
-                output_path, "paracousti_stressor_at_paracousti_risk_layer.csv"
+                output_path, "paracousti_stressor_at_paracousti_area_of_interest.csv"
             ),
             index=False,
         )
@@ -938,13 +938,13 @@ def create_probabilistic_binned_csv(
                 bin_layer(
                     os.path.join(output_path, var + ".tif"),
                     receptor_filename=os.path.join(
-                        output_path, "paracousti_risk_layer.tif"
+                        output_path, "paracousti_area_of_interest.tif"
                     ),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
                     latlon=crs == 4326,
                 ).to_csv(
-                    os.path.join(output_path, var + "_at_paracousti_risk_layer.csv"),
+                    os.path.join(output_path, var + "_at_paracousti_area_of_interest.csv"),
                     index=False,
                 )
 
@@ -1009,7 +1009,7 @@ def create_nonprobabilistic_binned_csv(
                 bin_layer(
                     os.path.join(output_path, file),
                     receptor_filename=os.path.join(
-                        output_path, "paracousti_risk_layer.tif"
+                        output_path, "paracousti_area_of_interest.tif"
                     ),
                     receptor_names=None,
                     limit_receptor_range=[0, np.inf],
@@ -1017,7 +1017,7 @@ def create_nonprobabilistic_binned_csv(
                 ).to_csv(
                     os.path.join(
                         output_path,
-                        file.split(".tif")[0] + "_at_paracousti_risk_layer.csv",
+                        file.split(".tif")[0] + "_at_paracousti_area_of_interest.csv",
                     ),
                     index=False,
                 )

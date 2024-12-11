@@ -335,7 +335,7 @@ class StressorReceptorCalc:
             self.test_exists(self.dlg.shear_probabilities_file, fin, "File")
             fin = config.get("Input", "shear stress grain size file")
             self.test_exists(self.dlg.shear_grain_size_file, fin, "File")
-            fin = config.get("Input", "shear stress risk layer file")
+            fin = config.get("Input", "shear stress area of interest file")
             self.test_exists(self.dlg.shear_aoi_file, fin, "File")
             self.dlg.shear_averaging_combobox.setCurrentText(
                 config.get("Input", "shear stress averaging")
@@ -349,7 +349,7 @@ class StressorReceptorCalc:
             self.test_exists(self.dlg.velocity_probabilities_file, fin, "File")
             fin = config.get("Input", "velocity threshold file")
             self.test_exists(self.dlg.velocity_threshold_file, fin, "File")
-            fin = config.get("Input", "velocity risk layer file")
+            fin = config.get("Input", "velocity area of interest file")
             self.test_exists(self.dlg.velocity_aoi_file, fin, "File")
             self.dlg.velocity_averaging_combobox.setCurrentText(
                 config.get("Input", "velocity Averaging")
@@ -367,7 +367,7 @@ class StressorReceptorCalc:
             self.dlg.paracousti_species_grid_resolution.setText(
                 config.get("Input", "paracousti_species_grid_resolution")
             )
-            fin = config.get("Input", "paracousti risk layer file")
+            fin = config.get("Input", "paracousti area of interest file")
             self.test_exists(self.dlg.paracousti_aoi_file, fin, "File")
             fin = config.get("Input", "paracousti species filepath")
             self.test_exists(self.dlg.paracousti_species_directory, fin, "Directory")
@@ -414,19 +414,19 @@ class StressorReceptorCalc:
                 "shear stress averaging": self.dlg.shear_averaging_combobox.currentText(),
                 "shear stress probabilities file": self.dlg.shear_probabilities_file.text(),
                 "shear stress grain size file": self.dlg.shear_grain_size_file.text(),
-                "shear stress risk layer file": self.dlg.shear_aoi_file.text(),
+                "shear stress area of interest file": self.dlg.shear_aoi_file.text(),
                 "velocity device present filepath": self.dlg.velocity_device_present.text(),
                 "velocity device not present filepath": self.dlg.velocity_device_not_present.text(),
                 "velocity averaging": self.dlg.velocity_averaging_combobox.currentText(),
                 "velocity probabilities file": self.dlg.velocity_probabilities_file.text(),
                 "velocity threshold file": self.dlg.velocity_threshold_file.text(),
-                "velocity risk layer file": self.dlg.velocity_aoi_file.text(),
+                "velocity area of interest file": self.dlg.velocity_aoi_file.text(),
                 "paracousti device present filepath": self.dlg.paracousti_device_present.text(),
                 "paracousti device not present filepath": self.dlg.paracousti_device_not_present.text(),  # pylint: disable=line-too-long
                 "paracousti averaging": self.dlg.paracousti_averaging_combobox.currentText(),
                 "paracousti probabilities file": self.dlg.paracousti_probabilities_file.text(),
                 "paracousti_threshold_value": self.dlg.paracousti_threshold_value.text(),
-                "paracousti risk layer file": self.dlg.paracousti_aoi_file.text(),
+                "paracousti area of interest file": self.dlg.paracousti_aoi_file.text(),
                 "paracousti species filepath": self.dlg.paracousti_species_directory.text(),
                 "paracousti metric": self.dlg.paracousti_metric_selection_combobox.currentText(),
                 "paracousti weighting": self.dlg.paracousti_weighting_combobox.currentText(),
@@ -1098,7 +1098,7 @@ class StressorReceptorCalc:
                 ]:  # add styles files and/or display
                     style = (
                         stylefiles_df.loc[key].item()
-                        if stylefiles_df is not None and key in stylefiles_df.keys()
+                        if stylefiles_df is not None and key in stylefiles_df.index.values
                         else None
                     )
                     self.add_layer(sfilenames[key], style, root=root, group=group)
@@ -1137,7 +1137,7 @@ class StressorReceptorCalc:
                 ]:  # add styles files and/or display
                     style = (
                         stylefiles_df.loc[key].item()
-                        if stylefiles_df is not None and key in stylefiles_df.keys()
+                        if stylefiles_df is not None and key in stylefiles_df.index.values
                         else None
                     )
                     self.add_layer(vfilenames[key], style, root=root, group=group)
@@ -1189,7 +1189,7 @@ class StressorReceptorCalc:
                 ]:  # add styles files and/or display
                     style = (
                         stylefiles_df.loc[key].item()
-                        if stylefiles_df is not None and key in stylefiles_df.keys()
+                        if stylefiles_df is not None and key in stylefiles_df.index.values
                         else None
                     )
                     self.add_layer(pfilenames_probabilistic[key], style, root=root, group=group)
@@ -1209,10 +1209,10 @@ class StressorReceptorCalc:
                     for var in list(pfilenames_nonprobabilistic[key].keys())[::-1]:
                         style = (
                             stylefiles_df.loc[key].item()
-                            if stylefiles_df is not None and key in stylefiles_df.keys()
+                            if stylefiles_df is not None and key in stylefiles_df.index.values
                             else None
                             )
-                        self.add_layer(pfilenames_nonprobabilistic[key][var], style, root=root, group=group)
+                        self.add_layer(pfilenames_nonprobabilistic[key][var], style, root=root, group=subgroup)
                     subgroup.setExpanded(False)  # collapse the subgroup
 
             # remove temproary layer group
