@@ -181,7 +181,7 @@
     <enum>QTabWidget::Triangular</enum>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>0</number>
    </property>
    <property name="iconSize">
     <size>
@@ -360,7 +360,7 @@
        </widget>
       </item>
       <item row="4" column="1">
-       <widget class="QLineEdit" name="shear_risk_file">
+       <widget class="QLineEdit" name="shear_aoi_file">
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -636,7 +636,7 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item row="4" column="1">
-       <widget class="QLineEdit" name="velocity_risk_file">
+       <widget class="QLineEdit" name="velocity_aoi_file">
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -710,7 +710,7 @@ p, li { white-space: pre-wrap; }
       <enum>QTabWidget::Triangular</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <property name="iconSize">
       <size>
@@ -808,7 +808,7 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QLineEdit" name="paracousti_risk_file">
+         <widget class="QLineEdit" name="paracousti_aoi_file">
           <property name="font">
            <font>
             <pointsize>8</pointsize>
@@ -1402,14 +1402,14 @@ p, li { white-space: pre-wrap; }
   <tabstop>shear_device_not_present</tabstop>
   <tabstop>velocity_threshold_file</tabstop>
   <tabstop>output_stylefile</tabstop>
-  <tabstop>velocity_risk_file</tabstop>
+  <tabstop>velocity_aoi_file</tabstop>
   <tabstop>shear_device_present</tabstop>
   <tabstop>crs</tabstop>
   <tabstop>shear_probabilities_file</tabstop>
   <tabstop>velocity_device_not_present</tabstop>
   <tabstop>shear_grain_size_file</tabstop>
   <tabstop>output_folder</tabstop>
-  <tabstop>shear_risk_file</tabstop>
+  <tabstop>shear_aoi_file</tabstop>
   <tabstop>power_files</tabstop>
   <tabstop>velocity_device_present</tabstop>
  </tabstops>

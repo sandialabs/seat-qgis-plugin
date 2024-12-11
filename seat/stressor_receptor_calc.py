@@ -278,7 +278,7 @@ class StressorReceptorCalc:
         self.dlg.velocity_probabilities_file.setText(
             self.dlg.shear_probabilities_file.text()
         )
-        self.dlg.velocity_risk_file.setText(self.dlg.shear_risk_file.text())
+        self.dlg.velocity_aoi_file.setText(self.dlg.shear_aoi_file.text())
 
     def select_crs(self) -> None:
         """Input the crs using the QGIS widget box."""
@@ -336,7 +336,7 @@ class StressorReceptorCalc:
             fin = config.get("Input", "shear stress grain size file")
             self.test_exists(self.dlg.shear_grain_size_file, fin, "File")
             fin = config.get("Input", "shear stress risk layer file")
-            self.test_exists(self.dlg.shear_risk_file, fin, "File")
+            self.test_exists(self.dlg.shear_aoi_file, fin, "File")
             self.dlg.shear_averaging_combobox.setCurrentText(
                 config.get("Input", "shear stress averaging")
             )
@@ -350,7 +350,7 @@ class StressorReceptorCalc:
             fin = config.get("Input", "velocity threshold file")
             self.test_exists(self.dlg.velocity_threshold_file, fin, "File")
             fin = config.get("Input", "velocity risk layer file")
-            self.test_exists(self.dlg.velocity_risk_file, fin, "File")
+            self.test_exists(self.dlg.velocity_aoi_file, fin, "File")
             self.dlg.velocity_averaging_combobox.setCurrentText(
                 config.get("Input", "velocity Averaging")
             )
@@ -368,7 +368,7 @@ class StressorReceptorCalc:
                 config.get("Input", "paracousti_species_grid_resolution")
             )
             fin = config.get("Input", "paracousti risk layer file")
-            self.test_exists(self.dlg.paracousti_risk_file, fin, "File")
+            self.test_exists(self.dlg.paracousti_aoi_file, fin, "File")
             fin = config.get("Input", "paracousti species filepath")
             self.test_exists(self.dlg.paracousti_species_directory, fin, "Directory")
             self.dlg.paracousti_averaging_combobox.setCurrentText(
@@ -414,19 +414,19 @@ class StressorReceptorCalc:
                 "shear stress averaging": self.dlg.shear_averaging_combobox.currentText(),
                 "shear stress probabilities file": self.dlg.shear_probabilities_file.text(),
                 "shear stress grain size file": self.dlg.shear_grain_size_file.text(),
-                "shear stress risk layer file": self.dlg.shear_risk_file.text(),
+                "shear stress risk layer file": self.dlg.shear_aoi_file.text(),
                 "velocity device present filepath": self.dlg.velocity_device_present.text(),
                 "velocity device not present filepath": self.dlg.velocity_device_not_present.text(),
                 "velocity averaging": self.dlg.velocity_averaging_combobox.currentText(),
                 "velocity probabilities file": self.dlg.velocity_probabilities_file.text(),
                 "velocity threshold file": self.dlg.velocity_threshold_file.text(),
-                "velocity risk layer file": self.dlg.velocity_risk_file.text(),
+                "velocity risk layer file": self.dlg.velocity_aoi_file.text(),
                 "paracousti device present filepath": self.dlg.paracousti_device_present.text(),
                 "paracousti device not present filepath": self.dlg.paracousti_device_not_present.text(),  # pylint: disable=line-too-long
                 "paracousti averaging": self.dlg.paracousti_averaging_combobox.currentText(),
                 "paracousti probabilities file": self.dlg.paracousti_probabilities_file.text(),
                 "paracousti_threshold_value": self.dlg.paracousti_threshold_value.text(),
-                "paracousti risk layer file": self.dlg.paracousti_risk_file.text(),
+                "paracousti risk layer file": self.dlg.paracousti_aoi_file.text(),
                 "paracousti species filepath": self.dlg.paracousti_species_directory.text(),
                 "paracousti metric": self.dlg.paracousti_metric_selection_combobox.currentText(),
                 "paracousti weighting": self.dlg.paracousti_weighting_combobox.currentText(),
@@ -572,8 +572,8 @@ class StressorReceptorCalc:
                 self.dlg.shear_grain_size_file.setStyleSheet("color: black;")
             if option == "risk_file":
                 file = self.select_file(file_filter="*.tif")
-                self.dlg.shear_risk_file.setText(file)
-                self.dlg.shear_risk_file.setStyleSheet("color: black;")
+                self.dlg.shear_aoi_file.setText(file)
+                self.dlg.shear_aoi_file.setStyleSheet("color: black;")
         if module == "velocity":
             if option == "probabilities_file":
                 file = self.select_file(file_filter="*.csv")
@@ -585,8 +585,8 @@ class StressorReceptorCalc:
                 self.dlg.velocity_threshold_file.setStyleSheet("color: black;")
             if option == "risk_file":
                 file = self.select_file(file_filter="*.tif")
-                self.dlg.velocity_risk_file.setText(file)
-                self.dlg.velocity_risk_file.setStyleSheet("color: black;")
+                self.dlg.velocity_aoi_file.setText(file)
+                self.dlg.velocity_aoi_file.setStyleSheet("color: black;")
         if module == "paracousti":
             if option == "probabilities_file":
                 file = self.select_file(file_filter="*.csv")
@@ -594,8 +594,8 @@ class StressorReceptorCalc:
                 self.dlg.paracousti_probabilities_file.setStyleSheet("color: black;")
             if option == "risk_file":
                 file = self.select_file(file_filter="*.tif")
-                self.dlg.paracousti_risk_file.setText(file)
-                self.dlg.paracousti_risk_file.setStyleSheet("color: black;")
+                self.dlg.paracousti_aoi_file.setText(file)
+                self.dlg.paracousti_aoi_file.setStyleSheet("color: black;")
         if module == "power":
             file = self.select_file(file_filter="*.csv")
             self.dlg.power_probabilities_file.setText(file)
@@ -822,9 +822,9 @@ class StressorReceptorCalc:
         self.dlg.paracousti_threshold_value.clear()
         self.dlg.paracousti_species_grid_resolution.clear()
 
-        self.dlg.shear_risk_file.clear()
-        self.dlg.velocity_risk_file.clear()
-        self.dlg.paracousti_risk_file.clear()
+        self.dlg.shear_aoi_file.clear()
+        self.dlg.velocity_aoi_file.clear()
+        self.dlg.paracousti_aoi_file.clear()
 
         self.dlg.paracousti_species_directory.clear()
 
@@ -965,13 +965,13 @@ class StressorReceptorCalc:
                     raise FileNotFoundError(
                         f"The file {velocity_threshold_file} does not exist."
                     )
-            shear_risk_layer_file = self.dlg.shear_risk_file.text()
+            shear_risk_layer_file = self.dlg.shear_aoi_file.text()
             if not ((shear_risk_layer_file is None) or (shear_risk_layer_file == "")):
                 if not os.path.exists(shear_risk_layer_file):
                     raise FileNotFoundError(
                         f"The file {shear_risk_layer_file} does not exist."
                     )
-            velocity_risk_layer_file = self.dlg.velocity_risk_file.text()
+            velocity_risk_layer_file = self.dlg.velocity_aoi_file.text()
             if not (
                 (velocity_risk_layer_file is None) or (velocity_risk_layer_file == "")
             ):
@@ -979,7 +979,7 @@ class StressorReceptorCalc:
                     raise FileNotFoundError(
                         f"The file {velocity_risk_layer_file} does not exist."
                     )
-            paracousti_risk_layer_file = self.dlg.paracousti_risk_file.text()
+            paracousti_risk_layer_file = self.dlg.paracousti_aoi_file.text()
             if not (
                 (paracousti_risk_layer_file is None)
                 or (paracousti_risk_layer_file == "")
