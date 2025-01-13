@@ -23,7 +23,7 @@ Output
 
 The above example case evaluates the impact on sediment mobility considering a single median grain size receptor in a CSV file. The probability-weighted shear stress with devices is compared to the scenario without devices. The resulting stressor (change in shear stress), stressor with receptor (change in sediment mobility), and the reclassified stressor from the analysis are illustrated below.
 
-Some example output layers are shwown in the Figure below. To add the map layer see the :ref:`quick_map_services` section. 
+Some example output layers are shown in the Figure below. To add the map layer see the :ref:`quick_map_services` section. 
 
 .. list-table:: 
    :widths: 50 50
