@@ -137,7 +137,7 @@ Results in this tutorial will utilize the QuickMapServices plugin in QGIS. To in
    │       grain_size_receptor.csv
    │       velocity_receptor.csv
    │
-   ├───risk_layer
+   ├───area_of_interest
    │       habitat_classification.tif
    │
    └───species

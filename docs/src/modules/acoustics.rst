@@ -15,7 +15,7 @@ The module determines the percentage of time that an acoustics threshold will be
 by combining a probability weighted acoustic field derived from individual Paracousti simulation NetCDF files; 
 and a species auditory threshold. 
 SEAT can determine the likelihood of a species being impacted by using probability of occurrence or species density maps. 
-Additionally, with the inclusion of a risk layer, the impacts on specific regions of interest can be evaluated, such as within breeding grounds or in different vegetation.
+Additionally, with the inclusion of a Area of Interest, the impacts on specific regions of interest can be evaluated, such as within breeding grounds or in different vegetation.
 Two different analyses are carried out for the acoustics calculations: probabilistic and non-probabilistic. 
 The probabilistic calculation uses the probabilities file to determine the 24-hour signal for SEL weighted by the probabilities file. 
 For SPL, a probability weighted single is calculated.
@@ -31,7 +31,7 @@ These include:
 
   - \*Model Probability Condition file (CSV): Used to weight the likelihood of different run scenarios occurring (i.e., likelihood of environmental conditions)
   
-  - \*Risk layer file (GeoTIFF): Contains spatial classifications, used to evaluate the impact of the devices on the environment
+  - \*Area of Interest file (GeoTIFF): Contains spatial classifications, used to evaluate the impact of the devices on the environment
   
   - \*Spatial Probability/Density directory (directory): includes GeoTiffs or CSVs of species, density and corresponds to the probabilities file
 
@@ -96,11 +96,11 @@ For example, if the filename is Hw0.5.nc, the stressor file will be named paraco
       - **species_percent.csv**
       - **species_density.csv**
 
-Segmented by spatial classification when using the risk layer file: 
+Segmented by spatial classification when using the Area of Interest file: 
 
-      - **paracousti_stressor_at_paracousti_risk_layer.csv**
-      - **species_density_at_paracousti_risk_layer.csv**
-      - **species_percent_at_paracousti_risk_layer.csv**
+      - **paracousti_stressor_at_paracousti_area_of_interest.csv**
+      - **species_density_at_paracousti_area_of_interest.csv**
+      - **species_percent_at_paracousti_area_of_interest.csv**
   
 
 

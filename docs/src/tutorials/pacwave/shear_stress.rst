@@ -37,14 +37,14 @@ Some example output layers are shwown in the Figure below. To add the map layer 
 
           <div style="text-align: center">Layers Legend</div>
 
-     - .. image:: ../../media/pacwave_shear_stress_risk_layer.webp
+     - .. image:: ../../media/pacwave_shear_stress_area_of_interest.webp
          :scale: 35 %
-         :alt: Sediment Risk Layer
+         :alt: Sediment Area of Interest
          :align: center
 
        .. raw:: html
 
-          <div style="text-align: center;">Sediment Risk Layer</div>
+          <div style="text-align: center;">Sediment Area of Interest</div>
 
    * - .. image:: ../../media/pacwave_shear_stress_mobility_difference.webp
          :scale: 35 %
@@ -81,17 +81,17 @@ Additional output files can be found in the specifed Output folder.
                sediment_mobility_difference.csv
                sediment_mobility_difference.tif
                sediment_mobility_difference_at_sediment_grain_size.csv
-               sediment_mobility_difference_at_shear_stress_risk_layer.csv
+               sediment_mobility_difference_at_shear_stress_area_of_interest.csv
                sediment_mobility_without_devices.tif
                sediment_mobility_with_devices.tif
                shear_stress_difference.csv
                shear_stress_difference.tif
                shear_stress_difference_at_secondary_constraint.csv
                shear_stress_difference_at_sediment_grain_size.csv
-               shear_stress_risk_layer.tif
+               shear_stress_area_of_interest.tif
                shear_stress_risk_metric.csv
                shear_stress_risk_metric.tif
                shear_stress_risk_metric_at_sediment_grain_size.csv
-               shear_stress_risk_metric_at_shear_stress_risk_layer.csv
+               shear_stress_risk_metric_at_shear_stress_area_of_interest.csv
                shear_stress_without_devices.tif
                shear_stress_with_devices.tif

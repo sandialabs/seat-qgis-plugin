@@ -85,14 +85,14 @@ Key:
 - `Species Density File`: Either a .csv or .tif file detailing species density.
 - `% of yr`: Represents the percentage of the year.
 
-Risk Layer (Optional)
+Area of Interest (Optional)
 ^^^^^^^^^^^^^^^^^^^^^^
 
-The risk layer is a receptor file that serves as an additional input to each module and designates which layers are sensitive and would be affected by the acoustics. It must be a numerically classified .tif format, the same as what is used in the shear stress and velocity modules.
+The Area of Interest is a receptor file that serves as an additional input to each module and designates which layers are sensitive and would be affected by the acoustics. It must be a numerically classified .tif format, the same as what is used in the shear stress and velocity modules.
 
-.. figure:: ../../media/risk_layer_gui_input.webp
+.. figure:: ../../media/aoi_layer_gui_input.webp
    :scale: 100%
-   :alt: Risk Layer File
+   :alt: Area of Interest File
 
    Represents a layer to evaluate change against. Examples include vegetation habitat, marine ecosystems, contaminated sediments, marine protected areas, or archaeological artifacts.
 

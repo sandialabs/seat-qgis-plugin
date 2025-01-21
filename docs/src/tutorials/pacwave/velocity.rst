@@ -36,14 +36,14 @@ For this case the velocity with devices is compared to the velocity without devi
 
           <div style="text-align: center;">Layers Legend</div>
 
-     - .. image:: ../../media/pacwave_velocity_risk_layer.webp
+     - .. image:: ../../media/pacwave_velocity_area_of_interest.webp
          :scale: 25 %
-         :alt: Risk Layer
+         :alt: Area of Interest
          :align: center
 
        .. raw:: html
 
-          <div style="text-align: center;">Velocity Risk Layer</div>
+          <div style="text-align: center;">Velocity Area of Interest</div>
 
    * - .. image:: ../../media/pacwave_motility_difference.webp
          :scale: 25 %
@@ -76,17 +76,17 @@ Additional output files can be found in the specifed Output folder.
                 motility_classified.csv
                 motility_classified.tif
                 motility_classified_at_critical_velocity.csv
-                motility_classified_at_velocity_risk_layer.csv
+                motility_classified_at_velocity_area_of_interest.csv
                 motility_difference.csv
                 motility_difference.tif
                 motility_difference_at_critical_velocity.csv
-                motility_difference_at_velocity_risk_layer.csv
+                motility_difference_at_velocity_area_of_interest.csv
                 motility_without_devices.tif
                 motility_with_devices.tif
                 velocity_magnitude_difference.csv
                 velocity_magnitude_difference.tif
                 velocity_magnitude_difference_at_critical_velocity.csv
-                velocity_magnitude_difference_at_velocity_risk_layer.csv
+                velocity_magnitude_difference_at_velocity_area_of_interest.csv
                 velocity_magnitude_without_devices.tif
                 velocity_magnitude_with_devices.tif
-                velocity_risk_layer.tif
+                velocity_area_of_interest.tif

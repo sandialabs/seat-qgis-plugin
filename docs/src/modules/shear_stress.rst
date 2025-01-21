@@ -1,7 +1,7 @@
 
 Shear Stress Module
 -------------------
-The SEAT shear stress module evaluates the impacts of sediment mobilization over defined risk layers for the installation of Marine Energy Converters (Wave Energy Converter (WEC) and Current Energy Converter (CEC)) arrays for either wave or current flow conditions. The input is numerical model simulation from SNL-SWAN, SNL-Delft3d-CEC, or any similarly formatted NetCDF file and an optional hydrodynamic probabilities file. The threshold receptor for this analysis is a grain size map from which a critical shear stress for sediment mobility is calculated. Using the ratio between the calculated shear stress and the critical shear stress for sediment mobility, a transport parameter is calculated for both the baseline and MEC simulations. The relative change between these two values defines the mobilization and depositional regime (i.e. erosional and accretional) and whether the regime changes with the presence of MECs. A risk metric, defined in Jones et al (2018), classifies the type of changes associated with changes in sediment mobility. Output from this analysis include the summaries of the difference in shear stress across modeled conditions with and without devices, the resulting difference in the transport potential based on bed sediment properties, and derivation of a risk metric that represents the potential for environmental change. SEAT can also evaluate the impact to various user defined benthic characteristics, such as vegetation, marine species habitat, sediment characteristics, marine infrastructure (shipping channels, buried cables, etc.), or contaminated sediments with the inclusion of an additional risk layer.
+The SEAT shear stress module evaluates the impacts of sediment mobilization over defined Area of Interests for the installation of Marine Energy Converters (Wave Energy Converter (WEC) and Current Energy Converter (CEC)) arrays for either wave or current flow conditions. The input is numerical model simulation from SNL-SWAN, SNL-Delft3d-CEC, or any similarly formatted NetCDF file and an optional hydrodynamic probabilities file. The threshold receptor for this analysis is a grain size map from which a critical shear stress for sediment mobility is calculated. Using the ratio between the calculated shear stress and the critical shear stress for sediment mobility, a transport parameter is calculated for both the baseline and MEC simulations. The relative change between these two values defines the mobilization and depositional regime (i.e. erosional and accretional) and whether the regime changes with the presence of MECs. A risk metric, defined in Jones et al (2018), classifies the type of changes associated with changes in sediment mobility. Output from this analysis include the summaries of the difference in shear stress across modeled conditions with and without devices, the resulting difference in the transport potential based on bed sediment properties, and derivation of a risk metric that represents the potential for environmental change. SEAT can also evaluate the impact to various user defined benthic characteristics, such as vegetation, marine species habitat, sediment characteristics, marine infrastructure (shipping channels, buried cables, etc.), or contaminated sediments with the inclusion of an additional Area of Interest.
 
 Input 
 ^^^^^^
@@ -11,7 +11,7 @@ These include:
   - NetCDF files: model output with 1) baseline runs; 2) devices present runs.
   - \*Receptor file (GeoTIFF or CSV): Contains grain size values.
   - \*Model Probability Condition file (CSV): Contains model weights, used to weight different run scenarios.
-  - \*Risk layer file (GeoTIFF): contains spatial classifications, used to evaluate the impact of the devices on the environment.
+  - \*Area of Interest file (GeoTIFF): contains spatial classifications, used to evaluate the impact of the devices on the environment.
 
   \* Optional input files
 
@@ -66,7 +66,7 @@ Output is saved in the **Shear Stress** subdirectory.
   - **sediment_mobility_difference**: The mobility (Tau/TauCrit) difference between shear stress with devices and baseline models results using the grain size in the receptor file.
   - **sediment_grain_size.tif** : the receptor file interpolated to the same grid as the output
   - **sediment_mobility_classified.tif** : reclassified into increased erosion or deposition compared to the baseline model run.
-  - **shear_stress_risk_layer.tif** :  the risk layer interpolated to the same grid as the output
+  - **shear_stress_area_of_interest.tif** :  the Area of Interest interpolated to the same grid as the output
   - **shear_stress_risk_metric.tif** : A quantified risk metric based on `Jones et al. (2018) Equation 7 <https://doi.org/10.3390/en11082036>`_
 
 CSV files
@@ -87,10 +87,10 @@ Segmented by grain size when using the grain size receptor file:
       - **sediment_mobility_classified_at_sediment_grain_size.csv**
       - **shear_stress_risk_metric_at_sediment_grain_size**
 
-Segmented by spatial classification when using the risk layer file: 
+Segmented by spatial classification when using the Area of Interest file: 
 
-      - **sediment_mobility_difference_at_shear_stress_risk_layer.csv**
-      - **shear_stress_risk_metric_at_shear_stress_risk_layer.csv**
+      - **sediment_mobility_difference_at_shear_stress_area_of_interest.csv**
+      - **shear_stress_risk_metric_at_shear_stress_area_of_interest.csv**
 
 
 

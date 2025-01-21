@@ -40,7 +40,7 @@ Upon processing, you will receive access to a collection of folders containing t
       │   │   └───4x4
       │   ├───probabilities
       │   ├───receptor
-      │   ├───risk_layer
+      │   ├───area_of_interest
       │   └───species
       │
       ├───tanana_river
