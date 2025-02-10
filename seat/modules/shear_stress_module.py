@@ -22,7 +22,7 @@
   Eben Pendelton
 
  NOTES (Data descriptions and any script specific notes)
-	1. called by stressor_receptor_calc.py
+        1. called by stressor_receptor_calc.py
 """
 
 import os
@@ -657,7 +657,9 @@ def run_shear_stress_stressor(
     ):
         bin_layer(
             os.path.join(output_path, "shear_stress_difference.tif"),
-            receptor_filename=os.path.join(output_path, "shear_stress_area_of_interest.tif"),
+            receptor_filename=os.path.join(
+                output_path, "shear_stress_area_of_interest.tif"
+            ),
             receptor_names=None,
             limit_receptor_range=[0, np.inf],
             latlon=crs == 4326,

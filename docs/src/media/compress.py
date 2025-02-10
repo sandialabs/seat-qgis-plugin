@@ -20,6 +20,7 @@ def compress_image(image_path, output_path, quality=100):
 
     resized_img.save(output_path, "WEBP", quality=quality)
 
+
 def process_pngs():
     for filename in os.listdir("."):
         if filename.endswith(".png"):
@@ -77,7 +78,8 @@ def main():
         process_single_png(filename)
     else:
         process_pngs()
-        #process_webp_files()
+        # process_webp_files()
+
 
 if __name__ == "__main__":
     main()

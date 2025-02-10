@@ -6,21 +6,21 @@
 # pylint: disable=too-many-branches
 # pylint: disable=too-many-lines
 
-""" stressor_receptor_calc.py
+"""stressor_receptor_calc.py
 
- AUTHORS
- Eben Pendelton
-  Timothy Nelson (tnelson@integral-corp.com)
-  Caleb Grant (cgrant@inegral-corp.com)
-  Sam McWilliams (smcwilliams@integral-corp.com)
+AUTHORS
+Eben Pendelton
+ Timothy Nelson (tnelson@integral-corp.com)
+ Caleb Grant (cgrant@inegral-corp.com)
+ Sam McWilliams (smcwilliams@integral-corp.com)
 
- NOTES (Data descriptions and any script specific notes)
-	1. plugin template from Plugin Builder: http://g-sherman.github.io/Qgis-Plugin-Builder/
-	2. refer to documentation regarding installation and input formatting.
-    3. requires installation of NETCDF4 (https://unidata.github.io/netcdf4-python/)
-       and QGIS (https://qgis.org/en/site/)
-    4. tested and created using QGIS v3.22
-    5. added habitat for shear stress
+NOTES (Data descriptions and any script specific notes)
+       1. plugin template from Plugin Builder: http://g-sherman.github.io/Qgis-Plugin-Builder/
+       2. refer to documentation regarding installation and input formatting.
+   3. requires installation of NETCDF4 (https://unidata.github.io/netcdf4-python/)
+      and QGIS (https://qgis.org/en/site/)
+   4. tested and created using QGIS v3.22
+   5. added habitat for shear stress
 """
 import configparser
 import os.path
@@ -1098,7 +1098,8 @@ class StressorReceptorCalc:
                 ]:  # add styles files and/or display
                     style = (
                         stylefiles_df.loc[key].item()
-                        if stylefiles_df is not None and key in stylefiles_df.index.values
+                        if stylefiles_df is not None
+                        and key in stylefiles_df.index.values
                         else None
                     )
                     self.add_layer(sfilenames[key], style, root=root, group=group)
@@ -1137,7 +1138,8 @@ class StressorReceptorCalc:
                 ]:  # add styles files and/or display
                     style = (
                         stylefiles_df.loc[key].item()
-                        if stylefiles_df is not None and key in stylefiles_df.index.values
+                        if stylefiles_df is not None
+                        and key in stylefiles_df.index.values
                         else None
                     )
                     self.add_layer(vfilenames[key], style, root=root, group=group)
@@ -1189,10 +1191,13 @@ class StressorReceptorCalc:
                 ]:  # add styles files and/or display
                     style = (
                         stylefiles_df.loc[key].item()
-                        if stylefiles_df is not None and key in stylefiles_df.index.values
+                        if stylefiles_df is not None
+                        and key in stylefiles_df.index.values
                         else None
                     )
-                    self.add_layer(pfilenames_probabilistic[key], style, root=root, group=group)
+                    self.add_layer(
+                        pfilenames_probabilistic[key], style, root=root, group=group
+                    )
 
                 group_name = "Acoustic Stressor - Non-Probilistic"
                 root = QgsProject.instance().layerTreeRoot()
@@ -1209,10 +1214,16 @@ class StressorReceptorCalc:
                     for var in list(pfilenames_nonprobabilistic[key].keys())[::-1]:
                         style = (
                             stylefiles_df.loc[key].item()
-                            if stylefiles_df is not None and key in stylefiles_df.index.values
+                            if stylefiles_df is not None
+                            and key in stylefiles_df.index.values
                             else None
-                            )
-                        self.add_layer(pfilenames_nonprobabilistic[key][var], style, root=root, group=subgroup)
+                        )
+                        self.add_layer(
+                            pfilenames_nonprobabilistic[key][var],
+                            style,
+                            root=root,
+                            group=subgroup,
+                        )
                     subgroup.setExpanded(False)  # collapse the subgroup
 
             # remove temproary layer group

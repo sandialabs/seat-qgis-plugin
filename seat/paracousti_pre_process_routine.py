@@ -12,8 +12,8 @@ import utils.paracousti_fxns as paracousti_fxns
 import xarray as xr
 import matplotlib.pyplot as plt
 
-paracousti_directory = r"C:\Users\aellenson\OneDrive - Integral Consulting Inc\C1308 Sandia\Tutorial_Files\Development\DEMO Files Tabbed GUI - Acoustics\pacwave\paracousti_files\\"  
-save_directory = r"C:\Users\aellenson\OneDrive - Integral Consulting Inc\C1308 Sandia\Tutorial_Files\Development\DEMO Files Tabbed GUI - Acoustics\pacwave\paracousti_files_with_metrics_TU\\"  
+paracousti_directory = r"C:\Users\aellenson\OneDrive - Integral Consulting Inc\C1308 Sandia\Tutorial_Files\Development\DEMO Files Tabbed GUI - Acoustics\pacwave\paracousti_files\\"
+save_directory = r"C:\Users\aellenson\OneDrive - Integral Consulting Inc\C1308 Sandia\Tutorial_Files\Development\DEMO Files Tabbed GUI - Acoustics\pacwave\paracousti_files_with_metrics_TU\\"
 os.makedirs(save_directory, exist_ok=True)
 weights = "All"
 status = paracousti_fxns.calc_paracousti_metrics(

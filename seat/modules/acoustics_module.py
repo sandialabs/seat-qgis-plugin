@@ -5,7 +5,7 @@
  Copyright 2023, Integral Consulting Inc. All rights reserved.
 
 
- PURPOSE: module for calcualting acoustic signal change from 
+ PURPOSE: module for calcualting acoustic signal change from
  paracousti files
 
  PROJECT INFORMATION:
@@ -436,7 +436,7 @@ def calc_nonprobabilistic_metrics(
     density = {}
 
     duration_seconds = None
-    
+
     if metric_calc == "SEL":
         duration_seconds = sel_hours * 60 * 60
 
@@ -910,7 +910,9 @@ def create_probabilistic_binned_csv(
     ):
         bin_layer(
             os.path.join(output_path, "paracousti_stressor.tif"),
-            receptor_filename=os.path.join(output_path, "paracousti_area_of_interest.tif"),
+            receptor_filename=os.path.join(
+                output_path, "paracousti_area_of_interest.tif"
+            ),
             receptor_names=None,
             limit_receptor_range=[0, np.inf],
             latlon=crs == 4326,
@@ -944,7 +946,9 @@ def create_probabilistic_binned_csv(
                     limit_receptor_range=[0, np.inf],
                     latlon=crs == 4326,
                 ).to_csv(
-                    os.path.join(output_path, var + "_at_paracousti_area_of_interest.csv"),
+                    os.path.join(
+                        output_path, var + "_at_paracousti_area_of_interest.csv"
+                    ),
                     index=False,
                 )
 

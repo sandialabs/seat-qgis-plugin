@@ -87,7 +87,7 @@ def read_obstacle_polygon_file(
 
 
 def find_mean_point_of_obstacle_polygon(
-    obstacles: Dict[str, NDArray[np.float64]]
+    obstacles: Dict[str, NDArray[np.float64]],
 ) -> NDArray[np.float64]:
     """
     Calculates the center of each obstacle.
