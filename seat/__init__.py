@@ -14,19 +14,19 @@ Contact              : https://github.com/sandialabs/seat-qgis-plugin
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- This script initializes the plugin, making it known to QGIS.
 """
 
+# pylint: disable=invalid-name
+def classFactory(iface):  # Function must be named classFactory for QGIS
+    """Load StressorReceptorCalc class from file StressorReceptorCalc.
+    A QGIS plugin calculates a response layer from stressor and receptor layers.
 
-def classFactory(iface):  # pylint: disable=invalid-name
-    """
-    Load StressorReceptorCalc class from file StressorReceptorCalc.
-    A QGIS plugin  calculates a response layer from stressor and receptor layers
+    Args:
+        iface: A QGIS interface instance.
 
-    :param iface: A QGIS interface instance.
-    :type iface: QgsInterface
+    Returns:
+        StressorReceptorCalc: The initialized plugin class
     """
-    #
+    # pylint: disable=import-outside-toplevel
     from .stressor_receptor_calc import StressorReceptorCalc
-
     return StressorReceptorCalc(iface)
