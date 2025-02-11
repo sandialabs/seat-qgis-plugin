@@ -16,6 +16,7 @@ Contact              : https://github.com/sandialabs/seat-qgis-plugin
  ***************************************************************************/
 """
 
+
 # pylint: disable=invalid-name
 def classFactory(iface):  # Function must be named classFactory for QGIS
     """Load StressorReceptorCalc class from file StressorReceptorCalc.
@@ -29,4 +30,5 @@ def classFactory(iface):  # Function must be named classFactory for QGIS
     """
     # pylint: disable=import-outside-toplevel
     from .stressor_receptor_calc import StressorReceptorCalc
+
     return StressorReceptorCalc(iface)
