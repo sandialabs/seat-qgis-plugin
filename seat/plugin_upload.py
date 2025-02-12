@@ -31,7 +31,9 @@ def hide_password(url: str, start: int = 6) -> str:
     return f"{url[:start_pos]}{'*' * (end_pos - start_pos)}{url[end_pos:]}"
 
 
-def upload_plugin(username: str, password: str, server: str, port: str, plugin_path: Path):
+def upload_plugin(
+    username: str, password: str, server: str, port: str, plugin_path: Path
+):
     """Uploads the plugin zip file to the server."""
     address = f"{PROTOCOL}://{username}:{password}@{server}:{port}{ENDPOINT}"
     logging.info("Connecting to: %s", hide_password(address))
@@ -59,12 +61,18 @@ def upload_plugin(username: str, password: str, server: str, port: str, plugin_p
 
 def main():
     """Parse command line arguments and upload the plugin to QGIS repository."""
-    parser = argparse.ArgumentParser(description="Upload a QGIS plugin to the repository.")
+    parser = argparse.ArgumentParser(
+        description="Upload a QGIS plugin to the repository."
+    )
     parser.add_argument("plugin_zip", type=Path, help="Path to the plugin zip file")
     parser.add_argument("-u", "--username", help="Username for plugin site")
     parser.add_argument("-w", "--password", help="Password for plugin site")
-    parser.add_argument("-s", "--server", default=SERVER, help=f"Server name (default: {SERVER})")
-    parser.add_argument("-p", "--port", default=PORT, help=f"Server port (default: {PORT})")
+    parser.add_argument(
+        "-s", "--server", default=SERVER, help=f"Server name (default: {SERVER})"
+    )
+    parser.add_argument(
+        "-p", "--port", default=PORT, help=f"Server port (default: {PORT})"
+    )
 
     args = parser.parse_args()
 

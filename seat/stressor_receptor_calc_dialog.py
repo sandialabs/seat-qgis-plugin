@@ -35,15 +35,17 @@ FORM_CLASS, _ = uic.loadUiType(
     ),
 )
 
+
 # pylint: disable=too-few-public-methods
 # pylint: disable=no-member
 class StressorReceptorCalcDialog(QtWidgets.QDialog, FORM_CLASS):
     """
     Dialog for the Stressor Receptor Calculator QGIS Plugin.
-    
+
     This dialog provides the interface for users to input parameters and run
     calculations for shear stress, velocity, acoustics and power modules.
     """
+
     def __init__(self, parent=None):
         """Constructor."""
         super().__init__(parent)
