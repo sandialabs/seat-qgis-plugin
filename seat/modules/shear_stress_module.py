@@ -205,6 +205,7 @@ def check_grid_define_vars(dataset: Dataset) -> tuple[str, str, str, str]:
     xvar, yvar = dataset.variables[tauvar].coordinates.split()
     return gridtype, xvar, yvar, tauvar
 
+
 # pylint: disable=R0913
 def calculate_shear_stress_stressors(
     fpath_nodev: str,
@@ -527,6 +528,7 @@ def calculate_shear_stress_stressors(
         }
 
     return dict_of_arrays, rx, ry, dx, dy, gridtype
+
 
 # pylint: disable=R0913
 def run_shear_stress_stressor(
