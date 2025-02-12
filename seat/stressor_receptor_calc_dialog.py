@@ -35,11 +35,18 @@ FORM_CLASS, _ = uic.loadUiType(
     ),
 )
 
-
+# pylint: disable=too-few-public-methods
+# pylint: disable=no-member
 class StressorReceptorCalcDialog(QtWidgets.QDialog, FORM_CLASS):
+    """
+    Dialog for the Stressor Receptor Calculator QGIS Plugin.
+    
+    This dialog provides the interface for users to input parameters and run
+    calculations for shear stress, velocity, acoustics and power modules.
+    """
     def __init__(self, parent=None):
         """Constructor."""
-        super(StressorReceptorCalcDialog, self).__init__(parent)
+        super().__init__(parent)
         # Set up the user interface from Designer through FORM_CLASS.
         # After self.setupUi() you can access any designer object by doing
         # self.<objectname>, and you can use autoconnect slots - see

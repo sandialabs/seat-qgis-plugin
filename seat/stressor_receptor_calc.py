@@ -68,6 +68,7 @@ from .stressor_receptor_calc_dialog import StressorReceptorCalcDialog
 class StressorReceptorCalc:
     """QGIS Plugin Implementation."""
 
+    # pylint: disable=too-many-positional-arguments
     def __init__(self, iface: "QgsInterface"):  # type: ignore
         """Constructor.
 
@@ -660,6 +661,7 @@ class StressorReceptorCalc:
         else:
             self.dlg.paracousti_species_grid_resolution.setStyleSheet("color: red;")
 
+    # pylint: disable=too-many-positional-arguments
     def run(self):
         """Run method that performs all the real work."""
 
