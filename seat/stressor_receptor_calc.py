@@ -459,7 +459,9 @@ class StressorReceptorCalc:
         basename = os.path.splitext(os.path.basename(fpath))[0]
         vlayer = QgsRasterLayer(fpath, basename)
         QgsProject.instance().addMapLayer(vlayer)
-        root = QgsProject.instance().layerTreeRoot()
+
+        if root is None:
+            root = QgsProject.instance().layerTreeRoot()
 
         if stylepath is not None:
             vlayer.loadNamedStyle(stylepath)
