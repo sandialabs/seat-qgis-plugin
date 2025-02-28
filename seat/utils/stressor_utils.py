@@ -64,6 +64,7 @@ def estimate_grid_spacing(
     return dxdy
 
 
+# pylint: disable=R0917
 def create_structured_array_from_unstructured(
     x: NDArray[np.float64],
     y: NDArray[np.float64],
@@ -306,6 +307,7 @@ def trim_zeros(
     return x[1:-1, 1:-1], y[1:-1, 1:-1], z1[:, :, 1:-1, 1:-1], z2[:, :, 1:-1, 1:-1]
 
 
+# pylint: disable=R0917
 def create_raster(
     output_path: str, cols: int, rows: int, nbands: int, e_type: int = gdal.GDT_Float32
 ) -> gdal.Dataset:
@@ -351,6 +353,7 @@ def create_raster(
     return output_raster
 
 
+# pylint: disable=R0917
 def numpy_array_to_raster(
     output_raster: gdal.Dataset,
     numpy_array: NDArray[np.float64],
@@ -700,6 +703,7 @@ def bin_receptor(
     return data
 
 
+# pylint: disable=R0917
 def bin_layer(
     raster_filename: str,
     receptor_filename: str = None,
@@ -763,6 +767,7 @@ def bin_layer(
     return pd.DataFrame(data)
 
 
+# pylint: disable=R0917
 def classify_layer_area(
     raster_filename: str,
     receptor_filename: str = None,
@@ -846,6 +851,7 @@ def classify_layer_area(
     return pd.DataFrame(data)
 
 
+# pylint: disable=R0917
 def classify_layer_area_2nd_constraint(
     raster_to_sample: str,
     secondary_constraint_filename: str,
