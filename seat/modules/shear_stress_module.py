@@ -22,7 +22,7 @@
   Eben Pendelton
 
  NOTES (Data descriptions and any script specific notes)
-	1. called by stressor_receptor_calc.py
+        1. called by stressor_receptor_calc.py
 """
 
 import os
@@ -32,7 +32,7 @@ from numpy.typing import NDArray
 import pandas as pd
 from netCDF4 import Dataset  # pylint: disable=no-name-in-module
 
-from seat.modules.stressor_utils import (
+from seat.utils.stressor_utils import (
     estimate_grid_spacing,
     create_structured_array_from_unstructured,
     calc_receptor_array,
@@ -206,6 +206,7 @@ def check_grid_define_vars(dataset: Dataset) -> tuple[str, str, str, str]:
     return gridtype, xvar, yvar, tauvar
 
 
+# pylint: disable=R0913,R0917
 def calculate_shear_stress_stressors(
     fpath_nodev: str,
     fpath_dev: str,
@@ -399,8 +400,10 @@ def calculate_shear_stress_stressors(
         tau_dev = np.nanmean(tau_dev, axis=1, keepdims=True)  # mean over time
         tau_nodev = np.nanmean(tau_nodev, axis=1, keepdims=True)  # mean over time
     elif value_selection == "Final Timestep":
-        tau_dev = tau_dev[:, -2:-1, :]  # final timestep
-        tau_nodev = tau_nodev[:, -2:-1, :]  # final timestep
+        tau_dev = tau_dev[:, -1, :, :]  # final timestep
+        tau_dev = tau_dev[:, np.newaxis, :, :]
+        tau_nodev = tau_nodev[:, -1, :, :]  # final timestep
+        tau_nodev = tau_nodev[:, np.newaxis, :, :]
     else:
         tau_dev = np.nanmax(tau_dev, axis=1, keepdims=True)  # default to max over time
         tau_nodev = np.nanmax(
@@ -527,6 +530,7 @@ def calculate_shear_stress_stressors(
     return dict_of_arrays, rx, ry, dx, dy, gridtype
 
 
+# pylint: disable=R0913,R0917
 def run_shear_stress_stressor(
     dev_present_file: str,
     dev_notpresent_file: str,
@@ -605,10 +609,10 @@ def run_shear_stress_stressor(
         rrx, rry, constraint = secondary_constraint_geotiff_to_numpy(
             secondary_constraint_filename
         )
-        dict_of_arrays["shear_stress_risk_layer"] = resample_structured_grid(
+        dict_of_arrays["shear_stress_area_of_interest"] = resample_structured_grid(
             rrx, rry, constraint, rx, ry, interpmethod="nearest"
         )
-        use_numpy_arrays.append("shear_stress_risk_layer")
+        use_numpy_arrays.append("shear_stress_area_of_interest")
 
     numpy_array_names = [i + ".tif" for i in use_numpy_arrays]
 
@@ -655,14 +659,16 @@ def run_shear_stress_stressor(
     ):
         bin_layer(
             os.path.join(output_path, "shear_stress_difference.tif"),
-            receptor_filename=os.path.join(output_path, "shear_stress_risk_layer.tif"),
+            receptor_filename=os.path.join(
+                output_path, "shear_stress_area_of_interest.tif"
+            ),
             receptor_names=None,
             limit_receptor_range=[0, np.inf],
             latlon=crs == 4326,
-            receptor_type="risk layer",
+            receptor_type="area of interest",
         ).to_csv(
             os.path.join(
-                output_path, "shear_stress_difference_at_secondary_constraint.csv"
+                output_path, "shear_stress_difference_at_area_of_interest.csv"
             ),
             index=False,
         )
@@ -774,16 +780,16 @@ def run_shear_stress_stressor(
             bin_layer(
                 os.path.join(output_path, "sediment_mobility_difference.tif"),
                 receptor_filename=os.path.join(
-                    output_path, "shear_stress_risk_layer.tif"
+                    output_path, "shear_stress_area_of_interest.tif"
                 ),
                 receptor_names=None,
                 limit_receptor_range=[0, np.inf],
                 latlon=crs == 4326,
-                receptor_type="risk layer",
+                receptor_type="area of interest",
             ).to_csv(
                 os.path.join(
                     output_path,
-                    "sediment_mobility_difference_at_shear_stress_risk_layer.csv",
+                    "sediment_mobility_difference_at_area_of_interest.csv",
                 ),
                 index=False,
             )
@@ -791,16 +797,16 @@ def run_shear_stress_stressor(
             bin_layer(
                 os.path.join(output_path, "shear_stress_risk_metric.tif"),
                 receptor_filename=os.path.join(
-                    output_path, "shear_stress_risk_layer.tif"
+                    output_path, "shear_stress_area_of_interest.tif"
                 ),
                 receptor_names=None,
                 limit_receptor_range=[0, np.inf],
                 latlon=crs == 4326,
-                receptor_type="risk layer",
+                receptor_type="area of interest",
             ).to_csv(
                 os.path.join(
                     output_path,
-                    "shear_stress_risk_metric_at_shear_stress_risk_layer.csv",
+                    "shear_stress_risk_metric_at_area_of_interest.csv",
                 ),
                 index=False,
             )
@@ -810,7 +816,7 @@ def run_shear_stress_stressor(
                     output_path, "sediment_mobility_difference.tif"
                 ),
                 secondary_constraint_filename=os.path.join(
-                    output_path, "shear_stress_risk_layer.tif"
+                    output_path, "shear_stress_area_of_interest.tif"
                 ),
                 at_raster_values=[-3, -2, -1, 0, 1, 2, 3],
                 at_raster_value_names=[
@@ -824,11 +830,11 @@ def run_shear_stress_stressor(
                 ],
                 limit_constraint_range=[0, np.inf],
                 latlon=crs == 4326,
-                receptor_type="risk layer",
+                receptor_type="area of interest",
             ).to_csv(
                 os.path.join(
                     output_path,
-                    "sediment_mobility_difference_at_shear_stress_risk_layer.csv",
+                    "sediment_mobility_difference_at_shear_stress_area_of_interest.csv",
                 ),
                 index=False,
             )

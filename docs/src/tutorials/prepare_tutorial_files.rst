@@ -13,44 +13,49 @@ There are two sets of files that need to be modified before using the demo:
 
     DEMO 
     ├───pacwave (input files)
-    │   acoustics_module _100db_threshold.default
-    │   acoustics_module_120dB_threshold.default
-    │   acoustics_module_219dB_threshold.default
+    │   acoustics_module_SEL_199db_threshold.default
+    │   acoustics_module_SEL_HFC_173dB_threshold.default
+    │   acoustics_module_SEL_LFC_199dB_threshold.default
+    │   acoustics_module_SPL_150dB_threshold.default
     │   all_modules.default
+    │   power_module.default
     │   shear_stress_module.default
-    │   shear_stress_module_no_receptor.default
+    │   shear_stress_module_without_grainsize.default
     │   velocity_module.default
-    │   velocity_module_no_receptor.default
+    │   velocity_module_without_motility.default
     │
     ├───style_files (style files)
     │   pacwave_style_files_all_modules.default
+    │   pacwave_style_files_SEL_flat.default
+    │   pacwave_style_files_SEL_HFC.default
+    │   pacwave_style_files_SEL_LFC.default
+    │   pacwave_style_files_SPL.default
     │   tanana_style_files_all_modules.default
     │
     └───tanana_river (input files)
-        shear_and_velocity_with_receptor.default
-        shear_with_receptor.default
-        velocity_with_receptor.default
+        shear_and_velocity_modules_with_receptors.default
+        shear_and_velocity_modules_without_receptors.default
+        shear_stress_module_with_receptors.default
+        shear_stress_module_without_receptors.default
+        velocity_stress_module_with_receptors.default
+        velocity_stress_module_without_receptors.default
 
-In order to use the demo, paths within the ``\*.default`` files need to be updated to point to the correct location. The ``\*.default`` files then need to be converted to ``\*.csv`` if it's a style file or ``\*.ini`` if it's an input file. 
+The ``\*.default`` files point to paths on the local machine. 
 
-
-
-
+In order to use the demo, paths within the ``\*.default`` files need to be updated to point to the correct location. 
+Then, the ``\*.default`` files then need to be converted to ``\*.csv`` if it's a style file or ``\*.ini`` if it's an input file. 
 
 
 
 Option 1: Python
 ^^^^^^^^^^^^^^^^^^^^
-The localize_tutorial_files.py will look for the folders in the :ref:`tutorial-files-access` (pacwave, tanana, and style_files) and update the paths in the ``.default`` files to match the path on your machine.
+The localize_tutorial_files.py will look for the folders in the :ref:`DEMO_files` and update the paths in the  ``.default`` files
+to match the paths on your machine.
 
 .. code-block:: bash
     :caption: localize_tutorial_files.py
 
     python localize_tutorial_files.py
-    Are your style_files files located in this directory?
-    C:\Your\Path\Here\style_files    
-    Y or N?Y
-    Finished updating file paths and extensions. Tutorial docs are now ready
 
 
 Option 2: Manually
@@ -64,7 +69,7 @@ If you do not want to use python you can update the files manually.
 Within the style files directory, open each ``.default`` file in a text editor and replace ``<style_folder>`` with full path to the location on your machine. 
 Then, save the style file as a csv.
 
-For example, if you have placed the style files folder in ``C:\Users\USER\Desktop\DEMO\style_files`` you would open each ``.default`` file and replace ``<style_folder>`` with ``C:\Users\USER\Desktop\DEMO\style_files``. 
+For example, if the style files folder is located at ``C:\Users\USER\Desktop\DEMO\style_files`` , open the ``.default`` files and replace ``<style_folder>`` with ``C:\Users\USER\Desktop\DEMO\style_files``. 
 
 ..  code-block:: none
     :caption: Style Folder \*.default: Replace <style_folder> save as csv

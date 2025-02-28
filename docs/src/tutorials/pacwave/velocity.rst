@@ -11,7 +11,7 @@ At this point you should have already setup the input files and style files as d
 To run this demonstration, use the **Load GUI Inputs** button located at the bottom left of the SEAT GUI, navigate to :file:`DEMO/pacwave/velocity_module.ini`, and click OK to load the inputs. If you need detailed instructions on how to load inputs, please refer to the :ref:`save_load_config` section in the :ref:`seat_qgis_plugin` documention.
 
 .. Note::
-   Your paths will differ than the ones shown in the example below. If you get an error double check the paths making sure the files exist at the specified location.
+   Your paths will differ from the ones shown in the example below. If you get an error double check the paths making sure the files exist at the specified location.
 
 .. figure:: ../../media/pacwave_velocity_input.webp
    :scale: 100 %
@@ -36,14 +36,14 @@ For this case the velocity with devices is compared to the velocity without devi
 
           <div style="text-align: center;">Layers Legend</div>
 
-     - .. image:: ../../media/pacwave_velocity_risk_layer.webp
+     - .. image:: ../../media/pacwave_velocity_area_of_interest.webp
          :scale: 25 %
-         :alt: Risk Layer
+         :alt: Area of Interest
          :align: center
 
        .. raw:: html
 
-          <div style="text-align: center;">Velocity Risk Layer</div>
+          <div style="text-align: center;">Velocity Area of Interest</div>
 
    * - .. image:: ../../media/pacwave_motility_difference.webp
          :scale: 25 %
@@ -76,17 +76,17 @@ Additional output files can be found in the specifed Output folder.
                 motility_classified.csv
                 motility_classified.tif
                 motility_classified_at_critical_velocity.csv
-                motility_classified_at_velocity_risk_layer.csv
+                motility_classified_at_velocity_area_of_interest.csv
                 motility_difference.csv
                 motility_difference.tif
                 motility_difference_at_critical_velocity.csv
-                motility_difference_at_velocity_risk_layer.csv
+                motility_difference_at_velocity_area_of_interest.csv
                 motility_without_devices.tif
                 motility_with_devices.tif
                 velocity_magnitude_difference.csv
                 velocity_magnitude_difference.tif
                 velocity_magnitude_difference_at_critical_velocity.csv
-                velocity_magnitude_difference_at_velocity_risk_layer.csv
+                velocity_magnitude_difference_at_velocity_area_of_interest.csv
                 velocity_magnitude_without_devices.tif
                 velocity_magnitude_with_devices.tif
-                velocity_risk_layer.tif
+                velocity_area_of_interest.tif

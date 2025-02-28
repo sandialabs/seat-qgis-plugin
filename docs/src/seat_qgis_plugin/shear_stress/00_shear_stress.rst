@@ -13,7 +13,7 @@ The shear stress module takes 3 required inputs:
 
 The following are optional inputs:
    5. Bed Sediment Grain Size
-   6. Risk Layer
+   6. Area of Interest
 
 
 Each of these inputs is explored in more detail in the following sections.
@@ -30,5 +30,5 @@ Each of these inputs is explored in more detail in the following sections.
    01_model_results_dir
    02_probabilities.rst
    03_bed_sediment.rst
-   04_risk_layer.rst
+   04_area_of_interest.rst
    05_temporal_avg.rst

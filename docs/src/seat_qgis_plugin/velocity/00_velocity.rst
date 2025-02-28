@@ -14,5 +14,5 @@ Investigates the spatial changes in larval motility.
    01_model_results_dir
    02_probabilities.rst
    03_larval_motility.rst
-   04_risk_layer.rst
+   04_area_of_interest.rst
    05_temporal_avg.rst

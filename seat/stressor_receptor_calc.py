@@ -6,25 +6,24 @@
 # pylint: disable=too-many-branches
 # pylint: disable=too-many-lines
 
-""" stressor_receptor_calc.py
+"""stressor_receptor_calc.py
 
- AUTHORS
- Eben Pendelton
-  Timothy Nelson (tnelson@integral-corp.com)
-  Caleb Grant (cgrant@inegral-corp.com)
-  Sam McWilliams (smcwilliams@integral-corp.com)
+AUTHORS
+Eben Pendelton
+ Timothy Nelson (tnelson@integral-corp.com)
+ Caleb Grant (cgrant@inegral-corp.com)
+ Sam McWilliams (smcwilliams@integral-corp.com)
 
- NOTES (Data descriptions and any script specific notes)
-	1. plugin template from Plugin Builder: http://g-sherman.github.io/Qgis-Plugin-Builder/
-	2. refer to documentation regarding installation and input formatting.
-    3. requires installation of NETCDF4 (https://unidata.github.io/netcdf4-python/)
-       and QGIS (https://qgis.org/en/site/)
-    4. tested and created using QGIS v3.22
-    5. added habitat for shear stress
+NOTES (Data descriptions and any script specific notes)
+       1. plugin template from Plugin Builder: http://g-sherman.github.io/Qgis-Plugin-Builder/
+       2. refer to documentation regarding installation and input formatting.
+   3. requires installation of NETCDF4 (https://unidata.github.io/netcdf4-python/)
+      and QGIS (https://qgis.org/en/site/)
+   4. tested and created using QGIS v3.22
+   5. added habitat for shear stress
 """
 import configparser
 import os.path
-import xml.etree.ElementTree as ET
 from typing import Optional
 import pandas as pd
 
@@ -52,50 +51,25 @@ from qgis.PyQt.QtGui import QIcon
 # pylint: disable=no-name-in-module
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QWidget, QLineEdit
 
-
 # Initialize Qt resources from file resources.py
 from .resources import qInitResources
 
 # Import Modules
 from .modules.shear_stress_module import run_shear_stress_stressor
 from .modules.velocity_module import run_velocity_stressor
-from .modules.acoustics_module import run_acoustics_stressor
+from .modules.acoustics_module import run_acoustics_stressor, find_acoustic_metrics
 from .modules.power_module import calculate_power
+from .utils.stressor_utils import is_float
 
 # Import the code for the dialog
 from .stressor_receptor_calc_dialog import StressorReceptorCalcDialog
 
 
-# Most of the below is boilerplate code  until plugin specific functions start----
-def df_from_qml(fpath: str) -> pd.DataFrame:
-    """
-    Parses a QML (QGIS Markup Language) file to extract range values and creates a DataFrame.
-
-    Args:
-        fpath (str): The file path of the QML file.
-
-    Returns:
-        pandas.DataFrame:
-        A DataFrame containing either "min" and "max" columns or "value" and "label" columns.
-    """
-    tree = ET.parse(fpath)
-    root = tree.getroot()
-
-    v = [i.get("label") for i in root[3][1][2][0].findall("item")]
-    v2 = [s.split(" - ") for s in v]
-    df = pd.DataFrame(v2, columns=["min", "max"])
-    if df.empty:
-        # grab the values in a unique palette
-        v1 = [i.get("value") for i in root[3][1][2].findall("paletteEntry")]
-        v2 = [i.get("label") for i in root[3][1][2].findall("paletteEntry")]
-        df = pd.DataFrame({"value": v1, "label": v2})
-    return df
-
-
 class StressorReceptorCalc:
     """QGIS Plugin Implementation."""
 
-    def __init__(self, iface: "QgsInterface"):
+    # pylint: disable=too-many-positional-arguments
+    def __init__(self, iface: "QgsInterface"):  # type: ignore
         """Constructor.
 
         :param iface: An interface instance that will be passed to this class
@@ -230,10 +204,11 @@ class StressorReceptorCalc:
 
         return action
 
-    def init_gui(self) -> None:
+    # pylint: disable=invalid-name
+    def initGui(self) -> None:
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ":/plugins/seat/icon.png"
+        icon_path = ":/plugins/seat_qgis_plugin/icon.png"
         self.add_action(
             icon_path,
             set_text=self.tr(
@@ -257,16 +232,6 @@ class StressorReceptorCalc:
 
     # End mostly boilerplate code ------
 
-    def select_folder(self) -> str:
-        """
-        Opens a dialog for the user to select a folder and returns the selected folder path.
-
-        Returns:
-            str: The selected folder path.
-        """
-        folder_name = QFileDialog.getExistingDirectory(self.dlg, "Select Folder")
-        return folder_name
-
     def read_style_files(self, file: str) -> pd.DataFrame:
         """
         Reads style data from a CSV file and returns it as a DataFrame indexed by the "Type" column.
@@ -281,14 +246,25 @@ class StressorReceptorCalc:
         data = data.set_index("Type")
         return data
 
-    def select_file(self, file_filter: str = "") -> str:
-        """Input the receptor file."""
-        filename, _filter = QFileDialog.getOpenFileName(
-            self.dlg,
-            "Select File",
-            "",
-            file_filter,
-        )
+    def select_file(self, file_filter: str = "", file: bool = True) -> str:
+        """
+        Opens a dialog for the user to select a file or folder and returns the selected path.
+
+        Input:
+            file_filter (str) : defines valid file extensions
+            file (bool) : select file or directory, 'default
+        Returns:
+            str: The selected file or folder path.
+        """
+        if file:
+            filename, _filter = QFileDialog.getOpenFileName(
+                self.dlg,
+                "Select File",
+                "",
+                file_filter,
+            )
+        else:  # directory
+            filename = QFileDialog.getExistingDirectory(self.dlg, "Select Folder")
         return filename
 
     def copy_shear_input_to_velocity(self) -> None:
@@ -303,7 +279,7 @@ class StressorReceptorCalc:
         self.dlg.velocity_probabilities_file.setText(
             self.dlg.shear_probabilities_file.text()
         )
-        self.dlg.velocity_risk_file.setText(self.dlg.shear_risk_file.text())
+        self.dlg.velocity_aoi_file.setText(self.dlg.shear_aoi_file.text())
 
     def select_crs(self) -> None:
         """Input the crs using the QGIS widget box."""
@@ -360,8 +336,8 @@ class StressorReceptorCalc:
             self.test_exists(self.dlg.shear_probabilities_file, fin, "File")
             fin = config.get("Input", "shear stress grain size file")
             self.test_exists(self.dlg.shear_grain_size_file, fin, "File")
-            fin = config.get("Input", "shear stress risk layer file")
-            self.test_exists(self.dlg.shear_risk_file, fin, "File")
+            fin = config.get("Input", "shear stress area of interest file")
+            self.test_exists(self.dlg.shear_aoi_file, fin, "File")
             self.dlg.shear_averaging_combobox.setCurrentText(
                 config.get("Input", "shear stress averaging")
             )
@@ -374,8 +350,8 @@ class StressorReceptorCalc:
             self.test_exists(self.dlg.velocity_probabilities_file, fin, "File")
             fin = config.get("Input", "velocity threshold file")
             self.test_exists(self.dlg.velocity_threshold_file, fin, "File")
-            fin = config.get("Input", "velocity risk layer file")
-            self.test_exists(self.dlg.velocity_risk_file, fin, "File")
+            fin = config.get("Input", "velocity area of interest file")
+            self.test_exists(self.dlg.velocity_aoi_file, fin, "File")
             self.dlg.velocity_averaging_combobox.setCurrentText(
                 config.get("Input", "velocity Averaging")
             )
@@ -386,14 +362,24 @@ class StressorReceptorCalc:
             self.test_exists(self.dlg.paracousti_device_not_present, fin, "Directory")
             fin = config.get("Input", "paracousti probabilities file")
             self.test_exists(self.dlg.paracousti_probabilities_file, fin, "File")
-            fin = config.get("Input", "paracousti threshold file")
-            self.test_exists(self.dlg.paracousti_threshold_file, fin, "File")
-            fin = config.get("Input", "paracousti risk layer file")
-            self.test_exists(self.dlg.paracousti_risk_file, fin, "File")
+            self.dlg.paracousti_threshold_value.setText(
+                config.get("Input", "paracousti_threshold_value")
+            )
+            self.dlg.paracousti_species_grid_resolution.setText(
+                config.get("Input", "paracousti_species_grid_resolution")
+            )
+            fin = config.get("Input", "paracousti area of interest file")
+            self.test_exists(self.dlg.paracousti_aoi_file, fin, "File")
             fin = config.get("Input", "paracousti species filepath")
             self.test_exists(self.dlg.paracousti_species_directory, fin, "Directory")
             self.dlg.paracousti_averaging_combobox.setCurrentText(
                 config.get("Input", "paracousti averaging")
+            )
+            self.dlg.paracousti_metric_selection_combobox.setCurrentText(
+                config.get("Input", "paracousti metric")
+            )
+            self.dlg.paracousti_weighting_combobox.setCurrentText(
+                config.get("Input", "paracousti weighting")
             )
 
             fin = config.get("Input", "power files filepath")
@@ -411,7 +397,7 @@ class StressorReceptorCalc:
         if "config" in locals():  # prevents error if window to closed without running
             config.clear()
 
-    def save_in(self) -> None:
+    def save_in(self):
         """Select and save an input file."""
         filename, _filter = QFileDialog.getSaveFileName(
             self.dlg,
@@ -419,94 +405,103 @@ class StressorReceptorCalc:
             "",
             "*.ini",
         )
+        if not ((filename is None) or (filename == "")):
+            # try to parse the ini file
+            config = configparser.ConfigParser()
 
-        # try to parse the ini file
-        config = configparser.ConfigParser()
+            config["Input"] = {
+                "shear stress device present filepath": self.dlg.shear_device_present.text(),
+                "shear stress device not present filepath": self.dlg.shear_device_not_present.text(),  # pylint: disable=line-too-long
+                "shear stress averaging": self.dlg.shear_averaging_combobox.currentText(),
+                "shear stress probabilities file": self.dlg.shear_probabilities_file.text(),
+                "shear stress grain size file": self.dlg.shear_grain_size_file.text(),
+                "shear stress area of interest file": self.dlg.shear_aoi_file.text(),
+                "velocity device present filepath": self.dlg.velocity_device_present.text(),
+                "velocity device not present filepath": self.dlg.velocity_device_not_present.text(),
+                "velocity averaging": self.dlg.velocity_averaging_combobox.currentText(),
+                "velocity probabilities file": self.dlg.velocity_probabilities_file.text(),
+                "velocity threshold file": self.dlg.velocity_threshold_file.text(),
+                "velocity area of interest file": self.dlg.velocity_aoi_file.text(),
+                "paracousti device present filepath": self.dlg.paracousti_device_present.text(),
+                "paracousti device not present filepath": self.dlg.paracousti_device_not_present.text(),  # pylint: disable=line-too-long
+                "paracousti averaging": self.dlg.paracousti_averaging_combobox.currentText(),
+                "paracousti probabilities file": self.dlg.paracousti_probabilities_file.text(),
+                "paracousti_threshold_value": self.dlg.paracousti_threshold_value.text(),
+                "paracousti area of interest file": self.dlg.paracousti_aoi_file.text(),
+                "paracousti species filepath": self.dlg.paracousti_species_directory.text(),
+                "paracousti metric": self.dlg.paracousti_metric_selection_combobox.currentText(),
+                "paracousti weighting": self.dlg.paracousti_weighting_combobox.currentText(),
+                "paracousti_species_grid_resolution": self.dlg.paracousti_species_grid_resolution.text(),  # pylint: disable=line-too-long
+                "power files filepath": self.dlg.power_files.text(),
+                "power probabilities file": self.dlg.power_probabilities_file.text(),
+                "coordinate reference system": self.dlg.crs.text(),
+                "output style files": self.dlg.output_stylefile.text(),
+            }
 
-        config["Input"] = {
-            "shear stress device present filepath": self.dlg.shear_device_present.text(),
-            "shear stress device not present filepath": self.dlg.shear_device_not_present.text(),
-            "shear stress averaging": self.dlg.shear_averaging_combobox.currentText(),
-            "shear stress probabilities file": self.dlg.shear_probabilities_file.text(),
-            "shear stress grain size file": self.dlg.shear_grain_size_file.text(),
-            "shear stress risk layer file": self.dlg.shear_risk_file.text(),
-            "velocity device present filepath": self.dlg.velocity_device_present.text(),
-            "velocity device not present filepath": self.dlg.velocity_device_not_present.text(),
-            "velocity averaging": self.dlg.velocity_averaging_combobox.currentText(),
-            "velocity probabilities file": self.dlg.velocity_probabilities_file.text(),
-            "velocity threshold file": self.dlg.velocity_threshold_file.text(),
-            "velocity risk layer file": self.dlg.velocity_risk_file.text(),
-            "paracousti device present filepath": self.dlg.paracousti_device_present.text(),
-            "paracousti device not present filepath": self.dlg.paracousti_device_not_present.text(),
-            "paracousti averaging": self.dlg.paracousti_averaging_combobox.currentText(),
-            "paracousti probabilities file": self.dlg.paracousti_probabilities_file.text(),
-            "paracousti threshold file": self.dlg.paracousti_threshold_file.text(),
-            "paracousti risk layer file": self.dlg.paracousti_risk_file.text(),
-            "paracousti species filepath": self.dlg.paracousti_species_directory.text(),
-            "power files filepath": self.dlg.power_files.text(),
-            "power probabilities file": self.dlg.power_probabilities_file.text(),
-            "coordinate reference system": self.dlg.crs.text(),
-            "output style files": self.dlg.output_stylefile.text(),
-        }
+            config["Output"] = {"output filepath": self.dlg.output_folder.text()}
 
-        config["Output"] = {"output filepath": self.dlg.output_folder.text()}
-
-        with open(filename, "w", encoding="utf-8") as configfile:
-            config.write(configfile)
+            with open(filename, "w", encoding="utf-8") as configfile:
+                config.write(configfile)
+        else:
+            QgsMessageLog.logMessage(
+                "output file not given.", level=Qgis.MessageLevel.Warning
+            )
 
     def add_layer(
-        self,
-        fpath: str,
-        root: Optional[QgsLayerTreeGroup] = None,
-        group: Optional[QgsLayerTreeGroup] = None,
-    ) -> None:
-        """
-        Adds a raster layer to the QGIS project and optionally places it in a specified group.
-
-        Args:
-            fpath (str): The file path of the raster layer to add.
-            root (QgsLayerTreeGroup, optional): The root group to add the layer to.
-            group (QgsLayerTreeGroup, optional): The group within the root to add the layer to.
-        """
-        basename = os.path.splitext(os.path.basename(fpath))[0]
-        if group is not None:
-            vlayer = QgsRasterLayer(fpath, basename)
-            QgsProject.instance().addMapLayer(vlayer)
-            layer = root.findLayer(vlayer.id())
-            clone = layer.clone()
-            group.insertChildNode(0, clone)
-            root.removeChildNode(layer)
-        else:
-            layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))
-
-    def style_layer(
         self,
         fpath: str,
         stylepath: Optional[str] = None,
         root: Optional[QgsLayerTreeGroup] = None,
         group: Optional[QgsLayerTreeGroup] = None,
-    ) -> None:  # , ranges=True):
+        subgroup: Optional[QgsLayerTreeGroup] = None,
+    ) -> None:
         """Style and add the result layer to map."""
         basename = os.path.splitext(os.path.basename(fpath))[0]
-        if group is not None:
-            vlayer = QgsRasterLayer(fpath, basename)
-            QgsProject.instance().addMapLayer(vlayer)
+        vlayer = QgsRasterLayer(fpath, basename)
+        QgsProject.instance().addMapLayer(vlayer)
+
+        if root is None:
             root = QgsProject.instance().layerTreeRoot()
-            if stylepath is not None:
-                vlayer.loadNamedStyle(stylepath)
-                vlayer.triggerRepaint()
-                vlayer.reload()
-            layer = root.findLayer(vlayer.id())
+
+        if stylepath is not None:
+            vlayer.loadNamedStyle(stylepath)
+            vlayer.triggerRepaint()
+            vlayer.reload()
+
+        layer = root.findLayer(vlayer.id())
+
+        if subgroup is not None:
+            clone = layer.clone()
+            subgroup.insertChildNode(0, clone)
+            clone.setExpanded(False)
+        elif group is not None:
             clone = layer.clone()
             group.insertChildNode(0, clone)
-            root.removeChildNode(layer)
+            clone.setExpanded(False)
         else:
-            layer = QgsProject.instance().addMapLayer(QgsRasterLayer(fpath, basename))
-            layer.loadNamedStyle(stylepath)
-            layer.triggerRepaint()
-            layer.reload()
-            # refresh legend entries
             self.iface.layerTreeView().refreshLayerSymbology(layer.id())
+
+        root.removeChildNode(layer)
+
+    def update_weights(self) -> None:
+        """Adds paracousti weights to the gui dropdown box"""
+        if not (
+            (self.dlg.paracousti_device_present.text() is None)
+            or (self.dlg.paracousti_device_present.text() == "")
+        ):
+            if os.path.exists(self.dlg.paracousti_device_present.text()):
+                # read variables in a single .nc file to determine metrics present and weighting
+                filelist = [
+                    i
+                    for i in os.listdir(self.dlg.paracousti_device_present.text())
+                    if i.endswith(r".nc")
+                ]
+                weights, _, _ = find_acoustic_metrics(
+                    os.path.join(self.dlg.paracousti_device_present.text(), filelist[0])
+                )
+                self.dlg.paracousti_metric_selection_combobox.clear()
+                self.dlg.paracousti_weighting_combobox.clear()
+                self.dlg.paracousti_weighting_combobox.addItems(weights)
 
     def select_folder_module(
         self, module: Optional[str] = None, option: Optional[str] = None
@@ -522,7 +517,7 @@ class StressorReceptorCalc:
             option (str, optional): The option within the module
             ("device_present", "device_not_present", "species_directory").
         """
-        directory = self.select_folder()
+        directory = self.select_file(file=False)
         if module == "shear":
             if option == "device_present":
                 self.dlg.shear_device_present.setText(directory)
@@ -541,6 +536,7 @@ class StressorReceptorCalc:
             if option == "device_present":
                 self.dlg.paracousti_device_present.setText(directory)
                 self.dlg.paracousti_device_present.setStyleSheet("color: black;")
+                self.update_weights()
             if option == "device_not_present":
                 self.dlg.paracousti_device_not_present.setText(directory)
                 self.dlg.paracousti_device_not_present.setStyleSheet("color: black;")
@@ -579,8 +575,8 @@ class StressorReceptorCalc:
                 self.dlg.shear_grain_size_file.setStyleSheet("color: black;")
             if option == "risk_file":
                 file = self.select_file(file_filter="*.tif")
-                self.dlg.shear_risk_file.setText(file)
-                self.dlg.shear_risk_file.setStyleSheet("color: black;")
+                self.dlg.shear_aoi_file.setText(file)
+                self.dlg.shear_aoi_file.setStyleSheet("color: black;")
         if module == "velocity":
             if option == "probabilities_file":
                 file = self.select_file(file_filter="*.csv")
@@ -592,21 +588,17 @@ class StressorReceptorCalc:
                 self.dlg.velocity_threshold_file.setStyleSheet("color: black;")
             if option == "risk_file":
                 file = self.select_file(file_filter="*.tif")
-                self.dlg.velocity_risk_file.setText(file)
-                self.dlg.velocity_risk_file.setStyleSheet("color: black;")
+                self.dlg.velocity_aoi_file.setText(file)
+                self.dlg.velocity_aoi_file.setStyleSheet("color: black;")
         if module == "paracousti":
             if option == "probabilities_file":
                 file = self.select_file(file_filter="*.csv")
                 self.dlg.paracousti_probabilities_file.setText(file)
                 self.dlg.paracousti_probabilities_file.setStyleSheet("color: black;")
-            if option == "thresholds":
-                file = self.select_file(file_filter="*.csv")
-                self.dlg.paracousti_threshold_file.setText(file)
-                self.dlg.paracousti_threshold_file.setStyleSheet("color: black;")
             if option == "risk_file":
                 file = self.select_file(file_filter="*.tif")
-                self.dlg.paracousti_risk_file.setText(file)
-                self.dlg.paracousti_risk_file.setStyleSheet("color: black;")
+                self.dlg.paracousti_aoi_file.setText(file)
+                self.dlg.paracousti_aoi_file.setStyleSheet("color: black;")
         if module == "power":
             file = self.select_file(file_filter="*.csv")
             self.dlg.power_probabilities_file.setText(file)
@@ -616,7 +608,63 @@ class StressorReceptorCalc:
             self.dlg.output_stylefile.setText(file)
             self.dlg.output_stylefile.setStyleSheet("color: black;")
 
-    def run(self) -> None:
+    def updateparacoustimetrics(self) -> None:
+        """Updates available paracousti metrics in the gui dropdown box"""
+        self.dlg.paracousti_metric_selection_combobox.clear()
+        if not self.dlg.paracousti_device_present.text() == "":
+            _, unweighted_vars, weigthed_vars = find_acoustic_metrics(
+                os.path.join(
+                    self.dlg.paracousti_device_present.text(),
+                    [
+                        i
+                        for i in os.listdir(self.dlg.paracousti_device_present.text())
+                        if i.endswith(r".nc")
+                    ][0],
+                )
+            )
+            if (
+                self.dlg.paracousti_weighting_combobox.currentText() == "None"
+            ):  # disply unweighted variables
+                self.dlg.paracousti_metric_selection_combobox.addItems(unweighted_vars)
+            else:  # display weighted variables
+                self.dlg.paracousti_metric_selection_combobox.addItems(weigthed_vars)
+
+    def updateparacoustiunits(self) -> None:
+        """Updates threshold units based on paracousti metric selection"""
+        if (
+            "spl".casefold()
+            in self.dlg.paracousti_metric_selection_combobox.currentText().casefold()
+        ):
+            self.dlg.paracousti_threshold_units.setText("dB re 1 μPa")
+        elif (
+            "sel".casefold()
+            in self.dlg.paracousti_metric_selection_combobox.currentText().casefold()
+        ):
+            self.dlg.paracousti_threshold_units.setText("dB re 1 μPa²∙s")
+        else:
+            self.dlg.paracousti_threshold_units.setText("")
+
+    def checkparacoustithreshold(self) -> None:
+        """ensure paracousti threshold is a numeric value.
+        Dispaly error in gui if invalid
+        """
+        if is_float(self.dlg.paracousti_threshold_value.text()):
+            self.dlg.paracousti_threshold_value.setStyleSheet("color: black;")
+        else:
+            self.dlg.paracousti_threshold_value.setStyleSheet("color: red;")
+
+    def checkparacoustiresolution(self) -> None:
+        """ensure paracousti grid resolution is a numeric value.
+        Updates text to red if the input is not numeric.
+        """
+        # Ensure paracousti grid resolution input is a numeric value
+        if is_float(self.dlg.paracousti_species_grid_resolution.text()):
+            self.dlg.paracousti_species_grid_resolution.setStyleSheet("color: black;")
+        else:
+            self.dlg.paracousti_species_grid_resolution.setStyleSheet("color: red;")
+
+    # pylint: disable=too-many-positional-arguments
+    def run(self):
         """Run method that performs all the real work."""
 
         # Create the dialog with elements (after translation) and keep reference
@@ -638,6 +686,14 @@ class StressorReceptorCalc:
                 "Top Bin",
             ]
             self.dlg.paracousti_averaging_combobox.addItems(paracousti_average_fields)
+
+            paracousti_weighting_fields = []  # empty until directory selected
+            self.dlg.paracousti_weighting_combobox.addItems(paracousti_weighting_fields)
+
+            paracousti_metric_fields = []  # empty until directory selected
+            self.dlg.paracousti_metric_selection_combobox.addItems(
+                paracousti_metric_fields
+            )
 
             # this connects the input file chooser
             self.dlg.load_input.clicked.connect(self.select_and_load_in)
@@ -668,14 +724,14 @@ class StressorReceptorCalc:
                     module="velocity", option="device_not_present"
                 )
             )
-            self.dlg.paracousti_device_pushButton.clicked.connect(
-                lambda: self.select_folder_module(
-                    module="paracousti", option="device_present"
-                )
-            )
             self.dlg.paracousti_no_device_pushButton.clicked.connect(
                 lambda: self.select_folder_module(
                     module="paracousti", option="device_not_present"
+                )
+            )
+            self.dlg.paracousti_device_pushButton.clicked.connect(
+                lambda: self.select_folder_module(
+                    module="paracousti", option="device_present"
                 )
             )
             self.dlg.paracousti_species_directory_button.clicked.connect(
@@ -720,11 +776,6 @@ class StressorReceptorCalc:
                     module="paracousti", option="probabilities_file"
                 )
             )
-            self.dlg.paracousti_threshold_button.clicked.connect(
-                lambda: self.select_files_module(
-                    module="paracousti", option="thresholds"
-                )
-            )
             self.dlg.paracousti_risk_pushButton.clicked.connect(
                 lambda: self.select_files_module(
                     module="paracousti", option="risk_file"
@@ -742,6 +793,20 @@ class StressorReceptorCalc:
             )
             self.dlg.crs_button.clicked.connect(self.select_crs)
 
+            self.dlg.paracousti_device_present.textChanged.connect(self.update_weights)
+            self.dlg.paracousti_weighting_combobox.currentIndexChanged.connect(
+                self.updateparacoustimetrics
+            )
+            self.dlg.paracousti_metric_selection_combobox.currentIndexChanged.connect(
+                self.updateparacoustiunits
+            )
+            self.dlg.paracousti_threshold_value.textChanged.connect(
+                self.checkparacoustithreshold
+            )
+            self.dlg.paracousti_species_grid_resolution.textChanged.connect(
+                self.checkparacoustiresolution
+            )
+
         self.dlg.shear_device_present.clear()
         self.dlg.velocity_device_present.clear()
         self.dlg.paracousti_device_present.clear()
@@ -758,11 +823,12 @@ class StressorReceptorCalc:
 
         self.dlg.shear_grain_size_file.clear()
         self.dlg.velocity_threshold_file.clear()
-        self.dlg.paracousti_threshold_file.clear()
+        self.dlg.paracousti_threshold_value.clear()
+        self.dlg.paracousti_species_grid_resolution.clear()
 
-        self.dlg.shear_risk_file.clear()
-        self.dlg.velocity_risk_file.clear()
-        self.dlg.paracousti_risk_file.clear()
+        self.dlg.shear_aoi_file.clear()
+        self.dlg.velocity_aoi_file.clear()
+        self.dlg.paracousti_aoi_file.clear()
 
         self.dlg.paracousti_species_directory.clear()
 
@@ -779,7 +845,8 @@ class StressorReceptorCalc:
             # Run Calculations
             # this grabs the files for input and output
             # pylint: disable=fixme
-            # TODO Remove these and just query the dlg directly when needed
+            # load qui entries to variable and verify files/directories
+            # exist and values are formatted correctly
             shear_stress_device_present_directory = self.dlg.shear_device_present.text()
             if not (
                 (shear_stress_device_present_directory is None)
@@ -902,22 +969,13 @@ class StressorReceptorCalc:
                     raise FileNotFoundError(
                         f"The file {velocity_threshold_file} does not exist."
                     )
-            paracousti_threshold_file = self.dlg.paracousti_threshold_file.text()
-            if not (
-                (paracousti_threshold_file is None) or (paracousti_threshold_file == "")
-            ):
-                if not os.path.exists(paracousti_threshold_file):
-                    raise FileNotFoundError(
-                        f"The file {paracousti_threshold_file} does not exist."
-                    )
-
-            shear_risk_layer_file = self.dlg.shear_risk_file.text()
+            shear_risk_layer_file = self.dlg.shear_aoi_file.text()
             if not ((shear_risk_layer_file is None) or (shear_risk_layer_file == "")):
                 if not os.path.exists(shear_risk_layer_file):
                     raise FileNotFoundError(
                         f"The file {shear_risk_layer_file} does not exist."
                     )
-            velocity_risk_layer_file = self.dlg.velocity_risk_file.text()
+            velocity_risk_layer_file = self.dlg.velocity_aoi_file.text()
             if not (
                 (velocity_risk_layer_file is None) or (velocity_risk_layer_file == "")
             ):
@@ -925,7 +983,7 @@ class StressorReceptorCalc:
                     raise FileNotFoundError(
                         f"The file {velocity_risk_layer_file} does not exist."
                     )
-            paracousti_risk_layer_file = self.dlg.paracousti_risk_file.text()
+            paracousti_risk_layer_file = self.dlg.paracousti_aoi_file.text()
             if not (
                 (paracousti_risk_layer_file is None)
                 or (paracousti_risk_layer_file == "")
@@ -945,16 +1003,35 @@ class StressorReceptorCalc:
                         f"The directory {paracousti_species_directory} does not exist."
                     )
 
+            paracousti_weighting = self.dlg.paracousti_weighting_combobox.currentText()
+            paracousti_metric = (
+                self.dlg.paracousti_metric_selection_combobox.currentText()
+            )
+            paracousti_threshold_value = self.dlg.paracousti_threshold_value.text()
+            if is_float(paracousti_threshold_value):
+                paracousti_threshold_value = float(paracousti_threshold_value)
+
+            paracousti_species_grid_resolution = (
+                self.dlg.paracousti_species_grid_resolution.text()
+            )
+            if is_float(paracousti_species_grid_resolution):
+                paracousti_species_grid_resolution = float(
+                    paracousti_species_grid_resolution
+                )
+
             shear_stress_averaging = self.dlg.shear_averaging_combobox.currentText()
             velocity_averaging = self.dlg.velocity_averaging_combobox.currentText()
             paracousti_averaging = self.dlg.paracousti_averaging_combobox.currentText()
 
             output_folder_name = self.dlg.output_folder.text()
-            os.makedirs(
-                output_folder_name, exist_ok=True
-            )  # create output directory if it doesn't exist
-
-            crs = int(self.dlg.crs.text())
+            if not ((output_folder_name is None) or (output_folder_name == "")):
+                os.makedirs(
+                    output_folder_name, exist_ok=True
+                )  # create output directory if it doesn't exist
+            if not ((self.dlg.crs.text() is None) or (self.dlg.crs.text() == "")):
+                crs = int(self.dlg.crs.text())
+            else:
+                crs = 4326
 
             # need to add check to leave empty if not present then apply default values
             if not (
@@ -974,7 +1051,7 @@ class StressorReceptorCalc:
             # if the output file path is empty display a warning
             if output_folder_name == "":
                 QgsMessageLog.logMessage(
-                    "Output file path not given.", level=Qgis.MessageLevel.Warnin
+                    "Output file path not given.", level=Qgis.MessageLevel.Warning
                 )
 
             # Run Power Module
@@ -1020,16 +1097,16 @@ class StressorReceptorCalc:
                 group = root.findGroup(group_name)
                 if group is None:
                     group = root.addGroup(group_name)
-                for key, value in sfilenames.items():
-                    if stylefiles_df is None:
-                        self.add_layer(value, root=root, group=group)
-                    else:
-                        self.style_layer(
-                            value,
-                            stylefiles_df.loc[key].item(),
-                            root=root,
-                            group=group,
-                        )
+                for key in list(sfilenames.keys())[
+                    ::-1
+                ]:  # add styles files and/or display
+                    style = (
+                        stylefiles_df.loc[key].item()
+                        if stylefiles_df is not None
+                        and key in stylefiles_df.index.values
+                        else None
+                    )
+                    self.add_layer(sfilenames[key], style, root=root, group=group)
 
             # Run Velocity Module
             if not (
@@ -1060,63 +1137,101 @@ class StressorReceptorCalc:
                 group = root.findGroup(group_name)
                 if group is None:
                     group = root.addGroup(group_name)
-                for key, value in vfilenames.items():
-                    if stylefiles_df is None:
-                        self.add_layer(value, root=root, group=group)
-                    else:
-                        self.style_layer(
-                            value,
-                            stylefiles_df.loc[key].item(),
-                            root=root,
-                            group=group,
-                        )
+                for key in list(vfilenames.keys())[
+                    ::-1
+                ]:  # add styles files and/or display
+                    style = (
+                        stylefiles_df.loc[key].item()
+                        if stylefiles_df is not None
+                        and key in stylefiles_df.index.values
+                        else None
+                    )
+                    self.add_layer(vfilenames[key], style, root=root, group=group)
 
             # Run Acoustics Module
             if not (
                 (paracousti_device_present_directory is None)
                 or (paracousti_device_present_directory == "")
             ):  # if svar == "Acoustics":
-                pfilenames = run_acoustics_stressor(
-                    dev_present_file=paracousti_device_present_directory,
-                    dev_notpresent_file=paracousti_device_not_present_directory,
-                    probabilities_file=paracousti_probabilities_fname,
-                    crs=crs,
-                    output_path=os.path.join(output_folder_name, "Acoustics Module"),
-                    receptor_filename=paracousti_threshold_file,
-                    species_folder=paracousti_species_directory,
-                    Averaging=paracousti_averaging,
-                    secondary_constraint_filename=paracousti_risk_layer_file,
+
+                pfilenames_probabilistic, pfilenames_nonprobabilistic = (
+                    run_acoustics_stressor(
+                        dev_present_file=paracousti_device_present_directory,
+                        dev_notpresent_file=paracousti_device_not_present_directory,
+                        probabilities_file=paracousti_probabilities_fname,
+                        crs=crs,
+                        output_path=os.path.join(
+                            output_folder_name, "Acoustics Module"
+                        ),
+                        paracousti_threshold_value=paracousti_threshold_value,
+                        paracousti_weighting=paracousti_weighting,
+                        paracousti_metric=paracousti_metric,
+                        species_folder=paracousti_species_directory,
+                        paracousti_species_grid_resolution=paracousti_species_grid_resolution,
+                        averaging_selection=paracousti_averaging,
+                        secondary_constraint_filename=paracousti_risk_layer_file,
+                    )
                 )
 
                 if initialize_group:
                     root = QgsProject.instance().layerTreeRoot()
                     group = root.addGroup("temporary")
                     self.add_layer(
-                        pfilenames[list(pfilenames.keys())[0]], root=root, group=group
+                        pfilenames_probabilistic[
+                            list(pfilenames_probabilistic.keys())[0]
+                        ],
+                        root=root,
+                        group=group,
                     )
                     initialize_group = False
 
-                group_name = "Acoustic Stressor"
+                group_name = "Acoustic Stressor - Probabilistic"
                 root = QgsProject.instance().layerTreeRoot()
                 group = root.findGroup(group_name)
                 if group is None:
                     group = root.addGroup(group_name)
-                for key, value in pfilenames.items():
-                    if stylefiles_df is None:
-                        self.add_layer(value, root=root, group=group)
-                    else:
-                        self.style_layer(
-                            value,
-                            stylefiles_df.loc[key].item(),
-                            root=root,
-                            group=group,
+                for key in list(pfilenames_probabilistic.keys())[
+                    ::-1
+                ]:  # add styles files and/or display
+                    style = (
+                        stylefiles_df.loc[key].item()
+                        if stylefiles_df is not None
+                        and key in stylefiles_df.index.values
+                        else None
+                    )
+                    self.add_layer(
+                        pfilenames_probabilistic[key], style, root=root, group=group
+                    )
+
+                group_name = "Acoustic Stressor - Non-Probilistic"
+                root = QgsProject.instance().layerTreeRoot()
+                group = root.findGroup(group_name)
+                if group is None:
+                    group = root.addGroup(group_name)
+                for key in list(
+                    pfilenames_nonprobabilistic.keys()
+                ):  # add styles files and/or display
+                    # subgroup_name = key
+                    subgroup = group.findGroup(key)
+                    if subgroup is None:
+                        subgroup = group.addGroup(key)
+                    for var in list(pfilenames_nonprobabilistic[key].keys())[::-1]:
+                        style = (
+                            stylefiles_df.loc[key].item()
+                            if stylefiles_df is not None
+                            and key in stylefiles_df.index.values
+                            else None
                         )
+                        self.add_layer(
+                            pfilenames_nonprobabilistic[key][var],
+                            style,
+                            root=root,
+                            group=subgroup,
+                        )
+                    subgroup.setExpanded(False)  # collapse the subgroup
 
             # remove temproary layer group
             root = QgsProject.instance().layerTreeRoot()
             group_layer = root.findGroup("temporary")
             if group_layer is not None:
                 root.removeChildNode(group_layer)
-
-            # close and remove the filehandler
-        # fh.close()

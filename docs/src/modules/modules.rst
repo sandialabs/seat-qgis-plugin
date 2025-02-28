@@ -43,10 +43,9 @@ File Descriptions
 ^^^^^^^^^^^^^^^^^^^
 **Model Probabilities** – Probability of hydrodynamics conditions occurring during a year. Each model run is associated with a probability depending on the likelihood that the hydrodynamic conditions occur. 
 
-**Risk Layer** – classified geoTIFF indicating unique features. Examples include seabed features, ecological zones, marine vegetation, species habitat. This is an optional file to include if the user desires information about impacts to specific areas.
+**Area of Interest** – classified geoTIFF indicating unique features. Examples include seabed features, ecological zones, marine vegetation, species habitat. This is an optional file to include if the user desires information about impacts to specific areas.
 
 **Receptor Layer** – numerical value at which a change or response is expected (i.e., a threshold). Examples include auditory effect to marine species, larval transport, and sediment transport. 
-
 
 .. toctree::
    :maxdepth: 2

@@ -1,17 +1,17 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # coding=utf-8
-"""This script uploads a plugin package to the plugin repository.
+"""
+This script uploads a plugin package to the QGIS plugin repository.
 
-        Authors: A. Pasotti, V. Picavet
-        git sha              : $TemplateVCSFormat
+Authors: A. Pasotti, V. Picavet
 """
 
-import getpass
 import sys
+import getpass
+import logging
 import xmlrpc.client
-from optparse import OptionParser
-
-standard_library.install_aliases()
+import argparse
+from pathlib import Path
 
 # Configuration
 PROTOCOL = "https"
@@ -20,112 +20,71 @@ PORT = "443"
 ENDPOINT = "/plugins/RPC2/"
 VERBOSE = False
 
+# Setup logging
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-def main(parameters, arguments):
-    """Main entry point.
 
-    :param parameters: Command line parameters.
-    :param arguments: Command line arguments.
-    """
-    address = "{protocol}://{username}:{password}@{server}:{port}{endpoint}".format(
-        protocol=PROTOCOL,
-        username=parameters.username,
-        password=parameters.password,
-        server=parameters.server,
-        port=parameters.port,
-        endpoint=ENDPOINT,
-    )
-    print("Connecting to: %s" % hide_password(address))
+def hide_password(url: str, start: int = 6) -> str:
+    """Returns the URL with password part replaced with '*'."""
+    start_pos = url.find(":", start) + 1
+    end_pos = url.find("@")
+    return f"{url[:start_pos]}{'*' * (end_pos - start_pos)}{url[end_pos:]}"
 
-    server = xmlrpc.client.ServerProxy(address, verbose=VERBOSE)
+
+def upload_plugin(
+    username: str, password: str, server: str, port: str, plugin_path: Path
+):
+    """Uploads the plugin zip file to the server."""
+    address = f"{PROTOCOL}://{username}:{password}@{server}:{port}{ENDPOINT}"
+    logging.info("Connecting to: %s", hide_password(address))
+
+    server_proxy = xmlrpc.client.ServerProxy(address, verbose=VERBOSE)
 
     try:
-        with open(arguments[0], "rb") as handle:
-            plugin_id, version_id = server.plugin.upload(
-                xmlrpc.client.Binary(handle.read()),
+        with plugin_path.open("rb") as file_handle:
+            plugin_id, version_id = server_proxy.plugin.upload(
+                xmlrpc.client.Binary(file_handle.read())
             )
-        print("Plugin ID: %s" % plugin_id)
-        print("Version ID: %s" % version_id)
+        logging.info("Plugin ID: %s", plugin_id)
+        logging.info("Version ID: %s", version_id)
     except xmlrpc.client.ProtocolError as err:
-        print("A protocol error occurred")
-        print("URL: %s" % hide_password(err.url, 0))
-        print("HTTP/HTTPS headers: %s" % err.headers)
-        print("Error code: %d" % err.errcode)
-        print("Error message: %s" % err.errmsg)
+        logging.error("A protocol error occurred")
+        logging.error("URL: %s", hide_password(err.url))
+        logging.error("HTTP/HTTPS headers: %s", err.headers)
+        logging.error("Error code: %s", err.errcode)
+        logging.error("Error message: %s", err.errmsg)
     except xmlrpc.client.Fault as err:
-        print("A fault occurred")
-        print("Fault code: %d" % err.faultCode)
-        print("Fault string: %s" % err.faultString)
+        logging.error("A fault occurred")
+        logging.error("Fault code: %s", err.faultCode)
+        logging.error("Fault string: %s", err.faultString)
 
 
-def hide_password(url, start=6):
-    """Returns the http url with password part replaced with '*'.
-
-    :param url: URL to upload the plugin to.
-    :type url: str
-
-    :param start: Position of start of password.
-    :type start: int
-    """
-    start_position = url.find(":", start) + 1
-    end_position = url.find("@")
-    return "{}{}{}".format(
-        url[:start_position],
-        "*" * (end_position - start_position),
-        url[end_position:],
+def main():
+    """Parse command line arguments and upload the plugin to QGIS repository."""
+    parser = argparse.ArgumentParser(
+        description="Upload a QGIS plugin to the repository."
     )
+    parser.add_argument("plugin_zip", type=Path, help="Path to the plugin zip file")
+    parser.add_argument("-u", "--username", help="Username for plugin site")
+    parser.add_argument("-w", "--password", help="Password for plugin site")
+    parser.add_argument(
+        "-s", "--server", default=SERVER, help=f"Server name (default: {SERVER})"
+    )
+    parser.add_argument(
+        "-p", "--port", default=PORT, help=f"Server port (default: {PORT})"
+    )
+
+    args = parser.parse_args()
+
+    if not args.plugin_zip.exists():
+        logging.error("File not found: %s", args.plugin_zip)
+        sys.exit(1)
+
+    username = args.username or input("Enter username: ").strip() or getpass.getuser()
+    password = args.password or getpass.getpass("Enter password: ")
+
+    upload_plugin(username, password, args.server, args.port, args.plugin_zip)
 
 
 if __name__ == "__main__":
-    parser = OptionParser(usage="%prog [options] plugin.zip")
-    parser.add_option(
-        "-w",
-        "--password",
-        dest="password",
-        help="Password for plugin site",
-        metavar="******",
-    )
-    parser.add_option(
-        "-u",
-        "--username",
-        dest="username",
-        help="Username of plugin site",
-        metavar="user",
-    )
-    parser.add_option(
-        "-p",
-        "--port",
-        dest="port",
-        help="Server port to connect to",
-        metavar="80",
-    )
-    parser.add_option(
-        "-s",
-        "--server",
-        dest="server",
-        help="Specify server name",
-        metavar="plugins.qgis.org",
-    )
-    options, args = parser.parse_args()
-    if len(args) != 1:
-        print("Please specify zip file.\n")
-        parser.print_help()
-        sys.exit(1)
-    if not options.server:
-        options.server = SERVER
-    if not options.port:
-        options.port = PORT
-    if not options.username:
-        # interactive mode
-        username = getpass.getuser()
-        print("Please enter user name [%s] :" % username, end=" ")
-
-        res = input()
-        if res != "":
-            options.username = res
-        else:
-            options.username = username
-    if not options.password:
-        # interactive mode
-        options.password = getpass.getpass()
-    main(options, args)
+    main()

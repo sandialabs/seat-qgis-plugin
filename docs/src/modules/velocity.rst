@@ -14,7 +14,7 @@ These include:
   - NetCDF files: model output with 1) baseline runs; 2) devices present runs.
   - \*Receptor file (GeoTIFF or CSV): Contains critical velocity values (e.g., a critical velocity for larval transport).
   - \*Model Probability Condition file (CSV): Used to weight different run scenarios.
-  - \*Risk layer file (GeoTIFF): Contains spatial classifications, used to evaluate the impact of the devices on the environment.
+  - \*Area of Interest file (GeoTIFF): Contains spatial classifications, used to evaluate the impact of the devices on the environment.
 
   \* Optional input files
 
@@ -74,7 +74,7 @@ Output is saved in the **Velocity Module** subdirectory.
     - **motility_difference**: The motility (Vel/VelCrit) difference between motility with devices and baseline models results using the critical velocity receptor file.
     - **critical_velocity.tif** : the receptor file interpolated to the same grid as the output
     - **motility_classified.tif** : reclassified into increased motility or decreased motility compared to the baseline model run.
-    - **velocity_risk_layer.tif** :  the risk layer interpolated to the same grid as the output
+    - **velocity_area_of_interest.tif** :  the Area of Interest interpolated to the same grid as the output
 
 The CSV files contain statistics of area calculations for various layers. If decimal degree coordinates are provided, the values are converted to UTM (meter) coordinates for calculations.
 The stressor values are binned into 25 bins and associated with the surface area in which that change occurred, 
@@ -91,11 +91,11 @@ Segmented by velocity threshold when using the threshold receptor file:
       - **motility_difference_at_critical_velocity.csv**
       - **motility_classified_at_critical_velocity.csv**
 
-Segmented by spatial classification when using the risk layer file: 
+Segmented by spatial classification when using the Area of Interest file: 
 
-      - **velocity_magnitude_difference_at_velocity_risk_layer.csv**
-      - **motility_difference_at_velocity_risk_layer.csv**
-      - **motility_classified_at_velocity_risk_layer.csv**
+      - **velocity_magnitude_difference_at_velocity_area_of_interest.csv**
+      - **motility_difference_at_velocity_area_of_interest.csv**
+      - **motility_classified_at_velocity_area_of_interest.csv**
 
 
 Core Functions

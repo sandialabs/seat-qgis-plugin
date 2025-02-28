@@ -36,10 +36,13 @@ Results in this tutorial will utilize the QuickMapServices plugin in QGIS. To in
   :caption: Tanana River Demo Files
 
    DEMO
-   └───TananaRiver
-      │   shear_and_velocity_with_receptor.default
-      │   shear_with_receptor.default
-      │   velocity_with_receptor.default
+   └───tanana_river
+      │   shear_and_velocity_modules_with_receptors.default
+      │   shear_and_velocity_modules_without_receptors.default
+      │   shear_stress_module_with_receptors.default
+      │   shear_stress_module_without_receptors.default
+      │   velocity_with_receptors.default
+      │   velocity_without_receptors.default
       │   
       ├───mec_not_present
       │       0_tanana_100_map.nc

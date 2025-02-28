@@ -64,6 +64,7 @@ def estimate_grid_spacing(
     return dxdy
 
 
+# pylint: disable=R0917
 def create_structured_array_from_unstructured(
     x: NDArray[np.float64],
     y: NDArray[np.float64],
@@ -306,6 +307,7 @@ def trim_zeros(
     return x[1:-1, 1:-1], y[1:-1, 1:-1], z1[:, :, 1:-1, 1:-1], z2[:, :, 1:-1, 1:-1]
 
 
+# pylint: disable=R0917
 def create_raster(
     output_path: str, cols: int, rows: int, nbands: int, e_type: int = gdal.GDT_Float32
 ) -> gdal.Dataset:
@@ -351,6 +353,7 @@ def create_raster(
     return output_raster
 
 
+# pylint: disable=R0917
 def numpy_array_to_raster(
     output_raster: gdal.Dataset,
     numpy_array: NDArray[np.float64],
@@ -414,10 +417,11 @@ def numpy_array_to_raster(
     output_band.WriteArray(numpy_array)
 
     output_band.FlushCache()
+    # You want this false, true will make computed results, but is
+    #  faster, could be a setting in the UI perhaps, esp for large rasters?
     output_band.ComputeStatistics(
         False,
-    )  # you want this false, true will make computed results, but is faster,
-    # could be a setting in the UI perhaps, esp for large rasters?
+    )
 
     if not os.path.exists(output_path):
         raise RuntimeError(f"Failed to create raster: {output_path}")
@@ -699,6 +703,7 @@ def bin_receptor(
     return data
 
 
+# pylint: disable=R0917
 def bin_layer(
     raster_filename: str,
     receptor_filename: str = None,
@@ -762,6 +767,7 @@ def bin_layer(
     return pd.DataFrame(data)
 
 
+# pylint: disable=R0917
 def classify_layer_area(
     raster_filename: str,
     receptor_filename: str = None,
@@ -845,6 +851,7 @@ def classify_layer_area(
     return pd.DataFrame(data)
 
 
+# pylint: disable=R0917
 def classify_layer_area_2nd_constraint(
     raster_to_sample: str,
     secondary_constraint_filename: str,
@@ -930,3 +937,18 @@ def classify_layer_area_2nd_constraint(
                     100 * data[rcolname] / data[rcolname].sum()
                 )
     return pd.DataFrame(data)
+
+
+def is_float(value):
+    """Check if string is a float
+
+    :param value: input string
+    :type value: str
+    :return: True or False
+    :rtype: bool
+    """
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False

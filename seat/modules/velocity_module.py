@@ -4,14 +4,10 @@
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-branches
-
+# pylint: disable=R0917
 """
 /***************************************************************************.
-
- velocity_module.py
- Copyright 2023, Integral Consulting Inc. All rights reserved.
-
- PURPOSE: module for calcualting velocity (larval motility) change from a velocity stressor
+Module for calcualting velocity (larval motility) change from a velocity stressor
 
  PROJECT INFORMATION:
  Name: SEAT - Spatial and Environmental Assessment Toolkit
@@ -23,7 +19,7 @@
   Eben Pendelton
 
  NOTES (Data descriptions and any script specific notes)
-	1. called by stressor_receptor_calc.py
+        1. called by stressor_receptor_calc.py
 """
 
 import os
@@ -33,8 +29,7 @@ import numpy as np
 from numpy.typing import NDArray
 import pandas as pd
 from netCDF4 import Dataset  # pylint: disable=no-name-in-module
-
-from seat.modules.stressor_utils import (
+from seat.utils.stressor_utils import (
     estimate_grid_spacing,
     create_structured_array_from_unstructured,
     calc_receptor_array,
@@ -159,6 +154,7 @@ def check_grid_define_vars(dataset: Dataset) -> tuple[str, str, str, str, str]:
     return gridtype, xvar, yvar, uvar, vvar
 
 
+# pylint: disable=R0917
 def calculate_velocity_stressors(
     fpath_nodev: str,
     fpath_dev: str,
@@ -484,6 +480,7 @@ def calculate_velocity_stressors(
     return dict_of_arrays, rx, ry, dx, dy, gridtype
 
 
+# pylint: disable=R0917
 def run_velocity_stressor(
     dev_present_file: str,
     dev_notpresent_file: str,
@@ -561,10 +558,10 @@ def run_velocity_stressor(
         rrx, rry, constraint = secondary_constraint_geotiff_to_numpy(
             secondary_constraint_filename
         )
-        dict_of_arrays["velocity_risk_layer"] = resample_structured_grid(
+        dict_of_arrays["velocity_area_of_interest"] = resample_structured_grid(
             rrx, rry, constraint, rx, ry, interpmethod="nearest"
         )
-        use_numpy_arrays.append("velocity_risk_layer")
+        use_numpy_arrays.append("velocity_area_of_interest")
 
     numpy_array_names = [i + ".tif" for i in use_numpy_arrays]
 
@@ -616,14 +613,16 @@ def run_velocity_stressor(
     ):
         bin_layer(
             os.path.join(output_path, "velocity_magnitude_difference.tif"),
-            receptor_filename=os.path.join(output_path, "velocity_risk_layer.tif"),
+            receptor_filename=os.path.join(
+                output_path, "velocity_area_of_interest.tif"
+            ),
             receptor_names=None,
             limit_receptor_range=[0, np.inf],
             latlon=crs == 4326,
-            receptor_type="risk layer",
+            receptor_type="area of interest",
         ).to_csv(
             os.path.join(
-                output_path, "velocity_magnitude_difference_at_velocity_risk_layer.csv"
+                output_path, "velocity_magnitude_difference_at_area_of_interest.csv"
             ),
             index=False,
         )
@@ -704,14 +703,16 @@ def run_velocity_stressor(
         ):
             bin_layer(
                 os.path.join(output_path, "motility_difference.tif"),
-                receptor_filename=os.path.join(output_path, "velocity_risk_layer.tif"),
+                receptor_filename=os.path.join(
+                    output_path, "velocity_area_of_interest.tif"
+                ),
                 receptor_names=None,
                 limit_receptor_range=[0, np.inf],
                 latlon=crs == 4326,
-                receptor_type="risk layer",
+                receptor_type="area of interest",
             ).to_csv(
                 os.path.join(
-                    output_path, "motility_difference_at_velocity_risk_layer.csv"
+                    output_path, "motility_difference_at_velocity_area_of_interest.csv"
                 ),
                 index=False,
             )
@@ -719,7 +720,7 @@ def run_velocity_stressor(
             classify_layer_area_2nd_constraint(
                 raster_to_sample=os.path.join(output_path, "motility_classified.tif"),
                 secondary_constraint_filename=os.path.join(
-                    output_path, "velocity_risk_layer.tif"
+                    output_path, "velocity_area_of_interest.tif"
                 ),
                 at_raster_values=[-3, -2, -1, 0, 1, 2, 3],
                 at_raster_value_names=[
@@ -733,10 +734,10 @@ def run_velocity_stressor(
                 ],
                 limit_constraint_range=[0, np.inf],
                 latlon=crs == 4326,
-                receptor_type="risk layer",
+                receptor_type="area of interest",
             ).to_csv(
                 os.path.join(
-                    output_path, "motility_classified_at_velocity_risk_layer.csv"
+                    output_path, "motility_classified_at_velocity_area_of_interest.csv"
                 ),
                 index=False,
             )

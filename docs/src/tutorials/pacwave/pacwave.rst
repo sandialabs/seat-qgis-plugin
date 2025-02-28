@@ -35,14 +35,16 @@ Results in this tutorial will utilize the QuickMapServices plugin in QGIS. To in
 
    DEMO
    ├───pacwave   
-   │   acoustics_module _100db_threshold.default
-   │   acoustics_module_120dB_threshold.default
+   │   acoustics_module_SEL_199db_threshold.default
+   │   acoustics_module_SEL_HFC_173dB_threshold.default
+   │   acoustics_module_SEL_LFC_199dB_threshold.default
+   │   acoustics_module_SPL_150db_threshold.default
    │   acoustics_module_219dB_threshold.default
    │   all_modules.default
-   │   shear_stress_module.default
-   │   shear_stress_module_no_receptor.default
+   │   power_modules.default
+   │   shear_stress_module_without_grainsize.default
    │   velocity_module.default
-   │   velocity_module_no_receptor.default
+   │   velocity_module_without_motility.default
    │
    ├───mec_not_present
    │       trim_sets_flow_inset_allruns.nc
@@ -135,7 +137,7 @@ Results in this tutorial will utilize the QuickMapServices plugin in QGIS. To in
    │       grain_size_receptor.csv
    │       velocity_receptor.csv
    │
-   ├───risk_layer
+   ├───area_of_interest
    │       habitat_classification.tif
    │
    └───species
